@@ -137,9 +137,7 @@ MicromegasDefs::SegmentationType MicromegasMapping::get_segmentation( int fee_id
 std::vector<std::string> MicromegasMapping::get_detnames_sphenix() const
 {
   std::vector<std::string> out;
-  for( const auto& detector:m_detectors )
-  { out.push_back( detector.m_detname_sphenix ); }
-  
+  std::transform( m_detectors.begin(), m_detectors.end(), std::back_inserter( out ), []( const DetectorId& det_id ){ return det_id.m_detname_sphenix; } );  
   return out;
 }
 
