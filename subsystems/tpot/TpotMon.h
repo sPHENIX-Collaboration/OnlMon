@@ -1,7 +1,8 @@
 #ifndef TPOT_TPOTMON_H
 #define TPOT_TPOTMON_H
 
-#include "TpotDefs.h"
+#include "MicromegasDefs.h"
+#include "MicromegasMapping.h"
 
 #include <onlmon/OnlMon.h>
 
@@ -30,28 +31,22 @@ class TpotMon : public OnlMon
   int idummy = 0;
   std::unique_ptr<OnlMonDB> dbvars;
   
-  ///@name on/off histograms
-  //@{
-  TH2* m_hv_onoff_phi = nullptr;
-  TH2* m_hv_onoff_z = nullptr;
-  
-  TH2* m_fee_onoff_phi = nullptr;
-  TH2* m_fee_onoff_z = nullptr;
-  //@}
-  
+  // mapping
+  MicromegasMapping m_mapping;
+    
   ///@name raw hits histograms
   //@{
   /// adc counts vs sample id in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_adc_vs_sample = {{nullptr}};
+  std::array<TH1*, MicromegasDefs::m_nfee> m_adc_vs_sample = {{nullptr}};
 
   /// total charge per hit in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_hit_charge= {{nullptr}};
+  std::array<TH1*, MicromegasDefs::m_nfee> m_hit_charge= {{nullptr}};
   
   /// number of hits per event in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_hit_multiplicity= {{nullptr}};
+  std::array<TH1*, MicromegasDefs::m_nfee> m_hit_multiplicity= {{nullptr}};
 
   /// total number of hits per channel in each detector
-  std::array<TH1*, TpotDefs::n_detectors> m_hit_vs_channel = {{nullptr}};
+  std::array<TH1*, MicromegasDefs::m_nfee> m_hit_vs_channel = {{nullptr}};
 
   //@}
   

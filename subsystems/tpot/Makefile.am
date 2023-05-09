@@ -30,14 +30,17 @@ libonltpotmon_client_la_LIBADD = \
 tpotincludedir=$(pkgincludedir)/tpot
 
 tpotinclude_HEADERS = \
-  TpotDefs.h \
+  MicromegasDefs.h \
+  MicromegasMapping.h \
   TpotMon.h \
   TpotMonDraw.h
 
 libonltpotmon_server_la_SOURCES = \
+  MicromegasMapping.cc \
   TpotMon.cc
 
 libonltpotmon_client_la_SOURCES = \
+  MicromegasMapping.cc \
   TpotMonDraw.cc
 
 bin_SCRIPTS = \
@@ -47,7 +50,6 @@ bin_SCRIPTS = \
 noinst_PROGRAMS = \
   testexternals_server \
   testexternals_client
-
 
 testexternals_server_SOURCES = \
   testexternals.cc

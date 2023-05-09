@@ -1,7 +1,8 @@
 #ifndef TPOT_TPOTMONDRAW_H
 #define TPOT_TPOTMONDRAW_H
 
-#include "TpotDefs.h"
+#include "MicromegasDefs.h"
+#include "MicromegasMapping.h"
 
 #include <onlmon/OnlMonDraw.h>
 
@@ -37,13 +38,16 @@ class TpotMonDraw : public OnlMonDraw
   int draw_hv_onoff();
   int draw_fee_onoff();
   
-  using histogram_array_t = std::array<TH1*, TpotDefs::n_detectors>;
+  using histogram_array_t = std::array<TH1*, MicromegasDefs::m_nfee>;
   
   /// get detector dependent histogram array from base name
   histogram_array_t get_histograms( const std::string& name );  
 
   /// draw histogram array
   int draw_array( const std::string& name, const histogram_array_t& );
+  
+  // mapping
+  MicromegasMapping m_mapping;
   
   /// needed to get time axis right
   int TimeOffsetTicks = -1;

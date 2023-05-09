@@ -185,18 +185,6 @@ int TpotMonDraw::Draw(const std::string &what)
 
   int iret = 0;
   int idraw = 0;
-  if (what == "ALL" || what == "TPOT_hv_onoff")
-  {
-    iret += draw_hv_onoff();
-    ++idraw;
-  }
-
-  if (what == "ALL" || what == "TPOT_fee_onoff")
-  {
-    iret += draw_fee_onoff();
-    ++idraw;
-  }
-
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
     iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ) );
@@ -392,11 +380,12 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
 {
   histogram_array_t out{{nullptr}};
 
-  // detector names (ordered by tile_id (0 to 8) and layer (P or Z)
   auto cl = OnlMonClient::instance();
-  for( int i = 0; i < TpotDefs::n_detectors; ++i )
+  const auto detector_names = m_mapping.get_detnames_sphenix();
+  for( size_t i=0; i<detector_names.size(); ++i)
   { 
-    const auto hname = name + "_" + TpotDefs::detector_names[i];
+    const auto& detector_name=detector_names[i];
+    const auto hname = name + "_" + detector_name;
     out[i] =  cl->getHisto("TPOTMON_0", hname );
     if( Verbosity() )
     { std::cout << "TpotMonDraw::get_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }

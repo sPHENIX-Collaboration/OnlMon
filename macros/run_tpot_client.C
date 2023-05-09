@@ -1,6 +1,6 @@
 #include <CommonFuncs.C>
 #include <onlmon/tpot/TpotMonDraw.h>
-#include <onlmon/tpot/TpotDefs.h>
+#include <onlmon/tpot/MicromegasMapping.h>
 #include <onlmon/OnlMonClient.h>
 
 #include <array>
@@ -12,16 +12,12 @@ void tpotDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   
-  // register all histograms
-  cl->registerHisto("m_hv_onoff_phi", "TPOTMON_0");
-  cl->registerHisto("m_hv_onoff_z", "TPOTMON_0");
-
-  cl->registerHisto("m_fee_onoff_phi", "TPOTMON_0");
-  cl->registerHisto("m_fee_onoff_z", "TPOTMON_0");
-
+  MicromegasMapping mapping;
+  const auto detector_names = mapping.get_detnames_sphenix();
+  
   for( const std::string& hname: { "m_adc_sample", "m_hit_charge", "m_hit_multiplicity", "m_hit_vs_channel" } )
   {
-    for( const auto& detname : TpotDefs::detector_names )
+    for( const auto& detname : detector_names )
     { cl->registerHisto( hname+"_"+detname, "TPOTMON_0" ); }
   }
   
