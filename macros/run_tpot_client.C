@@ -14,6 +14,9 @@ void tpotDrawInit(const int online = 0)
   
   MicromegasMapping mapping;
   const auto detector_names = mapping.get_detnames_sphenix();
+
+  for( const std::string& hname: { "m_global_occupancy_phi", "m_global_occupancy_z" } )
+  { cl->registerHisto( hname, "TPOTMON_0" ); } 
   
   for( const std::string& hname: { "m_adc_sample", "m_hit_charge", "m_hit_multiplicity", "m_hit_vs_channel" } )
   {

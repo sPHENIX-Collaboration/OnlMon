@@ -35,8 +35,7 @@ class TpotMonDraw : public OnlMonDraw
   TCanvas* get_canvas(const std::string& name, bool clear = true );
   TCanvas* create_canvas(const std::string &name);
   
-  int draw_hv_onoff();
-  int draw_fee_onoff();
+  int draw_global_occupancy();
   
   using histogram_array_t = std::array<TH1*, MicromegasDefs::m_nfee>;
   
@@ -56,7 +55,7 @@ class TpotMonDraw : public OnlMonDraw
   void draw_time( TPad*);
   
   // canvases
-  std::array<TCanvas*, 9> m_canvas = {{nullptr}};
+  std::array<TCanvas*, 8> m_canvas = {{nullptr}};
   std::unique_ptr<OnlMonDB> dbvars;
 };
 

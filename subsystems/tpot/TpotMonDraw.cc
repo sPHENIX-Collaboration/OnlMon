@@ -50,9 +50,7 @@ namespace
   // divide canvas, adjusting canvas positions to leave room for a banner at the top
   void divide_canvas( TCanvas* cv, int ncol, int nrow )
   {
-    
     static constexpr double max_height = 0.94;
-    
     
     cv->Divide( ncol, nrow );
     for( int i = 0; i < ncol*nrow; ++i )
@@ -105,23 +103,13 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   OnlMonClient *cl = OnlMonClient::instance();
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
-
-  if (name == "TPOT_hv_onoff")
+  
+  int cv_id = 0;
+  if (name == "TPOT_global_occupancy")
   {
 
     // xpos (-1) negative: do not draw menu bar
-    auto cv = m_canvas[0] = new TCanvas(name.c_str(), "TpotMon HV On/Off monitor", -1, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-
-    divide_canvas( cv, 1, 2 );
-
-    // this one is used to plot the run number on the canvas
-    create_transparent_pad(name)->Draw();
-    cv->SetEditable(false);
-    return cv;
-  } else if (name == "TPOT_fee_onoff") {
-
-    auto cv = m_canvas[1] = new TCanvas(name.c_str(), "TpotMon FEE On/Off monitor", -1, 0, xsize / 2, ysize);
+    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TPOT global occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
 
     divide_canvas( cv, 1, 2 );
@@ -132,7 +120,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_adc_vs_sample") {
 
-    auto cv = m_canvas[2] = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
+    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
 
     divide_canvas( cv, 4, 4 );
@@ -143,7 +131,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_hit_charge") {
 
-    auto cv = m_canvas[3] = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
+    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
 
     divide_canvas( cv, 4, 4 );
@@ -154,7 +142,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_hit_multiplicity") {
 
-    auto cv = m_canvas[4] = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
+    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
 
     divide_canvas( cv, 4, 4 );
@@ -165,7 +153,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     return cv;
   } else if (name == "TPOT_hit_vs_channel") {
 
-    auto cv = m_canvas[5] = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
+    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
 
     divide_canvas( cv, 4, 4 );
@@ -185,6 +173,13 @@ int TpotMonDraw::Draw(const std::string &what)
 
   int iret = 0;
   int idraw = 0;
+  
+  if( what == "ALL" || what == "TPOT_global_occupancy" )
+  {
+    iret += draw_global_occupancy();
+    ++idraw;
+  }
+  
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
     iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ) );
@@ -309,60 +304,27 @@ void TpotMonDraw::draw_time( TPad* pad )
 }
 
 //__________________________________________________________________________________
-int TpotMonDraw::draw_hv_onoff()
+int TpotMonDraw::draw_global_occupancy()
 {
  
   // get histograms
   auto cl = OnlMonClient::instance();
-  auto m_hv_onoff_phi =  cl->getHisto("TPOTMON_0","m_hv_onoff_phi");
-  auto m_hv_onoff_z =  cl->getHisto("TPOTMON_0","m_hv_onoff_z");
+  auto m_global_occupancy_phi =  cl->getHisto("TPOTMON_0","m_global_occupancy_phi");
+  auto m_global_occupancy_z =  cl->getHisto("TPOTMON_0","m_global_occupancy_z");
 
-  auto cv = get_canvas("TPOT_hv_onoff");
-  auto transparent = get_transparent_pad("TPOT_hv_onoff");
+  auto cv = get_canvas("TPOT_global_occupancy");
+  auto transparent = get_transparent_pad("TPOT_global_occupancy");
   if( !cv ) return -1;
 
   CanvasEditor cv_edit(cv);
 
-  if( m_hv_onoff_phi && m_hv_onoff_z )
+  if( m_global_occupancy_phi && m_global_occupancy_z )
   {    
     cv->cd(1);
-    m_hv_onoff_phi->DrawCopy();
+    m_global_occupancy_phi->DrawCopy( "colz" );
 
     cv->cd(2);
-    m_hv_onoff_z->DrawCopy();
-
-    draw_time(transparent);
-    return 0;
-
-  } else {
-
-    DrawDeadServer(transparent);
-    return -1;
-
-  }
-}
-
-//__________________________________________________________________________________
-int TpotMonDraw::draw_fee_onoff()
-{
-  // get histograms
-  auto cl = OnlMonClient::instance();
-  auto m_fee_onoff_phi =  cl->getHisto("TPOTMON_0","m_fee_onoff_phi");
-  auto m_fee_onoff_z =  cl->getHisto("TPOTMON_0","m_fee_onoff_z");
-
-  auto cv = get_canvas("TPOT_fee_onoff");
-  auto transparent = get_transparent_pad("TPOT_fee_onoff");
-  if( !cv ) return -1;
-
-  CanvasEditor cv_edit(cv);
-
-  if( m_fee_onoff_phi && m_fee_onoff_z )
-  {
-    cv->cd(1);
-    m_fee_onoff_phi->DrawCopy();
-
-    cv->cd(2);
-    m_fee_onoff_z->DrawCopy();
+    m_global_occupancy_phi->DrawCopy( "colz" );
 
     draw_time(transparent);
     return 0;
@@ -400,7 +362,6 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
   auto cv = get_canvas(name);
   auto transparent = get_transparent_pad(name);
   if( !cv ) return -1;
-
 
   bool drawn = false;
   CanvasEditor cv_edit(cv);
