@@ -229,14 +229,7 @@ int TpotMon::process_event(Event* event)
   // fill hit multiplicities
   for( size_t idet = 0; idet < m_detector_histograms.size(); ++idet )
   { m_detector_histograms[idet].m_hit_multiplicity->Fill( multiplicity[idet] ); }
-    
-
-//   for( const auto& point:m_tile_centers )
-//   {
-//     m_global_occupancy_phi->Fill(point.first, point.second);  
-//     m_global_occupancy_z->Fill(point.first, point.second);  
-//   }
-  
+      
   if (idummy++ > 10)
   {
     if (dbvars)
@@ -285,25 +278,27 @@ int TpotMon::DBVarInit()
 //________________________________
 void TpotMon::setup_bins(TH2Poly* h2)
 {
-  // loop over tile centers
-  for( const auto& point:m_geometry.m_tile_centers )
+  
+  // get first member of pairs into a list
+  auto get_x = []( const TpotMonGeometry::point_list_t& point_list )
   {
-    const std::array<double,4> x = 
-    {
-      point.first-m_geometry.m_tile_length/2,
-      point.first-m_geometry.m_tile_length/2,
-      point.first+m_geometry.m_tile_length/2,
-      point.first+m_geometry.m_tile_length/2
-    };
-
-    const std::array<double,4> y = 
-    {
-      point.second-m_geometry.m_tile_width/2,
-      point.second+m_geometry.m_tile_width/2,
-      point.second+m_geometry.m_tile_width/2,
-      point.second-m_geometry.m_tile_width/2
-    };
-      
-    h2->AddBin( 4, &x[0], &y[0] );
+    std::vector<double> out;
+    std::transform( point_list.begin(), point_list.end(), std::back_inserter( out ), []( const auto& p ) { return p.first; } );
+    return out;
+  };
+  
+  // get second member of pairs into a list
+  auto get_y = []( const TpotMonGeometry::point_list_t& point_list )
+  {
+    std::vector<double> out;
+    std::transform( point_list.begin(), point_list.end(), std::back_inserter( out ), []( const auto& p ) { return p.first; } );
+    return out;
+  };
+  
+  // loop over tile centers
+  for( size_t i = 0; i < m_geometry.get_ntiles(); ++i )
+  {
+    const auto boundaries = m_geometry.get_tile_boundaries( i );
+    h2->AddBin( boundaries.size(), &get_x( boundaries )[0], &get_y( boundaries )[0] );
   }
 }

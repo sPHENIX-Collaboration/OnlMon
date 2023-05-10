@@ -21,3 +21,16 @@ TpotMonGeometry::TpotMonGeometry()
     { m_tile_centers.push_back( {tile_z, tile_x} ); }
   }  
 }
+
+//__________________________________________________
+TpotMonGeometry::point_list_t TpotMonGeometry::get_tile_boundaries( size_t index ) const
+{
+  const auto center = get_tile_center( index );
+  return 
+  {    
+    { center.first-m_tile_length/2,center.second-m_tile_width/2 },
+    { center.first-m_tile_length/2,center.second+m_tile_width/2 },     
+    { center.first+m_tile_length/2,center.second+m_tile_width/2 },     
+    { center.first+m_tile_length/2,center.second-m_tile_width/2 }     
+  };                                                                                       
+}
