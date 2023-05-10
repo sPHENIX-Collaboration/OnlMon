@@ -44,8 +44,16 @@ namespace
     return transparent;
   };
 
-  TPad* get_transparent_pad( const std::string& name )
-  { return dynamic_cast<TPad*>( gROOT->FindObject( (name+"_transparent").c_str() ) ); }
+  TPad* get_transparent_pad( TPad* parent, const std::string& name )
+  { 
+    if( !parent ) return nullptr;
+    const std::string transparent_name = name+"_transparent";
+    auto out = dynamic_cast<TPad*>( parent->FindObject( transparent_name.c_str() ) ); 
+    
+    if( !out ) std::cout << "get_transparent_pad - " << transparent_name << " not found" << std::endl;
+    return out;
+    
+  }
 
   // divide canvas, adjusting canvas positions to leave room for a banner at the top
   void divide_canvas( TCanvas* cv, int ncol, int nrow )
@@ -85,11 +93,11 @@ int TpotMonDraw::Init()
 { return 0; }
 
 //__________________________________________________________________________________
-TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool clear )
+TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool /*clear*/ )
 {
   auto cv = dynamic_cast<TCanvas*>( gROOT->FindObject( name.c_str() ) );
   if( !cv ) cv = create_canvas( name );
-  if( cv && clear ) cv->Clear("D");
+  // if( cv && clear ) cv->Clear("D");
   return cv;
 }
 
@@ -307,15 +315,21 @@ void TpotMonDraw::draw_time( TPad* pad )
 int TpotMonDraw::draw_global_occupancy()
 {
  
+  if( Verbosity() ) std::cout << "TpotMonDraw::draw_global_occupancy" << std::endl;
+
   // get histograms
   auto cl = OnlMonClient::instance();
   auto m_global_occupancy_phi =  cl->getHisto("TPOTMON_0","m_global_occupancy_phi");
   auto m_global_occupancy_z =  cl->getHisto("TPOTMON_0","m_global_occupancy_z");
 
   auto cv = get_canvas("TPOT_global_occupancy");
-  auto transparent = get_transparent_pad("TPOT_global_occupancy");
-  if( !cv ) return -1;
-
+  auto transparent = get_transparent_pad( cv, "TPOT_global_occupancy");
+  if( !cv ) 
+  {
+    if( Verbosity() ) std::cout << "TpotMonDraw::draw_global_occupancy - no canvas" << std::endl;
+    return -1;
+  }
+  
   CanvasEditor cv_edit(cv);
 
   if( m_global_occupancy_phi && m_global_occupancy_z )
@@ -325,13 +339,13 @@ int TpotMonDraw::draw_global_occupancy()
 
     cv->cd(2);
     m_global_occupancy_phi->DrawCopy( "colz" );
-
-    draw_time(transparent);
+    
+    if( transparent ) draw_time(transparent);
     return 0;
 
   } else {
 
-    DrawDeadServer(transparent);
+    if( transparent ) DrawDeadServer(transparent);
     return -1;
 
   }
@@ -359,8 +373,10 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
 //__________________________________________________________________________________
 int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms )
 {
+  if( Verbosity() ) std::cout << "TpotMonDraw::draw_array - name: " << name << std::endl;
+
   auto cv = get_canvas(name);
-  auto transparent = get_transparent_pad(name);
+  auto transparent = get_transparent_pad( cv, name);
   if( !cv ) return -1;
 
   bool drawn = false;
@@ -378,10 +394,10 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
   if( drawn )
   {
-    draw_time(transparent);
+    if( transparent ) draw_time(transparent);
     return 0;
   } else {
-    DrawDeadServer(transparent);
+    if( transparent ) DrawDeadServer(transparent);
     return -1;
   }
 }
