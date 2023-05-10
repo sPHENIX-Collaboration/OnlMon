@@ -42,6 +42,9 @@ class TpotMon : public OnlMon
   // mapping
   MicromegasMapping m_mapping;
     
+  //! counter
+  TH1* m_counters = nullptr;
+   
   //! TPOT status histogram
   TH2Poly* m_global_occupancy_phi = nullptr;
   TH2Poly* m_global_occupancy_z = nullptr;

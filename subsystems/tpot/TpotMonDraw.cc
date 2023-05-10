@@ -1,4 +1,5 @@
 #include "TpotMonDraw.h"
+#include "TpotMonDefs.h"
 
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/OnlMonDB.h>
@@ -182,6 +183,15 @@ int TpotMonDraw::Draw(const std::string &what)
   int iret = 0;
   int idraw = 0;
   
+  {
+    // get counters
+    const auto cl = OnlMonClient::instance();
+    const auto m_counters = cl->getHisto("TPOTMON_0","m_counters"); 
+    const int events = m_counters->GetBinContent( TpotMonDefs::kEventCounter );
+    const int valid_events = m_counters->GetBinContent( TpotMonDefs::kValidEventCounter );
+    std::cout << "TpotMonDraw::Draw - events: " << events << " valid events: " << valid_events << std::endl;
+  }
+  
   if( what == "ALL" || what == "TPOT_global_occupancy" )
   {
     iret += draw_global_occupancy();
@@ -190,7 +200,7 @@ int TpotMonDraw::Draw(const std::string &what)
   
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
-    iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ) );
+    iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), "colz" );
     ++idraw;
   }
 
@@ -371,7 +381,7 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
 }
 
 //__________________________________________________________________________________
-int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms )
+int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, const std::string& option )
 {
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_array - name: " << name << std::endl;
 
@@ -386,7 +396,7 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
     if( histograms[i] )
     {
       cv->cd(i+1);
-      histograms[i]->DrawCopy();
+      histograms[i]->DrawCopy( option.c_str() );
       gPad->SetBottomMargin(0.12);
       drawn = true;
     }

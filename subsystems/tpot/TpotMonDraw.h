@@ -43,7 +43,7 @@ class TpotMonDraw : public OnlMonDraw
   histogram_array_t get_histograms( const std::string& name );  
 
   /// draw histogram array
-  int draw_array( const std::string& name, const histogram_array_t& );
+  int draw_array( const std::string& name, const histogram_array_t&, const std::string& /*option*/ = "" );
   
   // mapping
   MicromegasMapping m_mapping;

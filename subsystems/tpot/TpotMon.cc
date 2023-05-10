@@ -4,6 +4,7 @@
 // (more info - check the difference in include path search when using "" versus <>)
 
 #include "TpotMon.h"
+#include "TpotMonDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonDB.h>
@@ -50,6 +51,14 @@ int TpotMon::Init()
     calib.close();
   }
   auto se = OnlMonServer::instance();
+  
+  // counters
+  /* arbitrary counters. First bin is number of events */
+  m_counters = new TH1I( "m_counters", "counters", 10, 0, 10 );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "events" );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid events" );
+  se->registerHisto(this, m_counters);
+
   
   // global occupancy
   m_global_occupancy_phi = new TH2Poly;
@@ -126,17 +135,22 @@ int TpotMon::BeginRun(const int /* runno */)
 int TpotMon::process_event(Event* event)
 {
   
-  // check event type
-  if( !event ) 
-  { return 0; }
-    
-  // check event type
-  if(event->getEvtType() >= 8)
-  { return 0; }
+  // increment by one a given bin number
+  auto increment = []( TH1* h, int bin )
+  { h->SetBinContent(bin, h->GetBinContent(bin)+1 ); };
   
-  // increment event counter
+  // increment total number of event
+  increment( m_counters, TpotMonDefs::kEventCounter );
+  
+  // check event and event type
+  if( !event ) { return 0; }
+  if(event->getEvtType() >= 8) { return 0; }
+  
+  // increment total number of valid events
   ++evtcnt;
-
+  
+  increment( m_counters, TpotMonDefs::kValidEventCounter );
+  
   auto se = OnlMonServer::instance();
   // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
   // e.g. if the BBCLL1 has problems or if it changes its name
@@ -191,7 +205,7 @@ int TpotMon::process_event(Event* event)
     
     const auto& det_index = iter->second;
     
-    if( Verbosity() )
+    if( Verbosity()>1 )
     {
       std::cout
         << "TpotMon::process_event -"
