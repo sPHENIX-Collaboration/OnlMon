@@ -53,7 +53,7 @@ class TpotMon : public OnlMon
     public:
 
     /// adc counts vs sample id in each detector
-    TH1* m_adc_vs_sample = nullptr;
+    TH2* m_adc_vs_sample = nullptr;
     
     /// total charge per hit in each detector
     TH1* m_hit_charge = nullptr;

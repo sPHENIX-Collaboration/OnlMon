@@ -76,18 +76,20 @@ int TpotMon::Init()
     m_det_index_map.emplace( fee_id_list[idet],idet );
     
     // adc vs sample
+    static constexpr int max_sample = 32;
     m_detector_histograms[idet].m_adc_vs_sample = new TH2I(
       Form( "m_adc_sample_%s", detector_name.c_str() ),
       Form( "adc count vs sample id (%s);sample id;adc", detector_name.c_str() ),
-      350, 0, 350,
+      max_sample, 0, max_sample,
       1024, 0, 1024 );
     se->registerHisto(this, m_detector_histograms[idet].m_adc_vs_sample);
 
     // hit charge
+    static constexpr double max_hit_charge = 1024;
     m_detector_histograms[idet].m_hit_charge = new TH1I(
       Form( "m_hit_charge_%s", detector_name.c_str() ),
       Form( "hit charge distribution (%s);adc", detector_name.c_str() ),
-      1024, 0, 1024 );
+      100, 0, max_hit_charge );
     se->registerHisto(this, m_detector_histograms[idet].m_hit_charge);
 
     // hit multiplicity
@@ -166,6 +168,9 @@ int TpotMon::process_event(Event* event)
     return 0;
   }
     
+  // hit multiplicity
+  std::array<int,MicromegasDefs::m_nfee> multiplicity = {{0}};
+  
   // get number of datasets (also call waveforms)
   const auto n_waveforms = packet->iValue(0, "NR_WF" );
   if( Verbosity() )
@@ -173,26 +178,56 @@ int TpotMon::process_event(Event* event)
   for( int i=0; i<n_waveforms; ++i )
   {
     auto channel = packet->iValue( i, "CHANNEL" );
-    int fee = packet->iValue(i, "FEE" );
+    int fee_id = packet->iValue(i, "FEE" );
     int samples = packet->iValue( i, "SAMPLES" );
+
+    // get detector index from fee id
+    const auto iter = m_det_index_map.find( fee_id );
+    if( iter == m_det_index_map.end() )
+    {
+      std::cout << "TpotMon::process_event - invalid fee_id: " << fee_id << std::endl;
+      continue;
+    }
+    
+    const auto& det_index = iter->second;
+    
     if( Verbosity() )
     {
       std::cout
         << "TpotMon::process_event -"
         << " waveform: " << i
-        << " fee: " << fee
+        << " fee: " << fee_id
         << " channel: " << channel
         << " samples: " << samples
         << std::endl;
     }
-
+       
+    for( int is = 0; is < samples; ++is )
+    {
+      const auto adc =  packet->iValue( i, is );
+      m_detector_histograms[det_index].m_adc_vs_sample->Fill( is, adc );
+      m_detector_histograms[det_index].m_hit_charge->Fill( adc );
+    }
+    
+    // update multiplicity for this detector
+    ++multiplicity[det_index];
+    
+    // fill hit profile for this channel
+    const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
+    m_detector_histograms[det_index].m_hit_vs_channel->Fill( strip_index );
+    
   }
+  
+  // fill hit multiplicities
+  for( size_t idet = 0; idet < m_detector_histograms.size(); ++idet )
+  { m_detector_histograms[idet].m_hit_multiplicity->Fill( multiplicity[idet] ); }
+    
 
-  for( const auto& point:m_tile_centers )
-  {
-    m_global_occupancy_phi->Fill(point.first, point.second);  
-    m_global_occupancy_z->Fill(point.first, point.second);  
-  }
+//   for( const auto& point:m_tile_centers )
+//   {
+//     m_global_occupancy_phi->Fill(point.first, point.second);  
+//     m_global_occupancy_z->Fill(point.first, point.second);  
+//   }
   
   if (idummy++ > 10)
   {
