@@ -123,6 +123,14 @@ std::vector<int> MicromegasMapping::get_fee_id_list() const
 }
 
 //____________________________________________________________________________________________________
+std::vector<std::string> MicromegasMapping::get_detnames_sphenix() const
+{
+  std::vector<std::string> out;
+  std::transform( m_detectors.begin(), m_detectors.end(), std::back_inserter( out ), []( const DetectorId& det_id ){ return det_id.m_detname_sphenix; } );  
+  return out;
+}
+
+//____________________________________________________________________________________________________
 MicromegasDefs::SegmentationType MicromegasMapping::get_segmentation( int fee_id ) const
 {
   const auto iter = m_detector_map.find( fee_id );
@@ -131,14 +139,6 @@ MicromegasDefs::SegmentationType MicromegasMapping::get_segmentation( int fee_id
     std::cout << "MicromegasMapping::get_segmentation - invalid fee_id: " << fee_id << std::endl;
     return MicromegasDefs::SegmentationType::SEGMENTATION_Z;
   } else return iter->second.m_segmentation;
-}
-
-//____________________________________________________________________________________________________
-std::vector<std::string> MicromegasMapping::get_detnames_sphenix() const
-{
-  std::vector<std::string> out;
-  std::transform( m_detectors.begin(), m_detectors.end(), std::back_inserter( out ), []( const DetectorId& det_id ){ return det_id.m_detname_sphenix; } );  
-  return out;
 }
 
 //____________________________________________________________________________________________________

@@ -25,12 +25,12 @@ class MicromegasMapping
 
   /// get list of fee ids
   std::vector<int> get_fee_id_list() const;
-  
-  /// get hitsetkey from fiber_id (fee_id)
-  MicromegasDefs::SegmentationType get_segmentation( int /*fee_id*/ ) const;
 
   /// detector names (sphenix)
   std::vector<std::string> get_detnames_sphenix() const;
+  
+  /// get hitsetkey from fiber_id (fee_id)
+  MicromegasDefs::SegmentationType get_segmentation( int /*fee_id*/ ) const;
   
   /// get detector name (saclay) from fiber_id (fee_id)
   /** saclay detector name are of type MxxP and MxxZ, with xx the module number */
@@ -47,6 +47,9 @@ class MicromegasMapping
    * as defined in CylinderGeomMicromegas
    */
   int get_physical_strip( int /*fee_id*/, int /*channel_id*/) const;
+
+  /// fee ids
+  std::vector<int> get_fee_ids() const;
   
   private:
 

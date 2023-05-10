@@ -46,22 +46,32 @@ class TpotMon : public OnlMon
   TH2Poly* m_global_occupancy_phi = nullptr;
   TH2Poly* m_global_occupancy_z = nullptr;
   
-  ///@name raw hits histograms
+  //@name per detector structure
   //@{
-  /// adc counts vs sample id in each detector
-  std::array<TH1*, MicromegasDefs::m_nfee> m_adc_vs_sample = {{nullptr}};
+  class detector_histograms_t 
+  {
+    public:
 
-  /// total charge per hit in each detector
-  std::array<TH1*, MicromegasDefs::m_nfee> m_hit_charge= {{nullptr}};
-  
-  /// number of hits per event in each detector
-  std::array<TH1*, MicromegasDefs::m_nfee> m_hit_multiplicity= {{nullptr}};
-
-  /// total number of hits per channel in each detector
-  std::array<TH1*, MicromegasDefs::m_nfee> m_hit_vs_channel = {{nullptr}};
-
+    /// adc counts vs sample id in each detector
+    TH1* m_adc_vs_sample = nullptr;
+    
+    /// total charge per hit in each detector
+    TH1* m_hit_charge = nullptr;
+    
+    /// number of hits per event in each detector
+    TH1* m_hit_multiplicity = nullptr;
+    
+    /// m_hit_vs_channel
+    TH1* m_hit_vs_channel = nullptr;    
+  };
   //@}
+  
+  //@name detector histograms
+  std::array<detector_histograms_t, MicromegasDefs::m_nfee> m_detector_histograms;
 
+  //! map fee id to index
+  std::map<int, size_t> m_det_index_map;
+  
   //! tile definitions
   static constexpr double m_tile_length = 54.2; // cm
   static constexpr double m_tile_width = 31.6;  // cm

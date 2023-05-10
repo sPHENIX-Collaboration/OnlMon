@@ -10,6 +10,7 @@
 #include <onlmon/OnlMonServer.h>
 
 #include <Event/msg_profile.h>
+#include <Event/Event.h>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -40,6 +41,7 @@ TpotMon::TpotMon(const std::string &name)
 int TpotMon::Init()
 {
   setup_tiles();
+  m_det_index_map.clear();
   
   // read our calibrations from TpotMonData.dat
   {
@@ -63,40 +65,44 @@ int TpotMon::Init()
   se->registerHisto(this, m_global_occupancy_z);
 
   const auto detector_names = m_mapping.get_detnames_sphenix();
+  const auto fee_id_list = m_mapping.get_fee_id_list();
   for( size_t idet=0; idet<detector_names.size(); ++idet )
   {
 
     // local copy of detector name
     const auto& detector_name=detector_names[idet];
-
+    
+    // fill detector index map
+    m_det_index_map.emplace( fee_id_list[idet],idet );
+    
     // adc vs sample
-    m_adc_vs_sample[idet] = new TH2I(
+    m_detector_histograms[idet].m_adc_vs_sample = new TH2I(
       Form( "m_adc_sample_%s", detector_name.c_str() ),
       Form( "adc count vs sample id (%s);sample id;adc", detector_name.c_str() ),
       350, 0, 350,
       1024, 0, 1024 );
-    se->registerHisto(this, m_adc_vs_sample[idet]);
+    se->registerHisto(this, m_detector_histograms[idet].m_adc_vs_sample);
 
     // hit charge
-    m_hit_charge[idet] = new TH1I(
+    m_detector_histograms[idet].m_hit_charge = new TH1I(
       Form( "m_hit_charge_%s", detector_name.c_str() ),
       Form( "hit charge distribution (%s);adc", detector_name.c_str() ),
       1024, 0, 1024 );
-    se->registerHisto(this, m_hit_charge[idet]);
+    se->registerHisto(this, m_detector_histograms[idet].m_hit_charge);
 
     // hit multiplicity
-    m_hit_multiplicity[idet] = new TH1I(
+    m_detector_histograms[idet].m_hit_multiplicity = new TH1I(
       Form( "m_hit_multiplicity_%s", detector_name.c_str() ),
       Form( "hit multiplicity (%s);#hits", detector_name.c_str() ),
       256, 0, 256 );
-    se->registerHisto(this, m_hit_multiplicity[idet]);
+    se->registerHisto(this, m_detector_histograms[idet].m_hit_multiplicity);
 
     // hit per channel
-    m_hit_vs_channel[idet] = new TH1I(
+    m_detector_histograms[idet].m_hit_vs_channel = new TH1I(
       Form( "m_hit_vs_channel_%s", detector_name.c_str() ),
       Form( "hit profile (%s);channel", detector_name.c_str() ),
       256, 0, 256 );
-    se->registerHisto(this, m_hit_vs_channel[idet]);
+    se->registerHisto(this, m_detector_histograms[idet].m_hit_vs_channel);
   }
 
   // use monitor name for db table name
@@ -115,8 +121,17 @@ int TpotMon::BeginRun(const int /* runno */)
 }
 
 //________________________________
-int TpotMon::process_event(Event * /* evt */)
+int TpotMon::process_event(Event* event)
 {
+  
+  // check event type
+  if( !event ) 
+  { return 0; }
+    
+  // check event type
+  if(event->getEvtType() >= 8)
+  { return 0; }
+  
   // increment event counter
   ++evtcnt;
 
@@ -142,12 +157,42 @@ int TpotMon::process_event(Event * /* evt */)
 //   // but the search in the histogram Map is somewhat expensive and slows
 //   // things down if you make more than one operation on a histogram
 
+  // read the data
+  auto packet = event->getPacket(MicromegasDefs::m_packet_id);
+  if( !packet )
+  {
+    // no data
+    std::cout << "TpotMon::process_event - event contains no TPOT data" << std::endl;
+    return 0;
+  }
+    
+  // get number of datasets (also call waveforms)
+  const auto n_waveforms = packet->iValue(0, "NR_WF" );
+  if( Verbosity() )
+  { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
+  for( int i=0; i<n_waveforms; ++i )
+  {
+    auto channel = packet->iValue( i, "CHANNEL" );
+    int fee = packet->iValue(i, "FEE" );
+    int samples = packet->iValue( i, "SAMPLES" );
+    if( Verbosity() )
+    {
+      std::cout
+        << "TpotMon::process_event -"
+        << " waveform: " << i
+        << " fee: " << fee
+        << " channel: " << channel
+        << " samples: " << samples
+        << std::endl;
+    }
+
+  }
+
   for( const auto& point:m_tile_centers )
   {
     m_global_occupancy_phi->Fill(point.first, point.second);  
     m_global_occupancy_z->Fill(point.first, point.second);  
   }
-  
   
   if (idummy++ > 10)
   {
