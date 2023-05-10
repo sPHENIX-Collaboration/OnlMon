@@ -3,6 +3,7 @@
 
 #include "MicromegasDefs.h"
 #include "MicromegasMapping.h"
+#include "TpotMonGeometry.h"
 
 #include <onlmon/OnlMon.h>
 
@@ -28,10 +29,7 @@ class TpotMon : public OnlMon
 
   private:
   int DBVarInit();
-  
-  //! create tiles
-  void setup_tiles();
-  
+    
   //! setup bins in a TH2Poly
   void setup_bins( TH2Poly* );
   
@@ -39,9 +37,12 @@ class TpotMon : public OnlMon
   int idummy = 0;
   std::unique_ptr<OnlMonDB> dbvars;
   
-  // mapping
+  //! mapping
   MicromegasMapping m_mapping;
     
+  //! geometry
+  TpotMonGeometry m_geometry;
+  
   //! counter
   TH1* m_counters = nullptr;
    
@@ -74,15 +75,6 @@ class TpotMon : public OnlMon
 
   //! map fee id to index
   std::map<int, size_t> m_det_index_map;
-  
-  //! tile definitions
-  static constexpr double m_tile_length = 54.2; // cm
-  static constexpr double m_tile_width = 31.6;  // cm
-  
-  //! tile centers
-  using point_t = std::pair<double, double>;
-  using point_list_t = std::vector<point_t>; 
-  point_list_t m_tile_centers;
   
 };
 

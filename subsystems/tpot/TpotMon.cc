@@ -1,8 +1,3 @@
-// use #include "" only for your local include and put
-// those in the first line(s) before any #include <>
-// otherwise you are asking for weird behavior
-// (more info - check the difference in include path search when using "" versus <>)
-
 #include "TpotMon.h"
 #include "TpotMonDefs.h"
 
@@ -41,7 +36,6 @@ TpotMon::TpotMon(const std::string &name)
 //__________________________________________________
 int TpotMon::Init()
 {
-  setup_tiles();
   m_det_index_map.clear();
   
   // read our calibrations from TpotMonData.dat
@@ -289,53 +283,25 @@ int TpotMon::DBVarInit()
 }
 
 //________________________________
-void TpotMon::setup_tiles()
-{
-  // clear previous tiles
-  m_tile_centers.clear();
-
-  /*
-   * to convert sphenix coordinates into a x,y 2D histogram, 
-   * we transform z(3D) = x(2D)
-   * and x (3D) = y (2D)
-   */
-
-  {
-    const double tile_x = 0;
-    for( const double& tile_z:{ -84.6, -28.2, 28.2, 84.6 } )
-    { m_tile_centers.push_back( {tile_z, tile_x} ); }
-  }
-    
-  {
-    // neighbor sectors have two modules, separated by 10cm
-    for( const double& tile_x: { -m_tile_width - 2, m_tile_width+2 } )
-      for( const double& tile_z:{ -37.1, 37.1 } )
-    { m_tile_centers.push_back( {tile_z, tile_x} ); }
-  }
-  
-}
-
-
-//________________________________
 void TpotMon::setup_bins(TH2Poly* h2)
 {
   // loop over tile centers
-  for( const auto& point:m_tile_centers )
+  for( const auto& point:m_geometry.m_tile_centers )
   {
     const std::array<double,4> x = 
     {
-      point.first-m_tile_length/2,
-      point.first-m_tile_length/2,
-      point.first+m_tile_length/2,
-      point.first+m_tile_length/2
+      point.first-m_geometry.m_tile_length/2,
+      point.first-m_geometry.m_tile_length/2,
+      point.first+m_geometry.m_tile_length/2,
+      point.first+m_geometry.m_tile_length/2
     };
 
     const std::array<double,4> y = 
     {
-      point.second-m_tile_width/2,
-      point.second+m_tile_width/2,
-      point.second+m_tile_width/2,
-      point.second-m_tile_width/2
+      point.second-m_geometry.m_tile_width/2,
+      point.second+m_geometry.m_tile_width/2,
+      point.second+m_geometry.m_tile_width/2,
+      point.second-m_geometry.m_tile_width/2
     };
       
     h2->AddBin( 4, &x[0], &y[0] );

@@ -33,15 +33,18 @@ tpotinclude_HEADERS = \
   MicromegasDefs.h \
   MicromegasMapping.h \
   TpotMon.h \
-  TpotMonDraw.h
+  TpotMonDraw.h \
+  TpotMonGeometry.h
 
 libonltpotmon_server_la_SOURCES = \
   MicromegasMapping.cc \
-  TpotMon.cc
+  TpotMon.cc \
+  TpotMonGeometry.cc
 
 libonltpotmon_client_la_SOURCES = \
   MicromegasMapping.cc \
-  TpotMonDraw.cc
+  TpotMonDraw.cc \
+  TpotMonGeometry.cc
 
 bin_SCRIPTS = \
   TpotMonSetup.csh \
