@@ -104,8 +104,6 @@ MicromegasMapping::MicromegasMapping():
 	  {14, {56, MicromegasDefs::SegmentationType::SEGMENTATION_Z,   7 }, "sec10.1", "R2.8", "M7Z",  "NWIZ" }
 	} )
 {
-  std::cout << "MicromegasMapping::MicromegasMapping." << std::endl;
-
   // fill detector map from vector
   for( const auto& detector_id:m_detectors )
   { m_detector_map.emplace( detector_id.m_fee_id, detector_id ); }
@@ -141,6 +139,18 @@ MicromegasDefs::SegmentationType MicromegasMapping::get_segmentation( int fee_id
     return MicromegasDefs::SegmentationType::SEGMENTATION_Z;
   } else return iter->second.m_tile_id.m_segmentation;
 }
+
+//____________________________________________________________________________________________________
+uint8_t MicromegasMapping::get_tile( int fee_id ) const
+{
+  const auto iter = m_detector_map.find( fee_id );
+  if( iter == m_detector_map.end() )
+  {
+    std::cout << "MicromegasMapping::get_tile - invalid fee_id: " << fee_id << std::endl;
+    return -1;
+  } else return iter->second.m_tile_id.m_tile;
+}
+
 
 //____________________________________________________________________________________________________
 std::string MicromegasMapping::get_detname_saclay( int fee_id ) const

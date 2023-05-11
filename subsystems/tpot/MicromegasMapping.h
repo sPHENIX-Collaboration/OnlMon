@@ -32,6 +32,9 @@ class MicromegasMapping
   
   /// get hitsetkey from fiber_id (fee_id)
   MicromegasDefs::SegmentationType get_segmentation( int /*fee_id*/ ) const;
+
+  /// tile id
+  uint8_t get_tile( int /* fee_id */ ) const;  
   
   /// get detector name (saclay) from fiber_id (fee_id)
   /** saclay detector name are of type MxxP and MxxZ, with xx the module number */
