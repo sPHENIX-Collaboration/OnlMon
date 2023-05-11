@@ -56,6 +56,22 @@ class MicromegasMapping
   /// construct fee channel id to physical strip mapping
   void construct_channel_mapping();
   
+  class TileId
+  {
+    public:
+
+    //! constructor
+    TileId( uint8_t layer, MicromegasDefs::SegmentationType segmentation, uint8_t tile ):
+      m_layer( layer ),
+      m_segmentation( segmentation ),
+      m_tile( tile )
+    {}
+    
+    uint8_t m_layer = 0;
+    MicromegasDefs::SegmentationType m_segmentation = MicromegasDefs::SegmentationType::SEGMENTATION_Z;
+    uint8_t m_tile = 0;
+  };
+  
   /// contains all relevant detector information
   /** this effectively implements mapping between fee_id as defined in EDBC,    * detector names (in both Saclay and sPHENIX convention),
    * and hitsetkey which is the detector unique identifier
@@ -66,11 +82,11 @@ class MicromegasMapping
 
     /// constructor
     DetectorId(
-      int fee_id, MicromegasDefs::SegmentationType segmentation,
+      int fee_id, const TileId& tile_id,
       const std::string& fibername, const std::string& breakoutname, 
       const std::string& detname_saclay, const std::string& detname_sphenix ):
       m_fee_id( fee_id ),
-      m_segmentation( segmentation ),
+      m_tile_id( tile_id ),
       m_fibername( fibername ),
       m_breakoutname( breakoutname ),
       m_detname_saclay( detname_saclay ),
@@ -80,8 +96,12 @@ class MicromegasMapping
     /// fee_id
     int m_fee_id = 0;
 
-    /// segmentation
-    MicromegasDefs::SegmentationType m_segmentation = MicromegasDefs::SegmentationType::SEGMENTATION_Z;
+    /// tile id 
+    /** 
+     * contains layer, segmentation, tile number
+     * in offline, this is the same information as the HitSetKey
+     **/
+    TileId m_tile_id;
 
     /// fiber name
     std::string m_fibername;
