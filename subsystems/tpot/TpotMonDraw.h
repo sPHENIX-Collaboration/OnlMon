@@ -2,6 +2,7 @@
 #define TPOT_TPOTMONDRAW_H
 
 #include "MicromegasDefs.h"
+#include "MicromegasGeometry.h"
 #include "MicromegasMapping.h"
 
 #include <onlmon/OnlMonDraw.h>
@@ -47,6 +48,9 @@ class TpotMonDraw : public OnlMonDraw
   
   // mapping
   MicromegasMapping m_mapping;
+  
+  // geometry
+  MicromegasGeometry m_geometry;
   
   /// needed to get time axis right
   int TimeOffsetTicks = -1;
