@@ -280,7 +280,7 @@ void TpotMon::setup_bins(TH2Poly* h2)
 {
   
   // get first member of pairs into a list
-  auto get_x = []( const TpotMonGeometry::point_list_t& point_list )
+  auto get_x = []( const MicromegasGeometry::point_list_t& point_list )
   {
     std::vector<double> out;
     std::transform( point_list.begin(), point_list.end(), std::back_inserter( out ), []( const auto& p ) { return p.first; } );
@@ -288,7 +288,7 @@ void TpotMon::setup_bins(TH2Poly* h2)
   };
   
   // get second member of pairs into a list
-  auto get_y = []( const TpotMonGeometry::point_list_t& point_list )
+  auto get_y = []( const MicromegasGeometry::point_list_t& point_list )
   {
     std::vector<double> out;
     std::transform( point_list.begin(), point_list.end(), std::back_inserter( out ), []( const auto& p ) { return p.first; } );

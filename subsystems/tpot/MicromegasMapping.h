@@ -16,6 +16,7 @@
 #include <vector>
 
 /// micromegas mapping
+/** this is a trimmed down version of coresoftware/offline/packages/micromegas/MicromegasMapping.h */
 class MicromegasMapping
 {
   public:

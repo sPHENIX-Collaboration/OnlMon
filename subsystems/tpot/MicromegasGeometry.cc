@@ -1,7 +1,7 @@
-#include "TpotMonGeometry.h"
+#include "MicromegasGeometry.h"
 
 //__________________________________________________
-TpotMonGeometry::TpotMonGeometry()
+MicromegasGeometry::MicromegasGeometry()
 {
   /*
    * to convert sphenix coordinates into a x,y 2D histogram, 
@@ -23,7 +23,7 @@ TpotMonGeometry::TpotMonGeometry()
 }
 
 //__________________________________________________
-TpotMonGeometry::point_list_t TpotMonGeometry::get_tile_boundaries( size_t index ) const
+MicromegasGeometry::point_list_t MicromegasGeometry::get_tile_boundaries( size_t index ) const
 {
   const auto center = get_tile_center( index );
   return 

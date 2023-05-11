@@ -3,7 +3,7 @@
 
 #include "MicromegasDefs.h"
 #include "MicromegasMapping.h"
-#include "TpotMonGeometry.h"
+#include "MicromegasGeometry.h"
 
 #include <onlmon/OnlMon.h>
 
@@ -41,7 +41,7 @@ class TpotMon : public OnlMon
   MicromegasMapping m_mapping;
     
   //! geometry
-  TpotMonGeometry m_geometry;
+  MicromegasGeometry m_geometry;
   
   //! counter
   TH1* m_counters = nullptr;

@@ -8,7 +8,7 @@
 #include <map>
 
 /// handle simplified TPOT 2D geometry, for histogram representation
-class TpotMonGeometry
+class MicromegasGeometry
 {
   public:
 
@@ -16,7 +16,7 @@ class TpotMonGeometry
   using point_list_t = std::vector<point_t>;
 
   /// constructor
-  TpotMonGeometry();
+  MicromegasGeometry();
   
   //! get number of defined tiles
   size_t get_ntiles() const 
@@ -28,13 +28,13 @@ class TpotMonGeometry
 
   //! get tile boundaries for a given index
   point_list_t get_tile_boundaries( size_t /* index */ ) const;
-  
+      
+  private:
+
   //! tile definitions
   static constexpr double m_tile_length = 54.2; // cm
   static constexpr double m_tile_width = 31.6;  // cm
-    
-  private:
-  
+
   //! tile centers
   point_list_t m_tile_centers;
 
