@@ -46,10 +46,14 @@ class TpotMon : public OnlMon
   //! counter
   TH1* m_counters = nullptr;
    
-  //! TPOT status histogram
-  TH2Poly* m_global_occupancy_phi = nullptr;
-  TH2Poly* m_global_occupancy_z = nullptr;
+  //! TPOT per/detector multiplicity
+  TH2Poly* m_detector_multiplicity_z = nullptr;
+  TH2Poly* m_detector_multiplicity_phi = nullptr;
   
+  //! TPOT per/detector occupancy
+  TH2Poly* m_detector_occupancy_z = nullptr;
+  TH2Poly* m_detector_occupancy_phi = nullptr;
+
   //@name per detector structure
   //@{
   class detector_histograms_t 
@@ -70,11 +74,11 @@ class TpotMon : public OnlMon
   };
   //@}
   
-  //@name detector histograms
-  std::array<detector_histograms_t, MicromegasDefs::m_nfee> m_detector_histograms;
-
-  //! map fee id to index
-  std::map<int, size_t> m_det_index_map;
+  //@name map tile centers (from MicromegasGeometry) to fee_id
+  std::map<int, MicromegasGeometry::point_t> m_tile_centers;
+  
+  //@name map detector histograms to fee id
+  std::map<int, detector_histograms_t> m_detector_histograms;
   
 };
 

@@ -114,63 +114,58 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   int ysize = cl->GetDisplaySizeY();
   
   int cv_id = 0;
-  if (name == "TPOT_global_occupancy")
+  if (name == "TPOT_detector_occupancy")
   {
 
     // xpos (-1) negative: do not draw menu bar
-    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TPOT global occupancy", -1, 0, xsize / 2, ysize);
+    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-
-    divide_canvas( cv, 1, 2 );
-
-    // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 1, 2 );
     cv->SetEditable(false);
     return cv;
+    
   } else if (name == "TPOT_adc_vs_sample") {
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-
-    divide_canvas( cv, 4, 4 );
-
-    // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
+    for( int i = 0; i < 16; ++i )
+    { 
+      cv->GetPad(i+1)->SetLeftMargin(0.15); 
+      cv->GetPad(i+1)->SetRightMargin(0.02); 
+    }
     cv->SetEditable(false);
     return cv;
+
   } else if (name == "TPOT_hit_charge") {
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-
-    divide_canvas( cv, 4, 4 );
-
-    // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     return cv;
+
   } else if (name == "TPOT_hit_multiplicity") {
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-
-    divide_canvas( cv, 4, 4 );
-
-    // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     return cv;
+  
   } else if (name == "TPOT_hit_vs_channel") {
 
     auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-
-    divide_canvas( cv, 4, 4 );
-
-    // this one is used to plot the run number on the canvas
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     return cv;
+
   }
   return nullptr;
 }
@@ -189,18 +184,20 @@ int TpotMonDraw::Draw(const std::string &what)
     const auto m_counters = cl->getHisto("TPOTMON_0","m_counters"); 
     const int events = m_counters->GetBinContent( TpotMonDefs::kEventCounter );
     const int valid_events = m_counters->GetBinContent( TpotMonDefs::kValidEventCounter );
-    std::cout << "TpotMonDraw::Draw - events: " << events << " valid events: " << valid_events << std::endl;
+    
+    if( Verbosity() )
+    { std::cout << "TpotMonDraw::Draw - events: " << events << " valid events: " << valid_events << std::endl; }
   }
   
-  if( what == "ALL" || what == "TPOT_global_occupancy" )
+  if( what == "ALL" || what == "TPOT_detector_occupancy" )
   {
-    iret += draw_global_occupancy();
+    iret += draw_detector_occupancy();
     ++idraw;
   }
   
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
-    iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), "colz" );
+    iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), "col" );
     ++idraw;
   }
 
@@ -322,34 +319,38 @@ void TpotMonDraw::draw_time( TPad* pad )
 }
 
 //__________________________________________________________________________________
-int TpotMonDraw::draw_global_occupancy()
+int TpotMonDraw::draw_detector_occupancy()
 {
  
-  if( Verbosity() ) std::cout << "TpotMonDraw::draw_global_occupancy" << std::endl;
+  if( Verbosity() ) std::cout << "TpotMonDraw::draw_detector_occupancy" << std::endl;
 
   // get histograms
   auto cl = OnlMonClient::instance();
-  auto m_global_occupancy_phi =  cl->getHisto("TPOTMON_0","m_global_occupancy_phi");
-  auto m_global_occupancy_z =  cl->getHisto("TPOTMON_0","m_global_occupancy_z");
+  auto m_detector_occupancy_phi =  cl->getHisto("TPOTMON_0","m_detector_occupancy_phi");
+  auto m_detector_occupancy_z =  cl->getHisto("TPOTMON_0","m_detector_occupancy_z");
 
-  auto cv = get_canvas("TPOT_global_occupancy");
-  auto transparent = get_transparent_pad( cv, "TPOT_global_occupancy");
+  auto cv = get_canvas("TPOT_detector_occupancy");
+  auto transparent = get_transparent_pad( cv, "TPOT_detector_occupancy");
   if( !cv ) 
   {
-    if( Verbosity() ) std::cout << "TpotMonDraw::draw_global_occupancy - no canvas" << std::endl;
+    if( Verbosity() ) std::cout << "TpotMonDraw::draw_detector_occupancy - no canvas" << std::endl;
     return -1;
   }
   
   CanvasEditor cv_edit(cv);
 
-  if( m_global_occupancy_phi && m_global_occupancy_z )
+  if( m_detector_occupancy_phi && m_detector_occupancy_z )
   {    
     cv->cd(1);
-    m_global_occupancy_phi->DrawCopy( "colz" );
+    gPad->SetLeftMargin( 0.07 );
+    gPad->SetRightMargin( 0.15 );
+    m_detector_occupancy_z->DrawCopy( "colz" );
     draw_detnames_sphenix();
 
     cv->cd(2);
-    m_global_occupancy_phi->DrawCopy( "colz" );
+    gPad->SetLeftMargin( 0.07 );
+    gPad->SetRightMargin( 0.15 );
+    m_detector_occupancy_phi->DrawCopy( "colz" );
     draw_detnames_sphenix();
     
     if( transparent ) draw_time(transparent);
@@ -373,10 +374,9 @@ void TpotMonDraw::draw_detnames_sphenix()
     const auto [x,y] = m_geometry.get_tile_center(i);
     auto text = new TText();
     // text->SetNDC( true );
-    text->DrawText( x - 0.8*m_geometry.m_tile_length/2, y + 0.8*m_geometry.m_tile_width/2, name.c_str() );
+    text->DrawText( x-0.8*m_geometry.m_tile_length/2, y-0.8*m_geometry.m_tile_width/2, name.c_str() );
     text->Draw();
   }
-  
   
 }
 
