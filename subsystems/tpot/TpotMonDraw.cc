@@ -346,9 +346,11 @@ int TpotMonDraw::draw_global_occupancy()
   {    
     cv->cd(1);
     m_global_occupancy_phi->DrawCopy( "colz" );
+    draw_detnames_sphenix();
 
     cv->cd(2);
     m_global_occupancy_phi->DrawCopy( "colz" );
+    draw_detnames_sphenix();
     
     if( transparent ) draw_time(transparent);
     return 0;
@@ -359,6 +361,23 @@ int TpotMonDraw::draw_global_occupancy()
     return -1;
 
   }
+}
+
+//__________________________________________________________________________________
+void TpotMonDraw::draw_detnames_sphenix()
+{
+  gPad->Update();
+  for( size_t i = 0; i < m_geometry.get_ntiles(); ++i )
+  {
+    const auto name = m_geometry.get_detname_sphenix(i);
+    const auto [x,y] = m_geometry.get_tile_center(i);
+    auto text = new TText();
+    // text->SetNDC( true );
+    text->DrawText( x - 0.8*m_geometry.m_tile_length/2, y + 0.8*m_geometry.m_tile_width/2, name.c_str() );
+    text->Draw();
+  }
+  
+  
 }
 
 //__________________________________________________________________________________

@@ -37,12 +37,12 @@ class MicromegasGeometry
   
   //! get tile boundaries for a given tile id
   point_list_t get_tile_boundaries( size_t /* tile_id */ ) const;
-      
-  private:
 
   //! tile definitions
   static constexpr double m_tile_length = 54.2; // cm
   static constexpr double m_tile_width = 31.6;  // cm
+      
+  private:
 
   //! tile centers
   /** tile centers are ordered by tile_ids as defined in MicromegasMapping.cc */
