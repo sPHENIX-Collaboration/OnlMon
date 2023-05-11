@@ -1,7 +1,8 @@
 #include "MicromegasGeometry.h"
 
 //__________________________________________________
-MicromegasGeometry::MicromegasGeometry()
+MicromegasGeometry::MicromegasGeometry():
+  m_detnames_sphenix( { "SCO", "SCI", "NCI", "NCO", "SEI", "NEI", "SWI", "NWI" } )
 {
   /*
    * to convert sphenix coordinates into a x,y 2D histogram, 
