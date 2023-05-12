@@ -45,7 +45,10 @@ int TpotMon::Init()
   // map tile centers to fee id
   const auto fee_id_list = m_mapping.get_fee_id_list();
   for( const auto& fee_id:fee_id_list )
-  { m_tile_centers.emplace( fee_id, m_geometry.get_tile_center( m_mapping.get_tile( fee_id ) ) ); }
+  {
+    const auto tile_id = MicromegasDefs::getTileId( m_mapping.get_hitsetkey(fee_id));
+    m_tile_centers.emplace(fee_id, m_geometry.get_tile_center(tile_id)); 
+  }
   
   // counters
   /* arbitrary counters. First bin is number of events */
@@ -206,8 +209,8 @@ int TpotMon::process_event(Event* event)
 
     // get tile center, segmentation
     const auto& [tile_x, tile_y]  = m_tile_centers.at(fee_id);
-    const auto segmentation = m_mapping.get_segmentation( fee_id );
-    
+    const auto segmentation = MicromegasDefs::getSegmentationType( m_mapping.get_hitsetkey(fee_id));
+
     if( Verbosity()>1 )
     {
       std::cout

@@ -1,10 +1,10 @@
 #ifndef TPOT_TPOTMONDRAW_H
 #define TPOT_TPOTMONDRAW_H
 
-#include "MicromegasDefs.h"
 #include "MicromegasGeometry.h"
-#include "MicromegasMapping.h"
 
+#include <micromegas/MicromegasDefs.h>
+#include <micromegas/MicromegasMapping.h>
 #include <onlmon/OnlMonDraw.h>
 
 #include <array>
@@ -50,11 +50,14 @@ class TpotMonDraw : public OnlMonDraw
   /** only works if canvas contains one of the properly formated TH2Poly histograms */
   void draw_detnames_sphenix();
     
-  // mapping
+  /// mapping
   MicromegasMapping m_mapping;
   
-  // geometry
+  /// geometry
   MicromegasGeometry m_geometry;
+  
+  /// detector names 
+  std::vector<std::string> m_detnames_sphenix;
   
   /// needed to get time axis right
   int TimeOffsetTicks = -1;

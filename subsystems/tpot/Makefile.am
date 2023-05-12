@@ -8,21 +8,25 @@ SUBDIRS = calib
 AM_CPPFLAGS = \
   -I$(includedir) \
   -I$(ONLINE_MAIN)/include \
+  -I$(OFFLINE_MAIN)/include \
   -isystem$(ROOTSYS)/include
+
+AM_LDFLAGS = \
+  -L$(libdir) \
+  -L$(ONLINE_MAIN)/lib \
+  -L$(OFFLINE_MAIN)/lib
 
 lib_LTLIBRARIES = \
   libonltpotmon_client.la \
   libonltpotmon_server.la
 
 libonltpotmon_server_la_LIBADD = \
-  -L$(libdir) \
-  -L$(ONLINE_MAIN)/lib \
+  -lmicromegas_io \
   -lonlmonserver \
   -lonlmondb
 
 libonltpotmon_client_la_LIBADD = \
-  -L$(libdir) \
-  -L$(ONLINE_MAIN)/lib \
+  -lmicromegas_io \
   -lonlmonclient \
   -lonlmondb
 
@@ -30,19 +34,14 @@ libonltpotmon_client_la_LIBADD = \
 tpotincludedir=$(pkgincludedir)/tpot
 
 tpotinclude_HEADERS = \
-  MicromegasDefs.h \
-  MicromegasMapping.h \
-  TpotMon.h \
   TpotMonDraw.h \
   MicromegasGeometry.h
 
 libonltpotmon_server_la_SOURCES = \
-  MicromegasMapping.cc \
   TpotMon.cc \
   MicromegasGeometry.cc
 
 libonltpotmon_client_la_SOURCES = \
-  MicromegasMapping.cc \
   TpotMonDraw.cc \
   MicromegasGeometry.cc
 

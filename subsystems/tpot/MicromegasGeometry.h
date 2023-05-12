@@ -1,7 +1,7 @@
 #ifndef TPOT_TPOTMONGEOMETRY_H
 #define TPOT_TPOTMONGEOMETRY_H
 
-#include "MicromegasDefs.h"
+#include <micromegas/MicromegasDefs.h>
 
 #include <cstddef>
 #include <string>

@@ -1,10 +1,10 @@
 #ifndef TPOT_TPOTMON_H
 #define TPOT_TPOTMON_H
 
-#include "MicromegasDefs.h"
-#include "MicromegasMapping.h"
 #include "MicromegasGeometry.h"
 
+#include <micromegas/MicromegasDefs.h>
+#include <micromegas/MicromegasMapping.h>
 #include <onlmon/OnlMon.h>
 
 #include <array>
