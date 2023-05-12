@@ -66,7 +66,7 @@ int TpotMon::Init()
   // setup bins
   for( auto&& h:{m_detector_multiplicity_phi, m_detector_occupancy_phi, m_detector_multiplicity_z, m_detector_occupancy_z } )
   { 
-    setup_bins( h ); 
+    setup_detector_bins( h ); 
     h->GetXaxis()->SetTitleOffset(1);
     h->GetYaxis()->SetTitleOffset(0.65);
   }
@@ -306,7 +306,7 @@ int TpotMon::DBVarInit()
 }
 
 //________________________________
-void TpotMon::setup_bins(TH2Poly* h2)
+void TpotMon::setup_detector_bins(TH2Poly* h2)
 {
   
   // get first member of pairs into a list
