@@ -2,11 +2,15 @@
 #define INTT_MON_H
 
 #include "InttMonConstants.h"
+#include "InttFelixMap.h" 
 
 #include <onlmon/OnlMon.h>
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
+//#include <pmonitor/pmonitor.h>
+#include <Event/Event.h>
+#include <Event/EventTypes.h>
 #include <Event/msg_profile.h>
 
 #include <TH1D.h>

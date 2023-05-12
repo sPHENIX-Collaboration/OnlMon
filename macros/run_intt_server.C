@@ -7,11 +7,19 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlinttmon_server.so)
 
-void run_intt_server(const std::string &name = "INTTMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
+//std::string _prdf_file = "/sphenix/u/jbertaux/evt_files/intt_intt0-00000025-0000.evt";
+std::string _prdf_file = "/sphenix/u/jbertaux/evt_files/intt_intt2-00000023-0000.evt";
+
+void run_intt_server(const std::string &prdffile = _prdf_file)
 {
+  const std::string &name = "INTTMON";
+  unsigned int serverid = 0;
 //  //for debugging
 //  InttMon *m = new InttMon();
 //  m->MiscDebug();
+
+  std::cout << "Using .evt file:" << std::endl;
+  std::cout << "\t" << prdffile << std::endl;
 
   OnlMon *m = new InttMon(name);      // create subsystem Monitor object
   m->SetMonitorServerId(serverid);
@@ -28,11 +36,11 @@ void run_intt_server(const std::string &name = "INTTMON", unsigned int serverid 
   //m->Init(); this must already be called somewhere above
   m->BeginRun(1);
 
-  int N = 1;
-  for(int n = 0; n < N; n++)
-  {
-    m->process_event(static_cast<Event*>(0x0));
-  }
+  //int N = 1;
+  //for(int n = 0; n < N; n++)
+  //{
+  //  m->process_event(static_cast<Event*>(0x0));
+  //}
 
   return;
 }

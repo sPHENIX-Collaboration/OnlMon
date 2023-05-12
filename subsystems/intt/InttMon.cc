@@ -60,12 +60,14 @@ int InttMon::BeginRun(const int /* run_num */)
 	return 0;
 }
 
-int InttMon::process_event(Event* /* evt */)
+int InttMon::process_event(Event* evt)
 {
-	//dummy method since unpacker is not done yet
-	double temp;
+	int N;
 
 	int bin;
+
+	int felix;
+	int felix_channel;
 
 	int layer;
 	int ladder;
@@ -73,50 +75,95 @@ int InttMon::process_event(Event* /* evt */)
 	int chip;
 	int channel;
 	int adc;
-	//...
 
-	int hits = rng->Poisson(HITS_PER_EVENT);
-	for(int hit = 0; hit < hits; hit++)
+	struct INTT_Felix::Ladder_s lddr_s;
+
+	int id;
+	int n;
+
+	for(id = 3001; id < 3009; ++id)
 	{
-		//randomly choose a chip/channel for the hit to occur
-		//including guards in case upper bound of TRandom::Uniform(Double_t) is inclusive
-		layer = rng->Uniform(INTT::LAYER);
-		if(layer == INTT::LAYER)layer -= 1;
+		Packet* p = evt->getPacket(id);
+		if(!p)continue;
 
-		ladder = rng->Uniform(INTT::LADDER[layer]);
-		if(ladder == INTT::LADDER[layer])ladder -= 1;
+		N = p->iValue(0, "NR_HITS");
 
-		northsouth = rng->Uniform(INTT::NORTHSOUTH);
-		if(northsouth == INTT::NORTHSOUTH)northsouth -= 1;
+		if(N)std::cout << N << std::endl;
 
-		chip = rng->Uniform(INTT::CHIP);
-		if(chip == INTT::CHIP)chip -= 1;
+		for(n = 0; n < N; ++n)
+		{
+			felix = id - 3001;
+			felix_channel = p->iValue(n, "FEE");
 
-		channel = rng->Uniform(INTT::CHANNEL);
-		if(channel == INTT::CHANNEL)channel -= 1;
+			INTT_Felix::FelixMap(felix, felix_channel, lddr_s);
 
-		adc = rng->Uniform(INTT::ADC);
-		if(adc == INTT::ADC)adc -= 1;
+			layer = lddr_s.barrel * 2 + lddr_s.layer;
+			ladder = lddr_s.ladder;
 
-		//Set temp to be the unscaled z position of the chip, to introduce eta dependence for the dummy method
-		//currently not used; hitrates are flat
-		temp = (2.0 * northsouth - 1.0) * ( (INTT::CHIP / 2) - chip % (INTT::CHIP / 2) - 0.5 );
+			northsouth = ((id - 3001) / 4) % 2;
 
-		//get the bin these indexes correspond to
-		//INTT::FindBin returns 1 if there is an error; extra guard statement for typos
-		if(INTT::HitMap::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel))continue;
-		HitMap->AddBinContent(bin);
-		if(INTT::ADCN::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel, adc))continue;
-		ADCMap->AddBinContent(bin);
+			chip = p->iValue(n, "CHP_ID");
+			chip = (chip - 1) % 26 + INTT::CHIP_OFFSET;
 
-		std::string northsouth_str = "North";
-		if(northsouth)northsouth_str = "South";
+			channel = p->iValue(n, "CHANNEL_ID");
 
-		printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", layer + INTT::LAYER_OFFSET, ladder, northsouth_str.c_str(), chip + INTT::CHIP_OFFSET, channel);
-		//...
+			adc = p->iValue(n, "ADC");
+			if(INTT::HitMap::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel))continue;
+			HitMap->AddBinContent(bin);
 
-		bin = temp;//dummy line so it will compile; temp is "used"
+			if(INTT::ADCN::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel, adc))continue;
+			ADCMap->AddBinContent(bin);
+		}
 	}
+
+	////dummy method since unpacker is not done yet
+	//double temp;
+
+
+	////...
+
+	//int hits = rng->Poisson(HITS_PER_EVENT);
+	//for(int hit = 0; hit < hits; hit++)
+	//{
+	//	//randomly choose a chip/channel for the hit to occur
+	//	//including guards in case upper bound of TRandom::Uniform(Double_t) is inclusive
+	//	layer = rng->Uniform(INTT::LAYER);
+	//	if(layer == INTT::LAYER)layer -= 1;
+
+	//	ladder = rng->Uniform(INTT::LADDER[layer]);
+	//	if(ladder == INTT::LADDER[layer])ladder -= 1;
+
+	//	northsouth = rng->Uniform(INTT::NORTHSOUTH);
+	//	if(northsouth == INTT::NORTHSOUTH)northsouth -= 1;
+
+	//	chip = rng->Uniform(INTT::CHIP);
+	//	if(chip == INTT::CHIP)chip -= 1;
+
+	//	channel = rng->Uniform(INTT::CHANNEL);
+	//	if(channel == INTT::CHANNEL)channel -= 1;
+
+	//	adc = rng->Uniform(INTT::ADC);
+	//	if(adc == INTT::ADC)adc -= 1;
+
+	//	//Set temp to be the unscaled z position of the chip, to introduce eta dependence for the dummy method
+	//	//currently not used; hitrates are flat
+	//	temp = (2.0 * northsouth - 1.0) * ( (INTT::CHIP / 2) - chip % (INTT::CHIP / 2) - 0.5 );
+
+	//	//get the bin these indexes correspond to
+	//	//INTT::FindBin returns 1 if there is an error; extra guard statement for typos
+	//	if(INTT::HitMap::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel))continue;
+	//	HitMap->AddBinContent(bin);
+	//	if(INTT::ADCN::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel, adc))continue;
+	//	ADCMap->AddBinContent(bin);
+
+	//	std::string northsouth_str = "North";
+	//	if(northsouth)northsouth_str = "South";
+
+	//	printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", layer + INTT::LAYER_OFFSET, ladder, northsouth_str.c_str(), chip + INTT::CHIP_OFFSET, channel);
+	//	//...
+
+	//	bin = temp;//dummy line so it will compile; temp is "used"
+	//}
 
 	NumEvents->AddBinContent(1);
 

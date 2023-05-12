@@ -31,10 +31,12 @@ inttincludedir=$(pkgincludedir)/intt
 
 inttinclude_HEADERS = \
   InttMonConstants.h \
+  InttFelixMap.h \
   InttMon.h \
   InttMonDraw.h
 
 libonlinttmon_server_la_SOURCES = \
+  InttFelixMap.cc \
   InttMon.cc
 
 libonlinttmon_client_la_SOURCES = \
