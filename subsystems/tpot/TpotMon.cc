@@ -16,6 +16,7 @@
 #include <cstdio>  // for printf
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>  // for allocator, string, char_traits
 
@@ -33,7 +34,6 @@ TpotMon::TpotMon(const std::string &name)
 //__________________________________________________
 int TpotMon::Init()
 {
-  
   // read our calibrations from TpotMonData.dat
   {
     std::string fullfile = std::string(getenv("TPOTCALIB")) + "/" + "TpotMonData.dat";
@@ -177,7 +177,7 @@ int TpotMon::process_event(Event* event)
 //   // things down if you make more than one operation on a histogram
 
   // read the data
-  auto packet = event->getPacket(MicromegasDefs::m_packet_id);
+  std::unique_ptr<Packet> packet(event->getPacket(MicromegasDefs::m_packet_id));
   if( !packet )
   {
     // no data
