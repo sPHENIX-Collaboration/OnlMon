@@ -31,6 +31,10 @@ class TpotMonDraw : public OnlMonDraw
   int MakePS(const std::string &what = "ALL") override;
   int MakeHtml(const std::string &what = "ALL") override;
 
+  // get detector names
+  std::vector<std::string> get_detnames_sphenix() const
+  { return m_detnames_sphenix; }
+  
   private:
 
   TCanvas* get_canvas(const std::string& name, bool clear = true );

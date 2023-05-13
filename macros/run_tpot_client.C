@@ -1,6 +1,5 @@
 #include <CommonFuncs.C>
 #include <onlmon/tpot/TpotMonDraw.h>
-#include <onlmon/tpot/MicromegasMapping.h>
 #include <onlmon/OnlMonClient.h>
 
 #include <array>
@@ -10,11 +9,17 @@ R__LOAD_LIBRARY(libonltpotmon_client.so)
 
 void tpotDrawInit(const int online = 0)
 {
-  OnlMonClient *cl = OnlMonClient::instance();
-  
-  MicromegasMapping mapping;
-  const auto detector_names = mapping.get_detnames_sphenix();
+  // client
+  auto cl = OnlMonClient::instance();
 
+  // create drawing object and register
+  auto tpotmon = new TpotMonDraw("TPOTMONDRAW");
+  cl->registerDrawer(tpotmon);       
+  
+  // get detector names
+  const auto detector_names = tpotmon->get_detnames_sphenix();
+
+  // register histograms
   for( const std::string& hname: { "m_counters", "m_detector_occupancy_phi", "m_detector_occupancy_z" } )
   { cl->registerHisto( hname, "TPOTMON_0" ); } 
   
@@ -24,12 +29,12 @@ void tpotDrawInit(const int online = 0)
     { cl->registerHisto( hname+"_"+detname, "TPOTMON_0" ); }
   }
   
+  // list of hosts from where histograms should be retrieved
   CreateHostList(online);
+  
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("TPOTMON_0", 1);
-  OnlMonDraw *tpotmon = new TpotMonDraw("TPOTMONDRAW");  // create Drawing Object
-  cl->registerDrawer(tpotmon);              // register with client framework
 }
 
 void tpotDraw(const char *what = "ALL")

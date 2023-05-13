@@ -86,17 +86,16 @@ TpotMonDraw::TpotMonDraw(const std::string &name)
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
   dbvars.reset( new OnlMonDB(ThisName) );
+  
+  // initialize local list of detector names
+  for( const auto& fee_id:m_mapping.get_fee_id_list() )
+  { m_detnames_sphenix.push_back( m_mapping.get_detname_sphenix( fee_id ) ); }
+
 }
 
 //__________________________________________________________________________________
 int TpotMonDraw::Init()
-{
-  // initialize local list of detector names
-  m_detnames_sphenix.clear();
-  for( const auto& fee_id:m_mapping.get_fee_id_list() )
-  { m_detnames_sphenix.push_back( m_mapping.get_detname_sphenix( fee_id ) ); }
-  return 0;
-}
+{ return 0; }
 
 //__________________________________________________________________________________
 TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool /*clear*/ )
