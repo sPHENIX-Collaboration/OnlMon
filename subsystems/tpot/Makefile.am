@@ -34,6 +34,7 @@ libonltpotmon_client_la_LIBADD = \
 tpotincludedir=$(pkgincludedir)/tpot
 
 tpotinclude_HEADERS = \
+  TpotMon.h \
   TpotMonDraw.h \
   MicromegasGeometry.h
 
