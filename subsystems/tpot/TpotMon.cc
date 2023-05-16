@@ -36,7 +36,13 @@ int TpotMon::Init()
 {
   // read our calibrations from TpotMonData.dat
   {
-    std::string fullfile = std::string(getenv("TPOTCALIB")) + "/" + "TpotMonData.dat";
+  const char *tpotcalib = getenv("TPOTCALIB");
+  if (!tpotcalib)
+  {
+    std::cout << "TPOTCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+    std::string fullfile = std::string(tpotcalib) + "/" + "TpotMonData.dat";
     std::ifstream calib(fullfile);
     calib.close();
   }

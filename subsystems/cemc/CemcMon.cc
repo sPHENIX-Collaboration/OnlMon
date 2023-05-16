@@ -65,7 +65,13 @@ int CemcMon::Init()
 {
 
   // read our calibrations from CemcMonData.dat
-  std::string fullfile = std::string(getenv("CEMCCALIB")) + "/" + "CemcMonData.dat";
+  const char *cemccalib = getenv("CEMCCALIB");
+  if (!cemccalib)
+  {
+    std::cout << "CEMCCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(cemccalib) + "/" + "CemcMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   // use printf for stuff which should go the screen but not into the message

@@ -47,7 +47,13 @@ int Bbcll1Mon::Init()
 {
   gRandom->SetSeed(rand());
   // read our calibrations from Bbcll1MonData.dat
-  std::string fullfile = std::string(getenv("BBCLL1CALIB")) + "/" + "Bbcll1MonData.dat";
+  const char *bbcll1calib = getenv("BBCLL1CALIB");
+  if (!bbcll1calib)
+  {
+    std::cout << "BBCLL1CALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(bbcll1calib) + "/" + "Bbcll1MonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   // use printf for stuff which should go the screen but not into the message

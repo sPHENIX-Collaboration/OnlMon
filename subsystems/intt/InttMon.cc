@@ -37,7 +37,13 @@ int InttMon::Init()
 	//...
 
 	//Read in calibrartion data from InttMonData.dat
-	std::string fullfile = std::string(getenv("INTTCALIB")) + "/" + "InttMonData.dat";
+	const char *inttcalib = getenv("INTTCALIB");
+	if (!inttcalib)
+	{
+	  std::cout << "INTTCALIB environment variable not set" << std::endl;
+	  exit(1);
+	}
+	std::string fullfile = std::string(inttcalib) + "/" + "InttMonData.dat";
 	std::ifstream calib(fullfile);
 	//probably need to do stuff here (maybe write to expectation maps)
 	//or reimplment in BeginRun()

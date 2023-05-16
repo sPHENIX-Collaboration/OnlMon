@@ -59,8 +59,20 @@ if (! $?ONLMON_RUNDIR) then
   setenv ONLMON_RUNDIR $ONLMON_MAIN/share
 endif
 
-source /opt/sphenix/core/bin/setup_local.csh $ONLMON_MAIN
+#set up root
+unsetenv ROOT_INCLUDE_PATH
+setenv EVT_LIB $ROOTSYS/lib
+# start with your local directory
+setenv ROOT_INCLUDE_PATH ./
+foreach local_incdir (`find $ONLINE_MAIN/include -maxdepth 1 -type d -print`)
+  if (-d $local_incdir) then
+    setenv ROOT_INCLUDE_PATH ${ROOT_INCLUDE_PATH}:$local_incdir
+  endif
+end
+setenv LD_LIBRARY_PATH ${ONLMON_MAIN}/lib:$LD_LIBRARY_PATH
+set path = (${ONLMON_MAIN}/bin $path)
 # all subsystems scripts end in Setup.csh
 foreach script ($ONLMON_BIN/*Setup.csh)
   source $script
 end
+unset local_incdir

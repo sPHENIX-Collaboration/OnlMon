@@ -56,7 +56,13 @@ int BbcMon::Init()
   trand3 = new TRandom3(0);
 
   // read our calibrations from BbcMonData.dat
-  std::string fullfile = std::string(getenv("BBCCALIB")) + "/" + "BbcMonData.dat";
+  const char *bbccalib = getenv("BBCCALIB");
+  if (!bbccalib)
+  {
+    std::cout << "BBCCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(bbccalib) + "/" + "BbcMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
 

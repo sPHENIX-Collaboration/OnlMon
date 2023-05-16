@@ -47,7 +47,13 @@ int EpdMon::Init()
 {
   gRandom->SetSeed(rand());
   // read our calibrations from EpdMonData.dat
-  std::string fullfile = std::string(getenv("EPDCALIB")) + "/" + "EpdMonData.dat";
+  const char *epdcalib = getenv("EPDCALIB");
+  if (!epdcalib)
+  {
+    std::cout << "EPDCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(epdcalib) + "/" + "EpdMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   // use printf for stuff which should go the screen but not into the message

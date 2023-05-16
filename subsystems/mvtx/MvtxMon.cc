@@ -55,7 +55,13 @@ MvtxMon::~MvtxMon()
 int MvtxMon::Init()
 {
   // read our calibrations from MvtxMonData.dat
-  std::string fullfile = std::string(getenv("MVTXCALIB")) + "/" + "MvtxMonData.dat";
+  const char *mvtxcalib = getenv("MVTXCALIB");
+  if (!mvtxcalib)
+  {
+    std::cout << "MVTXCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(mvtxcalib) + "/" + "MvtxMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   // use printf for stuff which should go the screen but not into the message

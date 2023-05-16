@@ -56,7 +56,14 @@ int HcalMon::Init()
 {
   // read our calibrations from HcalMonData.dat
   /*
-  std::string fullfile = std::string(getenv("HCALCALIB")) + "/" + "HcalMonData.dat";
+
+  const char *hcalcalib = getenv("HCALCALIB");
+  if (!hcalcalib)
+  {
+    std::cout << "HCALCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(hcalcalib) + "/" + "HcalMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   */

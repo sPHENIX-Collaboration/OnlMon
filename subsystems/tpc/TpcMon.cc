@@ -46,7 +46,13 @@ TpcMon::~TpcMon()
 int TpcMon::Init()
 {
   // read our calibrations from TpcMonData.dat
-  std::string fullfile = std::string(getenv("TPCCALIB")) + "/" + "TpcMonData.dat";
+  const char *tpccalib = getenv("TPCCALIB");
+  if (!tpccalib)
+  {
+    std::cout << "TPCCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(tpccalib) + "/" + "TpcMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   // use printf for stuff which should go the screen but not into the message

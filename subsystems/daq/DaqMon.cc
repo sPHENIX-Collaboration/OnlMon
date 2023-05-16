@@ -47,7 +47,13 @@ int DaqMon::Init()
 {
   gRandom->SetSeed(rand());
   // read our calibrations from DaqMonData.dat
-  std::string fullfile = std::string(getenv("DAQCALIB")) + "/" + "DaqMonData.dat";
+  const char *daqcalib = getenv("DAQCALIB");
+  if (!daqcalib)
+  {
+    std::cout << "DAQCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string fullfile = std::string(daqcalib) + "/" + "DaqMonData.dat";
   std::ifstream calib(fullfile);
   calib.close();
   // use printf for stuff which should go the screen but not into the message
