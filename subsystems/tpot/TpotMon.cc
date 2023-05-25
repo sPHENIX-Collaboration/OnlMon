@@ -205,7 +205,7 @@ int TpotMon::process_event(Event* event)
   increment( m_counters, TpotMonDefs::kValidEventCounter );
 
   // read the data
-  std::unique_ptr<Packet> packet(event->getPacket(MicromegasDefs::m_packet_id));
+  std::unique_ptr<Packet> packet(event->getPacket(5000));
   if( !packet )
   {
     // no data
