@@ -15,7 +15,6 @@ class Event;
 class MessageSystem;
 class OnlMon;
 class OnlMonStatusDB;
-class OnlMonTrigger;
 class TH1;
 
 class OnlMonServer : public OnlMonBase
@@ -37,9 +36,6 @@ class OnlMonServer : public OnlMonBase
   TH1 *getHisto(const unsigned int ihisto) const;
   const std::string getHistoName(const unsigned int ihisto) const;
   unsigned int nHistos() const { return Histo.size(); }
-  unsigned int Trigger(const unsigned short int i = 2) { return trigger[i]; }
-  void Trigger(const unsigned int i, const unsigned short int iwhat) { trigger[iwhat] = i; }
-  int Trigger(const std::string &trigname, const unsigned short int i = 2);
   int RunNumber() const { return runnumber; }
   void RunNumber(const int irun);
   int EventNumber() const { return eventnumber; }
@@ -59,10 +55,10 @@ class OnlMonServer : public OnlMonBase
   int EndRun(const int runno);
   int WriteHistoFile();
 
-  time_t CurrentTicks() const { return currentticks; }
-  void CurrentTicks(const time_t ival) { currentticks = ival; }
-  time_t BorTicks() const { return borticks; }
-  void BorTicks(const time_t ival) { borticks = ival; }
+  uint64_t CurrentTicks() const { return currentticks; }
+  void CurrentTicks(const uint64_t ival) { currentticks = ival; }
+  uint64_t BorTicks() const { return borticks; }
+  void BorTicks(const uint64_t ival) { borticks = ival; }
 
   int BadEvents() const { return badevents; }
   void AddBadEvent() { badevents++; }
@@ -70,13 +66,6 @@ class OnlMonServer : public OnlMonBase
 
   int WriteLogFile(const std::string &name, const std::string &msg) const;
 
-  // interface to OnlMonTrigger class methods
-  OnlMonTrigger *OnlTrig();
-  void TrigMask(const std::string &name, const unsigned int bitmask);
-  unsigned int getLevel1Bit(const std::string &name);
-  unsigned int AddToTriggerMask(const std::string &name);
-  unsigned int ScaledTrigMask() const { return scaledtrigmask; }
-  unsigned int AddScaledTrigMask(const unsigned int mask);
   int IsPacketActive(const unsigned int ipkt);
   // set status if something went wrong
 
@@ -84,10 +73,8 @@ class OnlMonServer : public OnlMonBase
   int SetSubsystemRunStatus(OnlMon *Monitor, const int status);
   int LookAtMe(OnlMon *Monitor, const int level, const std::string &message);
   std::string GetRunType() const { return RunType; }
-  std::string GetTriggerConfig() const { return TriggerConfig; }
 
   int send_message(const OnlMon *Monitor, const int msgsource, const int severity, const std::string &err_message, const int msgtype) const;
-  int DisconnectDB();
   void GetMutex(pthread_mutex_t &lock) { lock = mutex; }
   void SetThreadId(const pthread_t &id) { serverthreadid = id; }
 
@@ -112,13 +99,12 @@ class OnlMonServer : public OnlMonBase
   void registerHisto(const std::string &hname, TH1 *h1d, const int replace = 0);
 
   static OnlMonServer *__instance;
-  unsigned int trigger[3];
   int runnumber = -1;
   int eventnumber = 0;
   int portnumber = OnlMonDefs::MONIPORT;
   int badevents = 0;
-  time_t currentticks = 0;
-  time_t borticks = 0;
+  uint64_t currentticks = 0;
+  uint64_t borticks = 0;
   int activepacketsinit = 0;
   unsigned int scaledtrigmask = 0xFFFFFFFF;
   int scaledtrigmask_used = 0;
@@ -128,7 +114,6 @@ class OnlMonServer : public OnlMonBase
   std::string RunType = "UNKNOWN";
 
   TH1 *serverrunning = nullptr;
-  OnlMonTrigger *onltrig = nullptr;
   OnlMonStatusDB *statusDB = nullptr;
   OnlMonStatusDB *RunStatusDB = nullptr;
   std::map<const std::string, TH1 *> Histo;

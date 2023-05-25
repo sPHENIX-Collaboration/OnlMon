@@ -11,8 +11,8 @@ void epdDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
-  cl->registerHisto("epdmon_hist1", "EPDMON_0");
-  cl->registerHisto("epdmon_hist2", "EPDMON_0");
+  cl->registerHisto("h_ADC0_s", "EPDMON_0");
+  cl->registerHisto("h_hits0_s", "EPDMON_0");
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);
   // get my histos from server, the second parameter = 1

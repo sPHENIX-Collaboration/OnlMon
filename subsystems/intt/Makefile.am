@@ -30,17 +30,20 @@ libonlinttmon_client_la_LIBADD = \
 inttincludedir=$(pkgincludedir)/intt
 
 inttinclude_HEADERS = \
-  InttMonConstants.h \
   InttFelixMap.h \
   InttMon.h \
+  InttMonConstants.h \
   InttMonDraw.h
 
 libonlinttmon_server_la_SOURCES = \
   InttFelixMap.cc \
-  InttMon.cc
+  InttMon.cc \
+  InttMonConstants.cc
 
 libonlinttmon_client_la_SOURCES = \
-  InttMonDraw.cc
+  InttFelixMap.cc \
+  InttMonDraw.cc \
+  InttMonConstants.cc
 
 bin_SCRIPTS = \
   InttMonSetup.csh \

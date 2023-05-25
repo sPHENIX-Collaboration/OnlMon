@@ -99,16 +99,16 @@ int pinit()
 //*********************************************************************
 int process_event(Event *evt)
 {
-  static time_t savetmpticks = 0x7FFFFFFF;
-  static time_t borticks = 0;
-  static time_t eorticks = 0;
+  static uint64_t savetmpticks = 0x7FFFFFFF;
+  static uint64_t borticks = 0;
+  static uint64_t eorticks = 0;
   static int eventcnt = 0;
   static int lowrunwarning = 1;
   static int lowrunevents = 0;
-  static unsigned int oldetmask = 0xFFFFFFFF;
 
   OnlMonServer *se = OnlMonServer::instance();
-  time_t tmpticks = evt->getTime();
+  uint64_t tmpticks = evt->getTime();
+
   // first test if a new run has started and call BOR/EOR methods of monitors
   if (se->RunNumber() == -1)
   {
@@ -129,20 +129,6 @@ int process_event(Event *evt)
     se->CurrentTicks(tmpticks);
     se->BeginRun(newrun);
     // set trigger mask in et pool frontend
-    unsigned int scaledtrigmask = se->ScaledTrigMask();
-    if (scaledtrigmask != oldetmask)  // only bother the et pool if the mask has changed
-    {
-      if (scaledtrigmask != 0xFFFFFFFF)
-      {
-        //	      petsetmask(scaledtrigmask);
-      }
-      else
-      {
-        // important is only the third parameter to disable et pool selection
-        //	      petsetmask(0, 0, 1);
-      }
-      oldetmask = scaledtrigmask;
-    }
     borticks = se->BorTicks();
     FrameWorkVars->SetBinContent(BORTIMEBIN, (Stat_t) borticks);
     pthread_mutex_unlock(&mutex);
@@ -161,18 +147,6 @@ int process_event(Event *evt)
     }
     return 0;
   }
-  /*
-  if ((evt->getRunNumber() > 500000 || evt->getRunNumber() < 60000)  && evt->getRunNumber() != 1 && evt->getRunNumber() != 0xFEE2DCB)
-    {
-      std::ostringstream msg;
-      msg << __PRETTY_FUNCTION__ << " huge or tiny event run number "
-          << evt->getRunNumber()
-          << " discarding event" ;
-      send_message(MSG_SEV_WARNING, msg.str());
-      se->AddBadEvent();
-      return 0;
-    }
-*/
   if (evt->getEvtLength() <= 0 || evt->getEvtLength() > 2500000)
   {
     std::ostringstream msg;
@@ -206,20 +180,6 @@ int process_event(Event *evt)
     se->BeginRun(newrun);
     borticks = se->BorTicks();
     FrameWorkVars->SetBinContent(BORTIMEBIN, (Stat_t) borticks);
-    unsigned int scaledtrigmask = se->ScaledTrigMask();
-    if (scaledtrigmask != oldetmask)  // only bother the et pool if the mask has changed
-    {
-      if (scaledtrigmask != 0xFFFFFFFF)
-      {
-        //	      petsetmask(scaledtrigmask);
-      }
-      else
-      {
-        // important is only the third parameter to disable et pool selection
-        //	      petsetmask(0, 0, 1);
-      }
-      oldetmask = scaledtrigmask;
-    }
     eventcnt = 0;
     lowrunwarning = 1;  // so we only get one low runnumber warning in logfile
     lowrunevents = 0;   // clear the low run event counter
@@ -246,18 +206,6 @@ int process_event(Event *evt)
   {
     eorticks = se->CurrentTicks();
   }
-  if (se->ScaledTrigMask() != 0xFFFFFFFF && evt->getEvtType() == DATAEVENT && !se->isStandaloneRun())
-  {
-    if (!(evt->getTagWord(0) & se->ScaledTrigMask()))
-    {
-      //	  	  std::cout << "discarding 0x" << hex << evt->getTagWord(0) << dec << std::endl;
-      return 0;
-    }
-    //       else
-    // 	{
-    // 	  std::cout << "accepting 0x" << hex << evt->getTagWord(0) << dec << std::endl;
-    // 	}
-  }
   if (evt->getErrorCode())
   {
     std::ostringstream msg;
@@ -269,34 +217,7 @@ int process_event(Event *evt)
     return 0;
   }
 
-  Packet *p = evt->getPacket(14001);
-  if (p)
-  {
-    se->Trigger(p->iValue(0, 1), 0);
-    se->Trigger(p->iValue(0, 2), 1);
-    se->Trigger(p->iValue(0, 3), 2);
-    //      std::cout << "Accepting 0x" << hex <<  p->iValue(0, SCALEDTRIG) << std::endl;
-    //       unsigned int livetrigword = p->iValue(0, LIVETRIG) & 0x00FFFFFF;
-    //       for (int i = 24; i < 32; i++)
-    // 	{
-    // 	  if (!(se->OnlTrig()->get_lvl1_trig_bitmask_bybit(i)))
-    // 	    {
-    // 	      livetrigword |= ((0x1 << i) & se->Trigger((unsigned short) 0));
-    // 	    }
-    // 	}
-    //       se->Trigger(livetrigword,1);
-    delete p;
-  }
-  else
-  {
-    unsigned int inittrig = 0;
-    se->Trigger(inittrig, 2);
-  }
   eventcnt++;
-  if (se->Verbosity() > 1)
-  {
-    printf(" # Events: %d Trigger: 0x%x\n", eventcnt, se->Trigger(2));
-  }
   pthread_mutex_lock(&mutex);
   FrameWorkVars->SetBinContent(CURRENTTIMEBIN, (Stat_t) se->CurrentTicks());
   se->EventNumber(evt->getEvtSequence());

@@ -19,28 +19,12 @@ OnlMon::OnlMon(const std::string &name)
     std::cout << "No underscore (_) in online monitoring server name " << name << " allowed" << std::endl;
     exit(1);
   }
-  livetrigmask = 0;
   status = OnlMon::ACTIVE;
   return;
 }
 
 int OnlMon::process_event_common(Event *evt)
 {
-  if (livetrigmask)
-  {
-    OnlMonServer *se = OnlMonServer::instance();
-    if (!(se->Trigger(1) & livetrigmask))
-    {
-      return 0;
-    }
-    else
-    {
-      if (verbosity > 1)
-      {
-        printf("event accepted, live trig: %08x, mask %08x\n", se->Trigger(1), livetrigmask);
-      }
-    }
-  }
   int iret = process_event(evt);
   return iret;
 }
@@ -63,34 +47,6 @@ void OnlMon::identify(std::ostream &out) const
   return;
 }
 
-void OnlMon::AddTrigger(const std::string &name)
-{
-  if (TriggerList.find(name) != TriggerList.end())
-  {
-    std::ostringstream msg;
-    msg << ThisName << ": Trigger " << name << " already in trigger list";
-    OnlMonServer *se = OnlMonServer::instance();
-    se->send_message(this, MSG_SOURCE_MONITOR, MSG_SEV_WARNING, msg.str(), 1);
-    return;
-  }
-  TriggerList.insert(name);
-  return;
-}
-
-void OnlMon::AddLiveTrigger(const std::string &name)
-{
-  if (LiveTriggerList.find(name) != LiveTriggerList.end())
-  {
-    std::ostringstream msg;
-    msg << ThisName << ": Trigger " << name << " already in live trigger filter list";
-    OnlMonServer *se = OnlMonServer::instance();
-    se->send_message(this, MSG_SOURCE_MONITOR, MSG_SEV_WARNING, msg.str(), 1);
-    return;
-  }
-  LiveTriggerList.insert(name);
-  return;
-}
-
 int OnlMon::InitCommon(OnlMonServer *  se)
 {
 //  m_LocalFrameWorkVars = static_cast<TH1 *>(se->getCommonHisto("FrameWorkVars")->Clone());
@@ -98,42 +54,8 @@ int OnlMon::InitCommon(OnlMonServer *  se)
   return 0;
 }
 
-int OnlMon::BeginRunCommon(const int /* runno */, OnlMonServer *se)
+int OnlMon::BeginRunCommon(const int /* runno */, OnlMonServer * /*se*/)
 {
-  livetrigmask = 0;
-  if (se->isCosmicRun())  // no trigger selection for cosmic runs
-  {
-    return 0;
-  }
-  if (!TriggerList.empty() || !LiveTriggerList.empty())
-  {
-    unsigned int newmask = 0;
-    std::string RunType = se->GetRunType();
-    if (RunType == "PHYSICS" || RunType == "ZEROFIELD" || RunType == "CALIBRATION")
-    {
-      std::set<std::string>::const_iterator iter;
-      for (iter = TriggerList.begin(); iter != TriggerList.end(); ++iter)
-      {
-        if (verbosity > 0)
-        {
-          std::cout << "Adding trigger " << *iter << " to selection" << std::endl;
-        }
-        printf("Adding trigger %s to selection\n", (*iter).c_str());
-        newmask = se->AddToTriggerMask(*iter);
-      }
-
-      for (iter = LiveTriggerList.begin(); iter != LiveTriggerList.end(); ++iter)
-      {
-        if (verbosity > 0)
-        {
-          std::cout << "Adding trigger " << *iter << " to live trigger selection" << std::endl;
-        }
-        printf("Adding trigger %s to live trigger selection\n", (*iter).c_str());
-        livetrigmask |= se->getLevel1Bit(*iter);
-      }
-    }
-    printf("scaled trigger mask %08x, live trigger mask %08x\n", newmask, livetrigmask);
-  }
   SetStatus(OnlMon::OK);
   return 0;
 }

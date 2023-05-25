@@ -16,13 +16,11 @@ void start_server(const std::string &prdffile = "")
     cout << "No Input file given" << endl;
     return;
   }
-  if (prdffile == "etpool")
+  if (prdffile.find("seb") == 0 || prdffile.find("ebdc") == 0)
   {
-    // gSystem->Load("libcorbamsgbuffer.so");
-    // corba_msg_buffer *enablecorbabuf = new corba_msg_buffer("monitor_event_channel");
-    //      petopen("/tmp/Monitor@etpool");
+    rcdaqopen(prdffile.c_str());
     prun();
-    //  if etpool gets restarted we execute the EndRun and then
+    //  if the rcdaq server is terminated we execute the EndRun and then
     // save the histograms
     se->EndRun(se->RunNumber());  //
     se->WriteHistoFile();

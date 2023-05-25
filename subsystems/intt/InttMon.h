@@ -35,13 +35,14 @@ public:
 	int process_event(Event*);
 	int Reset();
 
-	int MiscDebug(); //for testing/debugging without unpacker, remove later
+	//for testing/debugging without unpacker, remove later
+	int MiscDebug();
+	void RandomEvent(int);
 private:
-	// for testing/debugging without unpacker, remove later
+	//// for testing/debugging without unpacker, remove later
 	TRandom* rng = nullptr;
-	const double HITS_PER_EVENT = 16.0; //assuming on average 16 total hits per each event
-	int InitExpectationHists();
-	//~for testing/debugging without unpacker, remove later
+	//int InitExpectationHists();
+	////~for testing/debugging without unpacker, remove later
 
 	int DBVarInit();
 	int DBVarUpdate();
@@ -51,9 +52,6 @@ private:
 
 	TH1D* NumEvents = nullptr;
 	TH1D* HitMap = nullptr;
-	TH1D* HitMapRef = nullptr;
-	TH1D* ADCMap = nullptr;
-	TH1D* ADCMapRef = nullptr;
 	//...
 };
 

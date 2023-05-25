@@ -4,7 +4,6 @@
 #include <onlmon/OnlMon.h>
 
 class Event;
-class OnlMonDB;
 class TH1;
 class TH2;
 class TRandom3;
@@ -21,10 +20,8 @@ class BbcMon : public OnlMon
   int Reset();
 
  protected:
-  int DBVarInit();
   int evtcnt = 0;
   int idummy = 0;
-  OnlMonDB *dbvars = nullptr;
 
   TH2 *bbc_adc = nullptr;
   TH2 *bbc_tdc = nullptr;

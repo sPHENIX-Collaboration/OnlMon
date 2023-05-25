@@ -35,3 +35,41 @@ MicromegasGeometry::point_list_t MicromegasGeometry::get_tile_boundaries( size_t
     { center.first+m_tile_length/2,center.second-m_tile_width/2 }     
   };                                                                                       
 }
+
+//__________________________________________________
+MicromegasGeometry::point_list_t MicromegasGeometry::get_resist_boundaries( size_t tile_index, size_t resist_index, MicromegasDefs::SegmentationType segmentation ) const
+{
+  const auto tile_center = get_tile_center( tile_index );
+  switch( segmentation )
+  {
+    case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
+    {
+      const double& resist_width = m_tile_width;
+      const double resist_length = m_tile_length/m_nresist;
+      const point_t resist_center({ tile_center.first - (m_tile_length - (2*resist_index+1)*resist_length)/2, tile_center.second });
+      return 
+      {    
+        { resist_center.first-resist_length/2,resist_center.second-resist_width/2 },
+        { resist_center.first-resist_length/2,resist_center.second+resist_width/2 },     
+        { resist_center.first+resist_length/2,resist_center.second+resist_width/2 },     
+        { resist_center.first+resist_length/2,resist_center.second-resist_width/2 }     
+      };                                                                                       
+    }
+    case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
+    {
+      const double resist_width = m_tile_width/m_nresist;
+      const double& resist_length = m_tile_length;
+      const point_t resist_center({tile_center.first, tile_center.second - (m_tile_width - (2*resist_index+1)*resist_width)/2 });
+      return 
+      {    
+        { resist_center.first-resist_length/2,resist_center.second-resist_width/2 },
+        { resist_center.first-resist_length/2,resist_center.second+resist_width/2 },     
+        { resist_center.first+resist_length/2,resist_center.second+resist_width/2 },     
+        { resist_center.first+resist_length/2,resist_center.second-resist_width/2 }     
+      };                                                                                       
+    }
+  }
+
+  // unreached
+  return point_list_t();
+}

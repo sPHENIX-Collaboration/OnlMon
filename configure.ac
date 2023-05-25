@@ -27,6 +27,7 @@ onlmondatabase/Makefile
 poms/Makefile 
 onlmonserver/Makefile 
 onlmonutils/Makefile 
+scripts/Makefile
 subsystems/Makefile
 subsystems/bbc/Makefile
 subsystems/bbc/calib/Makefile

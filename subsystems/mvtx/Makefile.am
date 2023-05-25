@@ -31,11 +31,7 @@ mvtxincludedir=$(pkgincludedir)/mvtx
 
 mvtxinclude_HEADERS = \
   MvtxMon.h \
-  MvtxMonDraw.h \
-  DecodingStat.h \
-  GBTWord.h \
-  InteractionRecord.h \
-  PixelData.h
+  MvtxMonDraw.h
 
 libonlmvtxmon_server_la_SOURCES = \
   MvtxMon.cc

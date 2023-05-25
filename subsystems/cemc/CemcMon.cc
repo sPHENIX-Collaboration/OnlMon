@@ -6,7 +6,6 @@
 #include "CemcMon.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
-#include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
@@ -50,14 +49,11 @@ CemcMon::CemcMon(const std::string &name)
 
 const int depth = 50;
 const int historyLength = 100;
-const int n_channel = 48;
 const float hit_threshold = 100;
 
 
 CemcMon::~CemcMon()
 {
-  // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
   return;
 }
 
@@ -77,13 +73,12 @@ int CemcMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("CemcMon::Init()\n");
-
   // Histograms definitions 
   //tower hit information
   h2_cemc_hits = new TH2F("h2_cemc_hits", "", 96, 0, 96, 256, 0, 256);
   h2_cemc_rm = new TH2F("h2_cemc_rm", ""    , 96, 0, 96, 256, 0, 256);
   h2_cemc_mean = new TH2F("h2_cemc_mean", "", 96, 0, 96, 256, 0, 256);
-  
+  h1_cemc_adc = new TH1F("h1_cemc_adc","",1000,0.5,pow(2,14));
   //event couunter
   h1_event = new TH1F("h1_event", "", 1, 0, 1);
 
@@ -159,14 +154,12 @@ int CemcMon::Init()
   se->registerHisto(this, h1_packet_number);
   se->registerHisto(this, h1_packet_length);
   se->registerHisto(this, h1_packet_chans);
-
+  se->registerHisto(this, h1_cemc_adc);
+  
   for (int ih = 0; ih < Nsector; ih++)
-    se->registerHisto(this, h1_rm_sectorAvg[ih]);
-
-  //  se->registerHisto(this, cemchist2);
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
-  Reset();
+    {
+      se->registerHisto(this, h1_rm_sectorAvg[ih]);
+    }
 
   // make the per-packet runnumg mean objects
   for ( int i = 0; i < 64; i++)
@@ -246,7 +239,8 @@ std::vector<float> CemcMon::getSignal(Packet *p, const int channel)
 std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 {
   std::vector<float> waveform;
-  for ( int s = 0;  s< p->iValue(0,"SAMPLES"); s++) {
+  waveform.reserve(m_nSamples);  
+  for ( int s = 0;  s < m_nSamples/*p->iValue(0,"SAMPLES")*/; s++) {
     waveform.push_back(p->iValue(s,channel));
   }
   std::vector<std::vector<float>> multiple_wfs;
@@ -264,7 +258,9 @@ std::vector<float> CemcMon::anaWaveformFast(Packet *p, const int channel)
 std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 {
   std::vector<float> waveform;
-  for ( int s = 0;  s< p->iValue(0,"SAMPLES"); s++) {
+  waveform.reserve(m_nSamples);
+  for ( int s = 0;  s < m_nSamples/*p->iValue(0,"SAMPLES")*/; s++) {
+    
     waveform.push_back(p->iValue(s,channel));
   }
   std::vector<std::vector<float>> multiple_wfs;
@@ -281,23 +277,11 @@ std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 
 int CemcMon::process_event(Event *e  /* evt */)
 {
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  // if (!se->Trigger("ONLMONBBCLL1"))
-  // {
-  //   std::ostringstream msg;
-  //   msg << "Processing Event " << evtcnt
-  //       << ", Trigger : 0x" << std::hex << se->Trigger()
-  //       << std::dec;
-
-  //   se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  // }
-
   h1_waveform_twrAvg->Reset();  // only record the latest event waveform
-  unsigned int towerNumber = 0;
   float sectorAvg[Nsector] = {0};
+  unsigned int towerNumber = 0;	
   // loop over packets which contain a single sector
+  eventCounter++;
   for (int packet = packetlow; packet <= packethigh; packet++)
     {
       Packet* p = e->getPacket(packet);
@@ -308,21 +292,25 @@ int CemcMon::process_event(Event *e  /* evt */)
 	  h1_packet_number -> Fill(packet);
 	  
 	  h1_packet_length -> SetBinContent(packet-6000,h1_packet_length->GetBinContent(packet-6000) + p -> getLength());
-
-	  for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
+	  
+	  int nChannels = p->iValue(0, "CHANNELS");
+	  if(nChannels > m_nChannels) 
 	    {
+	      return -1;//packet is corrupted, reports too many channels
+	    }
+	  for (int c = 0; c < nChannels; c++)
+	    {
+	      	      
 	      h1_packet_chans -> Fill(packet);
-	      //msg << "Filling channel: " << c << " for packet: " << packet << std::endl;
-	      //se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-	      // record waveform to show the average waveform
+	      
 	      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
 		{
 		  h1_waveform_twrAvg->Fill(s, p->iValue(s, c));
 		}
 	      towerNumber++;
-
+	      
 	      // std::vector result =  getSignal(p,c); // simple peak extraction
-	      std::vector<float> resultFast= anaWaveformFast(p, c);  // fast waveform fitting
+	      std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
 	      float signalFast = resultFast.at(0);
 	      float timeFast = resultFast.at(1);
 	      float pedestalFast = resultFast.at(2);
@@ -344,17 +332,17 @@ int CemcMon::process_event(Event *e  /* evt */)
 
 	      int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
 
-
-
-	  
 	      sectorAvg[sectorNumber - 1] += signalFast;
 
 	      rm_vector_twr[towerNumber - 1] -> Add(&signalFast);
 	
 	      h2_cemc_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
 		
-	      h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
+	      //create beginning of run template
+	      if(eventCounter < 10000)h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
 
+	      h1_cemc_adc ->Fill(signalFast);
+	      
 	      h1_cemc_fitting_sigDiff -> Fill(signalFast/signalTemp);
 	      h1_cemc_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
 	      h1_cemc_fitting_timeDiff -> Fill(timeFast - timeTemp);
@@ -363,13 +351,65 @@ int CemcMon::process_event(Event *e  /* evt */)
 		{
 		  h2_cemc_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
 		}
-
-        
-
 	    }  // channel loop
+	  if(nChannels < m_nChannels)
+	    {
+	      //still need to correctly set bad channels to zero. 
+	      for(int channel = 0; channel < m_nChannels - nChannels; channel++)
+		{
+		  towerNumber++;
+		  
+		  unsigned int key = TowerInfoDefs::encode_emcal(towerNumber - 1);
+		  unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
+		  unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
 
+		  int sectorNumber = phi_bin / 8 + 1;
+
+		  //h1_waveform_time->Fill(timeFast);
+
+		  //h1_waveform_pedestal->Fill(pedestalFast);
+
+		  int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
+
+		  sectorAvg[sectorNumber -1] += 0.;
+		  
+		  float signalFast = 0.0;
+		  
+		  rm_vector_twr[towerNumber -1] -> Add(&signalFast);
+		  
+		  h2_cemc_rm -> SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
+		  
+		  h2_cemc_mean -> SetBinContent(bin, h2_cemc_mean->GetBinContent(bin));
+		
+		}
+	    }
 	  delete p;
 	}  // if packet good
+      else //packet is corrupted, treat all channels as zero suppressed
+	{
+	 
+	  for(int channel = 0; channel < m_nChannels; channel++)
+	    {
+	      towerNumber++;
+	      unsigned int key = TowerInfoDefs::encode_emcal(towerNumber - 1);
+	      unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
+	      unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
+
+	      int sectorNumber = phi_bin / 8 + 1;
+
+	      int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
+
+	      sectorAvg[sectorNumber -1] += 0;
+
+	      float signalFast = 0;
+		  
+	      rm_vector_twr[towerNumber -1] -> Add(&signalFast);
+		  
+	      h2_cemc_rm -> SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
+		  
+	      h2_cemc_mean -> SetBinContent(bin, h2_cemc_mean->GetBinContent(bin));
+	    }
+	} //zero filling bad packets
     }    // packet loop
 
 
@@ -379,9 +419,9 @@ int CemcMon::process_event(Event *e  /* evt */)
       sectorAvg[isec] /= 48;
       h1_sectorAvg_total->Fill(isec + 1, sectorAvg[isec]);
       rm_vector_sectAvg[isec]->Add(&sectorAvg[isec]);
-      if (evtcnt <= historyLength)
+      if (eventCounter <= historyLength)
 	{
-	  h1_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+	  h1_rm_sectorAvg[isec]->SetBinContent(eventCounter, rm_vector_sectAvg[isec]->getMean(0));
 	}
       else
 	{
@@ -389,7 +429,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 	    {
 	      h1_rm_sectorAvg[isec]->SetBinContent(ib, h1_rm_sectorAvg[isec]->GetBinContent(ib + 1));
 	    }
-	  h1_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+	  h1_rm_sectorAvg[isec]->SetBinContent(eventCounter, rm_vector_sectAvg[isec]->getMean(0));
 	}
     }  // sector loop
 
@@ -397,20 +437,6 @@ int CemcMon::process_event(Event *e  /* evt */)
   //h1_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
   h1_waveform_twrAvg->Scale((float)1/towerNumber);
  
-  if (idummy++ > 10)
-    {
-      if (dbvars)
-	{
-	  dbvars->SetVar("cemcmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-	  dbvars->SetVar("cemcmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-	  dbvars->SetVar("cemcmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-	  dbvars->DBcommit();
-	}
-      std::ostringstream msg;
-      msg << "Filling Histos";
-      se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-      idummy = 0;
-    }
   return 0;
 }
 
@@ -418,25 +444,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 int CemcMon::Reset()
 {
   // reset our internal counters
-  evtcnt = 0;
+  eventCounter = 0;
   idummy = 0;
-  return 0;
-}
-
-int CemcMon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "cemcmoncount";
-  dbvars->registerVar(varname);
-  varname = "cemcmondummy";
-  dbvars->registerVar(varname);
-  varname = "cemcmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-    {
-      dbvars->Print();
-    }
-  dbvars->DBInit();
   return 0;
 }

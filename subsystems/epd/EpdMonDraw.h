@@ -3,6 +3,9 @@
 
 #include <onlmon/OnlMonDraw.h>
 
+#include <TH2.h>
+#include <TStyle.h>
+
 #include <string>  // for allocator, string
 
 class OnlMonDB;
@@ -26,6 +29,7 @@ class EpdMonDraw : public OnlMonDraw
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
+  int DrawThird(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int TimeOffsetTicks = -1;
   TCanvas *TC[3] = {nullptr};

@@ -9,7 +9,6 @@
 class CaloWaveformFitting;
 class TowerInfoContainer;
 class Event;
-class OnlMonDB;
 class TH1;
 class TH2;
 class Packet;
@@ -31,18 +30,20 @@ class CemcMon : public OnlMon
   std::vector<float> anaWaveformFast(Packet *p, const int channel);
   std::vector<float> anaWaveformTemp(Packet *p, const int channel);
 
-  int DBVarInit();
-  int evtcnt = 0;
   int idummy = 0;
-  OnlMonDB *dbvars = nullptr;
   TH2 *cemc_occupancy = nullptr;
   TH2 *cemc_runningmean = nullptr;
   TH1 *cemc_signal = nullptr;
-
+  TH1 *h1_cemc_adc = nullptr;
+  
   const int Nsector = 64;
   const int Ntower = 64*2*192;
   const int packetlow = 6001;
   const int packethigh = 6128;
+  const int m_nSamples = 16;
+  const int m_nChannels = 192;
+  int eventCounter = 0;
+  
   TH1* h1_packet_chans = nullptr;
   TH1* h1_packet_length = nullptr;
   TH1* h1_packet_number = nullptr;

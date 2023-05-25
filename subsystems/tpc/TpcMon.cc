@@ -39,7 +39,6 @@ TpcMon::TpcMon(const std::string &name)
 TpcMon::~TpcMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
   return;
 }
 
@@ -74,8 +73,6 @@ int TpcMon::Init()
   se->registerHisto(this, tpchist2);
   se->registerHisto(this, NorthSideADC);
   se->registerHisto(this, SouthSideADC);
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
   Reset();
   return 0;
 }
@@ -90,22 +87,6 @@ int TpcMon::BeginRun(const int /* runno */)
 int TpcMon::process_event(Event * /* evt */)
 {
   evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("tpchist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
@@ -136,20 +117,6 @@ int TpcMon::process_event(Event * /* evt */)
   //
 
 
-  if (idummy++ > 10)
-  {
-    if (dbvars)
-    {
-      dbvars->SetVar("tpcmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("tpcmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("tpcmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
   return 0;
 }
 
@@ -190,20 +157,3 @@ int TpcMon::Reset()
   return 0;
 }
 
-int TpcMon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "tpcmoncount";
-  dbvars->registerVar(varname);
-  varname = "tpcmondummy";
-  dbvars->registerVar(varname);
-  varname = "tpcmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
-  }
-  dbvars->DBInit();
-  return 0;
-}

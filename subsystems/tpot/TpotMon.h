@@ -11,7 +11,6 @@
 #include <memory>
 
 class Event;
-class OnlMonDB;
 class TH1;
 class TH2;
 class TH2Poly;
@@ -28,7 +27,6 @@ class TpotMon : public OnlMon
   int Reset() override;
 
   private:
-  int DBVarInit();
     
   //! setup bins in a TH2Poly. One bin per detector
   void setup_detector_bins( TH2Poly* );
@@ -38,7 +36,6 @@ class TpotMon : public OnlMon
   
   int evtcnt = 0;
   int idummy = 0;
-  std::unique_ptr<OnlMonDB> dbvars;
   
   //! mapping
   MicromegasMapping m_mapping;
@@ -56,6 +53,14 @@ class TpotMon : public OnlMon
   //! TPOT per/detector occupancy
   TH2Poly* m_detector_occupancy_z = nullptr;
   TH2Poly* m_detector_occupancy_phi = nullptr;
+
+  //! TPOT per/detector multiplicity
+  TH2Poly* m_resist_multiplicity_z = nullptr;
+  TH2Poly* m_resist_multiplicity_phi = nullptr;
+  
+  //! TPOT per/detector occupancy
+  TH2Poly* m_resist_occupancy_z = nullptr;
+  TH2Poly* m_resist_occupancy_phi = nullptr;
 
   //@name per detector structure
   //@{

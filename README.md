@@ -27,6 +27,10 @@ root.exe
 
 .x run_example_server1.C
 
+run 100 events to get ths show going (otherwise your histos will be empty)
+
+prun(100) 
+
 ## in the other start the client
 
 root.exe

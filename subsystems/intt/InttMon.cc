@@ -21,19 +21,12 @@ int InttMon::Init()
 	DBVarInit();
 
 	//histograms
-	//DeadMap = ...
 	NumEvents = new TH1D(Form("InttNumEvents"), Form("InttNumEvents"), 1, 0, 1);
-	HitMap = new TH1D(Form("InttHitMap"), Form("InttHitMap"), INTT::CHANNELS, 0, INTT::CHANNELS);
-	HitMapRef = new TH1D(Form("InttHitMapRef"), Form("InttHitMapRef"), INTT::CHANNELS, 0, INTT::CHANNELS);
-	ADCMap = new TH1D(Form("InttADCMap"), Form("InttADCMap"), INTT::ADCS, 0, INTT::ADCS);
-	ADCMapRef = new TH1D(Form("InttADCMapRef"), Form("InttADCMapRef"), INTT::ADCS, 0, INTT::ADCS);
+	HitMap = new TH1D(Form("InttMap"), Form("InttMap"), INTT::ADCS, 0, INTT::ADCS);
 	//...
 
 	omc->registerHisto(this, NumEvents);
 	omc->registerHisto(this, HitMap);
-	omc->registerHisto(this, HitMapRef);
-	omc->registerHisto(this, ADCMap);
-	omc->registerHisto(this, ADCMapRef);
 	//...
 
 	//Read in calibrartion data from InttMonData.dat
@@ -50,7 +43,6 @@ int InttMon::Init()
 	calib.close();
 
 	// for testing/debugging without unpacker, remove later
-	InitExpectationHists();
 	rng = new TRandom(1234);
 	//~for testing/debugging without unpacker, remove later
 
@@ -68,108 +60,52 @@ int InttMon::BeginRun(const int /* run_num */)
 
 int InttMon::process_event(Event* evt)
 {
-	int N;
-
 	int bin;
-
-	int felix;
-	int felix_channel;
-
-	int layer;
-	int ladder;
-	int northsouth;
-	int chip;
-	int channel;
-	int adc;
-
-	struct INTT_Felix::Ladder_s lddr_s;
-
-	int id;
+	int N;
 	int n;
 
-	for(id = 3001; id < 3009; ++id)
+	int pid = 3001;
+	int felix;
+	int felix_channel;
+	struct INTT_Felix::Ladder_s lddr_s;
+
+	//int bin;
+	struct INTT::Indexes_s indexes;
+
+	for(pid = 3001; pid < 3009; ++pid)
 	{
-		Packet* p = evt->getPacket(id);
+		felix = pid - 3001;
+
+		//if(felix != server_id)continue;
+
+		Packet* p = evt->getPacket(pid);
 		if(!p)continue;
 
 		N = p->iValue(0, "NR_HITS");
-
 		if(N)std::cout << N << std::endl;
 
 		for(n = 0; n < N; ++n)
 		{
-			felix = id - 3001;
 			felix_channel = p->iValue(n, "FEE");
 
 			INTT_Felix::FelixMap(felix, felix_channel, lddr_s);
 
-			layer = lddr_s.barrel * 2 + lddr_s.layer;
-			ladder = lddr_s.ladder;
+			indexes.lyr = lddr_s.barrel * 2 + lddr_s.layer;
+			indexes.ldr = lddr_s.ladder;
 
-			northsouth = ((id - 3001) / 4) % 2;
+			indexes.arm = (felix / 4) % 2;
 
-			chip = p->iValue(n, "CHP_ID");
-			chip = (chip - 1) % 26 + INTT::CHIP_OFFSET;
+			indexes.chp = p->iValue(n, "CHP_ID");
+			indexes.chp = (indexes.chp - 1) % 26;
 
-			channel = p->iValue(n, "CHANNEL_ID");
+			indexes.chn = p->iValue(n, "CHANNEL_ID");
 
-			adc = p->iValue(n, "ADC");
-			if(INTT::HitMap::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel))continue;
+			indexes.adc = p->iValue(n, "ADC");
+
+			INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
 			HitMap->AddBinContent(bin);
-
-			if(INTT::ADCN::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel, adc))continue;
-			ADCMap->AddBinContent(bin);
 		}
 	}
-
-	////dummy method since unpacker is not done yet
-	//double temp;
-
-
-	////...
-
-	//int hits = rng->Poisson(HITS_PER_EVENT);
-	//for(int hit = 0; hit < hits; hit++)
-	//{
-	//	//randomly choose a chip/channel for the hit to occur
-	//	//including guards in case upper bound of TRandom::Uniform(Double_t) is inclusive
-	//	layer = rng->Uniform(INTT::LAYER);
-	//	if(layer == INTT::LAYER)layer -= 1;
-
-	//	ladder = rng->Uniform(INTT::LADDER[layer]);
-	//	if(ladder == INTT::LADDER[layer])ladder -= 1;
-
-	//	northsouth = rng->Uniform(INTT::NORTHSOUTH);
-	//	if(northsouth == INTT::NORTHSOUTH)northsouth -= 1;
-
-	//	chip = rng->Uniform(INTT::CHIP);
-	//	if(chip == INTT::CHIP)chip -= 1;
-
-	//	channel = rng->Uniform(INTT::CHANNEL);
-	//	if(channel == INTT::CHANNEL)channel -= 1;
-
-	//	adc = rng->Uniform(INTT::ADC);
-	//	if(adc == INTT::ADC)adc -= 1;
-
-	//	//Set temp to be the unscaled z position of the chip, to introduce eta dependence for the dummy method
-	//	//currently not used; hitrates are flat
-	//	temp = (2.0 * northsouth - 1.0) * ( (INTT::CHIP / 2) - chip % (INTT::CHIP / 2) - 0.5 );
-
-	//	//get the bin these indexes correspond to
-	//	//INTT::FindBin returns 1 if there is an error; extra guard statement for typos
-	//	if(INTT::HitMap::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel))continue;
-	//	HitMap->AddBinContent(bin);
-	//	if(INTT::ADCN::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel, adc))continue;
-	//	ADCMap->AddBinContent(bin);
-
-	//	std::string northsouth_str = "North";
-	//	if(northsouth)northsouth_str = "South";
-
-	//	printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", layer + INTT::LAYER_OFFSET, ladder, northsouth_str.c_str(), chip + INTT::CHIP_OFFSET, channel);
-	//	//...
-
-	//	bin = temp;//dummy line so it will compile; temp is "used"
-	//}
 
 	NumEvents->AddBinContent(1);
 
@@ -186,7 +122,6 @@ int InttMon::Reset()
 	//clear our histogram entries
 	NumEvents->Reset();
 	HitMap->Reset();
-	ADCMap->Reset();
 
 	return 0;
 }
@@ -213,239 +148,147 @@ int InttMon::DBVarUpdate()
 }
 //===	~Private Methods		===//
 
-// for testing/debugging without unpacker, remove later
+// for testing/debugging
 int InttMon::MiscDebug()
 {
-	//write methods to debug/test here
-	int bin;
-	int b;
+	//int b;
+	//int c;
 
-	int layer;
-	int ladder;
-	int northsouth;
-	int chip;
-	int channel;
-	//int adc;
+	//INTT::Indexes_s indexes;
+	//INTT::Indexes_s jndexes;
 
-	int ly;
-	int ld;
-	int ns;
-	int cp;
-	int cn;
-	//int a;
+	//while(true)
+	//{
+	//	INTT::GetGlobalBinFromIndexes(b, indexes);
+	//	INTT::GetGlobalIndexesFromBin(b, jndexes);
+	//	INTT::GetGlobalBinFromIndexes(c, jndexes);
 
-	bool round_trip_1 = true;
-	bool round_trip_2 = true;
+	//	if(b != c)
+	//	{
+	//		std::cout << "Broke for round trip:" << std::endl;
+	//		std::cout << "\tindexes:" << std::endl;
+	//		std::cout << "\t\tadc: " << indexes.adc << " -> " << jndexes.adc << std::endl;
+	//		std::cout << "\t\tchn: " << indexes.chn << " -> " << jndexes.chn << std::endl;
+	//		std::cout << "\t\tchp: " << indexes.chp << " -> " << jndexes.chp << std::endl;
+	//		std::cout << "\t\tarm: " << indexes.arm << " -> " << jndexes.arm << std::endl;
+	//		std::cout << "\t\tldr: " << indexes.ldr << " -> " << jndexes.ldr << std::endl;
+	//		std::cout << "\t\tlyr: " << indexes.lyr << " -> " << jndexes.lyr << std::endl;
+	//		std::cout << "\tbin: " << b << " -> " << c << std::endl;
 
-	//global checks
-	for(bin = 1; bin <= INTT::CHANNELS; bin++)
+	//		break;
+	//	}
+
+	//	++indexes.adc;
+	//	if(indexes.adc < INTT::ADC)continue;
+	//	indexes.adc = 0;
+	//	
+	//	++indexes.chn;
+	//	if(indexes.chn < INTT::CHANNEL)continue;
+	//	indexes.chn = 0;
+
+	//	++indexes.chp;
+	//	if(indexes.chp < INTT::CHIP)continue;
+	//	indexes.chp = 0;
+
+	//	++indexes.arm;
+	//	if(indexes.arm < INTT::ARM)continue;
+	//	indexes.arm = 0;
+
+	//	++indexes.ldr;
+	//	if(indexes.ldr < INTT::LADDER[indexes.lyr])continue;
+	//	indexes.ldr = 0;
+
+	//	++indexes.lyr;
+	//	if(indexes.lyr < INTT::LAYER)continue;
+	//	indexes.lyr = 0;
+
+	//	break;
+	//}
+
+	//std::cout << "Round trip worked" << std::endl;
+
+	int b = 0;
+	int c = -1;
+
+	int felix_channel = 0;
+	int gelix_channel = -1;
+
+	struct INTT::Indexes_s indexes = (struct INTT::Indexes_s){.lyr = 0, .ldr = 0, .arm = 0, .chp = 0, .chn = 0, .adc = 0};
+	struct INTT::Indexes_s jndexes = (struct INTT::Indexes_s){.lyr = -1, .ldr = -1, .arm = -1, .chp = -1, .chn = -1, .adc = -1};
+
+	while(true)
 	{
-		b = -1;
-		INTT::HitMap::FindGlobalIndices(bin, layer, ladder, northsouth, chip, channel);
-		INTT::HitMap::FindGlobalBin(b, layer, ladder, northsouth, chip, channel);
+		INTT::GetFelixBinFromIndexes(b, felix_channel, indexes);
+		INTT::GetFelixIndexesFromBin(b, gelix_channel, jndexes);
+		INTT::GetFelixBinFromIndexes(c, gelix_channel, jndexes);
 
-		if(b != bin)round_trip_1 = false;
-		
-		if(!round_trip_1)
+		if(b != c)
 		{
-			std::cout << "layer: " << layer << "\tladder: " << ladder << "\tnorthsouth: " << northsouth << "\tchip: " << chip << "\tchannel: " << channel << std::endl;
-			std::cout << "\tbin: " << bin << std::endl;
-			std::cout << "\t\tto" << std::endl;
-			std::cout << "\tbin: " << b << std::endl;
-			std::cout << std::endl;
-			goto label1;
+			std::cout << "Round trip failed" << std::endl;
+			std::cout << "bin: " << b << " -> " << c << std::endl;
+			std::cout << "felix_channel: " << felix_channel << " -> " << gelix_channel << std::endl;
+			std::cout << "chp: " << indexes.chp << " -> " << jndexes.chp << std::endl;
+			std::cout << "chn: " << indexes.chn << " -> " << jndexes.chn << std::endl;
+			std::cout << "adc: " << indexes.adc << " -> " << jndexes.adc << std::endl;
+
+			return 0;
 		}
+
+		++indexes.adc;
+		if(indexes.adc < INTT::ADC)continue;
+		indexes.adc = 0;
+
+		++indexes.chn;
+		if(indexes.chn < INTT::CHANNEL)continue;
+		indexes.chn = 0;
+
+		++indexes.chp;
+		if(indexes.chp < INTT::CHIP)continue;
+		indexes.chp = 0;
+
+		++felix_channel;
+		if(felix_channel < INTT::FELIX_CHANNEL)continue;
+
+		break;
 	}
 
-
-	//local checks
-//	for(layer = 0; layer < INTT::LAYER; layer++)
-//	{
-//		for(bin = 1; bin <= INTT::LADDER[layer] * INTT::NORTHSOUTH * INTT::CHIP; bin++)
-//		{
-//			INTT::HitMap::FindLayerIndices(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip);
-//			INTT::HitMap::FindLayerBin(b, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip);
-//
-//			if(b != bin)round_trip_1 = false;
-//
-//			if(!round_trip_1)
-//			{
-//				std::cout << bin << "->" << b << std::endl;
-//				std::cout << "\tlayer: " << layer << "\tladder: " << ladder << "\tnorthsouth: " << northsouth << "\tchip: " << chip << std::endl;
-//				//goto label1;
-//			}
-//		}
-//	}
-
-	label1:
-	std::cout << "bin to bin round trip: ";
-	if(round_trip_1)std::cout << "\tworks" << std::endl;
-	else std::cout << "\tdoesn't work :^(" << std::endl;
-
-	for(layer = 0; layer < INTT::LAYER; layer++)
-	{
-		for(ladder = 0; ladder < INTT::LADDER[layer]; ladder++)
-		{
-			for(northsouth = 0; northsouth < INTT::NORTHSOUTH; northsouth++)
-			{
-				for(chip = 0; chip < INTT::CHIP; chip++)
-				{
-					for(channel = 0; channel < INTT::CHIP; channel++)
-					{
-						//for(adc = 0; adc < INTT::ADC; adc++)
-						//{
-							ly = -1;
-							ld = -1;
-							ns = -1;
-							cp = -1;
-							cn = -1;
-							INTT::HitMap::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel);
-							INTT::HitMap::FindGlobalIndices(bin, ly, ld, ns, cp, cn);
-
-							if(!(1 <= bin and bin < INTT::CHANNELS))round_trip_2 = false;
-
-							if(ly != layer + INTT::LAYER_OFFSET)round_trip_2 = false;
-							if(ld != ladder)round_trip_2 = false;
-							if(ns != northsouth)round_trip_2 = false;
-							if(cp != chip + INTT::CHIP_OFFSET)round_trip_2 = false;
-							if(cn != channel)round_trip_2 = false;
-
-							if(!round_trip_2)
-							{
-								std::cout << "bin: " << bin << std::endl;
-								std::cout << "\tlayer: " << layer << "\tladder: " << ladder << "\tnorthsouth: " << northsouth << "\tchip: " << chip << "\tchannel: " << channel << std::endl;
-								std::cout << "\t\tto" << std::endl;
-								std::cout << "\tlayer: " << ly << "\tladder: " << ld << "\tnorthsouth: " << ns << "\tchip: " << cp << "\tchannel: " << cn << std::endl;
-								std::cout << std::endl;
-								goto label2;
-							}
-						//}
-					}
-				}
-			}
-		}
-	}
-
-//	for(layer = 0; layer < INTT::LAYER; layer++)
-//	{
-//		for(ladder = 0; ladder < INTT::LADDER[layer]; ladder++)
-//		{
-//			for(northsouth = 0; northsouth < INTT::NORTHSOUTH; northsouth++)
-//			{
-//				for(chip = 0; chip < INTT::CHIP; chip++)
-//				{
-//					//for(adc = 0; adc < INTT::ADC; adc++)
-//					//{
-//						INTT::HitMap::FindLayerBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET);
-//						INTT::HitMap::FindLayerIndices(bin, layer + INTT::LAYER_OFFSET, ld, ns, cp);
-//
-//						if(ld != ladder)round_trip_2 = false;
-//						if(ns != northsouth)round_trip_2 = false;
-//						if(cp != chip + INTT::CHIP_OFFSET)round_trip_2 = false;
-//
-//						if(!round_trip_2)
-//						{
-//							std::cout << "layer: " << layer + INTT::LAYER_OFFSET << "bin: " << bin << std::endl;
-//							std::cout << "\tladder: " << ladder << "\tnorthsouth: " << northsouth << "\tchip: " << chip + INTT::CHIP_OFFSET << std::endl;
-//							std::cout << "\t\tto" << std::endl;
-//							std::cout << "\tladder: " << ld << "\tnorthsouth: " << ns << "\tchip: " << cp << std::endl;
-//							goto label2;
-//						}
-//					//}
-//				}
-//			}
-//		}
-//	}
-
-
-	label2:
-	std::cout << "indices to indices round trip: ";
-	if(round_trip_2)std::cout << "\tworks" << std::endl;
-	else std::cout << "\tdoesn't work :^(" << std::endl;
-
-	int out_counts = 0;
-	int max_counts = 10;
-
-	Init();
-	std::cout << HitMapRef->GetNcells() << std::endl;
-	std::cout << INTT::CHANNELS << std::endl;
-	for(bin = 1; bin < HitMapRef->GetNcells(); bin++)
-	{
-		if(HitMapRef->GetBinContent(bin) == 0.0)
-		{
-			if(out_counts < max_counts)
-			{
-				if(INTT::HitMap::FindGlobalIndices(bin, ly, ld, ns, cp, cn))std::cout << "bad bin to indices" << std::endl;
-				if(INTT::HitMap::FindGlobalBin(b, ly, ld, ns, cp, cn))std::cout << "bad indices to bin" << std::endl;
-				std::cout << bin << std::endl;
-				std::cout << b << std::endl;
-				std::cout << "\tlayer: " << ly << std::endl;
-				std::cout << "\tladder: " << ld << std::endl;
-				std::cout << "\tnorthsouth: " << ns << std::endl;
-				std::cout << "\tchip: " << cp << std::endl;
-				std::cout << "\tchannel: " << cn << std::endl;
-
-				out_counts++;
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
+	std::cout << "Round trip worked" << std::endl;
 
 	return 0;
 }
-//~for testing/debugging without unpacker, remove later
 
-int InttMon::InitExpectationHists()
+void InttMon::RandomEvent(int felix)
 {
-	HitMapRef->SetMinimum(-1);
-	ADCMapRef->SetMinimum(-1);
-
-	double temp;
-
 	int bin;
 
-	int layer;
-	int ladder;
-	int northsouth;
-	int chip;
-	int channel;
-	int adc;
+	int felix_channel;
+	struct INTT::Indexes_s indexes;
+	struct INTT_Felix::Ladder_s ldr_struct;
 
-	for(layer = 0; layer < INTT::LAYER; layer++)
+	int hits = rng->Poisson(16);
+	for(int hit = 0; hit < hits; hit++)
 	{
-		for(ladder = 0; ladder < INTT::LADDER[layer]; ladder++)
-		{
-			for(northsouth = 0; northsouth < INTT::NORTHSOUTH; northsouth++)
-			{
-				for(chip = 0; chip < INTT::CHIP; chip++)
-				{
-					for(channel = 0; channel < INTT::CHANNEL; channel++)
-					{
-						//set temp to be z coordinate of chip (in units of number of chips from z = 0)
-						temp = (2.0 * northsouth - 1.0) * ( (INTT::CHIP / 2) - chip % (INTT::CHIP / 2) - 0.5 );
+		felix_channel = rng->Uniform(INTT::FELIX_CHANNEL);
+		if(felix_channel == INTT::FELIX_CHANNEL)felix_channel -= 1;
 
-						//Pertenant to option "hitmap"
-						INTT::HitMap::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel);
-						HitMapRef->SetBinContent(bin, HITS_PER_EVENT / INTT::CHANNELS);
+		INTT_Felix::FelixMap(felix, felix_channel, ldr_struct);
+		indexes.lyr = 2 * ldr_struct.barrel + ldr_struct.layer;
+		indexes.ldr = ldr_struct.ladder;
+		indexes.arm = felix / 4;
 
-						//Pertenant to option "adc"
-						for(adc = 0; adc < INTT::ADC; adc++)
-						{
-							INTT::ADCN::FindGlobalBin(bin, layer + INTT::LAYER_OFFSET, ladder, northsouth, chip + INTT::CHIP_OFFSET, channel, adc);
-							ADCMapRef->SetBinContent(bin, HITS_PER_EVENT / INTT::ADCS);
-						}
+		indexes.chp = rng->Uniform(INTT::CHIP);
+		if(indexes.chp == INTT::CHIP)indexes.chp -= 1;
 
-						//...
-						bin = temp;//dummy line so it will compile; temp is "used"
-					}
-				}
-			}
-		}
+		indexes.chn = rng->Uniform(INTT::CHANNEL);
+		if(indexes.chn == INTT::CHANNEL)indexes.chn -= 1;
+
+		indexes.adc = rng->Uniform(INTT::ADC);
+		if(indexes.adc == INTT::ADC)indexes.adc -= 1;
+
+		INTT::GetFelixBinFromIndexes(bin, felix_channel, indexes);
+		HitMap->SetBinContent(bin, HitMap->GetBinContent(bin) + 1);
+		NumEvents->AddBinContent(1);
+
+		printf("Layer:%2d\tLadder:%3d (%s)\tChip:%3d\tChannel:%4d\n", indexes.lyr, indexes.ldr, indexes.arm ? "North" : "South", indexes.chp, indexes.chn);
 	}
-
-
-	return 0;
 }

@@ -39,7 +39,6 @@ Bbcll1Mon::Bbcll1Mon(const std::string &name)
 Bbcll1Mon::~Bbcll1Mon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
   return;
 }
 
@@ -65,8 +64,6 @@ int Bbcll1Mon::Init()
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, bbcll1hist1);  // uses the TH1->GetName() as key
   se->registerHisto(this, bbcll1hist2);
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
   Reset();
   return 0;
 }
@@ -81,22 +78,6 @@ int Bbcll1Mon::BeginRun(const int /* runno */)
 int Bbcll1Mon::process_event(Event * /* evt */)
 {
   evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("bbcll1hist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
@@ -104,20 +85,6 @@ int Bbcll1Mon::process_event(Event * /* evt */)
   bbcll1hist1->Fill(gRandom->Gaus(50,10));
   bbcll1hist2->Fill(gRandom->Gaus(50,10), gRandom->Gaus(50,10), 1.);
 
-  if (idummy++ > 10)
-  {
-    if (dbvars)
-    {
-      dbvars->SetVar("bbcll1moncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("bbcll1mondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("bbcll1monnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
   return 0;
 }
 
@@ -129,20 +96,3 @@ int Bbcll1Mon::Reset()
   return 0;
 }
 
-int Bbcll1Mon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "bbcll1moncount";
-  dbvars->registerVar(varname);
-  varname = "bbcll1mondummy";
-  dbvars->registerVar(varname);
-  varname = "bbcll1monnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
-  }
-  dbvars->DBInit();
-  return 0;
-}

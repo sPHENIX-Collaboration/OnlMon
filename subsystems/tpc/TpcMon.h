@@ -4,7 +4,6 @@
 #include <onlmon/OnlMon.h>
 
 class Event;
-class OnlMonDB;
 class TH1;
 class TH2;
 
@@ -20,7 +19,6 @@ class TpcMon : public OnlMon
   int Reset();
 
  protected:
-  int DBVarInit();
   int evtcnt = 0;
   int idummy = 0;
 
@@ -28,7 +26,6 @@ class TpcMon : public OnlMon
   const int N_thBins = 12; //(12 theta bins of uniform angle (360/12 = 30 degrees = TMath::Pi()/6 ~= 0.523 rad)
   const double rBin_edges[N_rBins+1] = {0.0, 0.256, 0.504, 0.752, 1.00}; //variable edges for radial dims
 
-  OnlMonDB *dbvars = nullptr;
   TH1 *tpchist1 = nullptr;
   TH2 *tpchist2 = nullptr;
   

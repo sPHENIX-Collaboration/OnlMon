@@ -33,16 +33,11 @@ class OnlMon : public OnlMonBase
   virtual int BeginRunCommon(const int runno, OnlMonServer *se);
   virtual int BeginRun(const int /* runno */) { return 0; }
   virtual int EndRun(const int /* runno */) { return 0; }
-  virtual void AddTrigger(const std::string &name);
-  virtual void AddLiveTrigger(const std::string &name);
   virtual void SetStatus(const int newstatus);
   virtual int ResetEvent() { return 0; }
   virtual void SetMonitorServerId(unsigned int i);
 
  protected:
-  std::set<std::string> TriggerList;      // trigger selection send to the et pool
-  std::set<std::string> LiveTriggerList;  // triggers filtered in process_event according to live bit
-  unsigned int livetrigmask;
   int status;
   unsigned int m_MonitorServerId = 0;
   TH1 *m_LocalFrameWorkVars = nullptr;

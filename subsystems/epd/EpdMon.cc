@@ -10,6 +10,12 @@
 #include <onlmon/OnlMonServer.h>
 
 #include <Event/msg_profile.h>
+#include <caloreco/CaloWaveformFitting.h>
+#include <calobase/TowerInfoDefs.h>
+
+#include <Event/Event.h>
+#include <Event/EventTypes.h>
+#include <Event/msg_profile.h>
 
 #include <TH1.h>
 #include <TH2.h>
@@ -39,7 +45,6 @@ EpdMon::EpdMon(const std::string &name)
 EpdMon::~EpdMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
-  delete dbvars;
   return;
 }
 
@@ -59,14 +64,79 @@ int EpdMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("doing the Init\n");
-  epdhist1 = new TH1F("epdmon_hist1", "test 1d histo", 101, 0., 100.);
-  epdhist2 = new TH2F("epdmon_hist2", "test 2d histo", 101, 0., 100., 101, 0., 100.);
+  h_ADC0_s = new TH2F("h_ADC0_s",";;",nPhi0,-axislimit,axislimit,nRad,-axislimit,axislimit);
+  h_ADC0_n = new TH2F("h_ADC0_n",";;",nPhi0,-axislimit,axislimit,nRad,-axislimit,axislimit);
+  h_ADC_s = new TH2F("h_ADC_s",";;",nPhi,-axislimit,axislimit,nRad,-axislimit,axislimit);
+  h_ADC_n = new TH2F("h_ADC_n",";;",nPhi,-axislimit,axislimit,nRad,-axislimit,axislimit);
+
+  h_hits0_s = new TH2F("h_hits0_s",";;",nPhi0,-axislimit,axislimit,nRad,-axislimit,axislimit);
+  h_hits0_n = new TH2F("h_hits0_n",";;",nPhi0,-axislimit,axislimit,nRad,-axislimit,axislimit);
+  h_hits_s  = new TH2F("h_hits_s",";;",nPhi,-axislimit,axislimit,nRad,-axislimit,axislimit);
+  h_hits_n  = new TH2F("h_hits_n",";;",nPhi,-axislimit,axislimit,nRad,-axislimit,axislimit);
+  
+  int nADCcorr = 600;
+  double ADCcorrmax=2e4;
+  int nhitscorr = 700;
+  double hitscorrmax = 1000;
+  h_ADC_corr = new TH2F("h_ADC_corr",";ADC avg sum (south); ADC avg sum (north)",nADCcorr,0,ADCcorrmax,nADCcorr,0,ADCcorrmax);
+  h_hits_corr = new TH2F("h_hits_corr",";ADC avg sum (south); ADC avg sum (north)",nhitscorr,0,hitscorrmax,nhitscorr,0,hitscorrmax);
+
+  h_event   = new TH1F("h_event","",1,0,1);
+  
+  //waveform processing
+  h1_waveform_twrAvg = new TH1F("h1_waveform_twrAvg", "", 16, 0.5, 16.5);
+  h1_waveform_time = new TH1F("h1_waveform_time", "", 16, 0.5, 16.5);
+  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.2e3, 1.8e3);
+  
+  //waveform processing, template vs. fast interpolation
+  h1_epd_fitting_sigDiff = new TH1F("h1_fitting_sigDiff","",50,0,2);
+  h1_epd_fitting_pedDiff = new TH1F("h1_fitting_pedDiff","",50,0,2);
+  h1_epd_fitting_timeDiff = new TH1F("h1_fitting_timeDiff","",50,-10,10);
+
+
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
-  se->registerHisto(this, epdhist1);  // uses the TH1->GetName() as key
-  se->registerHisto(this, epdhist2);
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
+  se->registerHisto(this, h_ADC0_s);  // uses the TH1->GetName() as key
+  se->registerHisto(this, h_ADC0_n);
+  se->registerHisto(this, h_ADC_s);
+  se->registerHisto(this, h_ADC_n);
+  se->registerHisto(this, h_hits0_s);
+  se->registerHisto(this, h_hits0_n);
+  se->registerHisto(this, h_hits_s);
+  se->registerHisto(this, h_hits_n);
+  se->registerHisto(this, h_ADC_corr);
+  se->registerHisto(this, h_hits_corr);
+  se->registerHisto(this, h_event);
+  se->registerHisto(this, h1_waveform_twrAvg);
+  se->registerHisto(this, h1_waveform_time);
+  se->registerHisto(this, h1_waveform_pedestal);
+  se->registerHisto(this, h1_epd_fitting_sigDiff);
+  se->registerHisto(this, h1_epd_fitting_pedDiff);
+  se->registerHisto(this, h1_epd_fitting_timeDiff);
+  
+  //save inidividual channel ADC distribution 
+  for(int ichannel = 0; ichannel<nChannels; ichannel++){
+    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel%d",ichannel),";ADC;Counts",1000,0,15e3);
+    se->registerHisto(this, h_ADC_channel[ichannel]);
+  }
+
+  // initialize waveform extraction tool
+  WaveformProcessingFast = new CaloWaveformFitting();
+
+  WaveformProcessingTemp = new CaloWaveformFitting();
+
+  std::string epdtemplate;
+  if (getenv("EPDCALIB"))
+  {   
+    epdtemplate = getenv("EPDCALIB");
+  }   
+  else
+  {   
+    epdtemplate = ".";
+  }   
+  epdtemplate += std::string("/testbeam_epd_template.root");
+  WaveformProcessingTemp->initialize_processing(epdtemplate);
+
   Reset();
   return 0;
 }
@@ -78,48 +148,205 @@ int EpdMon::BeginRun(const int /* runno */)
   return 0;
 }
 
-int EpdMon::process_event(Event * /* evt */)
+// simple wavefrom analysis for possibe issues with the wavforProcessor
+std::vector<float> EpdMon::getSignal(Packet *p, const int channel)
+{
+
+  double baseline = 0;
+  for ( int s = 0;  s< 3; s++)
+    {
+      baseline += p->iValue(s,channel);
+    }
+  baseline /= 3.;
+
+  double signal = 0;
+  float x = 0;
+  for ( int s = 3;  s< p->iValue(0,"SAMPLES"); s++)
+    {
+      x++;
+      signal += p->iValue(s,channel) - baseline;
+    }
+	  
+  signal /= x;
+
+  // simulate a failure  if ( evtcount > 450 && p->getIdentifier() ==6011) return 0;
+
+  std::vector<float> result;
+  result.push_back(signal);
+  result.push_back(2);
+  result.push_back(1);
+  return result;
+}
+	  
+std::vector<float> EpdMon::anaWaveformFast(Packet *p, const int channel)
+{
+  std::vector<float> waveform;
+  for ( int s = 0;  s< p->iValue(0,"SAMPLES"); s++) {
+    waveform.push_back(p->iValue(s,channel));
+  }
+  std::vector<std::vector<float>> multiple_wfs;
+  multiple_wfs.push_back(waveform);
+
+  std::vector<std::vector<float>> fitresults_cemc;
+  fitresults_cemc = WaveformProcessingFast->calo_processing_fast(multiple_wfs);
+
+  std::vector<float> result;
+  result = fitresults_cemc.at(0);
+
+  return result;
+}
+
+std::vector<float> EpdMon::anaWaveformTemp(Packet *p, const int channel)
+{
+  std::vector<float> waveform;
+  for ( int s = 0;  s< p->iValue(0,"SAMPLES"); s++) {
+    waveform.push_back(p->iValue(s,channel));
+  }
+  std::vector<std::vector<float>> multiple_wfs;
+  multiple_wfs.push_back(waveform);
+
+  std::vector<std::vector<float>> fitresults_cemc;
+  fitresults_cemc = WaveformProcessingTemp->process_waveform(multiple_wfs);
+
+  std::vector<float> result;
+  result = fitresults_cemc.at(0);
+
+  return result;
+}
+
+
+
+int EpdMon::process_event(Event *e /* evt */)
 {
   evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
+  
+  unsigned int ChannelNumber = 0;
+//  float sectorAvg[Nsector] = {0};
+  int phi_in=0;
+  float phi;
+  float r;
+  int sumhit_s = 0;
+  int sumhit_n = 0;
+  long double sumADC_s = 0;
+  long double sumADC_n = 0;
+  // loop over packets which contain a single sector
+  for (int packet = packetlow; packet <= packethigh; packet++)
   {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
-  // get temporary pointers to histograms
-  // one can do in principle directly se->getHisto("epdhist1")->Fill()
-  // but the search in the histogram Map is somewhat expensive and slows
-  // things down if you make more than one operation on a histogram
-  epdhist1->Fill(gRandom->Gaus(50,10));
-  epdhist2->Fill(gRandom->Gaus(50,10), gRandom->Gaus(50,10), 1.);
+    Packet* p = e->getPacket(packet);
 
-  if (idummy++ > 10)
-  {
-    if (dbvars)
+    if (!p) continue;
+    for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
     {
-      dbvars->SetVar("epdmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("epdmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("epdmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
+      //msg << "Filling channel: " << c << " for packet: " << packet << std::endl;
+      //se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
+      // record waveform to show the average waveform
+      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+      {
+        h1_waveform_twrAvg->Fill(s, p->iValue(s, c));
+      }
+
+      ChannelNumber++;
+
+      // std::vector result =  getSignal(p,c); // simple peak extraction
+      std::vector<float> resultFast= anaWaveformFast(p, c);  // fast waveform fitting
+      float signalFast = resultFast.at(0);
+      float timeFast = resultFast.at(1);
+      float pedestalFast = resultFast.at(2);
+
+      std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
+      float signalTemp = resultTemp.at(0);
+      float timeTemp  = resultTemp.at(1);
+      float pedestalTemp = resultTemp.at(2);
+
+      // channel mapping
+      int ChMap = EpdMapChannel(ChannelNumber-1);
+      if(ChMap == -1){ std::cout << "Unused channel - " << ChannelNumber << "go to next channel" << std::endl;continue;}
+      unsigned int key = TowerInfoDefs::encode_epd(ChMap);
+      int phi_bin = TowerInfoDefs::get_epd_phibin(key);
+      int r_bin = TowerInfoDefs::get_epd_rbin(key);
+      int z_bin = TowerInfoDefs::get_epd_arm(key);
+      //unsigned int phi_bin = TowerInfoDefs::get_epd_phibin(key);
+      //unsigned int r_bin = TowerInfoDefs::get_epd_rbin(key);
+      //unsigned int z_bin = TowerInfoDefs::get_epd_arm(key);
+
+//      int sectorNumber = (ChannelNumber-1) % 32;
+      h1_waveform_time->Fill(timeFast);
+      h1_waveform_pedestal->Fill(pedestalFast);
+	      
+      h1_epd_fitting_sigDiff -> Fill(signalFast/signalTemp);
+	    h1_epd_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
+	    h1_epd_fitting_timeDiff -> Fill(timeFast - timeTemp);
+
+      float signal = signalFast;
+
+      h_ADC_channel[ChMap] -> Fill(signal);
+
+      if(z_bin==0){
+        sumhit_s++;
+        sumADC_s += signal;
+        if(r_bin==0){
+          phi_in = (phi_bin>=nPhi0/2) ? phi_bin-nPhi0/2 : phi_bin+nPhi0/2;
+          phi = -axislimit + axislimit/nPhi0 + 2*axislimit / nPhi0 * phi_in;
+          r = -axislimit + axislimit/nRad + 2*axislimit / nRad * r_bin;
+
+          if(fabs(phi)>axislimit || fabs(r)>axislimit){std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl; return -1;}
+
+          h_ADC0_s->Fill(phi,r,signal);
+          h_hits0_s->Fill(phi,r);
+        }
+        else if(r_bin!=0){
+          phi_in = (phi_bin>=nPhi) ? phi_bin-nPhi/2 : phi_bin + nPhi/2;
+          phi    = -axislimit + axislimit/nPhi + 2*axislimit / nPhi * phi_in;
+          r      = -axislimit + axislimit/nRad + 2*axislimit / nRad * r_bin;
+          
+          if(fabs(phi)>axislimit || fabs(r)>axislimit){std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl; return -1;}
+
+          h_ADC_s->Fill(phi,r,signal);
+          h_hits_s->Fill(phi,r);
+        }
+        else{std::cout << "r_bin not assigned ... " << std::endl; return -1;}
+      }
+      else if(z_bin==1){
+        sumhit_n++;
+        sumADC_n += signal;
+        if(r_bin==0){
+          phi_in = (phi_bin>=nPhi0/2) ? phi_bin-nPhi0/2 : phi_bin+nPhi0/2;
+          phi = -axislimit + axislimit/nPhi0 + 2*axislimit / nPhi0 * phi_in;
+          r = -axislimit + axislimit/nRad + 2*axislimit / nRad * r_bin;
+
+          if(fabs(phi)>axislimit || fabs(r)>axislimit){std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl; return -1;}
+
+          h_ADC0_n->Fill(phi,r,signal);
+          h_hits0_n->Fill(phi,r);
+        }
+        else if(r_bin!=0){
+          phi_in = (phi_bin>=nPhi) ? phi_bin-nPhi/2 : phi_bin + nPhi/2;
+          phi    = -axislimit + axislimit/nPhi + 2*axislimit / nPhi * phi_in;
+          r      = -axislimit + axislimit/nRad + 2*axislimit / nRad * r_bin;
+          
+          if(fabs(phi)>axislimit || fabs(r)>axislimit){std::cout << "Excess of channel range! Wrong mapping -- return -1 " << std::endl; return -1;}
+
+          h_ADC_n->Fill(phi,r,signal);
+          h_hits_n->Fill(phi,r);
+        }
+        else{std::cout << "r_bin not assigned ... " << std::endl; return -1;}
+      }
+      else{std::cout << "z_bin not assigned ... " << std::endl; return -1;}
+      
+    } // channel loop end 
+  } // packet id loop end
+
+
+  h_event->Fill(0);
+  //h1_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
+  h1_waveform_twrAvg->Scale((float)1/ChannelNumber);
+
+  h_ADC_corr->Fill(sumADC_s/sumhit_s,sumADC_n/sumhit_n);
+  h_hits_corr->Fill(sumhit_s,sumhit_n);
   return 0;
+
 }
+
 
 int EpdMon::Reset()
 {
@@ -129,20 +356,20 @@ int EpdMon::Reset()
   return 0;
 }
 
-int EpdMon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "epdmoncount";
-  dbvars->registerVar(varname);
-  varname = "epdmondummy";
-  dbvars->registerVar(varname);
-  varname = "epdmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
+
+int EpdMon::EpdMapChannel(int  ch){
+  int nch = ch % 16;
+  int chmap = -999;
+  if(nch % 2 == 0){
+    if(ch % 32==0) chmap = ch - nch/2;
+    else{chmap = 2*(ch-16*nch) + 31*(nch/2)-1;}
   }
-  dbvars->DBInit();
-  return 0;
+  else if(nch % 2 == 1) 
+  {
+    if( (ch-16)%32 ==0) chmap = -1;
+    else{chmap = 2*(ch-16*nch) + 31*((nch-1)/2);} 
+  }
+  if(chmap == -999){ std::cout << "WRONG Channel map !!!! " << std::endl; return -1;}
+  return chmap;
 }
+

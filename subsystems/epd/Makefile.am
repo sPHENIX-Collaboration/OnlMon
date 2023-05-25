@@ -18,7 +18,9 @@ libonlepdmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
-  -lonlmondb
+  -lonlmondb \
+  -lcalo_io \
+  -lcalo_reco
 
 libonlepdmon_client_la_LIBADD = \
   -L$(libdir) \

@@ -37,6 +37,8 @@ class CemcMonDraw : public OnlMonDraw
 
 
   int TimeOffsetTicks = -1;
+  const int nTowersEta = 96;
+  const int nTowersPhi = 256;
   int save = 0;
   TCanvas *TC[9] = {nullptr};
   TPad *transparent[9] = {nullptr};

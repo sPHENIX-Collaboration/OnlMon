@@ -2,16 +2,17 @@
 #define MVTX_MVTXMON_H
 
 #include <onlmon/OnlMon.h>
-#include <map>
-#include <cmath>
+
 #include <TString.h>
 #include <TPaveText.h>
 
+#include <map>
+#include <cmath>
+
 //#include "/sphenix/u/jkvapil/onlmon/src/subsystems/mvtx/PixelData.h"
-#include "PixelData.h"
+//#include "PixelData.h"
 
 class Event;
-class OnlMonDB;
 class TH1;
 class TH2;
 class TH1I;
@@ -38,10 +39,8 @@ class MvtxMon : public OnlMon
 
 
  protected:
-  int DBVarInit();
   int evtcnt = 0;
   int idummy = 0;
-  OnlMonDB *dbvars = nullptr;
 
   const static int NSTAVE = 48;
   const static int NCHIP = 9;

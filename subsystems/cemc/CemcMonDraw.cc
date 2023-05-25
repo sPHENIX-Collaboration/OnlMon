@@ -194,6 +194,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   TH2D* hist1 = (TH2D*)cl->getHisto("CEMCMON_0","h2_cemc_rm");
   TH2D* h2_cemc_mean = (TH2D*)cl->getHisto("CEMCMON_0","h2_cemc_mean");
   TH1F* h_event = (TH1F*)cl->getHisto("CEMCMON_0","h1_event");
+  TH1F* adcCount = (TH1F*)cl->getHisto("CEMCMON_0","h1_cemc_adc");
+  
   if (!gROOT->FindObject("CemcMon1"))
     {
       MakeCanvas("CemcMon1");
@@ -206,7 +208,27 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
     }
   h2_cemc_mean->Scale(1./h_event->GetEntries());
   
-  hist1->Scale(1./(hist1 -> GetMean()*h_event->GetEntries())); 
+  h2_cemc_mean->Scale(1./adcCount->GetMean());
+  
+  hist1 -> Scale(1./adcCount->GetMean());
+  
+  for(int i = 0; i < nTowersEta; i++)
+    {
+      for(int j = 0; j < nTowersPhi; j++)
+	{
+	  if(i < 8) continue;
+	  if(h2_cemc_mean-> GetBinContent(i+1, j+1) < 0.75 && hist1 -> GetBinContent(i+1, j+1) < 0.75) hist1->SetBinContent(i+1, j+1, h2_cemc_mean-> GetBinContent(i+1, j+1));
+	  else hist1->SetBinContent(i+1, j+1, hist1->GetBinContent(i+1,j+1)/h2_cemc_mean->GetBinContent(i+1,j+1));
+	}
+    } 
+  
+  //hist1 = (TH2D*)hist1 -> Divide(h2_cemc_mean);
+  //TH1F *temp = (TH1F*)h2_cemc_mean -> Clone();
+  //temp -> GetXaxis() -> SetRangeUser(8,temp -> GetNbinsX());//accounts for the fact that we're missing
+                                                            //adc boards on the south side. 
+
+  
+  
 
   TC[0]->SetEditable(1);
   TC[0]->Clear("D");
@@ -259,6 +281,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   gPad->SetRightMargin(0.12);
   
   hist1->Draw("colz");
+  //h2_cemc_mean->Draw("colz");
   for(int i_line=0;i_line<32;i_line++) line_sector[i_line]->Draw();
   for(int il=0; il<numVertDiv-1; il++) l_board[il]->Draw();
 
@@ -269,6 +292,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   gROOT->ForceStyle();
   gStyle->SetPalette(3,palette);
   double_t levels[4] = {0,0.75,1.25,2};
+  hist1 -> GetZaxis() -> SetRangeUser(0,2);
   hist1->SetContour(4,levels);
   
   FindHotTower(warning[0],hist1);
@@ -308,7 +332,11 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   TH1F* h1_packet_chans = (TH1F*) cl->getHisto("CEMCMON_0","h1_packet_chans");
   TH1F* h_event = (TH1F*) cl->getHisto("CEMCMON_0","h1_event");
   
-   
+  h1_packet_number -> Scale(1./h_event -> GetEntries());
+  h1_packet_length -> Scale(1./h_event -> GetEntries());
+  h1_packet_chans -> Scale(1./h_event -> GetEntries());
+
+ 
   if (!gROOT->FindObject("CemcMon2"))
     {
       MakeCanvas("CemcMon2");
@@ -325,16 +353,50 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   
   TLine *goodChans = new TLine(6000.5,192,6128.5,192);
   goodChans -> SetLineStyle(7);
+
+  float param = 0.75;
+  //float param = 0.99;
   
+  TLegend *leg = new TLegend(0.3,0.16,0.95,0.4);
+  leg -> SetFillStyle(0);
+  leg -> SetBorderSize(0);
+  
+  TLine *warnLineOne = new TLine(6000.5,param*1,6128.5,param*1);
+  warnLineOne -> SetLineStyle(7);
+  warnLineOne -> SetLineColor(2);
+  
+  leg -> AddEntry(warnLineOne,"75% Threshold","l");
+  
+  TLine *warnLineOneS = new TLine(6000.5,param*1,6128.5,param*1);
+  warnLineOneS -> SetLineStyle(10);
+  warnLineOneS -> SetLineColor(2);
+
+  leg -> AddEntry(warnLineOneS,"75% Threshold, High Eta, South","l");
+
+  TLine *warnLineSize = new TLine(6000.5,param*5981.,6128.5,param*5981.);
+  warnLineSize -> SetLineStyle(7);
+  warnLineSize -> SetLineColor(2);
+
+  TLine *warnLineSizeS = new TLine(6000.5,param*3991.,6128.5,param*3991.);
+  warnLineSizeS -> SetLineStyle(10);
+  warnLineSizeS -> SetLineColor(2);
+
+  TLine *warnLineChans = new TLine(6000.5,param*192.,6128.5,param*192.);
+  warnLineChans -> SetLineStyle(7);
+  warnLineChans -> SetLineColor(2);
+
+  TLine *warnLineChansS = new TLine(6000.5,param*128.,6128.5,param*128.);
+  warnLineChansS -> SetLineStyle(10);
+  warnLineChansS -> SetLineColor(2);
+
   Pad[1]->cd();
   float tsize = 0.08;
-  float param = 0.75;
-  h1_packet_number -> Scale(1./h_event -> GetEntries());
-  h1_packet_number -> GetYaxis() -> SetRangeUser(0.5,1.3);
+  h1_packet_number -> GetYaxis() -> SetRangeUser(0.0,1.3);
   h1_packet_number -> Draw("hist");
   std::vector<std::vector<int>> badPackets;
   badPackets.push_back(getBadPackets(h1_packet_number,0,param));
   one -> Draw("same");
+  warnLineOne -> Draw("same");
   h1_packet_number->GetXaxis()->SetNdivisions(510,kTRUE);
   h1_packet_number->GetXaxis()->SetTitle("packet #");
   h1_packet_number->GetYaxis()->SetTitle("% Of Events Present");
@@ -343,7 +405,6 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   h1_packet_number->GetXaxis()->SetTitleSize(tsize-0.01);
   h1_packet_number->GetYaxis()->SetTitleSize(tsize-0.01);
   h1_packet_number->GetXaxis()->SetTitleOffset(1);
-  h1_packet_number->GetYaxis()->SetTitleOffset(1);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
   gPad->SetRightMargin(0.05);
@@ -353,11 +414,13 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   gPad->SetTickx();
 
   Pad[2]->cd();
-  h1_packet_length -> Scale(1./h_event -> GetEntries());
   h1_packet_length -> Draw("hist");
-  h1_packet_length -> GetYaxis() -> SetRangeUser(5500,6500);
+  h1_packet_length -> GetYaxis() -> SetRangeUser(0,6500);
   badPackets.push_back(getBadPackets(h1_packet_length,1,param));
   goodSize -> Draw("same");
+  warnLineSize -> Draw("same");
+  warnLineSizeS -> Draw("same");
+  leg -> Draw("same");
   h1_packet_length->GetXaxis()->SetNdivisions(510,kTRUE);
   h1_packet_length->GetXaxis()->SetTitle("packet #");
   h1_packet_length->GetYaxis()->SetTitle("Average Packet Size");
@@ -377,11 +440,12 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 
 
   Pad[3]->cd();
-  h1_packet_chans -> Scale(1./h_event -> GetEntries());
   h1_packet_chans -> Draw("hist");
-  h1_packet_chans -> GetYaxis() -> SetRangeUser(172,212);
+  h1_packet_chans -> GetYaxis() -> SetRangeUser(0,212);
   badPackets.push_back(getBadPackets(h1_packet_chans,2,param));
   goodChans -> Draw("same");
+  warnLineChans -> Draw("same");
+  warnLineChansS -> Draw("same");
   h1_packet_chans->GetXaxis()->SetNdivisions(510,kTRUE);
   h1_packet_chans->GetXaxis()->SetTitle("packet #");
   h1_packet_chans->GetYaxis()->SetTitle("Average # of Channels");
@@ -413,25 +477,28 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
 	  //there's most certainly a better way to do this but it's 5:00 on day 5 of owl shift
 	  //just want to prevent a packet showing up multiple times and crowding the screen
 	  if(badPackets[i][j] == 0) continue;//need this to prevent seg faulting
+	  
 	  if(i == 0)
 	    {
 	      badPacks -> AddEntry("",Form("%d",badPackets[i][j]),"");
 	      badboys++;
 	    }
-	  if((i == 1) && (std::find(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j]) == badPackets[i-1].end()))
+	  else if(i == 1)  
 	    {
-	      badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
-	      badboys++;
-	    }
-	
-	  if(i == 2)
-	    {
-	      if(std::find(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j]) == badPackets[i-1].end()) 
+	      if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
 		{
 		  badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
 		  badboys++;
 		}
-	      if(std::find(badPackets[i-2].begin(),badPackets[i-2].end(),badPackets[i][j]) == badPackets[i-2].end())
+	    }
+	  else if(i == 2)
+	    {
+	      if(!(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j]))) 
+		{
+		  badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
+		  badboys++;
+		}
+	      if(!(std::count(badPackets[i-2].begin(),badPackets[i-2].end(),badPackets[i][j])) && !(std::count(badPackets[i-1].begin(),badPackets[i-1].end(),badPackets[i][j])))
 		{
 		  badPacks -> AddEntry("",Form("%d",badPackets[i].at(j)),"");
 		  badboys++;
@@ -725,35 +792,26 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
 
 
 int CemcMonDraw::FindHotTower(TPad *warningpad,TH2D* hhit){
-  int nhott = 0;
-  int ndeadt = 0;
-  int displaylimit = 15;
-  //get histogram
-  std::ostringstream hottowerlist;
-  std::ostringstream deadtowerlist;
+  float nhott = 0;
+  float ndeadt = 0;
   float hot_threshold  = 1.25;
   float dead_threshold = 0.75;
-  float nTowerTotal = 24576.;
-  for(int ieta=0; ieta<24; ieta++){
-    for(int iphi=0; iphi<64;iphi++){
-    
+  float nTowerTotal = 24576.-2048.;//-2048 to account for the non-functioning towers at the edge of the south
+  for(int ieta=0; ieta<nTowersEta; ieta++){
+    for(int iphi=0; iphi<nTowersPhi; iphi++){
+      
+      if(ieta < 8) continue;
+      
       double nhit = hhit->GetBinContent(ieta+1, iphi+1);
 	
-      if(nhit > hot_threshold){
-	if(nhott<=displaylimit) hottowerlist<<" ("<<ieta<<","<<iphi<<")";
-	nhott++;
-      }
+      if(nhit > hot_threshold)	nhott++;
+      
 	
-      if(nhit < dead_threshold){
-	if(ndeadt<=displaylimit) deadtowerlist<<" ("<<ieta<<","<<iphi<<")";
-	ndeadt++;
-      }
+      if(nhit < dead_threshold)	ndeadt++;
+      
     }
   }
-    
-  if(nhott>displaylimit) hottowerlist<<"... "<<nhott<<" total";
-  if(ndeadt>displaylimit) deadtowerlist<<"... "<<ndeadt<<" total";
-  
+
   //draw warning here
   warningpad->cd();
   TPaveText *dead = new TPaveText(0.01,0.7,0.33,1);
@@ -958,16 +1016,18 @@ int CemcMonDraw::DrawHistory(const std::string & /* what */)
   return 0;
 }
 
-std::vector<int>  CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
+std::vector<int> CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
 {
-  float params[3] = {1.,5981.,192.};
+  float params[3] = {1., 5981., 192.};
+  float params2[3] = {1., 3991., 128.};
   //float cutoff = 0.75;
   std::vector<int> badpacks = {0};
   
-  for(int i = 0; i < hist -> GetNbinsX(); i++)
+  for(int i = 1; i < hist -> GetNbinsX(); i++)
     {
-      if(hist -> GetBinContent(i+1) < params[what]*cutoff) badpacks.push_back(i+6001);
-  
+      if(hist -> GetBinContent(i) < params[what]*cutoff &&  !(((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
+      
+      else if(hist -> GetBinContent(i) < params2[what]*cutoff &&  (((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
     }
   
   return badpacks;

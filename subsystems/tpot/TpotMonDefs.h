@@ -13,6 +13,5 @@ namespace TpotMonDefs
     kEventCounter = 1,
     kValidEventCounter = 2,
   };
-
 }
 #endif

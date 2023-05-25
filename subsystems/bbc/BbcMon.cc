@@ -7,7 +7,6 @@
 #include "BbcMonDefs.h"
 
 #include <onlmon/OnlMon.h>  // for OnlMon
-#include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
 #include <Event/msg_profile.h>
@@ -43,7 +42,6 @@ BbcMon::~BbcMon()
 {
   // you can delete NULL pointers it results in a NOOP (No Operation)
   delete trand3;
-  delete dbvars;
   return;
 }
 
@@ -106,20 +104,6 @@ int BbcMon::Init()
   // ADC Distribution --------------------------------------------------------
 
   bbc_adc = new TH2F("bbc_adc", "BBC/BBC ADC(Charge) Distribution", nPMT_BBC, -.5, nPMT_BBC - .5, bbc_onlmon::nBIN_ADC, 0, bbc_onlmon::MAX_ADC_MIP);
-
-  /*
-     for ( int trig = 0 ; trig < nTRIGGER ; trig++ )
-     {
-  // nHit ----------------------------------------------------------------
-
-  name << "bbc_nhit_" << TRIGGER_str[trig] ;
-  title << "BBC nHIT by " << TRIGGER_str[trig] ;
-  bbc_nhit[trig] = new TH1D(name.str().c_str(), title.str().c_str(),
-  nPMT_BBC, -.5, nPMT_BBC - .5 );
-  name.str("");
-  title.str("");
-  }
-  */
 
   bbc_tdc_armhittime = new TH2F("bbc_tdc_armhittime", "Arm-Hit-Time Correlation of North and South BBC",
                                 64, bbc_onlmon::min_armhittime, bbc_onlmon::max_armhittime,
@@ -291,10 +275,6 @@ int BbcMon::Init()
   se->registerHisto(this, bbc_north_chargesum);
   se->registerHisto(this, bbc_south_chargesum);
 
-  dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
-  DBVarInit();
-  Reset();
-
   return 0;
 }
 
@@ -308,22 +288,6 @@ int BbcMon::BeginRun(const int /* runno */)
 int BbcMon::process_event(Event * /* evt */)
 {
   evtcnt++;
-  OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
 
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("bbchist1")->Fill()
@@ -336,20 +300,6 @@ int BbcMon::process_event(Event * /* evt */)
   bbc_zvertex->Fill(zvtx);
   bbc_tzero_zvtx->Fill(zvtx, t0);
 
-  if (idummy++ > 10)
-  {
-    if (dbvars)
-    {
-      dbvars->SetVar("bbcmoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("bbcmondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("bbcmonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
-      dbvars->DBcommit();
-    }
-    std::ostringstream msg;
-    msg << "Filling Histos";
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), FILLMESSAGE);
-    idummy = 0;
-  }
   return 0;
 }
 
@@ -358,23 +308,5 @@ int BbcMon::Reset()
   // reset our internal counters
   evtcnt = 0;
   idummy = 0;
-  return 0;
-}
-
-int BbcMon::DBVarInit()
-{
-  // variable names are not case sensitive
-  std::string varname;
-  varname = "bbcmoncount";
-  dbvars->registerVar(varname);
-  varname = "bbcmondummy";
-  dbvars->registerVar(varname);
-  varname = "bbcmonnew";
-  dbvars->registerVar(varname);
-  if (verbosity > 0)
-  {
-    dbvars->Print();
-  }
-  dbvars->DBInit();
   return 0;
 }

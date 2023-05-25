@@ -71,21 +71,6 @@ int MyMon::process_event(Event * /* evt */)
 {
   evtcnt++;
   OnlMonServer *se = OnlMonServer::instance();
-  // using ONLMONBBCLL1 makes this trigger selection configurable from the outside
-  // e.g. if the BBCLL1 has problems or if it changes its name
-  if (!se->Trigger("ONLMONBBCLL1"))
-  {
-    std::ostringstream msg;
-    msg << "Processing Event " << evtcnt
-        << ", Trigger : 0x" << std::hex << se->Trigger()
-        << std::dec;
-    // severity levels and id's for message sources can be found in
-    // $ONLINE_MAIN/include/msg_profile.h
-    // The last argument is a message type. Messages of the same type
-    // are throttled together, so distinct messages should get distinct
-    // message types
-    se->send_message(this, MSG_SOURCE_UNSPECIFIED, MSG_SEV_INFORMATIONAL, msg.str(), TRGMESSAGE);
-  }
   // get temporary pointers to histograms
   // one can do in principle directly se->getHisto("myhist1")->Fill()
   // but the search in the histogram Map is somewhat expensive and slows
@@ -98,8 +83,8 @@ int MyMon::process_event(Event * /* evt */)
     if (dbvars)
     {
       dbvars->SetVar("mymoncount", (float) evtcnt, 0.1 * evtcnt, (float) evtcnt);
-      dbvars->SetVar("mymondummy", sin((double) evtcnt), cos((double) se->Trigger()), (float) evtcnt);
-      dbvars->SetVar("mymonnew", (float) se->Trigger(), 10000. / se->CurrentTicks(), (float) evtcnt);
+      dbvars->SetVar("mymondummy", sin((double) evtcnt), cos((double) evtcnt), (float) evtcnt);
+      dbvars->SetVar("mymonnew", (float) evtcnt, 10000. / se->CurrentTicks(), (float) evtcnt);
       dbvars->DBcommit();
     }
     std::ostringstream msg;

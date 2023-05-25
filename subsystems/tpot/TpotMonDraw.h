@@ -41,6 +41,7 @@ class TpotMonDraw : public OnlMonDraw
   TCanvas* create_canvas(const std::string &name);
   
   int draw_detector_occupancy();
+  int draw_resist_occupancy();
   
   using histogram_array_t = std::array<TH1*, MicromegasDefs::m_nfee>;
   

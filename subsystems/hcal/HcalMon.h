@@ -8,7 +8,6 @@
 class CaloWaveformFitting;
 class TowerInfoContainer;
 class Event;
-class OnlMonDB;
 class TH1;
 class TH2;
 class Packet;
@@ -28,14 +27,12 @@ class HcalMon : public OnlMon
   std::vector<float> anaWaveform(Packet* p, const int channel);
 
  protected:
-  int DBVarInit();
   int evtcnt = 0;
   int idummy = 0;
   const int Nsector = 32;
   const int Ntower = 1536;
   const int packetlow = 8001;
   const int packethigh = 8008;
-  OnlMonDB* dbvars = nullptr;
   // TH1 *hcalhist1 = nullptr;
   // TH2 *hcalhist2 = nullptr;
   TH2* h2_hcal_hits = nullptr;

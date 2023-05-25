@@ -237,6 +237,7 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   {
     MakeCanvas("TPCModules");
   }
+
   dummy_his1 = new TH2F("dummy_his1", "ADC Counts North Side", 100, -1.5, 1.5, 100, -1.5, 1.5); //dummy histos for titles
   dummy_his2 = new TH2F("dummy_his2", "ADC Counts South Side", 100, -1.5, 1.5, 100, -1.5, 1.5);
 
@@ -298,10 +299,11 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   TC[3]->Clear("D");
   TC[3]->cd(1);
   dummy_his1->Draw("");
-  if (tpcmon_SSIDEADC)
+  if (tpcmon_NSIDEADC)
   {
     //std::cout<<"Yes, there is a histogram to draw !!!! Charles 02.16.23"<<std::endl;
-    tpcmon_SSIDEADC->DrawCopy("colpolzsame");
+
+    tpcmon_NSIDEADC->DrawCopy("colpolzsame");
   }
   SS00->Draw("same");
   SS01->Draw("same");
@@ -318,9 +320,9 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 
   TC[3]->cd(2);
   dummy_his2->Draw("");
-  if (tpcmon_NSIDEADC)
+  if (tpcmon_SSIDEADC)
   {
-    tpcmon_NSIDEADC->DrawCopy("colpolzsame");
+    tpcmon_SSIDEADC->DrawCopy("colpolzsame");
   }
   NS18->Draw("same");
   NS17->Draw("same");
@@ -336,6 +338,18 @@ int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
   NS19->Draw("same");
 
   TC[3]->Update();
+
+  //turn off stats box
+  dummy_his1->SetStats(0);
+  dummy_his2->SetStats(0);
+
+  //dynamically set heat map color scale to start at the minimum and end at the maximum
+  dummy_his1->SetMaximum(TMath::Max(tpcmon_SSIDEADC->GetBinContent(tpcmon_SSIDEADC->GetMaximumBin()),tpcmon_NSIDEADC->GetBinContent(tpcmon_NSIDEADC->GetMaximumBin())));
+  dummy_his1->SetMinimum(TMath::Min(tpcmon_SSIDEADC->GetBinContent(tpcmon_SSIDEADC->GetMinimumBin()),tpcmon_NSIDEADC->GetBinContent(tpcmon_NSIDEADC->GetMinimumBin())));
+
+  dummy_his2->SetMaximum(TMath::Max(tpcmon_SSIDEADC->GetBinContent(tpcmon_SSIDEADC->GetMaximumBin()),tpcmon_NSIDEADC->GetBinContent(tpcmon_NSIDEADC->GetMaximumBin())));
+  dummy_his2->SetMinimum(TMath::Min(tpcmon_SSIDEADC->GetBinContent(tpcmon_SSIDEADC->GetMinimumBin()),tpcmon_NSIDEADC->GetBinContent(tpcmon_NSIDEADC->GetMinimumBin())));
+
   TC[3]->Show();
   TC[3]->SetEditable(false);
   
