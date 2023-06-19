@@ -58,7 +58,7 @@ void mvtxDrawInit(const int online = 0)
 
     //fhr
     cl->registerHisto("MVTXMON_General_ErrorVsFeeid", instanceName);
-    //    cl->registerHisto("MVTXMON_General_General_Occupancy", instanceName);
+    cl->registerHisto("MVTXMON_General_Occupancy", instanceName);
     cl->registerHisto("MVTXMON_General_Noisy_Pixel", instanceName);
 
     for (int mLayer = 0; mLayer < 3; mLayer++) {
