@@ -1,4 +1,4 @@
-#include <CommonFuncs.C>
+#include "CommonFuncs.C"
 
 #include <onlmon/mvtx/MvtxMonDraw.h>
 
@@ -58,7 +58,7 @@ void mvtxDrawInit(const int online = 0)
 
     //fhr
     cl->registerHisto("MVTXMON_General_ErrorVsFeeid", instanceName);
-    cl->registerHisto("MVTXMON_General_Occupancy", instanceName);
+    //cl->registerHisto("MVTXMON_General_Occupancy", instanceName);
     cl->registerHisto("MVTXMON_General_Noisy_Pixel", instanceName);
 
     for (int mLayer = 0; mLayer < 3; mLayer++) {
@@ -77,8 +77,8 @@ void mvtxDrawInit(const int online = 0)
    
 
 
-  cl->AddServerHost("localhost");  // check local host first
-  //CreateHostList(online);
+  //cl->AddServerHost("localhost");  // check local host first
+  CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
 
