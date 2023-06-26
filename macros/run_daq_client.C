@@ -1,4 +1,4 @@
-#include <CommonFuncs.C>
+#include "CommonFuncs.C"
 
 #include <onlmon/daq/DaqMonDraw.h>
 
@@ -25,7 +25,7 @@ void daqDrawInit(const int online = 0)
 void daqDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("DAQMON_0");        // update histos
+  cl->requestHistoBySubSystem("DAQMON_0",1);        // update histos
   cl->Draw("DAQMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 

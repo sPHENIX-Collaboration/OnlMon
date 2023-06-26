@@ -1,12 +1,13 @@
-#include <ServerFuncs.C>
+#include "ServerFuncs.C"
 
 #include <onlmon/tpc/TpcMon.h>
 
 #include <onlmon/OnlMonServer.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpcmon_server.so)
 
-void run_tpc_server(const std::string &name = "TPCMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data02/sphenix/t1044/rcdaq-00000221-0000.prdf")
+void run_tpc_server(const std::string &name = "TPCMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data02/sphnxpro/tpc/chughes/prdf/00010169/TPC_ebdc00_pedestal-00010169-0000.prdf")
 {
   OnlMon *m = new TpcMon(name);                     // create subsystem Monitor object
   m->SetMonitorServerId(serverid);

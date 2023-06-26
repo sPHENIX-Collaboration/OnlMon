@@ -8,13 +8,14 @@ include_HEADERS =
 ###
 SUBDIRS = \
   bbc \
-  bbcll1 \
+  ll1 \
   cemc \
   daq \
-  epd \
+  sepd \
   example \
   hcal \
   intt \
   mvtx \
   tpc \
-  tpot
+  tpot \
+  zdc

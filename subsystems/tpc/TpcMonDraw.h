@@ -30,14 +30,27 @@ class TpcMonDraw : public OnlMonDraw
   int DrawSecond(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int DrawTPCModules(const std::string &what = "ALL");
+  int DrawTPCSampleSize(const std::string &what = "ALL");
+  int DrawTPCCheckSum(const std::string &what = "ALL");
+  int DrawTPCADCSample(const std::string &what = "ALL");
+  int DrawTPCMaxADCModule(const std::string &what = "ALL");
+  int DrawTPCRawADC1D(const std::string &what = "ALL");
+  int DrawTPCMaxADC1D(const std::string &what = "ALL");
+  int DrawTPCXYclusters(const std::string &what = "ALL");
+
+  
   int TimeOffsetTicks = -1;
-  TCanvas *TC[4] = {nullptr};
+  TCanvas *TC[11] = {nullptr};
   TPad *transparent[3] = {nullptr};
   TPad *Pad[6] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
   TH2 *dummy_his1 = nullptr;
   TH2 *dummy_his2 = nullptr;
+
+  //TPC Module
+  TH2 *dummy_his1_XY = nullptr;
+  TH2 *dummy_his2_XY = nullptr;
 
   TPaveLabel* NS18 = nullptr; //North Side labels
   TPaveLabel* NS17 = nullptr;

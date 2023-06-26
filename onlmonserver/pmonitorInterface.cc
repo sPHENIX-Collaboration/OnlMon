@@ -56,7 +56,10 @@ static void *server(void *);
 static TThread *ServerThread = nullptr;
 #endif
 
+#ifdef USE_MUTEX
 pthread_mutex_t mutex;
+#endif
+
 TH1 *FrameWorkVars = nullptr;
 
 //*********************************************************************
@@ -64,12 +67,17 @@ TH1 *FrameWorkVars = nullptr;
 int pinit()
 {
   OnlMonServer *Onlmonserver = OnlMonServer::instance();
+#ifdef USE_MUTEX
   Onlmonserver->GetMutex(mutex);
+#endif
   for (int i = 0; i < kMAXSIGNALS; i++)
   {
     gSystem->IgnoreSignal((ESignals) i);
   }
+#ifdef USE_MUTEX
   pthread_mutex_lock(&mutex);
+#endif
+
 #if defined(SERVER) || defined(ROOTTHREAD)
 
   pthread_t ThreadId = 0;
@@ -91,7 +99,9 @@ int pinit()
   // for the timestamp we need doubles
   FrameWorkVars = new TH1D("FrameWorkVars", "FrameWorkVars", NFRAMEWORKBINS, 0., NFRAMEWORKBINS);
   Onlmonserver->registerCommonHisto(FrameWorkVars);
+#ifdef USE_MUTEX
   pthread_mutex_unlock(&mutex);
+#endif
 
   return 0;
 }
@@ -118,7 +128,9 @@ int process_event(Event *evt)
 
     eventcnt = 0;
     int newrun = evt->getRunNumber();
+#ifdef USE_MUTEX
     pthread_mutex_lock(&mutex);
+#endif
     FrameWorkVars->SetBinContent(RUNNUMBERBIN, (Stat_t) newrun);
     se->BadEvents(0);
     se->EventNumber(evt->getEvtSequence());
@@ -131,7 +143,9 @@ int process_event(Event *evt)
     // set trigger mask in et pool frontend
     borticks = se->BorTicks();
     FrameWorkVars->SetBinContent(BORTIMEBIN, (Stat_t) borticks);
+#ifdef USE_MUTEX
     pthread_mutex_unlock(&mutex);
+#endif
     eorticks = borticks;
   }
   if (se->RunNumber() > evt->getRunNumber())
@@ -162,7 +176,9 @@ int process_event(Event *evt)
   {
     // ROOT crashes when one thread updates histos while they are
     // being saved, need mutex protection here
+#ifdef USE_MUTEX
     pthread_mutex_lock(&mutex);
+#endif
     FrameWorkVars->SetBinContent(EORTIMEBIN, (Stat_t) eorticks);  // set EOR time
     se->EndRun(oldrun);
     se->WriteHistoFile();
@@ -184,7 +200,9 @@ int process_event(Event *evt)
     lowrunwarning = 1;  // so we only get one low runnumber warning in logfile
     lowrunevents = 0;   // clear the low run event counter
     FrameWorkVars->SetBinContent(LOWRUNEVENTBIN, (Stat_t) lowrunevents);
+#ifdef USE_MUTEX
     pthread_mutex_unlock(&mutex);
+#endif
     savetmpticks = 0x7FFFFFFF;
   }
 
@@ -193,14 +211,18 @@ int process_event(Event *evt)
   // save earliest time stamp and number of events with earlier timestamps
   if (tmpticks < borticks)
   {
+#ifdef USE_MUTEX
     pthread_mutex_lock(&mutex);
+#endif
     FrameWorkVars->AddBinContent(EARLYEVENTNUMBIN);
     if (tmpticks < savetmpticks)
     {
       savetmpticks = tmpticks;
       FrameWorkVars->SetBinContent(EARLYEVENTTIMEBIN, (Stat_t) tmpticks);
     }
+#ifdef USE_MUTEX
     pthread_mutex_unlock(&mutex);
+#endif
   }
   if (eorticks < se->CurrentTicks())
   {
@@ -218,11 +240,15 @@ int process_event(Event *evt)
   }
 
   eventcnt++;
+#ifdef USE_MUTEX
   pthread_mutex_lock(&mutex);
+#endif
   FrameWorkVars->SetBinContent(CURRENTTIMEBIN, (Stat_t) se->CurrentTicks());
   se->EventNumber(evt->getEvtSequence());
   se->process_event(evt);
+#ifdef USE_MUTEX
   pthread_mutex_unlock(&mutex);
+#endif
   return 0;
 }
 
@@ -236,7 +262,9 @@ static void *server(void * /* arg */)
   OnlMonServer *Onlmonserver = OnlMonServer::instance();
   int MoniPort = OnlMonDefs::MONIPORT;
   //  int thread_arg[5];
+#ifdef USE_MUTEX
   pthread_mutex_lock(&mutex);
+#endif
   TServerSocket *ss = nullptr;
   sleep(5);
   do
@@ -270,7 +298,9 @@ static void *server(void * /* arg */)
   int isock = gROOT->GetListOfSockets()->IndexOf(ss);
   gROOT->GetListOfSockets()->RemoveAt(isock);
   sleep(10);
+#ifdef USE_MUTEX
   pthread_mutex_unlock(&mutex);
+#endif
 again:
   TSocket *s0 = ss->Accept();
   if (!s0)
@@ -291,11 +321,15 @@ again:
     adr.Print();
   }
   //  std::cout << "try locking mutex" << std::endl;
+#ifdef USE_MUTEX
   pthread_mutex_lock(&mutex);
+#endif
   // std::cout << "got mutex" << std::endl;
   handleconnection(s0);
   // std::cout << "try releasing mutex" << std::endl;
+#ifdef USE_MUTEX
   pthread_mutex_unlock(&mutex);
+#endif
   // std::cout << "mutex released" << std::endl;
   delete s0;
   /*

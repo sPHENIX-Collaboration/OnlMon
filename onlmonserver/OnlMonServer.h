@@ -1,6 +1,8 @@
 #ifndef ONLMONSERVER_ONLMONSERVER_H
 #define ONLMONSERVER_ONLMONSERVER_H
 
+//#define USE_MUTEX
+
 #include "OnlMonBase.h"
 #include "OnlMonDefs.h"
 
@@ -75,14 +77,17 @@ class OnlMonServer : public OnlMonBase
   std::string GetRunType() const { return RunType; }
 
   int send_message(const OnlMon *Monitor, const int msgsource, const int severity, const std::string &err_message, const int msgtype) const;
+
+#ifdef USE_MUTEX
   void GetMutex(pthread_mutex_t &lock) { lock = mutex; }
+#endif
   void SetThreadId(const pthread_t &id) { serverthreadid = id; }
 
-  int LoadActivePackets();
-  int parse_granuleDef(std::set<std::string> &pcffilelist);
-  void parse_pcffile(const std::string &lfn);
+  //int LoadActivePackets();
+  //  int parse_granuleDef(std::set<std::string> &pcffilelist);
+  // void parse_pcffile(const std::string &lfn);
   void clearactivepackets() { activepackets.clear(); }
-  int LoadLL1Packets();
+  //int LoadLL1Packets();
   int isStandaloneRun() const { return standalone; }
   int isCosmicRun() const { return cosmicrun; }
 

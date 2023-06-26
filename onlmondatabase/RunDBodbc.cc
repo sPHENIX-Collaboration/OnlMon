@@ -1,7 +1,5 @@
 #include "RunDBodbc.h"
 
-#include <boost/tokenizer.hpp>
-
 #include <odbc++/connection.h>
 #include <odbc++/drivermanager.h>
 #include <odbc++/statement.h>  // for Statement
@@ -133,7 +131,7 @@ noopen:
     {
       std::cout << "Run unknown in DB trying from file" << std::endl;
     }
-    runtype = RunTypeFromFile(runno, runtype);
+    //    runtype = RunTypeFromFile(runno, runtype);
   }
 
   if (verbosity > 0)
@@ -142,43 +140,6 @@ noopen:
   }
 
   return runtype;
-}
-
-std::string
-RunDBodbc::RunTypeFromFile(const int runno, const std::string &runtype) const
-{
-  std::ostringstream runfilename;
-  std::string returnruntype = runtype;
-  if (getenv("ONLINE_LOG"))
-  {
-    runfilename << getenv("ONLINE_LOG") << "/runinfo/";
-  }
-  runfilename << "beginrun_" << std::setw(7) << std::setfill('0') << runno << ".sql";
-  std::cout << "file: " << runfilename.str() << std::endl;
-  std::ifstream infile(runfilename.str());
-  if (infile.fail())
-  {
-    std::cout << "Failed to open file " << runfilename.str() << std::endl;
-    return returnruntype;
-  }
-  std::string FullLine;
-  getline(infile, FullLine);
-  boost::char_separator<char> sep("'");
-  using tokenizer = boost::tokenizer<boost::char_separator<char>>;
-  while (!infile.eof())
-  {
-    if (FullLine.find("INSERT INTO run VALUES") != std::string::npos)
-    {
-      tokenizer tokens(FullLine, sep);
-      tokenizer::iterator tok_iter = tokens.begin();
-      ++tok_iter;
-      //	 	  std::cout << "run type: " << *tok_iter << std::endl;
-      returnruntype = *tok_iter;
-      break;
-    }
-    getline(infile, FullLine);
-  }
-  return returnruntype;
 }
 
 int RunDBodbc::GetRunNumbers(std::set<int> &result, const std::string &type, const int nruns, const int lastrunexclusive) const

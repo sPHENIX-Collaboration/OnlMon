@@ -1,4 +1,4 @@
-#include <CommonFuncs.C>
+#include "CommonFuncs.C"
 
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/intt/InttMonDraw.h>
@@ -37,7 +37,7 @@ void inttDraw(const char *what="ALL")
   OnlMonClient *cl = OnlMonClient::instance();		// get pointer to framewrk
   for(int felix = 0; felix < INTT::FELIX; ++felix)	// update histos
   {
-    cl->requestHistoBySubSystem("INTTMON_%d", felix);
+    cl->requestHistoBySubSystem(Form("INTTMON_%d", felix),1);
   }
   cl->Draw("INTTMONDRAW",what);				// Draw Histos of registered Drawers
 }

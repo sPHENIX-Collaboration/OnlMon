@@ -1,4 +1,4 @@
-#include <CommonFuncs.C>
+#include "CommonFuncs.C"
 #include <onlmon/tpot/TpotMonDraw.h>
 #include <onlmon/OnlMonClient.h>
 
@@ -40,7 +40,7 @@ void tpotDrawInit(const int online = 0)
 void tpotDraw(const char *what = "ALL")
 {
   auto cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("TPOTMON_0");       // update histos
+  cl->requestHistoBySubSystem("TPOTMON_0",1);       // update histos
   cl->Draw("TPOTMONDRAW", what);                    // Draw Histos of registered Drawers
 }
 

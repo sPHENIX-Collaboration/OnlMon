@@ -25,17 +25,22 @@ class HcalMonDraw : public OnlMonDraw
   int MakePS(const std::string& what = "ALL") override;
   int MakeHtml(const std::string& what = "ALL") override;
   void HandleEvent(int, int, int, TObject*);
+  
 
  protected:
   int MakeCanvas(const std::string& name);
   int DrawFirst(const std::string& what = "ALL");
   int DrawSecond(const std::string& what = "ALL");
   int DrawThird(const std::string& what = "ALL");
+  int DrawFourth(const std::string& what = "ALL");
   int DrawHistory(const std::string& what = "ALL");
   int FindHotTower(TPad* warn, TH2D*);
+  void DrawTowerAvg();
+  void DrawHitMap();
   
-  // int DrawDeadServer(TPad *transparent);
 
+  // int DrawDeadServer(TPad *transparent);
+  std::string prefix = "HCALMON";
   int TimeOffsetTicks = -1;
   TCanvas* TC[9] = {nullptr};
   TPad* transparent[9] = {nullptr};

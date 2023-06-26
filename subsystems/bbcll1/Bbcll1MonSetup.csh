@@ -1,1 +1,0 @@
-setenv BBCLL1CALIB $ONLMON_CALIB/bbcll1

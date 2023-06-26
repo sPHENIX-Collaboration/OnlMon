@@ -10,8 +10,8 @@
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
 
-#include <caloreco/CaloWaveformFitting.h>
 #include <calobase/TowerInfoDefs.h>
+#include <caloreco/CaloWaveformFitting.h>
 
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
@@ -37,6 +37,23 @@ HcalMon::HcalMon(const std::string& name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new HcalMon()
+  // if name start with O then packetlow = 8001, packethigh = 8008
+  // if name start with I then packetlow = 7001, packethigh = 7008
+  if (name[0] == 'O')
+  {
+    packetlow = 8001;
+    packethigh = 8008;
+  }
+  else if (name[0] == 'I')
+  {
+    packetlow = 7001;
+    packethigh = 7008;
+  }
+  else
+  {
+    std::cout << "HcalMon::HcalMon - unknown name(need to be OHCALMON or IHCALMON to know what packet to run) " << name << std::endl;
+    exit(1);
+  }
   return;
 }
 
@@ -46,7 +63,8 @@ HcalMon::~HcalMon()
   return;
 }
 
-const int depth = 50;
+const int depth = 500;
+const int packet_depth = 1000;
 const int historyLength = 100;
 const int n_channel = 48;
 const float hit_threshold = 100;
@@ -73,15 +91,26 @@ int HcalMon::Init()
   h2_hcal_hits = new TH2F("h2_hcal_hits", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
   h2_hcal_mean = new TH2F("h2_hcal_mean", "", 24, 0, 24, 64, 0, 64);
+  h2_hcal_waveform = new TH2F("h2_hcal_waveform", "", 16, 0.5, 16.5, 1000, 0, 15000);
   h_event = new TH1F("h_event", "", 1, 0, 1);
   h_waveform_twrAvg = new TH1F("h_waveform_twrAvg", "", 16, 0.5, 16.5);
   h_waveform_time = new TH1F("h_waveform_time", "", 16, 0.5, 16.5);
   h_waveform_pedestal = new TH1F("h_waveform_pedestal", "", 5e3, 0, 5e3);
   h_sectorAvg_total = new TH1F("h_sectorAvg_total", "", 32, 0.5, 32.5);
+  // number of towers above threshold per event
+  h_ntower = new TH1F("h_ntower", "", 100, 0, 800);
+  // packet stuff
+  h1_packet_number = new TH1F("h1_packet_number", "", 8, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_length = new TH1F("h1_packet_length", "", 8, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_chans = new TH1F("h1_packet_chans", "", 8, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
+
   for (int ih = 0; ih < Nsector; ih++)
     h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength);
-  for (int ieta = 0; ieta < 24; ieta++) {
-    for (int iphi = 0; iphi < 64; iphi++) {
+  for (int ieta = 0; ieta < 24; ieta++)
+  {
+    for (int iphi = 0; iphi < 64; iphi++)
+    {
       h_rm_tower[ieta][iphi] = new TH1F(Form("h_rm_tower_%d_%d", ieta, iphi), Form("running mean of tower ieta=%d, iphi=%d", ieta, iphi), historyLength, 0, historyLength);
     }
   }
@@ -95,22 +124,37 @@ int HcalMon::Init()
   {
     rm_vector_twr.push_back(new pseudoRunningMean(1, depth));
   }
+  for (int i = 0; i < 8; i++)
+  {
+    rm_packet_number.push_back(new pseudoRunningMean(1, packet_depth));
+    rm_packet_length.push_back(new pseudoRunningMean(1, packet_depth));
+    rm_packet_chans.push_back(new pseudoRunningMean(1, packet_depth));
+  }
+
   OnlMonServer* se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, h2_hcal_hits);
   se->registerHisto(this, h2_hcal_rm);
   se->registerHisto(this, h2_hcal_mean);
+  se->registerHisto(this, h2_hcal_waveform);
   se->registerHisto(this, h_event);
   se->registerHisto(this, h_sectorAvg_total);
   se->registerHisto(this, h_waveform_twrAvg);
   se->registerHisto(this, h_waveform_time);
   se->registerHisto(this, h_waveform_pedestal);
+  se->registerHisto(this, h_ntower);
+  se->registerHisto(this, h1_packet_number);
+  se->registerHisto(this, h1_packet_length);
+  se->registerHisto(this, h1_packet_chans);
+  se->registerHisto(this, h1_packet_event);
+
   for (int ih = 0; ih < Nsector; ih++)
     se->registerHisto(this, h_rm_sectorAvg[ih]);
 
-
-  for (int ieta = 0; ieta < 24; ieta++) {
-    for (int iphi = 0; iphi < 64; iphi++) {
+  for (int ieta = 0; ieta < 24; ieta++)
+  {
+    for (int iphi = 0; iphi < 64; iphi++)
+    {
       se->registerHisto(this, h_rm_tower[ieta][iphi]);
     }
   }
@@ -122,9 +166,9 @@ int HcalMon::Init()
 
   std::string hcaltemplate;
   if (getenv("HCALCALIB"))
-    {
-      hcaltemplate = getenv("HCALCALIB");
-    }
+  {
+    hcaltemplate = getenv("HCALCALIB");
+  }
   else
   {
     hcaltemplate = ".";
@@ -175,7 +219,8 @@ std::vector<float> HcalMon::anaWaveform(Packet* p, const int channel)
   multiple_wfs.push_back(waveform);
 
   std::vector<std::vector<float>> fitresults_ohcal;
-  fitresults_ohcal = WaveformProcessing->process_waveform(multiple_wfs);
+  // fitresults_ohcal = WaveformProcessing->process_waveform(multiple_wfs);
+  fitresults_ohcal = WaveformProcessing->calo_processing_fast(multiple_wfs);
 
   std::vector<float> result;
   result = fitresults_ohcal.at(0);
@@ -197,23 +242,57 @@ int HcalMon::BeginRun(const int /* runno */)
   {
     (*rm_it)->Reset();
   }
+  for (rm_it = rm_packet_number.begin(); rm_it != rm_packet_number.end(); ++rm_it)
+  {
+    (*rm_it)->Reset();
+  }
+  for (rm_it = rm_packet_length.begin(); rm_it != rm_packet_length.end(); ++rm_it)
+  {
+    (*rm_it)->Reset();
+  }
+  for (rm_it = rm_packet_chans.begin(); rm_it != rm_packet_chans.end(); ++rm_it)
+  {
+    (*rm_it)->Reset();
+  }
   return 0;
 }
 
 int HcalMon::process_event(Event* e /* evt */)
 {
+  if (e->getEvtType() >= 8)  /// special event where we do not read out the calorimeters
+  {
+    return 0;
+  }
   evtcnt++;
   h_waveform_twrAvg->Reset();  // only record the latest event waveform
   unsigned int towerNumber = 0;
   float sectorAvg[Nsector] = {0};
- 
+
   for (int packet = packetlow; packet <= packethigh; packet++)
   {
     Packet* p = e->getPacket(packet);
-
+    int packet_bin = packet - packetlow + 1;
     if (p)
     {
-      for (int c = 0; c < p->iValue(0, "CHANNELS"); c++)
+      int one[1] = {1};
+      rm_packet_number[packet - packetlow]->Add(one);
+      int packet_length[1] = {p->getLength()};
+      rm_packet_length[packet - packetlow]->Add(packet_length);
+
+      h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
+
+      h1_packet_event->SetBinContent(packet - packetlow + 1, p->iValue(0, "EVTNR"));
+      int nChannels = p->iValue(0, "CHANNELS");
+      if (nChannels > m_nChannels)
+      {
+        return -1;  // packet is corrupted, reports too many channels
+      }
+      else
+      {
+        rm_packet_chans[packet - packetlow]->Add(&nChannels);
+        h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
+      }
+      for (int c = 0; c < nChannels; c++)
       {
         towerNumber++;
 
@@ -228,7 +307,7 @@ int HcalMon::process_event(Event* e /* evt */)
         unsigned int phi_bin = TowerInfoDefs::getCaloTowerPhiBin(key);
         unsigned int eta_bin = TowerInfoDefs::getCaloTowerEtaBin(key);
         int sectorNumber = phi_bin / 2 + 1;
-        h_waveform_time->Fill(time);
+        if (signal > hit_threshold) h_waveform_time->Fill(time);
         h_waveform_pedestal->Fill(pedestal);
 
         sectorAvg[sectorNumber - 1] += signal;
@@ -239,7 +318,7 @@ int HcalMon::process_event(Event* e /* evt */)
         h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
         h2_hcal_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
 
-        //fill tower_rm here
+        // fill tower_rm here
         if (evtcnt <= historyLength)
         {
           h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt, rm_vector_twr[towerNumber - 1]->getMean(0));
@@ -253,7 +332,6 @@ int HcalMon::process_event(Event* e /* evt */)
           h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twr[towerNumber - 1]->getMean(0));
         }
 
-
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
@@ -263,13 +341,21 @@ int HcalMon::process_event(Event* e /* evt */)
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
           h_waveform_twrAvg->Fill(s, p->iValue(s, c));
+          if (signal > 100) h2_hcal_waveform->Fill(s, (p->iValue(s, c) - pedestal));
         }
 
       }  // channel loop
 
-      delete p;
-    }  // if packet good
-  } // packet loop
+    }    // if packet good
+    else
+    {
+      towerNumber += 192;
+      int zero[1] = {0};
+      rm_packet_number[packet - packetlow]->Add(zero);
+    }
+    h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet - packetlow]->getMean(0));
+    delete p;
+  }  // packet loop
 
   // sector loop
   for (int isec = 0; isec < Nsector; isec++)

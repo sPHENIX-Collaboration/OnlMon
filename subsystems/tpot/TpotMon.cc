@@ -203,81 +203,83 @@ int TpotMon::process_event(Event* event)
   ++evtcnt;
 
   increment( m_counters, TpotMonDefs::kValidEventCounter );
-
-  // read the data
-  std::unique_ptr<Packet> packet(event->getPacket(5000));
-  if( !packet )
-  {
-    // no data
-    std::cout << "TpotMon::process_event - event contains no TPOT data" << std::endl;
-    return 0;
-  }
-
+  
   // hit multiplicity vs fee id
   std::map<int, int> multiplicity;
 
-  // get number of datasets (also call waveforms)
-  const auto n_waveforms = packet->iValue(0, "NR_WF" );
-  if( Verbosity() )
-  { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
-  for( int i=0; i<n_waveforms; ++i )
+  // read the data
+  for( const auto& packet_id:MicromegasDefs::m_packet_ids )
   {
-    auto channel = packet->iValue( i, "CHANNEL" );
-    int fee_id = packet->iValue(i, "FEE" );
-    int samples = packet->iValue( i, "SAMPLES" );
-
-    // get detector index from fee id
-    const auto iter = m_detector_histograms.find( fee_id );
-    if( iter == m_detector_histograms.end() )
+    std::unique_ptr<Packet> packet(event->getPacket(packet_id));
+    if( !packet )
     {
-      std::cout << "TpotMon::process_event - invalid fee_id: " << fee_id << std::endl;
+      // no data
+      std::cout << "TpotMon::process_event -packet " << packet_id << " not found" << std::endl;
       continue;
     }
-    const auto& detector_histograms = iter->second;
-
-    // get tile center, segmentation
-    const auto& [tile_x, tile_y]  = m_tile_centers.at(fee_id);
-    const auto segmentation = MicromegasDefs::getSegmentationType( m_mapping.get_hitsetkey(fee_id));
-
-    if( Verbosity()>1 )
+    
+    // get number of datasets (also call waveforms)
+    const auto n_waveforms = packet->iValue(0, "NR_WF" );
+    if( Verbosity() )
+    { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
+    for( int i=0; i<n_waveforms; ++i )
     {
-      std::cout
-        << "TpotMon::process_event -"
-        << " waveform: " << i
-        << " fee: " << fee_id
-        << " channel: " << channel
-        << " samples: " << samples
-        << std::endl;
+      auto channel = packet->iValue( i, "CHANNEL" );
+      int fee_id = packet->iValue(i, "FEE" );
+      int samples = packet->iValue( i, "SAMPLES" );
+      
+      // get detector index from fee id
+      const auto iter = m_detector_histograms.find( fee_id );
+      if( iter == m_detector_histograms.end() )
+      {
+        std::cout << "TpotMon::process_event - invalid fee_id: " << fee_id << std::endl;
+        continue;
+      }
+      const auto& detector_histograms = iter->second;
+      
+      // get tile center, segmentation
+      const auto& [tile_x, tile_y]  = m_tile_centers.at(fee_id);
+      const auto segmentation = MicromegasDefs::getSegmentationType( m_mapping.get_hitsetkey(fee_id));
+      
+      if( Verbosity()>1 )
+      {
+        std::cout
+          << "TpotMon::process_event -"
+          << " waveform: " << i
+          << " fee: " << fee_id
+          << " channel: " << channel
+          << " samples: " << samples
+          << std::endl;
+      }
+      
+      for( int is = 0; is < samples; ++is )
+      {
+        const auto adc =  packet->iValue( i, is );
+        detector_histograms.m_adc_vs_sample->Fill( is, adc );
+        detector_histograms.m_hit_charge->Fill( adc );
+      }
+      
+      // fill hit profile for this channel
+      const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
+      detector_histograms.m_hit_vs_channel->Fill( strip_index );
+      
+      // update multiplicity for this detector
+      ++multiplicity[fee_id];
+      
+      // fill detector multiplicity
+      switch( segmentation )
+      {
+        case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
+        m_detector_multiplicity_z->Fill( tile_x, tile_y );
+        m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
+        break;
+        
+        case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
+        m_detector_multiplicity_phi->Fill( tile_x, tile_y );
+        m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
+        break;
+      }
     }
-
-    for( int is = 0; is < samples; ++is )
-    {
-      const auto adc =  packet->iValue( i, is );
-      detector_histograms.m_adc_vs_sample->Fill( is, adc );
-      detector_histograms.m_hit_charge->Fill( adc );
-    }
-
-    // fill hit profile for this channel
-    const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
-    detector_histograms.m_hit_vs_channel->Fill( strip_index );
-
-    // update multiplicity for this detector
-    ++multiplicity[fee_id];
-
-    // fill detector multiplicity
-    switch( segmentation )
-    {
-      case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
-      m_detector_multiplicity_z->Fill( tile_x, tile_y );
-      m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
-      break;
-
-      case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
-      m_detector_multiplicity_phi->Fill( tile_x, tile_y );
-      m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
-      break;
-    }
-
   }
 
   // fill hit multiplicities

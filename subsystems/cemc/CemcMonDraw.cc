@@ -148,7 +148,6 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
 
 int CemcMonDraw::Draw(const std::string &what)
 {
-  std::cout << what.c_str()  << " should say ALL "<< std::endl;
   int iret = 0;
   int idraw = 0;
   if (what == "ALL" || what == "FIRST")

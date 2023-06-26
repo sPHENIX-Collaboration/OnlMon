@@ -14,9 +14,10 @@ namespace bbc_onlmon
   const float min_armhittime = 0;          // Maximum od Tdc-ArmHitTime
   static const double TDC_FIT_MAX = 19.0;  // compatible type with TF::GetParameter(1)
   static const double TDC_FIT_MIN = 1.0;
-  static const int zvtnbin = 180;
-  static const float max_zvertex = 180;
-  static const float min_zvertex = -180;
+  //static const int zvtnbin = 180;
+  static const int zvtnbin = 600;
+  static const float max_zvertex = 300;
+  static const float min_zvertex = -300;
 
 #define nPMT_1SIDE_BBC 64
 #define nPMT_BBC (nPMT_1SIDE_BBC * 2)
@@ -216,9 +217,7 @@ namespace bbc_onlmon
 
   static const unsigned long BBC_BBLL1_COPY_TRIG = 0x1000000;  // new trigger
   // static const int BBC_BBLL1_TRIG    = 0x10;       //0x1000;
-  static const unsigned long BBC_BBLL1ZDC_TRIG = 0x40;     // 0x4000;
-  static const unsigned long BBC_LASER_TRIG = 0x40000000;  // 0x40000000;
-  static const unsigned long BBC_LED_TRIG = 0x80000000;    // 0x40000000;
+  //static const unsigned long BBC_LASER_TRIG = 0x40000000;  // 0x40000000;
 
   // the mean of TDC between south and north should be this value.
   // static const int BBC_DEFAULT_OFFSET = 1500;
@@ -231,6 +230,8 @@ namespace bbc_onlmon
   // color definition
   // static const int BBC_COLOR_ZVTX[4] = {4,2,7,1};
   static const int BBC_COLOR_ZVTX[5] = {4, 2, 7, 6, 1};
+
+  static const int BBC_NSAMPLES = 31;  // number of digitizer samples
 
 }  // namespace bbc_onlmon
 

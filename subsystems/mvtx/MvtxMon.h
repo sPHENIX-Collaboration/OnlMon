@@ -17,6 +17,7 @@ class TH1;
 class TH2;
 class TH1I;
 class TH2I;
+class TH3I;
 class TH1D;
 class TH2D;
 class TH2Poly;
@@ -64,6 +65,7 @@ class MvtxMon : public OnlMon
 
   const int StaveBoundary[4] = { 0, 12, 28, 48};
   const int LayerBoundaryFEE[NLAYERS - 1] = { 35, 83};
+  const int chipmapoffset[3] = { 0, 12, 28};
   //double** mOccupancyLane;
 
   TH2	*mvtxmon_ChipStaveOcc= nullptr;
@@ -90,8 +92,8 @@ class MvtxMon : public OnlMon
   TH1D* hOccupancyPlot[NLAYERS] = {nullptr};
   TH2I* hEtaPhiHitmap[NLAYERS] = {nullptr};
   TH2D* hChipStaveOccupancy[NLAYERS] = {nullptr};
-  TH2I* hChipHitmap[3][20][9] = {nullptr};
-  TH2I* hChipHitmap_evt[3][20][9] = {nullptr};
+  TH3I* hChipHitmap = nullptr;
+  TH3I* hChipHitmap_evt = nullptr;
 
   //fhr
   TH2I* mErrorVsFeeid= nullptr;

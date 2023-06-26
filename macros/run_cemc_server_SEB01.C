@@ -4,6 +4,7 @@
 
 #include <onlmon/OnlMonServer.h>
 
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_server.so)
 
 // this pretends to run a subevent from seb01 (packets 6017...6032)

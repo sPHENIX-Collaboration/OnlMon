@@ -17,8 +17,6 @@
 #include <odbc++/statement.h>  // for Statement
 #include <odbc++/types.h>      // for SQLException
 
-#include <boost/tokenizer.hpp>
-
 #include <zlib.h>
 
 #include <sys/utsname.h>
@@ -53,7 +51,9 @@ OnlMonServer *OnlMonServer::instance()
 OnlMonServer::OnlMonServer(const std::string &name)
   : OnlMonBase(name)
 {
+#ifdef USE_MUTEX
   pthread_mutex_init(&mutex, nullptr);
+#endif
   MsgSystem[ThisName] = new MessageSystem(ThisName);
   statusDB = new OnlMonStatusDB();
   RunStatusDB = new OnlMonStatusDB("onlmonrunstatus");
@@ -63,13 +63,18 @@ OnlMonServer::OnlMonServer(const std::string &name)
 
 OnlMonServer::~OnlMonServer()
 {
+#ifdef USE_MUTEX
   pthread_mutex_lock(&mutex);
+#endif
   if (int tret = pthread_cancel(serverthreadid))
   {
     std::cout << __PRETTY_FUNCTION__ << "pthread cancel returned error: " << tret << std::endl;
   }
   delete serverrunning;
+
+#ifdef USE_MUTEX
   pthread_mutex_destroy(&mutex);
+#endif
   while (MonitorList.begin() != MonitorList.end())
   {
     delete MonitorList.back();
@@ -78,12 +83,14 @@ OnlMonServer::~OnlMonServer()
   delete statusDB;
   delete RunStatusDB;
 
-  while (Histo.begin() != Histo.end())
+  for (auto &moniiter : MonitorHistoSet)
   {
-    delete Histo.begin()->second;
-    Histo.erase(Histo.begin());
+     for (auto &histiter : moniiter.second)
+    {
+      delete histiter.second;
+      (moniiter.second).erase(histiter.first);
+    }
   }
-
   while (MsgSystem.begin() != MsgSystem.end())
   {
     delete MsgSystem.begin()->second;
@@ -109,14 +116,14 @@ void OnlMonServer::dumpHistos(const std::string &filename)
 {
   TFile *hfile = TFile::Open(filename.c_str(), "RECREATE", "Created by Online Monitor");
   for (auto &moniiter : MonitorHistoSet)
+  {
+    std::cout << "saving " << moniiter.first << std::endl;
+    for (auto &histiter : moniiter.second)
     {
-      std::cout << "saving " << moniiter.first << std::endl;
-      for (auto &histiter : moniiter.second)
-	{
-	  std::cout << "saving " << histiter.first << std::endl;
-	  histiter.second->Write();
-	}
+      std::cout << "saving " << histiter.first << std::endl;
+      histiter.second->Write();
     }
+  }
   hfile->Close();
   delete hfile;
   return;
@@ -399,6 +406,14 @@ int OnlMonServer::Reset()
     i += (*iter)->Reset();
   }
   std::map<const std::string, TH1 *>::const_iterator hiter;
+  for (auto &moniiter : MonitorHistoSet)
+  {
+     for (auto &histiter : moniiter.second)
+    {
+      histiter.second->Reset();
+    }
+  }
+
   for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
   {
     hiter->second->Reset();
@@ -513,25 +528,25 @@ void OnlMonServer::RunNumber(const int irun)
 int OnlMonServer::WriteHistoFile()
 {
   for (auto &moniiter : MonitorHistoSet)
+  {
+    std::string dirname = "./";
+    if (getenv("ONLMON_SAVEDIR"))
     {
-      std::string dirname = "./";
-      if (getenv("ONLMON_SAVEDIR"))
-	{
-	  dirname  = std::string(getenv("ONLMON_SAVEDIR")) + "/";
-	}
-      std::string filename = dirname + "Run_" + std::to_string(RunNumber()) + "-" + moniiter.first + ".root";
-      if (Verbosity() > 2)
-	{
-	  std::cout << "saving histos for " << moniiter.first << " in " << filename << std::endl;
-	}
-      TFile *hfile = TFile::Open(filename.c_str(), "RECREATE", "Created by Online Monitor");
-      for (auto &histiter : moniiter.second)
-	{
-	  histiter.second->Write();
-	}
-      hfile->Close();
-      delete hfile;
+      dirname = std::string(getenv("ONLMON_SAVEDIR")) + "/";
     }
+    std::string filename = dirname + "Run_" + std::to_string(RunNumber()) + "-" + moniiter.first + ".root";
+    if (Verbosity() > 2)
+    {
+      std::cout << "saving histos for " << moniiter.first << " in " << filename << std::endl;
+    }
+    TFile *hfile = TFile::Open(filename.c_str(), "RECREATE", "Created by Online Monitor");
+    for (auto &histiter : moniiter.second)
+    {
+      histiter.second->Write();
+    }
+    hfile->Close();
+    delete hfile;
+  }
   return 0;
 }
 
@@ -566,7 +581,6 @@ int OnlMonServer::send_message(const int severity, const std::string &err_messag
   int iret = iter->second->send_message(MSG_SOURCE_UNSPECIFIED, severity, err_message, msgtype);
   return iret;
 }
-
 
 int OnlMonServer::WriteLogFile(const std::string &name, const std::string &message) const
 {
@@ -603,282 +617,6 @@ int OnlMonServer::WriteLogFile(const std::string &name, const std::string &messa
       << ": " << message;
   gzprintf(fout, "%s\n", msg.str().c_str());
   gzclose(fout);
-  return 0;
-}
-
-int OnlMonServer::parse_granuleDef(std::set<std::string> &pcffilelist)
-{
-  std::ostringstream filenam;
-  if (getenv("ONLINE_CONFIGURATION"))
-  {
-    filenam << getenv("ONLINE_CONFIGURATION") << "/rc/hw/";
-  }
-  filenam << "granuleDef.pcf";
-  std::string FullLine;  // a complete line in the config file
-  std::ifstream infile;
-  infile.open(filenam.str().c_str(), std::ifstream::in);
-  if (!infile)
-  {
-    if (filenam.str().find("gl1test.pcf") == std::string::npos)
-    {
-      std::ostringstream msg;
-      msg << "Could not open " << filenam.str();
-      send_message(MSG_SEV_ERROR, msg.str(), 7);
-    }
-    return -1;
-  }
-  getline(infile, FullLine);
-  boost::char_separator<char> sep("/");
-  using tokenizer = boost::tokenizer<boost::char_separator<char>>;
-  while (!infile.eof())
-  {
-    if (FullLine.find("label:") != std::string::npos)
-    {
-      tokenizer tokens(FullLine, sep);
-      tokenizer::iterator tok_iter = tokens.begin();
-      ++tok_iter;
-      if (verbosity > 1)
-      {
-        std::cout << "pcf file: " << *tok_iter << std::endl;
-      }
-      pcffilelist.insert(*tok_iter);
-    }
-    getline(infile, FullLine);
-  }
-  infile.close();
-  return 0;
-}
-
-int OnlMonServer::LoadLL1Packets()
-{
-  std::ostringstream filenam;
-  if (getenv("ONLINE_CONFIGURATION"))
-  {
-    filenam << getenv("ONLINE_CONFIGURATION") << "/rc/hw/";
-  }
-  filenam << "Level1DD.pcf";
-  std::string FullLine;  // a complete line in the config file
-  std::ifstream infile;
-  infile.open(filenam.str().c_str(), std::ifstream::in);
-  if (!infile)
-  {
-    std::ostringstream msg;
-    msg << "Could not open " << filenam.str();
-    send_message(MSG_SEV_ERROR, msg.str(), 7);
-    return -1;
-  }
-  getline(infile, FullLine);
-  std::string::size_type pos1;
-  while (!infile.eof())
-  {
-    if (FullLine.find("LEVEL1_HITFORMAT") != std::string::npos)
-    {
-      if ((pos1 = FullLine.find("autogenerate_default0")) != std::string::npos)
-      {
-        FullLine.erase(0, pos1);  // erase all before autogenerate_default0 std::string
-        if ((pos1 = FullLine.find(',')) != std::string::npos)
-        {
-          FullLine.erase(0, pos1 + 1);  // erase all before and including , std::string
-          // erase the next 20 fields separated by , (hitformat and size)
-          int n = 0;
-          while (n++ <= 20)
-          {
-            if ((pos1 = FullLine.find(',')) != std::string::npos)
-            {
-              FullLine.erase(0, pos1 + 1);  // erase all before and including , std::string
-            }
-          }
-          // whats left is the comma separated list of ll1 packets
-          while (FullLine.size() > 0)
-          {
-            pos1 = FullLine.find(',');
-            std::string packetidstr;
-            if (pos1 != std::string::npos)
-            {
-              packetidstr = FullLine.substr(0, pos1);
-              FullLine.erase(0, pos1 + 1);
-            }
-            else
-            {
-              packetidstr = FullLine;
-              FullLine.erase();
-            }
-            std::istringstream line;
-            line.str(packetidstr);
-            unsigned int packetid;
-            line >> packetid;
-            if (packetid > 0)
-            {
-              activepackets.insert(packetid);
-            }
-          }
-        }
-      }
-    }
-    getline(infile, FullLine);
-  }
-
-  infile.close();
-  return 0;
-}
-
-int OnlMonServer::LoadActivePackets()
-{
-  clearactivepackets();
-  // LL1 packets are special
-  LoadLL1Packets();
-  std::set<std::string> pcffiles;
-  parse_granuleDef(pcffiles);
-  std::set<std::string>::const_iterator piter;
-  for (piter = pcffiles.begin(); piter != pcffiles.end(); ++piter)
-  {
-    parse_pcffile(*piter);
-  }
-  return 0;
-}
-
-void OnlMonServer::parse_pcffile(const std::string &lfn)
-{
-  std::ostringstream filenam;
-  if (getenv("ONLINE_CONFIGURATION"))
-  {
-    filenam << getenv("ONLINE_CONFIGURATION") << "/rc/hw/";
-  }
-  filenam << lfn;
-
-  std::set<unsigned int> disabled_packets;
-  std::string FullLine;  // a complete line in the config file
-  std::ifstream infile;
-  infile.open(filenam.str().c_str(), std::ifstream::in);
-  if (!infile)
-  {
-    if (filenam.str().find("gl1test.pcf") == std::string::npos)
-    {
-      std::ostringstream msg;
-      msg << "LoadActivePackets: Could not open " << filenam.str();
-      send_message(MSG_SEV_WARNING, msg.str(), 7);
-    }
-    return;
-  }
-  getline(infile, FullLine);
-  int checkreadoutflag = 0;
-  std::string::size_type pos1;
-  std::string::size_type pos2;
-  std::vector<unsigned int> pktids;
-  while (!infile.eof())
-  {
-    // find the line with packet ids
-    if ((pos1 = FullLine.find("packetid")) != std::string::npos)
-    {
-      FullLine.erase(0, pos1);  // erase all before packetid std::string
-      while ((pos1 = FullLine.find(':')) != std::string::npos)
-      {
-        pos2 = FullLine.find(',');
-        // search the int between the ":" and the ","
-        std::string packetidstr = FullLine.substr(pos1 + 1, pos2 - (pos1 + 1));
-        std::istringstream line;
-        line.str(packetidstr);
-        unsigned int packetid;
-        line >> packetid;
-        if (packetid > 0)
-        {
-          pktids.push_back(packetid);
-        }
-        // erase this entry from the line
-        FullLine.erase(0, pos2 + 1);
-      }
-      checkreadoutflag = 1;
-    }
-    if (checkreadoutflag)
-    {
-      if (FullLine.find("readout") != std::string::npos)
-      {
-        if (FullLine.find("readout1") != std::string::npos)
-        {
-          if (FullLine.find("YES") != std::string::npos)
-          {
-            activepackets.insert(pktids[0]);
-          }
-          else
-          {
-            disabled_packets.insert(pktids[0]);
-          }
-        }
-        else if (FullLine.find("readout2") != std::string::npos)
-        {
-          if (FullLine.find("YES") != std::string::npos)
-          {
-            activepackets.insert(pktids[1]);
-          }
-          else
-          {
-            disabled_packets.insert(pktids[1]);
-          }
-          checkreadoutflag = 0;
-          pktids.clear();
-        }
-        else
-        {
-          // only add packets if the readout is set to yes
-          if (FullLine.find("YES") != std::string::npos)
-          {
-            std::vector<unsigned int>::const_iterator viter;
-            for (viter = pktids.begin(); viter != pktids.end(); ++viter)
-            {
-              activepackets.insert(*viter);
-            }
-          }
-          else
-          {
-            std::vector<unsigned int>::const_iterator viter;
-            for (viter = pktids.begin(); viter != pktids.end(); ++viter)
-            {
-              disabled_packets.insert(*viter);
-            }
-          }
-          checkreadoutflag = 0;
-          pktids.clear();
-        }
-      }
-    }
-    getline(infile, FullLine);
-  }
-  infile.close();
-  if (verbosity > 1)
-  {
-    std::set<unsigned int>::const_iterator iter;
-    std::cout << "active packets: " << std::endl;
-    for (iter = activepackets.begin(); iter != activepackets.end(); ++iter)
-    {
-      std::cout << *iter << std::endl;
-    }
-    std::cout << "inactive packets: " << std::endl;
-    for (iter = disabled_packets.begin(); iter != disabled_packets.end(); ++iter)
-    {
-      std::cout << *iter << std::endl;
-    }
-  }
-}
-
-int OnlMonServer::IsPacketActive(const unsigned int ipkt)
-{
-  if (!activepacketsinit)
-  {
-    LoadActivePackets();
-    activepacketsinit = 1;
-  }
-  std::set<unsigned int>::const_iterator iter = activepackets.find(ipkt);
-  if (iter != activepackets.end())
-  {
-    return 1;
-  }
-  if (activepackets.empty())  // if list is empty, something is wrong, claim packet as active
-  {
-    std::ostringstream msg;
-    msg << "List of Active Packets empty";
-    send_message(MSG_SEV_ERROR, msg.str(), 8);
-    return 1;
-  }
   return 0;
 }
 
@@ -1011,4 +749,3 @@ int OnlMonServer::LookAtMe(OnlMon *Monitor, const int level, const std::string &
             << std::endl;
   return 0;
 }
-

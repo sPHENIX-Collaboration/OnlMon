@@ -36,6 +36,7 @@ class OnlMon : public OnlMonBase
   virtual void SetStatus(const int newstatus);
   virtual int ResetEvent() { return 0; }
   virtual void SetMonitorServerId(unsigned int i);
+  virtual unsigned int MonitorServerId() const {return m_MonitorServerId;}
 
  protected:
   int status;

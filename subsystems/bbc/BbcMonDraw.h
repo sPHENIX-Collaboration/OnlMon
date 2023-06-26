@@ -56,7 +56,7 @@ class BbcMonDraw : public OnlMonDraw
   TCanvas *TC[nCANVAS] = {nullptr};
   TPad *transparent[nCANVAS] = {nullptr};
 
-  // TPad *Pad[6] = {nullptr};
+  TPad *Pad[6] = {nullptr};
 
   // for all Pages
   TPad *PadTop[nCANVAS] = {};
@@ -119,6 +119,12 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextSouthChargeSum = nullptr;
   TText *TextNorthChargeSum = nullptr;
 
+  TH2 *TimeWave = nullptr;
+  TPad *PadTimeWave = nullptr;
+
+  TH2 *ChargeWave = nullptr;
+  TPad *PadChargeWave = nullptr;
+
   TLine *LineTzeroZvtx[4] = {};
   TText *TextTzeroZvtx = nullptr;
 
@@ -179,7 +185,6 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextZVertex_scale[5] = {};  // RUN11 pp
   TText *TextZVertex_mean[5] = {};   // RUN11 pp
 
-  TF1 *FitZvtxBBLL1NoVtx = nullptr;
   TLatex *TextZVtxStatus[2] = {};
 
   TH2 *TzeroZvtx = nullptr;
@@ -187,6 +192,10 @@ class BbcMonDraw : public OnlMonDraw
   // Scale down factor
   TH1 *Prescale_hist = nullptr;
   TSpectrum *tspec = nullptr;
+
+private:
+  int DrawDeadServer(TPad *transparent_pad) override;
+
 };
 
 #endif /* BBC_BBCMONDRAW_H */
