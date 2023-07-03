@@ -93,6 +93,16 @@ OnlBbcEvent::~OnlBbcEvent()
 
 }
 
+int OnlBbcEvent::InitRun()
+{
+  h2_tmax[0]->Reset();
+  h2_tmax[1]->Reset();
+  calib_done = 0;
+
+  Clear();
+  return 0;
+}
+
 ///
 void OnlBbcEvent::Clear()
 {

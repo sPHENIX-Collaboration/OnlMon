@@ -19,6 +19,7 @@ public:
   int process_event(Event *evt) override;
   int Init() override;                     // Done once at start of server
   int BeginRun(const int runno) override;  // Done at every start of run
+  int EndRun(const int runno) override;    // Done at the end of every run
   int Reset() override;
 
 protected:
@@ -39,8 +40,8 @@ protected:
 
   TH1 *bbc_zvertex = nullptr;
   TH1 *bbc_zvertex_bbll1 = nullptr;
-  TH1 *bbc_zvertex_bbll1_novtx = nullptr;
-  TH1 *bbc_zvertex_bbll1_narrowvtx = nullptr;  // Run11 pp
+  //TH1 *bbc_zvertex_bbll1_novtx = nullptr;
+  //TH1 *bbc_zvertex_bbll1_narrowvtx = nullptr;  // Run11 pp
 
   TH2 *bbc_tzero_zvtx = nullptr;
   TH1 *bbc_avr_hittime = nullptr;

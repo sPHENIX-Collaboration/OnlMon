@@ -97,9 +97,16 @@ int LL1Mon::process_event(Event * evt )
   LL1HEADER *ll1h = new LL1HEADER();
   ll1setup(evt,ll1h);
 
-  int id=8;
-  if(ll1h->nhit_n[8] >= thresh && ll1h->nhit_s[8]>=thresh){
-    id=8;
+  Packet *p902 = evt->getPacket(920);
+  if (p902)
+  {
+    thresh = p902->iValue(0);
+    delete p902;
+  }
+
+  int id=9;
+  if(ll1h->nhit_n[9] >= thresh && ll1h->nhit_s[9]>=thresh){
+    id=9;
   }
   else if (ll1h->nhit_n[ll1h->idxhitn] >= thresh && ll1h->nhit_s[ll1h->idxhitn] >= thresh){
     id = ll1h->idxhitn;

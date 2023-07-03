@@ -17,9 +17,10 @@ void tpcDrawInit(const int online = 0)
   char TPCMON_STR[100];
   // TPC ADC pie chart
   for( int i=0; i<24; i++ )
+  //for( int i: {15} )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    std::cout<<"You registered the NSIDEADC/SSIDEADC "<<i<<" histo"<<std::endl;
+    //std::cout<<"You registered the NSIDEADC/SSIDEADC "<<i<<" histo"<<std::endl;
 
     cl->registerHisto("NorthSideADC", TPCMON_STR);
 
@@ -55,6 +56,7 @@ void tpcDrawInit(const int online = 0)
   // says I know they are all on the same node
 
   for( int i=0; i<24; i++ )
+  //for( int i: {15} )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     cl->requestHistoBySubSystem(TPCMON_STR, 1);
@@ -71,6 +73,7 @@ void tpcDraw(const char *what = "ALL")
   char TPCMON_STR[100];
 
   for( int i=0; i<24; i++ )
+  //for( int i: {15} )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     cl->requestHistoBySubSystem(TPCMON_STR, 1);

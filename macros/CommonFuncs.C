@@ -10,12 +10,12 @@ void CreateHostList(const int online = 0)
   if (!online)
   {
     cl->AddServerHost("localhost");  // check local host first
-    for (int i = 2061; i <= 2076; i++)
+    for (int i = 2061; i <= 2068; i++)
     {
       string node = "rcas" + to_string(i);
       cl->AddServerHost(node);  // put all va machines in search list
     }
-    for (int i = 1; i <= 2; i++)
+    for (int i = 1; i <= 8; i++)
     {
       string node = "sphnx0" + to_string(i);
       cl->AddServerHost(node);  // put all va machines in search list
@@ -50,6 +50,17 @@ void CleanUpClient()
   delete cl;
   gSystem->Exit(0);
   return;
+}
+
+void ClearCanvases()
+{
+  TSeqCollection* allCanvases = gROOT->GetListOfCanvases();
+  TCanvas* canvas = nullptr;
+  while ((canvas = (TCanvas*) allCanvases->First()))
+  {
+    std::cout << "Deleting Canvas " << canvas->GetName() << std::endl;
+    delete canvas;
+  }
 }
 
 #endif

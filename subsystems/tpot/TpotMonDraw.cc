@@ -332,7 +332,7 @@ void TpotMonDraw::draw_time( TPad* pad )
 
   std::ostringstream runnostream;
   auto cl = OnlMonClient::instance();
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = cl->EventTime("TPOTMON_0", "CURRENT");
 
   runnostream
     << ThisName << " Run " << cl->RunNumber()

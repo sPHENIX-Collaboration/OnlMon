@@ -18,7 +18,6 @@ libonlcemcmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
-  -lonlmondb \
   -lonlmonutils \
   -lcalo_io \
   -lcalo_reco
@@ -26,9 +25,7 @@ libonlcemcmon_server_la_LIBADD = \
 libonlcemcmon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
-  -lonlmonclient \
-  -lonlmondb
-
+  -lonlmonclient
 
 cemcincludedir=$(pkgincludedir)/cemc
 

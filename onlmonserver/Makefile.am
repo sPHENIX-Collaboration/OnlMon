@@ -12,9 +12,6 @@ RINCLUDES = \
   -I$(OPT_SPHENIX)/include \
   -I$(ROOTSYS)/include
 
-BUILT_SOURCES = \
-  testexternals.cc
-
 lib_LTLIBRARIES = \
   libonlmonserver.la \
   libonlmonserver_funcs.la
@@ -45,8 +42,7 @@ pkginclude_HEADERS = \
   OnlMonBase.h \
   OnlMonDefs.h \
   OnlMonServer.h \
-  OnlMonStatus.h \
-  OnlMonTrigger.h
+  OnlMonStatus.h
 
 libonlmonserver_funcs_la_SOURCES = \
   pmonitorInterface.cc
@@ -58,8 +54,8 @@ libonlmonserver_la_SOURCES = \
   OnlMonServer.cc \
   OnlMonStatusDB.cc
 
-#  OnlMonTrigger.cc
-#  TrigInfo.cc
+BUILT_SOURCES = \
+  testexternals.cc
 
 noinst_PROGRAMS = \
   testexternals

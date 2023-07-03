@@ -404,7 +404,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           //increment 
           if(serverid >= 0 && serverid < 12 ){ North_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
-          else {South_Side_Arr[ Index_from_Module(serverid,fee) ] += adc;}
+          else {South_Side_Arr[ Index_from_Module(serverid,fee)-36 ] += adc;}
 
         } //nr samples
 

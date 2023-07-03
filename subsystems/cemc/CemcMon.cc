@@ -33,13 +33,17 @@ enum
     FILLMESSAGE = 2
   };
 
+const int depth = 50;
+const int historyLength = 100;
+const float hit_threshold = 100;
+
+
 using namespace std;
 
 
-
-
 CemcMon::CemcMon(const std::string &name)
-  : OnlMon(name)
+  : OnlMon(name),
+    eventCounter(0)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new CemcMon()
@@ -47,13 +51,23 @@ CemcMon::CemcMon(const std::string &name)
   return;
 }
 
-const int depth = 50;
-const int historyLength = 100;
-const float hit_threshold = 100;
-
 
 CemcMon::~CemcMon()
 {
+  for (auto iter : rm_vector_sectAvg)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_vector_twr)
+  {
+    delete iter;
+  }
+  for (auto iter : rm_vector)
+  {
+    delete iter;
+  }
+  delete WaveformProcessingFast;
+  delete WaveformProcessingTemp;
   return;
 }
 
@@ -85,7 +99,7 @@ int CemcMon::Init()
   //waveform processing
   h1_waveform_twrAvg = new TH1F("h1_waveform_twrAvg", "", 16, 0.5, 16.5);
   h1_waveform_time = new TH1F("h1_waveform_time", "", 16, 0.5, 16.5);
-  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.2e3, 1.8e3);
+  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.3e3, 2.0e3);
   
   //waveform processing, template vs. fast interpolation
   h1_cemc_fitting_sigDiff = new TH1F("h1_fitting_sigDiff","",50,0,2);
@@ -315,10 +329,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      float timeFast = resultFast.at(1);
 	      float pedestalFast = resultFast.at(2);
 	
-	      std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
-	      float signalTemp = resultTemp.at(0);
-	      float timeTemp  = resultTemp.at(1);
-	      float pedestalTemp = resultTemp.at(2);
+	      
 	
 	
 	      // channel mapping
@@ -343,10 +354,16 @@ int CemcMon::process_event(Event *e  /* evt */)
 
 	      h1_cemc_adc ->Fill(signalFast);
 	      
-	      h1_cemc_fitting_sigDiff -> Fill(signalFast/signalTemp);
-	      h1_cemc_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
-	      h1_cemc_fitting_timeDiff -> Fill(timeFast - timeTemp);
-
+	      if(!((eventCounter -2)% 5000))
+		{
+		  std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
+		  float signalTemp = resultTemp.at(0);
+		  float timeTemp  = resultTemp.at(1);
+		  float pedestalTemp = resultTemp.at(2);
+		  h1_cemc_fitting_sigDiff -> Fill(signalFast/signalTemp);
+		  h1_cemc_fitting_pedDiff -> Fill(pedestalFast/pedestalTemp);
+		  h1_cemc_fitting_timeDiff -> Fill(timeFast - timeTemp - 6);
+		}
 	      if (signalFast > hit_threshold)
 		{
 		  h2_cemc_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);

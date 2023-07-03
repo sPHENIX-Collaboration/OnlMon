@@ -38,21 +38,21 @@ then
 fi
 
 # create save directory if not exist
-if [[ ! -z $ONLMON_SAVEDIR ]]
+if [ ! -n "$ONLMON_SAVEDIR" ]
 then
-  [ -d $ONLMON_SAVEDIR ] || mkdir -p $ONLMON_SAVEDIR
-else
+#  [ -d $ONLMON_SAVEDIR ] || mkdir -p $ONLMON_SAVEDIR
+#else
   export ONLMON_SAVEDIR=`pwd`
 fi
 
 # create save directory if not exist
-if [[ ! -z "$ONLMON_LOGDIR" ]]
+if [ ! -n "$ONLMON_LOGDIR" ]
 then
-  if [ ! -d $ONLMON_LOGDIR ]
-  then
-    mkdir -p $ONLMON_LOGDIR
-  fi
-else
+#  if [ ! -d $ONLMON_LOGDIR ]
+#  then
+#    mkdir -p $ONLMON_LOGDIR
+#  fi
+#else
   export ONLMON_LOGDIR=`pwd`
 fi
 
@@ -63,13 +63,13 @@ fi
 
 
 # create history directory if not exist
-if [[ ! -z "$ONLMON_HISTORYDIR" ]]
-then
-  if [ ! -d $ONLMON_HISTORYDIR ]
-  then
-    mkdir -p $ONLMON_HISTORYDIR
-  fi
-fi
+#if [ -n "$ONLMON_HISTORYDIR" ]
+#then
+#  if [ ! -d $ONLMON_HISTORYDIR ]
+#  then
+#    mkdir -p $ONLMON_HISTORYDIR
+#  fi
+#fi
 
 #if [[ -z "$ONLINE_LOG" ]] then
 #  export ONLINE_LOG=/export/data1/log

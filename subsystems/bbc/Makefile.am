@@ -17,17 +17,14 @@ lib_LTLIBRARIES = \
 libonlbbcmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
-  -lonlmonserver \
-  -lonlmondb
+  -lonlmonserver
 
 libonlbbcmon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -L$(ROOTSYS)/lib \
   -lonlmonclient \
-  -lSpectrum \
-  -lonlmondb
-
+  -lSpectrum
 
 bbcincludedir=$(pkgincludedir)/bbc
 

@@ -1,12 +1,10 @@
 #include "HcalMonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
-#include <onlmon/OnlMonDB.h>
 
 #include <TAxis.h>  // for TAxis
 #include <TButton.h>
 #include <TCanvas.h>
-#include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
@@ -31,10 +29,6 @@
 HcalMonDraw::HcalMonDraw(const std::string& name)
   : OnlMonDraw(name)
 {
-  // this TimeOffsetTicks is neccessary to get the time axis right
-  TDatime T0(2003, 01, 01, 00, 00, 00);
-  TimeOffsetTicks = T0.Convert();
-  dbvars = new OnlMonDB(ThisName);
   // if name start with O prefix = "OHCALMON"
   // if name start with I prefix = "IHCALMON"
   if (ThisName[0] == 'O')
@@ -142,26 +136,30 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     Pad[11] = new TPad("pad11", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
     Pad[12] = new TPad("pad12", "packet channels", 0.0, 0.0, 1.0 / 2, 0.3, 0);
     Pad[13] = new TPad("pad13", "event number offset", 0.5, 0.6, 1.0, 0.95, 0);
-    // Pad[14] = new TPad("pad14", "event number from server 1", 0.75, 0.7, 1.0, 0.95);
+    // pad 14 and 15 side by side from left to right for correlation
+    Pad[14] = new TPad("pad14", "correlation0", 0.5, 0.3, 0.75, 0.6, 0);
+    Pad[15] = new TPad("pad15", "correlation1", 0.75, 0.3, 1.0, 0.6, 0);
+
     Pad[10]->Draw();
     Pad[11]->Draw();
     Pad[12]->Draw();
     Pad[13]->Draw();
-    // Pad[14]->Draw();
+    Pad[14]->Draw();
+    Pad[15]->Draw();
     //  this one is used to plot the run number on the canvas
     transparent[5] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
     transparent[5]->SetFillStyle(4000);
     transparent[5]->Draw();
 
     // packet warnings
-    warning[1] = new TPad("warning1", "packet warnings", 0.5, 0, 1, 0.7);
+    warning[1] = new TPad("warning1", "packet warnings", 0.5, 0, 1, 0.2);
     warning[1]->SetFillStyle(4000);
     warning[1]->Draw();
     TC[5]->SetEditable(0);
   }
   else if (name == "HcalPopUp")
   {
-    TC[4] = new TCanvas(name.c_str(), "pop up window", 2 * xsize / 3, 0.05, xsize / 2, 2 * ysize / 3);
+    TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!", 2 * xsize / 3, 0.05, xsize / 2, 2 * ysize / 3);
     gSystem->ProcessEvents();
     Pad[9] = new TPad("hcalpad9", "for single tower running mean", 0.0, 0.0, 1, 0.92, 0);
     Pad[9]->Draw();
@@ -197,13 +195,6 @@ int HcalMonDraw::Draw(const std::string& what)
     iret += DrawFourth(what);
     idraw++;
   }
-  /*
-  if (what == "ALL" || what == "HISTORY")
-  {
-    iret += DrawHistory(what);
-    idraw++;
-  }
-  */
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -351,7 +342,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = getTime();
   // fill run number and event time into string
   runnostream << ThisName << ": tower running mean divided by template";
   runnostream2 << "Run" << cl->RunNumber() << ", Time: " << ctime(&evttime);
@@ -472,7 +463,7 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = getTime();
   // fill run number and event time into string
   runnostream << ThisName << "_running mean, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -530,7 +521,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->Draw("colz");
 
   float tsize = 0.06;
-  h2_hcal_waveform->GetXaxis()->SetNdivisions(16);
+  h2_hcal_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
   h2_hcal_waveform->GetXaxis()->SetTitle("Sample #");
   h2_hcal_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
   h2_hcal_waveform->GetXaxis()->SetLabelSize(tsize);
@@ -556,7 +547,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = getTime();
   // fill run number and event time into string
   runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -570,7 +561,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
 
   float tsize2 = 0.08;
   h_waveform_time->Draw("hist");
-  h_waveform_time->GetXaxis()->SetNdivisions(16);
+  h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
   h_waveform_time->GetYaxis()->SetTitle("Towers");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize2);
@@ -592,7 +583,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   h_waveform_pedestal->Draw("hist");
-  h_waveform_pedestal->GetXaxis()->SetNdivisions(16);
+  h_waveform_pedestal->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedistal");
   h_waveform_pedestal->GetYaxis()->SetTitle("Towers");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize2);
@@ -629,11 +620,13 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   TH1F* h1_packet_chans = (TH1F*) cl->getHisto(HCALMON_0, "h1_packet_chans");
   TH1F* h1_packet_event = (TH1F*) cl->getHisto(HCALMON_0, "h1_packet_event");
   TH1F* h_event = (TH1F*) cl->getHisto(HCALMON_0, "h_event");
+  TH2F* h2_hcal_correlation = (TH2F*) cl->getHisto(HCALMON_0, "h2_hcal_correlation");
 
   TH1F* h1_packet_number_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_number");
   TH1F* h1_packet_length_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_length");
   TH1F* h1_packet_chans_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_chans");
   TH1F* h1_packet_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h1_packet_event");
+  TH2F* h2_hcal_correlation_1 = (TH2F*) cl->getHisto(HCALMON_1, "h2_hcal_correlation");
   TH1F* h_event_1 = (TH1F*) cl->getHisto(HCALMON_1, "h_event");
 
   if (!gROOT->FindObject("HcalMon4"))
@@ -644,7 +637,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   TC[5]->SetEditable(1);
   TC[5]->Clear("D");
 
-  if (!h1_packet_number || !h1_packet_length || !h1_packet_chans || !h_event || !h1_packet_event)
+  if (!h1_packet_number || !h1_packet_length || !h1_packet_chans || !h_event || !h1_packet_event || !h2_hcal_correlation)
   {
     // print out which is not found
     if (!h1_packet_number) std::cout << "h1_packet_number not found" << std::endl;
@@ -652,6 +645,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
     if (!h1_packet_chans) std::cout << "h1_packet_chans not found" << std::endl;
     if (!h_event) std::cout << "h_event not found" << std::endl;
     if (!h1_packet_event) std::cout << "h1_packet_event not found" << std::endl;
+    if (!h2_hcal_correlation) std::cout << "h2_hcal_correlation not found" << std::endl;
 
     DrawDeadServer(transparent[5]);
     TC[5]->SetEditable(0);
@@ -679,12 +673,12 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
       h1_packet_event->SetBinContent(i, h1_packet_event->GetBinContent(i) - maxy);
     }
   }
-  maxy = h1_packet_event_1->GetMaximum();
+  int maxy1 = h1_packet_event_1->GetMaximum();
   for (int i = 1; i <= h1_packet_event_1->GetNbinsX(); i++)
   {
     if (h1_packet_event_1->GetBinContent(i) != 0)
     {
-      h1_packet_event_1->SetBinContent(i, h1_packet_event_1->GetBinContent(i) - maxy);
+      h1_packet_event_1->SetBinContent(i, h1_packet_event_1->GetBinContent(i) - maxy1);
     }
   }
 
@@ -824,23 +818,73 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   Pad[13]->cd();
   h1_packet_event->Draw("hist");
   double ymax = h1_packet_event->GetMaximum();
+  double ymin = h1_packet_event->GetMinimum();
 
-  h1_packet_event->GetYaxis()->SetRangeUser(ymax - 5, ymax + 5);
+  h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3 * (ymax - ymin + 30), ymax + 0.3 * (ymax - ymin + 30));
   h1_packet_event->GetXaxis()->SetTitle("Packet #");
-  h1_packet_event->GetYaxis()->SetTitle("Event number offset");
+  h1_packet_event->GetYaxis()->SetTitle("clock offset");
   h1_packet_event->GetXaxis()->SetLabelSize(tsize - .01);
   h1_packet_event->GetYaxis()->SetLabelSize(tsize);
   h1_packet_event->GetXaxis()->SetTitleSize(tsize - .01);
   h1_packet_event->GetYaxis()->SetTitleSize(tsize);
   h1_packet_event->GetXaxis()->SetTitleOffset(0.8);
-  h1_packet_event->GetYaxis()->SetTitleOffset(0.8);
+  h1_packet_event->GetYaxis()->SetTitleOffset(1.2);
   gPad->SetBottomMargin(0.16);
-  gPad->SetLeftMargin(0.16);
+  gPad->SetLeftMargin(0.2);
   gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.15);
+  gPad->SetLeftMargin(0.2);
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
+
+  Pad[14]->cd();
+  h2_hcal_correlation->Draw("colz");  
+  ymax = h2_hcal_correlation->ProfileX()->GetMaximum();
+  xmax = h2_hcal_correlation->ProfileY()->GetMaximum();
+  h2_hcal_correlation->GetYaxis()->SetRangeUser(0, ymax * 1.2);
+  h2_hcal_correlation->GetXaxis()->SetRangeUser(0, xmax * 1.2);
+  h2_hcal_correlation->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_correlation->GetYaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_correlation->GetXaxis()->SetTitle("Total West OHCal Energy[a.u.]");
+  h2_hcal_correlation->GetYaxis()->SetTitle("Total West IHCal Energy[a.u.]");
+  h2_hcal_correlation->GetXaxis()->SetLabelSize(0);
+  h2_hcal_correlation->GetYaxis()->SetLabelSize(0);
+  h2_hcal_correlation->GetXaxis()->SetTitleSize(tsize - .02);
+  h2_hcal_correlation->GetYaxis()->SetTitleSize(tsize - .02);
+  h2_hcal_correlation->GetXaxis()->SetTitleOffset(0.8);
+  h2_hcal_correlation->GetYaxis()->SetTitleOffset(0.8);
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.2);
+  gPad->SetRightMargin(0.03);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
+  Pad[15]->cd();
+  h2_hcal_correlation_1->Draw("colz");
+  ymax = h2_hcal_correlation_1->ProfileX()->GetMaximum();
+  xmax = h2_hcal_correlation_1->ProfileY()->GetMaximum();
+  h2_hcal_correlation_1->GetYaxis()->SetRangeUser(0, ymax * 1.2);
+  h2_hcal_correlation_1->GetXaxis()->SetRangeUser(0, xmax * 1.2);
+  h2_hcal_correlation_1->GetXaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_correlation_1->GetYaxis()->SetNdivisions(510, kTRUE);
+  h2_hcal_correlation_1->GetXaxis()->SetTitle("Total East OHCal Energy[a.u.]");
+  h2_hcal_correlation_1->GetYaxis()->SetTitle("Total East IHCal Energy[a.u.]");
+  h2_hcal_correlation_1->GetXaxis()->SetLabelSize(0);
+  h2_hcal_correlation_1->GetYaxis()->SetLabelSize(0);
+  h2_hcal_correlation_1->GetXaxis()->SetTitleSize(tsize - .02);
+  h2_hcal_correlation_1->GetYaxis()->SetTitleSize(tsize - .02);
+  h2_hcal_correlation_1->GetXaxis()->SetTitleOffset(0.8);
+  h2_hcal_correlation_1->GetYaxis()->SetTitleOffset(0.8);
+  gPad->SetBottomMargin(0.16);
+  gPad->SetLeftMargin(0.2);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gPad->SetTicky();
+  gPad->SetTickx();
+
 
   // draw the warning here:
   warning[1]->cd();
@@ -922,19 +966,19 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   mismatchWarn.SetTextAlign(23);
   if (westmismatch)
   {
-    mismatchWarn.DrawText(0.5, 0.85, "West misaligned!");
+    mismatchWarn.DrawText(0.5, 0.95, "West misaligned!");
   }
   if (eastmismatch)
   {
-    mismatchWarn.DrawText(0.5, 0.8, "East misaligned!");
+    mismatchWarn.DrawText(0.5, 0.9, "East misaligned!");
   }
   mismatchWarn.SetTextColor(1);
   mismatchWarn.SetTextSize(0.05);
   if (westmismatch || eastmismatch)
   {
-    mismatchWarn.DrawText(0.5, 0.7, "Restart the run and see if this persists.");
-    // draw a line for seperation
-    TLine* line = new TLine(0., 0.65, 1., 0.65);
+    // mismatchWarn.DrawText(0.5, 0.7, "Restart the run and see if this persists.");
+    //  draw a line for seperation
+    TLine* line = new TLine(0., 0.8, 1., 0.8);
     line->SetLineColor(1);
     line->SetLineStyle(1);
     line->SetLineWidth(10);
@@ -948,15 +992,15 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   PacketWarn.SetTextColor(1);
   PacketWarn.SetNDC();
   PacketWarn.SetTextAlign(23);
-  PacketWarn.DrawText(0.5, 0.6, "Bad Packets:");
+  PacketWarn.DrawText(0.5, 0.75, "Bad Packets:");
   for (int i = 0; i < (int) badPackets.size(); i++)
   {
-    PacketWarn.DrawText(0.5, 0.55 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
+    PacketWarn.DrawText(0.5, 0.7 - 0.05 * i, Form("%i: %s", badPackets[i], whatswrong[i].c_str()));
   }
-  if ((int) badPackets.size() > 0 && (h_event->GetEntries() > 500 || h_event_1->GetEntries() > 500))
+  if ((int) badPackets.size() > 0 && (h_event->GetEntries() > 1000 || h_event_1->GetEntries() > 1000))
   {
     PacketWarn.SetTextSize(0.04);
-    PacketWarn.DrawText(0.5, 0.55 - 0.05 * (int) badPackets.size(), "Check with HCal experts.");
+    PacketWarn.DrawText(0.5, 0.7 - 0.05 * (int) badPackets.size(), "Check with HCal experts.");
   }
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -966,7 +1010,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   std::ostringstream runnostream2;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = getTime();
   // fill run number and event time into string
 
   runnostream << "Packet Information";
@@ -985,7 +1029,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   return 0;
 }
 
-int HcalMonDraw::FindHotTower(TPad* warningpad, TH2D* hhit)
+int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit)
 {
   int nhott = 0;
   int ndeadt = 0;
@@ -1125,7 +1169,7 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2D* hhit)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = getTime();
   // fill run number and event time into string
   runnostream << ThisName << "_running mean, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -1185,145 +1229,38 @@ int HcalMonDraw::MakeHtml(const std::string& what)
   }
 
   OnlMonClient* cl = OnlMonClient::instance();
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
+  }
 
-  // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
-
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
-  out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out << "<P>Some log file output would go here." << std::endl;
-  out.close();
+  // std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  // std::ofstream out(logfile.c_str());
+  // out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+  //     << "</TITLE></HEAD>" << std::endl;
+  // out << "<P>Some log file output would go here." << std::endl;
+  // out.close();
 
-  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream out2(status.c_str());
-  out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-       << "</TITLE></HEAD>" << std::endl;
-  out2 << "<P>Some status output would go here." << std::endl;
-  out2.close();
-  cl->SaveLogFile(*this);
+  // std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
+  // std::ofstream out2(status.c_str());
+  // out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
+  //      << "</TITLE></HEAD>" << std::endl;
+  // out2 << "<P>Some status output would go here." << std::endl;
+  // out2.close();
+  // cl->SaveLogFile(*this);
   return 0;
 }
 
-int HcalMonDraw::DrawHistory(const std::string& /* what */)
-{
-  int iret = 0;
-  // you need to provide the following vectors
-  // which are filled from the db
-  std::vector<float> var;
-  std::vector<float> varerr;
-  std::vector<time_t> timestamp;
-  std::vector<int> runnumber;
-  std::string varname = "hcalmondummy";
-  // this sets the time range from whihc values should be returned
-  time_t begin = 0;            // begin of time (1.1.1970)
-  time_t end = time(nullptr);  // current time (right NOW)
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-  {
-    std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
-    return iret;
-  }
-  if (!gROOT->FindObject("HcalMon3"))
-  {
-    MakeCanvas("HcalMon3");
-  }
-  // timestamps come sorted in ascending order
-  float* x = new float[var.size()];
-  float* y = new float[var.size()];
-  float* ex = new float[var.size()];
-  float* ey = new float[var.size()];
-  int n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-  {
-    //       std::cout << "timestamp: " << ctime(&timestamp[i])
-    //     << ", run: " << runnumber[i]
-    //     << ", var: " << var[i]
-    //     << ", varerr: " << varerr[i]
-    //     << std::endl;
-    x[i] = timestamp[i] - TimeOffsetTicks;
-    y[i] = var[i];
-    ex[i] = 0;
-    ey[i] = varerr[i];
-  }
-  Pad[4]->cd();
-  if (gr[0])
-  {
-    delete gr[0];
-  }
-  gr[0] = new TGraphErrors(n, x, y, ex, ey);
-  gr[0]->SetMarkerColor(4);
-  gr[0]->SetMarkerStyle(21);
-  gr[0]->Draw("ALP");
-  gr[0]->GetXaxis()->SetTimeDisplay(1);
-  gr[0]->GetXaxis()->SetLabelSize(0.03);
-  // the x axis labeling looks like crap
-  // please help me with this, the SetNdivisions
-  // don't do the trick
-  gr[0]->GetXaxis()->SetNdivisions(-1006);
-  gr[0]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[0]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
-
-  varname = "hcalmoncount";
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-  {
-    std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
-    return iret;
-  }
-  x = new float[var.size()];
-  y = new float[var.size()];
-  ex = new float[var.size()];
-  ey = new float[var.size()];
-  n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-  {
-    //       std::cout << "timestamp: " << ctime(&timestamp[i])
-    //     << ", run: " << runnumber[i]
-    //     << ", var: " << var[i]
-    //     << ", varerr: " << varerr[i]
-    //     << std::endl;
-    x[i] = timestamp[i] - TimeOffsetTicks;
-    y[i] = var[i];
-    ex[i] = 0;
-    ey[i] = varerr[i];
-  }
-  Pad[5]->cd();
-  if (gr[1])
-  {
-    delete gr[1];
-  }
-  gr[1] = new TGraphErrors(n, x, y, ex, ey);
-  gr[1]->SetMarkerColor(4);
-  gr[1]->SetMarkerStyle(21);
-  gr[1]->Draw("ALP");
-  gr[1]->GetXaxis()->SetTimeDisplay(1);
-  // TC[2]->Update();
-  //    h1->GetXaxis()->SetTimeDisplay(1);
-  //    h1->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[1]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  //    h1->Draw();
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
-
-  TC[2]->Update();
-  return 0;
-}
 // this is a method that draw the tower average energy
 void HcalMonDraw::DrawTowerAvg()
 {
@@ -1419,6 +1356,7 @@ void HcalMonDraw::DrawHitMap()
   TC[4]->SetEditable(1);
   TC[4]->Clear("D");
   Pad[9]->cd();
+  gPad->SetLogz(0);
   gStyle->SetOptStat(0);
   gStyle->SetPalette(57);
   h2_hcal_hits->GetXaxis()->SetTitle("eta index");
@@ -1496,6 +1434,7 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
     {
       MakeCanvas("HcalPopUp");
     }
+
     if (!h_rm_tower || !h_rm_tower_1)
     {
       DrawDeadServer(transparent[4]);
@@ -1515,4 +1454,18 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
     TC[4]->Show();
     TC[4]->SetEditable(0);
   }
+}
+
+time_t HcalMonDraw::getTime()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  time_t currtime = 0;
+  int i = 0;
+  while (currtime == 0 && i <= 2)
+  {
+    std::string servername =  prefix + "_" + std::to_string(i);
+    currtime = cl->EventTime(servername,"CURRENT");
+    i++;
+  }
+  return currtime;
 }

@@ -17,6 +17,7 @@ public:
 
   bool setRawData(Event *);
   int calculate();
+  int InitRun();
   void Clear();
 
   int calib_is_done() { return calib_done; }

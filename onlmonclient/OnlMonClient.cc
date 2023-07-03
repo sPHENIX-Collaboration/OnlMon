@@ -6,7 +6,6 @@
 #include <onlmon/HistoBinDefs.h>
 #include <onlmon/OnlMonBase.h>  // for OnlMonBase
 #include <onlmon/OnlMonDefs.h>
-#include <onlmon/OnlMonTrigger.h>
 
 #include <MessageTypes.h>  // for kMESS_STRING, kMESS_OBJECT
 #include <TCanvas.h>
@@ -39,6 +38,7 @@
 #include <cstdio>   // for printf, remove
 #include <cstdlib>  // for getenv, exit
 #include <cstring>  // for strcmp
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -67,7 +67,6 @@ OnlMonClient::OnlMonClient(const std::string &name)
 {
   defaultStyle = new TStyle();
   SetStyleToDefault();
-  onltrig = new OnlMonTrigger();
   InitAll();
 }
 
@@ -143,7 +142,6 @@ OnlMonClient::~OnlMonClient()
   }
   delete clientrunning;
   delete fHtml;
-  delete onltrig;
   delete defaultStyle;
   // this deletes all open canvases
   TSeqCollection *allCanvases = gROOT->GetListOfCanvases();
@@ -408,7 +406,6 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
     }
   }
   m_LastMonitorFetched = subsys;
-  onltrig->RunNumber(RunNumber());
   return iret;
 }
 
@@ -675,12 +672,12 @@ int OnlMonClient::requestHistoByName(const std::string &subsys, const std::strin
   return 0;
 }
 
-int OnlMonClient::requestHisto(const char *what, const std::string &hostname, const int moniport)
+int OnlMonClient::requestHisto(const std::string &what, const std::string &hostname, const int moniport)
 {
   // Open connection to server
   TSocket sock(hostname.c_str(), moniport);
   TMessage *mess;
-  sock.Send(what);
+  sock.Send(what.c_str());
   while (true)
   {
     sock.Recv(mess);
@@ -866,6 +863,15 @@ int OnlMonClient::requestHistoList(const std::string &subsys, const std::string 
 void OnlMonClient::updateHistoMap(const std::string &subsys, const std::string &hname, TH1 *h1d)
 {
   auto subsysiter = SubsysHisto.find(subsys);
+  if (subsysiter == SubsysHisto.end())
+  {
+    std::map<const std::string, ClientHistoList *> newmap;
+    ClientHistoList *entry = new ClientHistoList(subsys);
+    entry->Histo(h1d);
+    newmap.insert(std::make_pair(hname,entry));
+    SubsysHisto.insert(std::make_pair(subsys,newmap));
+    return;
+  }
   auto histoiter = subsysiter->second.find(hname);
   //  std::map<const std::string, ClientHistoList *>::const_iterator histoiter = Histo.find(hname);
   if (histoiter != subsysiter->second.end())
@@ -879,11 +885,12 @@ void OnlMonClient::updateHistoMap(const std::string &subsys, const std::string &
   }
   else
   {
-    ClientHistoList *newhisto = new ClientHistoList();
+    ClientHistoList *newhisto = new ClientHistoList(subsys);
     newhisto->Histo(h1d);
+    subsysiter->second.insert(std::make_pair(hname,newhisto));
     if (Verbosity() > 2)
     {
-      std::cout << "new histogram " << hname << " at " << Histo[hname] << std::endl;
+      std::cout << "new histogram " << hname << " at " << newhisto->Histo() << std::endl;
     }
   }
   return;
@@ -1160,20 +1167,19 @@ int OnlMonClient::RunNumber()
   return (runno);
 }
 
-time_t OnlMonClient::EventTime(const char *which)
+time_t OnlMonClient::EventTime(const std::string &servername, const std::string &which)
 {
-  return 0;
   time_t tret = 0;
   int ibin = 0;
-  if (!strcmp(which, "BOR"))
+  if (which == "BOR")
   {
     ibin = BORTIMEBIN;
   }
-  else if (!strcmp(which, "CURRENT"))
+  else if (which == "CURRENT")
   {
     ibin = CURRENTTIMEBIN;
   }
-  else if (!strcmp(which, "EOR"))
+  else if (which == "EOR")
   {
     ibin = EORTIMEBIN;
   }
@@ -1182,47 +1188,14 @@ time_t OnlMonClient::EventTime(const char *which)
     std::cout << "Bad Option for Time: " << which
               << ", implemented are BOR EOR CURRENT" << std::endl;
   }
-  std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
-  histoiter = Histo.find("FrameWorkVars");
-  if (histoiter != Histo.end())
+  TH1 *frameworkvars = getHisto(servername,"FrameWorkVars");
+  if (frameworkvars == nullptr)
   {
-    // I had an empty histogram from some root file with name FrameWorkVar
-    // so check if this histo exists before getting the bincontent
-    // this only happens at startup when the servers are not running
-    // during normal operations this histo is fetched from the
-    // server which provides the requested histograms
-    if (!histoiter->second->Histo())
-    {
-      tret = 0;
-    }
-    else
-    {
-      tret = (time_t) histoiter->second->Histo()->GetBinContent(ibin);
-    }
+    tret = 0;
   }
   else
   {
-    if (requestHistoByName("FrameWorkVars"))
-    {
-      std::cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << std::endl;
-      return time(nullptr);
-    }
-    histoiter = Histo.find("FrameWorkVars");
-    if (histoiter != Histo.end())
-    {
-      tret = (time_t) histoiter->second->Histo()->GetBinContent(ibin);
-    }
-    else
-    {
-      std::cout << "Histogram FrameWorkVars cannot be located, current host ticks used for time" << std::endl;
-      return time(nullptr);
-    }
-  }
-  if (tret < 1000000)
-  {
-    std::cout << " OnlMonClient: No of Ticks " << tret
-              << " too small (evb timestamp off or data taken by dcm crate controller, current host ticks used for time" << std::endl;
-    tret = time(nullptr);
+    tret = (time_t)frameworkvars->GetBinContent(ibin);
   }
   if (verbosity > 0)
   {
@@ -1231,10 +1204,11 @@ time_t OnlMonClient::EventTime(const char *which)
   return (tret);
 }
 
-int OnlMonClient::ReadHistogramsFromFile(const char *filename)
+int OnlMonClient::ReadHistogramsFromFile(const std::string &filename)
 {
+  std::string subsys = ExtractSubsystem(filename);
   TDirectory *save = gDirectory;  // save current dir (which will be overwritten by the following fileopen)
-  TFile *histofile = new TFile(filename, "READ");
+  TFile *histofile = new TFile(filename.c_str(), "READ");
   if (!histofile)
   {
     std::cout << "Can't open " << filename << std::endl;
@@ -1256,7 +1230,7 @@ int OnlMonClient::ReadHistogramsFromFile(const char *filename)
     if (histoptr)
     {
       histo = static_cast<TH1 *>(histoptr->Clone());
-      updateHistoMap("dummy", histo->GetName(), histo);
+      updateHistoMap(subsys, histo->GetName(), histo);
       if (verbosity > 0)
       {
         std::cout << "HistoName: " << histo->GetName() << std::endl;
@@ -1266,7 +1240,6 @@ int OnlMonClient::ReadHistogramsFromFile(const char *filename)
   }
   delete histofile;
   delete titer;
-  onltrig->RunNumber(RunNumber());
   return 0;
 }
 
@@ -1418,15 +1391,6 @@ int OnlMonClient::HistoToPng(TH1 *histo, std::string const &pngfilename, const c
   return 0;
 }
 
-OnlMonTrigger *
-OnlMonClient::OnlTrig()
-{
-  if (!onltrig)
-  {
-    onltrig = new OnlMonTrigger();
-  }
-  return onltrig;
-}
 
 int OnlMonClient::SaveLogFile(const OnlMonDraw &drawer)
 {
@@ -1669,4 +1633,13 @@ int OnlMonClient::IsMonitorRunning(const std::string &name)
   sock.Send("Finished");
   sock.Close();
   return iret;
+}
+
+std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename)
+{
+  std::string subsys = std::filesystem::path(fullfilename).filename();
+  subsys = subsys.substr(subsys.find('-')+1);
+  subsys = subsys.substr(0,subsys.find(".root"));
+  m_LastMonitorFetched = subsys;
+  return subsys;
 }

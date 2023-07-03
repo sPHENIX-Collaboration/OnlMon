@@ -8,7 +8,6 @@
 
 #include <string>  // for allocator, string
 
-class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
@@ -30,13 +29,11 @@ class SepdMonDraw : public OnlMonDraw
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
   int DrawThird(const std::string &what = "ALL");
-  int DrawHistory(const std::string &what = "ALL");
-  int TimeOffsetTicks = -1;
+
   TCanvas *TC[3] = {nullptr};
   TPad *transparent[3] = {nullptr};
   TPad *Pad[6] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
-  OnlMonDB *dbvars = nullptr;
 };
 
 #endif /* SEPD_SEPDMONDRAW_H */

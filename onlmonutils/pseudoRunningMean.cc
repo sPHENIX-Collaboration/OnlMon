@@ -48,6 +48,7 @@ int pseudoRunningMean::Reset()
 {
   int i;
   for (i=0; i<NumberofChannels; i++) array[i] = 0.;
+  current_depth = 0; // Reset current_depth to 0
   return 0;
 }
 

@@ -49,27 +49,6 @@ BbcMon::BbcMon(const std::string &name)
 BbcMon::~BbcMon()
 {
   delete bevt;
-  delete bbc_tdc;
-  delete bbc_tdc_overflow;
-  for (int ipmt = 0; ipmt < nPMT_BBC; ipmt++)
-  {
-    delete bbc_tdc_overflow_each[ipmt];
-  }
-  delete bbc_adc;
-  delete bbc_tdc_armhittime;
-  delete bbc_zvertex;
-  delete bbc_zvertex_bbll1;
-  delete bbc_nevent_counter;
-  delete bbc_tzero_zvtx;
-  delete bbc_avr_hittime;
-  delete bbc_south_hittime;
-  delete bbc_north_hittime;
-  delete bbc_south_chargesum;
-  delete bbc_north_chargesum;
-  delete bbc_prescale_hist;
-  delete bbc_time_wave;
-  delete bbc_charge_wave;
-
   return;
 }
 
@@ -280,8 +259,20 @@ int BbcMon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
+  Reset();
+  bevt->InitRun();
+  
+
   return 0;
 }
+
+int BbcMon::EndRun(const int /* runno */)
+{
+  // This does nothing for now, but can put summary info here for debugging
+
+  return 0;
+}
+
 
 int BbcMon::process_event(Event *evt)
 {
@@ -316,8 +307,8 @@ int BbcMon::process_event(Event *evt)
   }
 
   // Check that both MBD/BBC packets have good checksums
-  if ( (p[0]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[0]->iValue(0,"EVENCHECKSUMOK") == 0) ||
-       (p[1]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[1]->iValue(0,"EVENCHECKSUMOK") == 0) )
+  if ( (p[0]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[0]->iValue(0,"ODDCHECKSUMOK") == 0) ||
+       (p[1]->iValue(0,"EVENCHECKSUMOK") == 0) || (p[1]->iValue(0,"ODDCHECKSUMOK") == 0) )
   {
     se = OnlMonServer::instance();
     std::ostringstream msg;
@@ -331,7 +322,7 @@ int BbcMon::process_event(Event *evt)
 
     return 0;
   }
-  
+
   int f_evt = evt->getEvtSequence();
 
   // calculate BBC
@@ -341,6 +332,8 @@ int BbcMon::process_event(Event *evt)
 
   if ( bevt->calib_is_done() == 0 ) 
   {
+    delete p[0];
+    delete p[1];
     return 0;
   }
 
@@ -433,16 +426,16 @@ int BbcMon::Reset()
   bbc_tdc->Reset();
   bbc_tdc_overflow->Reset();
   bbc_tdc_armhittime->Reset();
+  bbc_nevent_counter->Reset();
   bbc_zvertex->Reset();
   bbc_zvertex_bbll1->Reset();
-  bbc_nevent_counter->Reset();
   bbc_tzero_zvtx->Reset();
-  bbc_prescale_hist->Reset();
   bbc_avr_hittime->Reset();
-  bbc_north_hittime->Reset();
   bbc_south_hittime->Reset();
-  bbc_north_chargesum->Reset();
+  bbc_north_hittime->Reset();
   bbc_south_chargesum->Reset();
+  bbc_north_chargesum->Reset();
+  bbc_prescale_hist->Reset();
   bbc_time_wave->Reset();
   bbc_charge_wave->Reset();
 

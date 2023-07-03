@@ -43,6 +43,7 @@ class HcalMon : public OnlMon
   TH2* h2_hcal_rm = nullptr;
   TH2* h2_hcal_mean = nullptr;
   TH2* h2_hcal_waveform = nullptr;
+  TH2* h2_hcal_correlation = nullptr;
   TH1* h_sectorAvg_total = nullptr;
   TH1* h_event = nullptr;
   TH1* h_ntower = nullptr;

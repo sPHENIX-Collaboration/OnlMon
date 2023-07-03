@@ -1,11 +1,9 @@
 #include "SepdMonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
-#include <onlmon/OnlMonDB.h>
 
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
-#include <TDatime.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TPad.h>
@@ -23,10 +21,6 @@
 SepdMonDraw::SepdMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
-  // this TimeOffsetTicks is neccessary to get the time axis right
-  TDatime T0(2003, 01, 01, 00, 00, 00);
-  TimeOffsetTicks = T0.Convert();
-  dbvars = new OnlMonDB(ThisName);
   return;
 }
 
@@ -126,14 +120,15 @@ int SepdMonDraw::Draw(const std::string &what)
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2D *h_ADC0_s  = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC0_s");
-  TH2D *h_ADC0_n  = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC0_n");
-  TH2D *h_ADC_s   = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC_s");
-  TH2D *h_ADC_n   = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC_n");
-  TH2D *h_hits0_s = (TH2D*) cl->getHisto("SEPDMON_0","h_hits0_s");
-  TH2D *h_hits0_n = (TH2D*) cl->getHisto("SEPDMON_0","h_hits0_n");
-  TH2D *h_hits_s  = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_s");
-  TH2D *h_hits_n  = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_n");
+  TH2 *h_ADC0_s  = (TH2*) cl->getHisto("SEPDMON_0","h_ADC0_s");
+  TH2 *h_ADC0_n  = (TH2*) cl->getHisto("SEPDMON_0","h_ADC0_n");
+  TH2 *h_ADC_s   = (TH2*) cl->getHisto("SEPDMON_0","h_ADC_s");
+  TH2 *h_ADC_n   = (TH2*) cl->getHisto("SEPDMON_0","h_ADC_n");
+  TH2 *h_hits0_s = (TH2*) cl->getHisto("SEPDMON_0","h_hits0_s");
+  TH2 *h_hits0_n = (TH2*) cl->getHisto("SEPDMON_0","h_hits0_n");
+  TH2 *h_hits_s  = (TH2*) cl->getHisto("SEPDMON_0","h_hits_s");
+  TH2 *h_hits_n  = (TH2*) cl->getHisto("SEPDMON_0","h_hits_n");
+  time_t evttime = cl->EventTime("SEPDMON_0","CURRENT");
   
   if (!gROOT->FindObject("SepdMon1"))
   {
@@ -191,7 +186,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -207,12 +201,13 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 int SepdMonDraw::DrawSecond(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2D *h_hits0_s = (TH2D*) cl->getHisto("SEPDMON_0","h_hits0_s");
-  TH2D *h_hits0_n = (TH2D*) cl->getHisto("SEPDMON_0","h_hits0_n");
-  TH2D *h_hits_s  = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_s");
-  TH2D *h_hits_n  = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_n");
+  TH2 *h_hits0_s = (TH2*) cl->getHisto("SEPDMON_0","h_hits0_s");
+  TH2 *h_hits0_n = (TH2*) cl->getHisto("SEPDMON_0","h_hits0_n");
+  TH2 *h_hits_s  = (TH2*) cl->getHisto("SEPDMON_0","h_hits_s");
+  TH2 *h_hits_n  = (TH2*) cl->getHisto("SEPDMON_0","h_hits_n");
 
-  TH1D *h_event = (TH1D*) cl->getHisto("SEPDMON_0","h_event");
+  TH1 *h_event = cl->getHisto("SEPDMON_0","h_event");
+  time_t evttime = cl->EventTime("SEPDMON_0","CURRENT");
 
   if (!gROOT->FindObject("SepdMon2"))
   {
@@ -245,7 +240,6 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -261,8 +255,9 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
 int SepdMonDraw::DrawThird(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  TH2 *h_ADC_corr = (TH2D*) cl->getHisto("SEPDMON_0","h_ADC_corr");
-  TH2 *h_hits_corr = (TH2D*) cl->getHisto("SEPDMON_0","h_hits_corr");
+  TH2 *h_ADC_corr = (TH2*) cl->getHisto("SEPDMON_0","h_ADC_corr");
+  TH2 *h_hits_corr = (TH2*) cl->getHisto("SEPDMON_0","h_hits_corr");
+  time_t evttime = cl->EventTime("SEPDMON_0","CURRENT");
   if (!gROOT->FindObject("SepdMon3"))
   {
     MakeCanvas("SepdMon3");
@@ -286,7 +281,6 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -349,118 +343,5 @@ int SepdMonDraw::MakeHtml(const std::string &what)
   out2 << "<P>Some status output would go here." << std::endl;
   out2.close();
   cl->SaveLogFile(*this);
-  return 0;
-}
-
-int SepdMonDraw::DrawHistory(const std::string & /* what */)
-{
-  int iret = 0;
-  // you need to provide the following vectors
-  // which are filled from the db
-  std::vector<float> var;
-  std::vector<float> varerr;
-  std::vector<time_t> timestamp;
-  std::vector<int> runnumber;
-  std::string varname = "sepdmondummy";
-  // this sets the time range from whihc values should be returned
-  time_t begin = 0;            // begin of time (1.1.1970)
-  time_t end = time(nullptr);  // current time (right NOW)
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-  {
-    std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
-    return iret;
-  }
-  if (!gROOT->FindObject("SepdMon3"))
-  {
-    MakeCanvas("SepdMon3");
-  }
-  // timestamps come sorted in ascending order
-  float *x = new float[var.size()];
-  float *y = new float[var.size()];
-  float *ex = new float[var.size()];
-  float *ey = new float[var.size()];
-  int n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-  {
-    //       std::cout << "timestamp: " << ctime(&timestamp[i])
-    // 	   << ", run: " << runnumber[i]
-    // 	   << ", var: " << var[i]
-    // 	   << ", varerr: " << varerr[i]
-    // 	   << std::endl;
-    x[i] = timestamp[i] - TimeOffsetTicks;
-    y[i] = var[i];
-    ex[i] = 0;
-    ey[i] = varerr[i];
-  }
-  Pad[4]->cd();
-  if (gr[0])
-  {
-    delete gr[0];
-  }
-  gr[0] = new TGraphErrors(n, x, y, ex, ey);
-  gr[0]->SetMarkerColor(4);
-  gr[0]->SetMarkerStyle(21);
-  gr[0]->Draw("ALP");
-  gr[0]->GetXaxis()->SetTimeDisplay(1);
-  gr[0]->GetXaxis()->SetLabelSize(0.03);
-  // the x axis labeling looks like crap
-  // please help me with this, the SetNdivisions
-  // don't do the trick
-  gr[0]->GetXaxis()->SetNdivisions(-1006);
-  gr[0]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[0]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
-
-  varname = "sepdmoncount";
-  iret = dbvars->GetVar(begin, end, varname, timestamp, runnumber, var, varerr);
-  if (iret)
-  {
-    std::cout << __PRETTY_FUNCTION__ << " Error in db access" << std::endl;
-    return iret;
-  }
-  x = new float[var.size()];
-  y = new float[var.size()];
-  ex = new float[var.size()];
-  ey = new float[var.size()];
-  n = var.size();
-  for (unsigned int i = 0; i < var.size(); i++)
-  {
-    //       std::cout << "timestamp: " << ctime(&timestamp[i])
-    // 	   << ", run: " << runnumber[i]
-    // 	   << ", var: " << var[i]
-    // 	   << ", varerr: " << varerr[i]
-    // 	   << std::endl;
-    x[i] = timestamp[i] - TimeOffsetTicks;
-    y[i] = var[i];
-    ex[i] = 0;
-    ey[i] = varerr[i];
-  }
-  Pad[5]->cd();
-  if (gr[1])
-  {
-    delete gr[1];
-  }
-  gr[1] = new TGraphErrors(n, x, y, ex, ey);
-  gr[1]->SetMarkerColor(4);
-  gr[1]->SetMarkerStyle(21);
-  gr[1]->Draw("ALP");
-  gr[1]->GetXaxis()->SetTimeDisplay(1);
-  // TC[2]->Update();
-  //    h1->GetXaxis()->SetTimeDisplay(1);
-  //    h1->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetLabelSize(0.03);
-  gr[1]->GetXaxis()->SetTimeOffset(TimeOffsetTicks);
-  gr[1]->GetXaxis()->SetTimeFormat("%Y/%m/%d %H:%M");
-  //    h1->Draw();
-  delete[] x;
-  delete[] y;
-  delete[] ex;
-  delete[] ey;
-
-  TC[2]->Update();
   return 0;
 }

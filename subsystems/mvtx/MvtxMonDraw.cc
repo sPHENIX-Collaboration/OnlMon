@@ -929,29 +929,34 @@ int MvtxMonDraw::MakeHtml(const std::string &what)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
-
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
+  }
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
-  out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out << "<P>Some log file output would go here." << std::endl;
-  out.close();
+  // std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  // std::ofstream out(logfile.c_str());
+  // out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+  //     << "</TITLE></HEAD>" << std::endl;
+  // out << "<P>Some log file output would go here." << std::endl;
+  // out.close();
 
-  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream out2(status.c_str());
-  out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-       << "</TITLE></HEAD>" << std::endl;
-  out2 << "<P>Some status output would go here." << std::endl;
-  out2.close();
-  cl->SaveLogFile(*this);
+  // std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
+  // std::ofstream out2(status.c_str());
+  // out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
+  //      << "</TITLE></HEAD>" << std::endl;
+  // out2 << "<P>Some status output would go here." << std::endl;
+  // out2.close();
+  // cl->SaveLogFile(*this);
   return 0;
 }
 
@@ -1155,7 +1160,7 @@ void MvtxMonDraw::PublishStatistics(TCanvas *c,OnlMonClient *cl){
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  time_t evttime = cl->EventTime("CURRENT");
+  time_t evttime = getTime();
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
@@ -1293,5 +1298,16 @@ void MvtxMonDraw::DrawPave(std::vector<MvtxMonDraw::Quality> status, int positio
 
 }
 
-
-
+time_t MvtxMonDraw::getTime()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  time_t currtime = 0;
+  int i = 0;
+  while (currtime == 0 && i <= 5)
+  {
+    std::string servername = "MVTXMON_" + std::to_string(i);
+    currtime = cl->EventTime(servername,"CURRENT");
+    i++;
+  }
+  return currtime;
+}

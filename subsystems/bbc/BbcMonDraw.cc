@@ -1,7 +1,6 @@
 #include "BbcMonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
-#include <onlmon/OnlMonDB.h>
 
 #include <TArc.h>
 #include <TArrow.h>
@@ -33,8 +32,6 @@
 #include <vector>
 #include <chrono>
 
-using sysclock_t = std::chrono::system_clock;
-
 #define DEBUG
 #ifdef DEBUG
 #define PRINT_DEBUG(x) std::cout<<x<<std::endl
@@ -58,11 +55,6 @@ BbcMonDraw::BbcMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
   PRINT_DEBUG("In BbcMonDraw::BbcMonDraw()");
-  // this TimeOffsetTicks is neccessary to get the time axis right
-  TDatime T0(2003, 01, 01, 00, 00, 00);
-  TimeOffsetTicks = T0.Convert();
-  //dbvars = new OnlMonDB(ThisName);
-  //
   std::cout << "Done with BbcMonDraw::BbcMonDraw" << std::endl;
   return;
 }
@@ -795,7 +787,7 @@ int BbcMonDraw::Draw(const std::string &what)
   if (!gROOT->FindObject("BbcMon3"))
   {
     TC[2] = nullptr;
-    if (what == "ALL" || what == "BbcMon3" || what == "BbcMonitor")
+    if (what == "BbcMon3" || what == "BbcMonitor")
     {
       MakeCanvas("BbcMon3");
     }
@@ -804,7 +796,7 @@ int BbcMonDraw::Draw(const std::string &what)
   if (!gROOT->FindObject("BbcMon4"))
   {
     TC[3] = nullptr;
-    if (what == "ALL" || what == "BbcMon4" || what == "VertexMonitor")
+    if (what == "BbcMon4" || what == "VertexMonitor")
     {
       MakeCanvas("BbcMon4");
     }
@@ -1068,9 +1060,7 @@ int BbcMonDraw::Draw(const std::string &what)
   PRINT_DEBUG("Drawing Graphs on Canvas");
 
   // Make TopPave
-  //time_t evttime = cl->EventTime("CURRENT");
-  // temporarily use current time for evt time
-  std::time_t evttime = sysclock_t::to_time_t(sysclock_t::now());
+  time_t evttime = cl->EventTime("BBCMON_0","CURRENT");
 
   otext.str("");
   otext << "Run #" << cl->RunNumber();
@@ -1977,9 +1967,7 @@ int BbcMonDraw::DrawFirst(const std::string & )
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  //time_t evttime = cl->EventTime("CURRENT");
-  // temporarily use current time for evt time
-  std::time_t evttime = sysclock_t::to_time_t(sysclock_t::now());
+  time_t evttime = cl->EventTime("BBCMON_0", "CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
       << ", Time: " << ctime(&evttime);
@@ -2028,9 +2016,7 @@ int BbcMonDraw::DrawSecond(const std::string & )
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  //time_t evttime = cl->EventTime("CURRENT");
-  // temporarily use current time for evt time
-  std::time_t evttime = sysclock_t::to_time_t(sysclock_t::now());
+  time_t evttime = cl->EventTime("BBCMON_0", "CURRENT");
 
   // fill run number and event time into string
   runnostream << ThisName << "_2 Run " << cl->RunNumber()
@@ -2091,50 +2077,42 @@ int BbcMonDraw::MakeHtml(const std::string &what)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  std::vector<std::string> path;
-
-  path.emplace_back("TDC Overflow and number of hit for each PMT");
-  path.emplace_back("Timing Monitor");
-  path.emplace_back("EXPERT/raw TDC&ADC ,charge sum and raw vertex");
-  path.emplace_back("Vertex monitor");
-
-  for (size_t i = 0; i < 4; ++i)
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
   {
-      if (TC[i])
-      {
-          std::ostringstream name;
-          name << i;
-          std::string pngfile = cl->htmlRegisterPage(*this, path[i], name.str(), "png");
-          cl->CanvasToPng(TC[i], pngfile);
-      }
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    // Register the canvas png file to the menu and produces the png file.
+    std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
+    cl->CanvasToPng(canvas, pngfile);
   }
-
-  /*
   // Register the 1st canvas png file to the menu and produces the png file.
-  std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
-  cl->CanvasToPng(TC[0], pngfile);
+  // std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
+  // cl->CanvasToPng(TC[0], pngfile);
 
-  // idem for 2nd canvas.
-  pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
-  cl->CanvasToPng(TC[1], pngfile);
-  */
+  // // idem for 2nd canvas.
+  // pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
+  // cl->CanvasToPng(TC[1], pngfile);
 
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
-  out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out << "<P>Some log file output would go here." << std::endl;
-  out.close();
+  // std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  // std::ofstream out(logfile.c_str());
+  // out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+  //     << "</TITLE></HEAD>" << std::endl;
+  // out << "<P>Some log file output would go here." << std::endl;
+  // out.close();
 
-  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream out2(status.c_str());
-  out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out2 << "<P>Some status output would go here." << std::endl;
-  out2.close();
+  // std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
+  // std::ofstream out2(status.c_str());
+  // out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
+  //     << "</TITLE></HEAD>" << std::endl;
+  // out2 << "<P>Some status output would go here." << std::endl;
+  // out2.close();
 
-  cl->SaveLogFile(*this);
+  // cl->SaveLogFile(*this);
 
   return 0;
 }

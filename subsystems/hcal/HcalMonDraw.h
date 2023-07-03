@@ -8,7 +8,6 @@
 
 #include <string>  // for allocator, string
 
-class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
@@ -27,27 +26,24 @@ class HcalMonDraw : public OnlMonDraw
   void HandleEvent(int, int, int, TObject*);
   
 
- protected:
+ private:
   int MakeCanvas(const std::string& name);
   int DrawFirst(const std::string& what = "ALL");
   int DrawSecond(const std::string& what = "ALL");
   int DrawThird(const std::string& what = "ALL");
   int DrawFourth(const std::string& what = "ALL");
-  int DrawHistory(const std::string& what = "ALL");
-  int FindHotTower(TPad* warn, TH2D*);
+  int FindHotTower(TPad* warn, TH2*);
   void DrawTowerAvg();
   void DrawHitMap();
+  time_t getTime();
   
-
   // int DrawDeadServer(TPad *transparent);
   std::string prefix = "HCALMON";
-  int TimeOffsetTicks = -1;
   TCanvas* TC[9] = {nullptr};
   TPad* transparent[9] = {nullptr};
   TPad* Pad[18] = {nullptr};
   TPad* warning[18] = {nullptr};
   TGraphErrors* gr[2] = {nullptr};
-  OnlMonDB* dbvars = nullptr;
   TStyle* hcalStyle = nullptr;
 };
 

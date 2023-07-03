@@ -13,7 +13,6 @@
 class ClientHistoList;
 class OnlMonDraw;
 class OnlMonHtml;
-class OnlMonTrigger;
 class TCanvas;
 class TH1;
 class TStyle;
@@ -29,7 +28,7 @@ class OnlMonClient : public OnlMonBase
   int requestMonitorList(const std::string &hostname, const int moniport);
   TH1 *getHisto(const std::string &monitor, const std::string &hname);
   OnlMonDraw *getDrawer(const std::string &name);
-  int requestHisto(const char *what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);
+  int requestHisto(const std::string &what = "ALL", const std::string &hostname = "localhost", const int moniport = OnlMonDefs::MONIPORT);
   int requestHistoList(const std::string &subsys, const std::string &hostname, const int moniport, std::list<std::string> &histolist);
   int requestHistoByName(const std::string &subsystem, const std::string &what = "ALL");
   int requestHistoBySubSystem(const std::string &subsystem, int getall = 0);
@@ -38,7 +37,7 @@ class OnlMonClient : public OnlMonBase
 
   void AddServerHost(const std::string &hostname);
   void registerDrawer(OnlMonDraw *Drawer);
-  int ReadHistogramsFromFile(const char *filename);
+  int ReadHistogramsFromFile(const std::string &filename);
   int Draw(const char *who = "ALL", const char *what = "ALL");
   int MakePS(const char *who = "ALL", const char *what = "ALL");
   int MakeHtml(const char *who = "ALL", const char *what = "ALL");
@@ -57,7 +56,7 @@ class OnlMonClient : public OnlMonBase
 
   int LocateHistogram(const std::string &hname, const std::string &subsys);
   int RunNumber();
-  time_t EventTime(const char *which = "CURRENT");
+  time_t EventTime(const std::string &servername, const std::string &which);
   int SendCommand(const char *hostname, const int port, const char *cmd);
 
   void SetDisplaySizeX(int xsize) { display_sizex = xsize; }
@@ -68,8 +67,6 @@ class OnlMonClient : public OnlMonBase
   int HistoToPng(TH1 *histo, std::string const &pngfilename, const char *drawopt = "", const int statopt = 11);
 
   int SaveLogFile(const OnlMonDraw &drawer);
-  // interface to OnlMonTrigger class methods
-  OnlMonTrigger *OnlTrig();
   using OnlMonBase::Verbosity;
   void Verbosity(const int i) override;
   int SetStyleToDefault();
@@ -80,6 +77,7 @@ class OnlMonClient : public OnlMonBase
   void FindAllMonitors();
   int FindMonitor(const std::string &name);
   int IsMonitorRunning(const std::string &name);
+  std::string ExtractSubsystem(const std::string &filename);
 
  private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
@@ -88,7 +86,6 @@ class OnlMonClient : public OnlMonBase
 
   static OnlMonClient *__instance;
   OnlMonHtml *fHtml = nullptr;
-  OnlMonTrigger *onltrig = nullptr;
   TH1 *clientrunning = nullptr;
   TStyle *defaultStyle = nullptr;
 

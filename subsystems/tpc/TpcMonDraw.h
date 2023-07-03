@@ -5,7 +5,6 @@
 
 #include <string>  // for allocator, string
 
-class OnlMonDB;
 class TCanvas;
 class TGraphErrors;
 class TPad;
@@ -28,7 +27,6 @@ class TpcMonDraw : public OnlMonDraw
   int MakeCanvas(const std::string &name);
   int DrawFirst(const std::string &what = "ALL");
   int DrawSecond(const std::string &what = "ALL");
-  int DrawHistory(const std::string &what = "ALL");
   int DrawTPCModules(const std::string &what = "ALL");
   int DrawTPCSampleSize(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
@@ -37,12 +35,11 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCRawADC1D(const std::string &what = "ALL");
   int DrawTPCMaxADC1D(const std::string &what = "ALL");
   int DrawTPCXYclusters(const std::string &what = "ALL");
-
+  time_t getTime();
   
-  int TimeOffsetTicks = -1;
   TCanvas *TC[11] = {nullptr};
-  TPad *transparent[3] = {nullptr};
-  TPad *Pad[6] = {nullptr};
+  TPad *transparent[10] = {nullptr};
+  TPad *Pad[8] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
   TH2 *dummy_his1 = nullptr;
@@ -77,8 +74,6 @@ class TpcMonDraw : public OnlMonDraw
   TPaveLabel* SS09 = nullptr;
   TPaveLabel* SS10 = nullptr;
   TPaveLabel* SS11 = nullptr;
-  //
-  OnlMonDB *dbvars = nullptr;
 };
 
 #endif /* TPC_TPCMONDRAW_H */
