@@ -71,7 +71,7 @@ class TpotMonDraw : public OnlMonDraw
   void draw_time( TPad*);
   
   // canvases
-  std::array<TCanvas*, 8> m_canvas = {{nullptr}};
+  std::vector<TCanvas*> m_canvas;
   std::unique_ptr<OnlMonDB> dbvars;
 };
 

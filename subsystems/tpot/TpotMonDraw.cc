@@ -118,31 +118,32 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   int xsize = cl->GetDisplaySizeX();
   int ysize = cl->GetDisplaySizeY();
 
-  int cv_id = 0;
   if (name == "TPOT_detector_occupancy")
   {
 
     // xpos (-1) negative: do not draw menu bar
-    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
+    auto cv = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     divide_canvas( cv, 1, 2 );
     create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
+    m_canvas.push_back( cv );
     return cv;
 
   } else if (name == "TPOT_resist_occupancy") {
 
     // xpos (-1) negative: do not draw menu bar
-    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TPOT resist occupancy", -1, 0, xsize / 2, ysize);
+    auto cv = new TCanvas(name.c_str(), "TPOT resist occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     divide_canvas( cv, 1, 2 );
     create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
+    m_canvas.push_back( cv );
     return cv;
 
   } else if (name == "TPOT_adc_vs_sample") {
 
-    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
+    auto cv = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     divide_canvas( cv, 4, 4 );
     create_transparent_pad(name)->Draw();
@@ -152,33 +153,37 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
       cv->GetPad(i+1)->SetRightMargin(0.02);
     }
     cv->SetEditable(false);
+    m_canvas.push_back( cv );
     return cv;
 
   } else if (name == "TPOT_hit_charge") {
 
-    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
+    auto cv = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     divide_canvas( cv, 4, 4 );
     create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
+    m_canvas.push_back( cv );
     return cv;
 
   } else if (name == "TPOT_hit_multiplicity") {
 
-    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
+    auto cv = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     divide_canvas( cv, 4, 4 );
     create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
+    m_canvas.push_back( cv );
     return cv;
 
   } else if (name == "TPOT_hit_vs_channel") {
 
-    auto cv = m_canvas[cv_id++] = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
+    auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     divide_canvas( cv, 4, 4 );
     create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
+    m_canvas.push_back( cv );
     return cv;
 
   }
