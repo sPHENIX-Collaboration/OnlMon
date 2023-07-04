@@ -156,6 +156,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT event counters", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
+    divide_canvas( cv, 1, 1 );
     create_transparent_pad(name)->Draw();
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -480,8 +481,9 @@ int TpotMonDraw::draw_counters()
 
   if( m_counters )
   {
-    cv->SetLeftMargin( 0.07 );
-    cv->SetRightMargin( 0.15 );
+    cv->cd(1);
+    gPad->SetLeftMargin( 0.07 );
+    gPad->SetRightMargin( 0.15 );
     m_counters->DrawCopy();
     if( transparent ) draw_time(transparent);
     return 0;
