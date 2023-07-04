@@ -415,6 +415,7 @@ int HcalMon::process_event(Event* e /* evt */)
           if (signal > 15 && signal<15000) energy2 += signal;
         }
       }
+      delete p;
     }
   }
   if (npacket1 == 4 && npacket2 == 4)

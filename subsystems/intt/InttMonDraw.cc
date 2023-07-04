@@ -85,7 +85,7 @@ int InttMonDraw::Draw(const std::string &what)
 	return 0;
 }
 
-int InttMonDraw::MakePS(const std::string &what)
+int InttMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
 	OnlMonClient* cl = OnlMonClient::instance();
 	if(Draw(what))return 1;
@@ -112,7 +112,7 @@ int InttMonDraw::MakePS(const std::string &what)
 
 		found = true;
 
-		filename << ThisName << "_" <<  itr->first << "_" << cl->RunNumber() << ".ps";
+		filename << ThisName << "_" <<  itr->first << "_" << cl->RunNumber() << "." + type;
 		canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
 		if(canvas)canvas->Print(filename.str().c_str());
 		if(canvas)cl->CanvasToPng(canvas, cl->htmlRegisterPage(*this, itr->first, itr->first, "png"));

@@ -38,8 +38,8 @@ public:
 
 	int Init() override;
 	int Draw(const std::string &what = "ALL") override;
-	int MakePS(const std::string &what = "ALL") override;
 	int MakeHtml(const std::string &what = "ALL") override;
+        int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
 	typedef void(*HeadFunc_t)(std::string const&);
 	typedef void(*GlobalHistsPrepFunc_t)(std::string const&, TH2D**);

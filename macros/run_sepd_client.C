@@ -38,10 +38,10 @@ void sepdDraw(const char *what = "ALL")
   cl->Draw("SEPDMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
-void sepdPS()
+void sepdSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("SEPDMONDRAW");                         // Create PS files
+  cl->SavePlot("SEPDMONDRAW");                         // Save Plots
   return;
 }
 

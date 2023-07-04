@@ -33,10 +33,10 @@ void ll1Draw(const char *what = "ALL")
   cl->Draw("LL1MONDRAW", what);                  // Draw Histos of registered Drawers
 }
 
-void ll1PS()
+void ll1SavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("LL1MONDRAW");                      // Create PS files
+  cl->SavePlot("LL1MONDRAW");                      // Save Plots
   return;
 }
 

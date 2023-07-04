@@ -6,12 +6,12 @@
 
 namespace TpotMonDefs
 {
-
   //! bin enumeration for counters histogram
   enum 
   {
     kEventCounter = 1,
     kValidEventCounter = 2,
+    kFullEventCounter = 3
   };
 }
 #endif

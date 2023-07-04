@@ -41,6 +41,7 @@ class OnlMonClient : public OnlMonBase
   int Draw(const char *who = "ALL", const char *what = "ALL");
   int MakePS(const char *who = "ALL", const char *what = "ALL");
   int MakeHtml(const char *who = "ALL", const char *what = "ALL");
+  int SavePlot(const std::string &who = "ALL", const std::string &what = "ALL");
 
   std::string htmlRegisterPage(const OnlMonDraw &drawer,
                                const std::string &path,
@@ -81,7 +82,7 @@ class OnlMonClient : public OnlMonBase
 
  private:
   OnlMonClient(const std::string &name = "ONLMONCLIENT");
-  int DoSomething(const char *who, const char *what, const char *opt);
+  int DoSomething(const std::string &who, const std::string &what, const std::string &opt);
   void InitAll();
 
   static OnlMonClient *__instance;

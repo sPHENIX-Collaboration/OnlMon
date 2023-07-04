@@ -2030,40 +2030,27 @@ int BbcMonDraw::DrawSecond(const std::string & )
   return 0;
 }
 
-int BbcMonDraw::MakePS(const std::string &what)
+int BbcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
-  PRINT_DEBUG("In BbcMonDraw::MakePS()");
+
   OnlMonClient *cl = OnlMonClient::instance();
-  std::ostringstream filename;
   int iret = Draw(what);
-  if (iret)  // on error no ps files please
+  if (iret)  // on error no png files please
   {
       return iret;
   }
-
-  // 1st canvas
-  filename << ThisName << "_1_" << cl->RunNumber() << ".ps";
-  if ( TC[0] ) TC[0]->Print(filename.str().c_str());
-  filename.str("");
-
-  // 2nd canvas
-  filename << ThisName << "_2_" << cl->RunNumber() << ".ps";
-  TC[1]->Print(filename.str().c_str());
-  filename.str("");
-
-  // 3rd canvas
-  filename << ThisName << "_3_" << cl->RunNumber() << ".ps";
-  TC[1]->Print(filename.str().c_str());
-  filename.str("");
-
-  // TC[3] is the canvas for the vertex monitor
-  if (TC[3])
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
   {
-      filename << ThisName << "_4_" << cl->RunNumber() << ".ps";
-      TC[3]->Print(filename.str().c_str());
-      filename.str("");
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
+      std::to_string(cl->RunNumber()) + "." + type;
+    cl->CanvasToPng(canvas, filename);
   }
-
   return 0;
 }
 
@@ -2089,13 +2076,6 @@ int BbcMonDraw::MakeHtml(const std::string &what)
     std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
     cl->CanvasToPng(canvas, pngfile);
   }
-  // Register the 1st canvas png file to the menu and produces the png file.
-  // std::string pngfile = cl->htmlRegisterPage(*this, "First Canvas", "1", "png");
-  // cl->CanvasToPng(TC[0], pngfile);
-
-  // // idem for 2nd canvas.
-  // pngfile = cl->htmlRegisterPage(*this, "Second Canvas", "2", "png");
-  // cl->CanvasToPng(TC[1], pngfile);
 
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
   // std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");

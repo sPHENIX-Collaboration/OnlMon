@@ -83,10 +83,10 @@ void tpcDraw(const char *what = "ALL")
   cl->Draw("TPCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
-void tpcPS()
+void tpcSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("TPCMONDRAW");                         // Create PS files
+  cl->SavePlot("TPCMONDRAW");                         // Save Plots
   return;
 }
 

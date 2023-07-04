@@ -40,10 +40,10 @@ void exampleDraw(const char *what = "ALL")
   cl->Draw("MYMONDRAW", what);                      // Draw Histos of registered Drawers
 }
 
-void examplePS()
+void exampleSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("MYMONDRAW");                          // Create PS files
+  cl->SavePlot("MYMONDRAW");                          // Save Plots
   return;
 }
 

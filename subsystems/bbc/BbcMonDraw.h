@@ -36,8 +36,8 @@ class BbcMonDraw : public OnlMonDraw
 
   int Init() override;
   int Draw(const std::string &what = "ALL") override;
-  int MakePS(const std::string &what = "ALL") override;
   int MakeHtml(const std::string &what = "ALL") override;
+  int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
 
  protected:
   TStyle *bbcStyle = nullptr;

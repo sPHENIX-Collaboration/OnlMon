@@ -42,10 +42,10 @@ void inttDraw(const char *what="ALL")
   cl->Draw("INTTMONDRAW",what);				// Draw Histos of registered Drawers
 }
 
-void inttPS()
+void inttSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("INTTMONDRAW");                          // Create PS files
+  cl->SavePlot("INTTMONDRAW");                          // Save Plots
   return;
 }
 

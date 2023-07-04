@@ -24,7 +24,7 @@ void StartPoms()
   subsys = new SubSystem("MBD", "bbc");
   subsys->AddAction("bbcDraw(\"FIRST\")", "MBD Vertex Monitor");
   subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("CEMC", "cemc");
@@ -32,29 +32,29 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
   subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // SubSystem *daq = new SubSystem("DAQ", "daq");
-  // daq->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
-  // daq->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
-  // daq->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
-  // daq->AddAction(new SubSystemActionDrawPS(daq));
-  // pmf->RegisterSubSystem(daq);
+  // subsys = new SubSystem("DAQ", "daq");
+  // subsys->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
+  // subsys->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
+  // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
-   // SubSystem *epd = new SubSystem("EPD", "epd");
-   // epd->AddAction("epdDraw(\"FIRST\")", "EPD 1st Monitor");
-   // epd->AddAction("epdDraw(\"SECOND\")", "EPD 2nd Monitor");
-   // epd->AddAction("epdDraw(\"THIRD\")", "EPD 3rd Monitor");
-   // epd->AddAction(new SubSystemActionDrawPS(epd));
-   // pmf->RegisterSubSystem(epd);
+  // subsys = new SubSystem("EPD", "epd");
+  // subsys->AddAction("epdDraw(\"FIRST\")", "EPD 1st Monitor");
+  // subsys->AddAction("epdDraw(\"SECOND\")", "EPD 2nd Monitor");
+  // subsys->AddAction("epdDraw(\"THIRD\")", "EPD 3rd Monitor");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
   subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average");
   subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
   subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Outer HCAL", "ohcal");
@@ -62,20 +62,20 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"SECOND\")", "Sector Average");
   subsys->AddAction("ohcalDraw(\"THIRD\")", "Wave Form");
   subsys->AddAction("ohcalDraw(\"FOURTH\")", "Packet Health");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("INTT", "intt");
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "INTT Chip Hitmap");
   subsys->AddAction("inttDraw(\"ladder_hitmap\")", "INTT ladder Hitmap");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Local Level 1", "ll1");
   subsys->AddAction("ll1Draw(\"FIRST\")", "Hits");
   subsys->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
   subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
   
   subsys = new SubSystem("MVTX", "mvtx");
@@ -83,7 +83,7 @@ void StartPoms()
   subsys->AddAction("mvtxDraw(\"FEE\")", "FEE");
   subsys->AddAction("mvtxDraw(\"FHR\")", "FHR");
   subsys->AddAction("mvtxDraw(\"OCC\")", "OCC");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPC", "tpc");
@@ -95,7 +95,7 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCRAWADC1D\")", "TPC RAW ADC 1D");
   subsys->AddAction("tpcDraw(\"TPCMAXADC1D\")", "TPC (WindowMAX-Pedestal) ADC 1D");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSXY\")","TPC Cluster XY MaxADC");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPOT", "tpot");
@@ -105,8 +105,16 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
   subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity");
   subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit Channel");
-  subsys->AddAction(new SubSystemActionDrawPS(subsys));
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
+
+  // subsys = new SubSystem("ZDC", "zdc");
+  // subsys->AddAction("zdcDraw(\"FIRST\")", "ZDC 1st Monitor");
+  // subsys->AddAction("zdcDraw(\"SECOND\")", "ZDC 2nd Monitor");
+  // subsys->AddAction("zdcDraw(\"THIRD\")", "ZDC 3rd Monitor");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
+
 
   pmf->Draw();
 }

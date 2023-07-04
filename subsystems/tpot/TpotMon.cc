@@ -48,23 +48,45 @@ namespace
 //__________________________________________________
 TpotMon::TpotMon(const std::string &name)
   : OnlMon(name)
-{}
+{
+  // setup default calibration filename
+  // note: this can be overriden by calling set_calibration_filename from the parent macro
+  const auto tpotcalib = getenv("TPOTCALIB");
+  if (!tpotcalib)
+  {
+    std::cout << "TpotMon::TpotMon - TPOTCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+
+  m_calibration_filename = std::string(tpotcalib) + "/" + "TPOT_Pedestal-000.root";
+}
 
 //__________________________________________________
 int TpotMon::Init()
 {
-  // read our calibrations from TpotMonData.dat
+
+  if( Verbosity() )
   {
-  const char *tpotcalib = getenv("TPOTCALIB");
-  if (!tpotcalib)
+    std::cout << "TpotMon::Init - m_calibration_filename: " << m_calibration_filename << std::endl;
+    std::cout << "TpotMon::Init - m_max_sample: " << m_max_sample << std::endl;
+  }
+
+  // setup calibrations
+  if( std::ifstream( m_calibration_filename.c_str() ).good() )
   {
-    std::cout << "TPOTCALIB environment variable not set" << std::endl;
-    exit(1);
+
+    m_calibration_data.read( m_calibration_filename );
+
+  } else {
+
+    std::cout << "TpotMon::Init -"
+      << " file " << m_calibration_filename << " cannot be opened."
+      << " No calibration loaded"
+      << std::endl;
+
   }
-    std::string fullfile = std::string(tpotcalib) + "/" + "TpotMonData.dat";
-    std::ifstream calib(fullfile);
-    calib.close();
-  }
+
+  // server instance
   auto se = OnlMonServer::instance();
 
   // map tile centers to fee id
@@ -77,18 +99,19 @@ int TpotMon::Init()
 
   // counters
   /* arbitrary counters. First bin is number of events */
-  m_counters = new TH1I( "m_counters", "counters", 10, 0, 10 );
+  m_counters = new TH1F( "m_counters", "counters", 10, 0, 10 );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kEventCounter, "events" );
   m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kValidEventCounter, "valid events" );
+  m_counters->GetXaxis()->SetBinLabel(TpotMonDefs::kFullEventCounter, "full events" );
   se->registerHisto(this, m_counters);
 
   // global occupancy
   m_detector_multiplicity_phi = new TH2Poly( "m_detector_multiplicity_phi", "multiplicity (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
-  m_detector_occupancy_phi = new TH2Poly( "m_detector_occupancy_phi", "occupancy (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
+  m_detector_occupancy_phi = new TH2Poly( "m_detector_occupancy_phi", "occupancy (#phi); z (cm); x (cm);occupancy (%)", -120, 120, -60, 60 );
   se->registerHisto(this, m_detector_occupancy_phi);
 
   m_detector_multiplicity_z = new TH2Poly( "m_detector_multiplicity_z", "multiplicity (z); z (cm); x (cm)", -120, 120, -60, 60 );
-  m_detector_occupancy_z = new TH2Poly( "m_detector_occupancy_z", "occupancy (z); z (cm); x(cm)", -120, 120, -60, 60 );
+  m_detector_occupancy_z = new TH2Poly( "m_detector_occupancy_z", "occupancy (z); z (cm); x(cm);occupancy (%)", -120, 120, -60, 60 );
   se->registerHisto(this, m_detector_occupancy_z);
 
   // setup bins
@@ -102,11 +125,11 @@ int TpotMon::Init()
 
   // resist region occupancy
   m_resist_multiplicity_phi = new TH2Poly( "m_resist_multiplicity_phi", "multiplicity (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
-  m_resist_occupancy_phi = new TH2Poly( "m_resist_occupancy_phi", "occupancy (#phi); z (cm); x (cm)", -120, 120, -60, 60 );
+  m_resist_occupancy_phi = new TH2Poly( "m_resist_occupancy_phi", "occupancy (#phi); z (cm); x (cm);occupancy (%)", -120, 120, -60, 60 );
   se->registerHisto(this, m_resist_occupancy_phi);
 
   m_resist_multiplicity_z = new TH2Poly( "m_resist_multiplicity_z", "multiplicity (z); z (cm); x (cm)", -120, 120, -60, 60 );
-  m_resist_occupancy_z = new TH2Poly( "m_resist_occupancy_z", "occupancy (z); z (cm); x(cm)", -120, 120, -60, 60 );
+  m_resist_occupancy_z = new TH2Poly( "m_resist_occupancy_z", "occupancy (z); z (cm); x(cm);occupancy (%)", -120, 120, -60, 60 );
   se->registerHisto(this, m_resist_occupancy_z);
 
   // setup bins
@@ -133,16 +156,26 @@ int TpotMon::Init()
 
     detector_histograms_t detector_histograms;
 
-    // adc vs sample
-    static constexpr int max_sample = 32;
-    auto h = detector_histograms.m_adc_vs_sample = new TH2I(
-      Form( "m_adc_sample_%s", detector_name.c_str() ),
-      Form( "adc count vs sample (%s);sample;adc", detector_name.c_str() ),
-      max_sample, 0, max_sample,
-      1024, 0, 1024 );
-    h->GetXaxis()->SetTitleOffset(1.);
-    h->GetYaxis()->SetTitleOffset(1.65);
-    se->registerHisto(this, detector_histograms.m_adc_vs_sample);
+    {
+      auto h = detector_histograms.m_counts_sample = new TH1I(
+        Form( "m_counts_sample_%s", detector_name.c_str() ),
+        Form( "hit count vs sample (%s);sample;counts", detector_name.c_str() ),
+        m_max_sample, 0, m_max_sample );
+      h->GetXaxis()->SetTitleOffset(1.);
+      h->GetYaxis()->SetTitleOffset(1.65);
+      se->registerHisto(this, detector_histograms.m_counts_sample);
+    }
+
+    {
+      auto h = detector_histograms.m_adc_sample = new TH2I(
+        Form( "m_adc_sample_%s", detector_name.c_str() ),
+        Form( "adc count vs sample (%s);sample;adc", detector_name.c_str() ),
+        m_max_sample, 0, m_max_sample,
+        1024, 0, 1024 );
+      h->GetXaxis()->SetTitleOffset(1.);
+      h->GetYaxis()->SetTitleOffset(1.65);
+      se->registerHisto(this, detector_histograms.m_adc_sample);
+    }
 
     // hit charge
     static constexpr double max_hit_charge = 1024;
@@ -188,9 +221,9 @@ int TpotMon::BeginRun(const int /* runno */)
 int TpotMon::process_event(Event* event)
 {
 
-  // increment by one a given bin number
-  auto increment = []( TH1* h, int bin )
-  { h->SetBinContent(bin, h->GetBinContent(bin)+1 ); };
+  // increment a given bin number by weight
+  auto increment = []( TH1* h, int bin, double weight = 1.0 )
+  { h->SetBinContent(bin, h->GetBinContent(bin)+weight ); };
 
   // increment total number of event
   increment( m_counters, TpotMonDefs::kEventCounter );
@@ -200,14 +233,15 @@ int TpotMon::process_event(Event* event)
   if(event->getEvtType() >= 8) { return 0; }
 
   // increment total number of valid events
-  ++evtcnt;
+  ++m_evtcnt;
 
   increment( m_counters, TpotMonDefs::kValidEventCounter );
-  
+
   // hit multiplicity vs fee id
   std::map<int, int> multiplicity;
 
   // read the data
+  double fullevent_weight = 0;
   for( const auto& packet_id:MicromegasDefs::m_packet_ids )
   {
     std::unique_ptr<Packet> packet(event->getPacket(packet_id));
@@ -217,9 +251,17 @@ int TpotMon::process_event(Event* event)
       std::cout << "TpotMon::process_event -packet " << packet_id << " not found" << std::endl;
       continue;
     }
-    
+
     // get number of datasets (also call waveforms)
     const auto n_waveforms = packet->iValue(0, "NR_WF" );
+
+    // add contribution to full event
+    /*
+     * we assume a full event must have m_nchannels_total waveforms
+     * this will break when zero suppression is implemented
+     */
+    fullevent_weight += double(n_waveforms)/MicromegasDefs::m_nchannels_total;
+
     if( Verbosity() )
     { std::cout << "TpotMon::process_event - n_waveforms: " << n_waveforms << std::endl; }
     for( int i=0; i<n_waveforms; ++i )
@@ -227,7 +269,11 @@ int TpotMon::process_event(Event* event)
       auto channel = packet->iValue( i, "CHANNEL" );
       int fee_id = packet->iValue(i, "FEE" );
       int samples = packet->iValue( i, "SAMPLES" );
-      
+
+      // get channel rms and pedestal from calibration data
+      const double pedestal = m_calibration_data.get_pedestal( fee_id, channel );
+      const double rms = m_calibration_data.get_rms( fee_id, channel );
+
       // get detector index from fee id
       const auto iter = m_detector_histograms.find( fee_id );
       if( iter == m_detector_histograms.end() )
@@ -236,11 +282,11 @@ int TpotMon::process_event(Event* event)
         continue;
       }
       const auto& detector_histograms = iter->second;
-      
+
       // get tile center, segmentation
       const auto& [tile_x, tile_y]  = m_tile_centers.at(fee_id);
       const auto segmentation = MicromegasDefs::getSegmentationType( m_mapping.get_hitsetkey(fee_id));
-      
+
       if( Verbosity()>1 )
       {
         std::cout
@@ -251,36 +297,57 @@ int TpotMon::process_event(Event* event)
           << " samples: " << samples
           << std::endl;
       }
-      
+
       for( int is = 0; is < samples; ++is )
       {
         const auto adc =  packet->iValue( i, is );
-        detector_histograms.m_adc_vs_sample->Fill( is, adc );
+        const bool is_signal = (adc > pedestal + m_n_sigma*rms);
+        if( is_signal ) detector_histograms.m_counts_sample->Fill( is );
+        detector_histograms.m_adc_sample->Fill( is, adc );
         detector_histograms.m_hit_charge->Fill( adc );
       }
-      
-      // fill hit profile for this channel
-      const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
-      detector_histograms.m_hit_vs_channel->Fill( strip_index );
-      
-      // update multiplicity for this detector
-      ++multiplicity[fee_id];
-      
-      // fill detector multiplicity
-      switch( segmentation )
+
+      // define if hit is signal
+      bool is_signal = false;
+      for( int is = std::max<int>(0,m_sample_window_signal.first); is < std::min<int>(samples,m_sample_window_signal.second); ++is )
       {
-        case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
-        m_detector_multiplicity_z->Fill( tile_x, tile_y );
-        m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
-        break;
-        
-        case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
-        m_detector_multiplicity_phi->Fill( tile_x, tile_y );
-        m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
-        break;
+        const auto adc =  packet->iValue( i, is );
+        if( adc > pedestal + m_n_sigma*rms)
+        {
+          is_signal = true;
+          break;
+        }
+      }
+
+      // fill hit profile for this channel
+      if( is_signal )
+      {
+        const auto strip_index = m_mapping.get_physical_strip(fee_id, channel );
+        detector_histograms.m_hit_vs_channel->Fill( strip_index );
+
+        // update multiplicity for this detector
+        ++multiplicity[fee_id];
+
+        // fill detector multiplicity
+        switch( segmentation )
+        {
+          case MicromegasDefs::SegmentationType::SEGMENTATION_Z:
+          m_detector_multiplicity_z->Fill( tile_x, tile_y );
+          m_resist_multiplicity_z->Fill( tile_x + MicromegasGeometry::m_tile_length*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5), tile_y );
+          break;
+
+          case MicromegasDefs::SegmentationType::SEGMENTATION_PHI:
+          m_detector_multiplicity_phi->Fill( tile_x, tile_y );
+          m_resist_multiplicity_phi->Fill( tile_x, tile_y + MicromegasGeometry::m_tile_width*( double(strip_index)/MicromegasDefs::m_nchannels_fee - 0.5) );
+          break;
+        }
       }
     }
   }
+
+  // increment full event counter and counters histogram
+  m_fullevtcnt += fullevent_weight;
+  increment( m_counters, TpotMonDefs::kFullEventCounter, fullevent_weight );
 
   // fill hit multiplicities
   for( auto&& [fee_id, detector_histograms]:m_detector_histograms )
@@ -293,10 +360,10 @@ int TpotMon::process_event(Event* event)
     { destination->SetBinContent( bin+1, source->GetBinContent( bin+1 )*scale ); }
   };
 
-  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 1./(evtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 1./(evtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 4./(evtcnt*MicromegasDefs::m_nchannels_fee) );
-  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 4./(evtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_z, m_detector_occupancy_z, 100./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_detector_multiplicity_phi, m_detector_occupancy_phi, 100./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_z, m_resist_occupancy_z, 400./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
+  copy_content( m_resist_multiplicity_phi, m_resist_occupancy_phi, 400./(m_fullevtcnt*MicromegasDefs::m_nchannels_fee) );
 
   return 0;
 }
@@ -305,8 +372,23 @@ int TpotMon::process_event(Event* event)
 int TpotMon::Reset()
 {
   // reset our internal counters
-  evtcnt = 0;
-  idummy = 0;
+  m_evtcnt = 0;
+  m_fullevtcnt = 0;
+
+  // reset all histograms
+  for( TH1* h:{
+    m_detector_multiplicity_z, m_detector_multiplicity_phi,
+    m_detector_occupancy_z, m_detector_occupancy_phi,
+    m_resist_multiplicity_z, m_resist_multiplicity_phi,
+    m_resist_occupancy_z, m_resist_occupancy_phi } )
+  { h->Reset(); }
+
+  for( const auto& [fee_id,hlist]:m_detector_histograms )
+  {
+    for( TH1* h:std::initializer_list<TH1*>{hlist.m_counts_sample, hlist.m_adc_sample, hlist.m_hit_charge,  hlist.m_hit_multiplicity,   hlist.m_hit_vs_channel } )
+    { h->Reset(); }
+  }
+
   return 0;
 }
 

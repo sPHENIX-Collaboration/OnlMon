@@ -29,10 +29,10 @@ void daqDraw(const char *what = "ALL")
   cl->Draw("DAQMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
-void daqPS()
+void daqSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("DAQMONDRAW");                         // Create PS files
+  cl->SavePlot("DAQMONDRAW");                         // Save Plots
   return;
 }
 

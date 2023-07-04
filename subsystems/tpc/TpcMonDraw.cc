@@ -1018,23 +1018,29 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   return 0;
 }
 
-int TpcMonDraw::MakePS(const std::string &what)
+int TpcMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
+
   OnlMonClient *cl = OnlMonClient::instance();
-  std::ostringstream filename;
   int iret = Draw(what);
-  if (iret)  // on error no ps files please
+  if (iret)  // on error no png files please
   {
-    return iret;
+      return iret;
   }
-  filename << ThisName << "_1_" << cl->RunNumber() << ".ps";
-  TC[0]->Print(filename.str().c_str());
-  filename.str("");
-  filename << ThisName << "_2_" << cl->RunNumber() << ".ps";
-  TC[1]->Print(filename.str().c_str());
+  int icnt = 0;
+  for (TCanvas *canvas : TC)
+  {
+    if (canvas == nullptr)
+    {
+      continue;
+    }
+    icnt++;
+    std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
+      std::to_string(cl->RunNumber()) + "." + type;
+    cl->CanvasToPng(canvas, filename);
+  }
   return 0;
 }
-
 
 int TpcMonDraw::MakeHtml(const std::string &what)
 {

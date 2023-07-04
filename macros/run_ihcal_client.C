@@ -69,10 +69,10 @@ void ihcalDraw(const char *what = "ALL")
   cl->Draw("IHCALMONDRAW", what);  // Draw Histos of registered Drawers
 }
 
-void ihcalPS()
+void ihcalSavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakePS("IHCALMONDRAW");                    // Create PS files
+  cl->SavePlot("IHCALMONDRAW");                    // Save Plots
   return;
 }
 
