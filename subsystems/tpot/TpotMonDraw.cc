@@ -156,8 +156,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT event counters", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 1, 1 );
+    cv->cd();
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 1, 1 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -166,8 +167,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 1, 2 );
+    cv->cd();
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 1, 2 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -177,8 +179,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT resist occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 1, 2 );
+    cv->cd();
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 1, 2 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -187,8 +190,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    cv->cd();
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
     for( int i = 0; i < 16; ++i )
     {
       cv->GetPad(i+1)->SetLeftMargin(0.15);
@@ -202,8 +206,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon counts vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    cv->cd();
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
     for( int i = 0; i < 16; ++i )
     {
       auto&& pad = cv->GetPad(i+1);
@@ -219,8 +224,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    cv->cd();
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -229,8 +235,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    cv->cd();
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -239,8 +246,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    cv->cd();
     create_transparent_pad(name)->Draw();
+    divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -294,7 +302,6 @@ int TpotMonDraw::Draw(const std::string &what)
     auto cv = get_canvas("TPOT_adc_vs_sample");
     if( cv )
     {
-      std::cout << "TpotMonDraw::Draw - draw vertical lines" << std::endl;
       CanvasEditor cv_edit(cv);
       cv->Update();
       for( int i = 0; i < 16; ++i )
@@ -356,6 +363,26 @@ int TpotMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
     iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ) );
+    auto cv = get_canvas("TPOT_hit_vs_channel");
+    if( cv )
+    {
+      CanvasEditor cv_edit(cv);
+      cv->Update();
+      for( int i = 0; i < 16; ++i )
+      {
+        // draw vertical lines that match sample window
+        auto&& pad = cv->GetPad(i+1);
+        pad->cd();
+        for( const int& channel:{64, 128, 196} ) 
+        {
+          const auto line = vertical_line( pad, channel );
+          line->SetLineStyle(2);
+          line->SetLineColor(1);
+          line->SetLineWidth(1);
+          line->Draw();
+        }
+      }
+    }
     ++idraw;
   }
 
