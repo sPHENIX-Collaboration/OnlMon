@@ -504,6 +504,9 @@ int TpotMonDraw::draw_detector_occupancy()
   auto m_detector_occupancy_phi =  cl->getHisto("TPOTMON_0","m_detector_occupancy_phi");
   auto m_detector_occupancy_z =  cl->getHisto("TPOTMON_0","m_detector_occupancy_z");
 
+  for( const auto& h:{m_detector_occupancy_phi,m_detector_occupancy_z} )
+  { h->SetStats(0); }
+  
   auto cv = get_canvas("TPOT_detector_occupancy");
   auto transparent = get_transparent_pad( cv, "TPOT_detector_occupancy");
   if( !cv )
@@ -549,6 +552,8 @@ int TpotMonDraw::draw_resist_occupancy()
   auto cl = OnlMonClient::instance();
   auto m_resist_occupancy_phi =  cl->getHisto("TPOTMON_0","m_resist_occupancy_phi");
   auto m_resist_occupancy_z =  cl->getHisto("TPOTMON_0","m_resist_occupancy_z");
+  for( const auto& h:{m_resist_occupancy_phi,m_resist_occupancy_z} )
+  { h->SetStats(0); }
 
   auto cv = get_canvas("TPOT_resist_occupancy");
   auto transparent = get_transparent_pad( cv, "TPOT_resist_occupancy");
