@@ -113,8 +113,6 @@ int process_event(Event *evt)
   static uint64_t borticks = 0;
   static uint64_t eorticks = 0;
   static int eventcnt = 0;
-  static int lowrunwarning = 1;
-  static int lowrunevents = 0;
 
   OnlMonServer *se = OnlMonServer::instance();
   uint64_t tmpticks = evt->getTime();
@@ -122,10 +120,7 @@ int process_event(Event *evt)
   // first test if a new run has started and call BOR/EOR methods of monitors
   if (se->RunNumber() == -1)
   {
-    lowrunevents = 0;
     savetmpticks = 0x7FFFFFFF;
-    FrameWorkVars->SetBinContent(LOWRUNEVENTBIN, (Stat_t) lowrunevents);
-
     eventcnt = 0;
     int newrun = evt->getRunNumber();
 #ifdef USE_MUTEX
@@ -147,19 +142,6 @@ int process_event(Event *evt)
     pthread_mutex_unlock(&mutex);
 #endif
     eorticks = borticks;
-  }
-  if (se->RunNumber() > evt->getRunNumber())
-  {
-    lowrunevents++;
-    FrameWorkVars->SetBinContent(LOWRUNEVENTBIN, (Stat_t) lowrunevents);
-    if (lowrunwarning)
-    {
-      printf("event run number %d smaller than current run number %d discarding event\n", evt->getRunNumber(), se->RunNumber());
-      printf("If you are testing open a file with a higher run number\n");
-      printf("You will get this warning only once per run\n");
-      lowrunwarning = 0;
-    }
-    return 0;
   }
   if (evt->getEvtLength() <= 0 || evt->getEvtLength() > 2500000)
   {
@@ -197,9 +179,6 @@ int process_event(Event *evt)
     borticks = se->BorTicks();
     FrameWorkVars->SetBinContent(BORTIMEBIN, (Stat_t) borticks);
     eventcnt = 0;
-    lowrunwarning = 1;  // so we only get one low runnumber warning in logfile
-    lowrunevents = 0;   // clear the low run event counter
-    FrameWorkVars->SetBinContent(LOWRUNEVENTBIN, (Stat_t) lowrunevents);
 #ifdef USE_MUTEX
     pthread_mutex_unlock(&mutex);
 #endif

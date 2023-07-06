@@ -17,7 +17,7 @@ void tpcDrawInit(const int online = 0)
   char TPCMON_STR[100];
   // TPC ADC pie chart
   for( int i=0; i<24; i++ )
-  //for( int i: {15} )
+  //for( int i: {1,20} )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     //std::cout<<"You registered the NSIDEADC/SSIDEADC "<<i<<" histo"<<std::endl;
@@ -28,11 +28,19 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("NorthSideADC_clusterXY_R2", TPCMON_STR);
     cl->registerHisto("NorthSideADC_clusterXY_R3", TPCMON_STR);
 
+    cl->registerHisto("NorthSideADC_clusterXY_R1_unw", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R2_unw", TPCMON_STR);
+    cl->registerHisto("NorthSideADC_clusterXY_R3_unw", TPCMON_STR);
+
     cl->registerHisto("SouthSideADC", TPCMON_STR);
 
     cl->registerHisto("SouthSideADC_clusterXY_R1", TPCMON_STR);
     cl->registerHisto("SouthSideADC_clusterXY_R2", TPCMON_STR);
     cl->registerHisto("SouthSideADC_clusterXY_R3", TPCMON_STR);
+
+    cl->registerHisto("SouthSideADC_clusterXY_R1_unw", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R2_unw", TPCMON_STR);
+    cl->registerHisto("SouthSideADC_clusterXY_R3_unw", TPCMON_STR);
 
     cl->registerHisto("sample_size_hist",TPCMON_STR);
     cl->registerHisto("Check_Sum_Error",TPCMON_STR);
@@ -56,7 +64,7 @@ void tpcDrawInit(const int online = 0)
   // says I know they are all on the same node
 
   for( int i=0; i<24; i++ )
-  //for( int i: {15} )
+  //for( int i: {1,20} )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     cl->requestHistoBySubSystem(TPCMON_STR, 1);
@@ -73,7 +81,7 @@ void tpcDraw(const char *what = "ALL")
   char TPCMON_STR[100];
 
   for( int i=0; i<24; i++ )
-  //for( int i: {15} )
+  //for( int i: {1,20} )
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     cl->requestHistoBySubSystem(TPCMON_STR, 1);

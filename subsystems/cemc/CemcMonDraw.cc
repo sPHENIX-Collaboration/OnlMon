@@ -1028,7 +1028,7 @@ int CemcMonDraw::FindHotTower(TPad *warningpad,TH2* hhit){
   TPaveText *dead = new TPaveText(0.01,0.7,0.33,1);
   dead -> SetFillColor(kGray+2);
   dead -> SetTextColor(kWhite);
-  dead -> AddText(Form("Dead towers: %.3g%%",100*ndeadt/nTowerTotal));
+  dead -> AddText(Form("Cold towers: %.3g%%",100*ndeadt/nTowerTotal));
   // if(100*ndeadt/nTowerTotal > 2.5)
   //   {
   //     dead -> AddText("");

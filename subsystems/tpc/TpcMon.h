@@ -7,6 +7,8 @@
 #include <tpc/TpcMap.h> //this needs to be pointed to coresoftware - not sure how to do that on EBDCXX...
 #include <memory>
 #include <string>
+#include <cmath>
+#include <vector>
 
 
 class Event;
@@ -53,6 +55,14 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC_clusterXY_R2 = nullptr;
   TH2 *SouthSideADC_clusterXY_R3 = nullptr;
 
+  TH2 *NorthSideADC_clusterXY_R1_unw = nullptr;
+  TH2 *NorthSideADC_clusterXY_R2_unw = nullptr;
+  TH2 *NorthSideADC_clusterXY_R3_unw = nullptr;
+
+  TH2 *SouthSideADC_clusterXY_R1_unw = nullptr;
+  TH2 *SouthSideADC_clusterXY_R2_unw = nullptr;
+  TH2 *SouthSideADC_clusterXY_R3_unw = nullptr;
+
 
   TH1 *tpchist1 = nullptr;
   TH2 *tpchist2 = nullptr;
@@ -90,6 +100,7 @@ class TpcMon : public OnlMon
   int Module_ID(int fee_id);
   int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
   bool side(int server_id);
+  std::pair<float, float> calculateMeanAndStdDev(const std::vector<int>& values);
 };
 
 #endif /* TPC_TPCMON_H */

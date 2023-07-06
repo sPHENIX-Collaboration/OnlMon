@@ -17,6 +17,7 @@
 #include <TStyle.h>
 #include <TString.h>
 #include <TLegend.h>
+#include <TLatex.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -171,7 +172,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "TPCClusterXY")
   {
-    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)>20 for NS and SS", 1350, 700);
+    TC[10] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 20 ADC for NS and SS, WEIGHTED", 1350, 700);
     gSystem->ProcessEvents();
     //gStyle->SetPalette(57); //kBird CVD friendly
     TC[10]->Divide(2,1);
@@ -181,6 +182,19 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[9]->Draw();
     TC[10]->SetEditable(false);
   }
+  else if (name == "TPCClusterXY_unw")
+  {
+    TC[11] = new TCanvas(name.c_str(), "(MAX ADC - pedestal)> 20 ADC for NS and SS, UNWEIGHTED", 1350, 700);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[11]->Divide(2,1);
+    // this one is used to plot the run number on the canvas
+    transparent[10] = new TPad("transparent10", "this does not show", 0, 0, 1, 1);
+    transparent[10]->SetFillStyle(4000);
+    transparent[10]->Draw();
+    TC[11]->SetEditable(false);
+  }
+  
   
   return 0;
 }
@@ -234,9 +248,14 @@ int TpcMonDraw::Draw(const std::string &what)
     iret += DrawTPCMaxADC1D(what);
     idraw++;
   }
-  if (what == "ALL" || what == "TPCCLUSTERSXY")
+  if (what == "ALL" || what == "TPCCLUSTERSXYWEIGTHED")
   {
     iret += DrawTPCXYclusters(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCCLUSTERSXYUNWEIGTHED")
+  {
+    iret += DrawTPCXYclusters_unweighted(what);
     idraw++;
   }
   if (!idraw)
@@ -918,8 +937,8 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TH1 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
   TH1 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
-  dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 20 North Side", 400, -800, 800, 400, -800, 800); //dummy histos for titles
-  dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 20 South Side", 400, -800, 800, 400, -800, 800);
+  dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > 20 ADC North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > 20 ADC South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
 
   char TPCMON_STR[100];
   for( int i=0; i<24; i++ ) 
@@ -952,7 +971,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   std::string runstring;
   time_t evttime = getTime();// cl->EventTime("CURRENT"); 
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>20 Run " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>20 ADC Run, WEIGHTED " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[9]->cd();
@@ -960,6 +979,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
 
   TC[10]->cd(1);
   gPad->SetTopMargin(0.15);
+  gPad->SetLogz(kTRUE);
   dummy_his1_XY->Draw("colzsame");
 
   float NS_max = 0;
@@ -986,6 +1006,7 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
 
   TC[10]->cd(2);
   gPad->SetTopMargin(0.15);
+  gPad->SetLogz(kTRUE);
   dummy_his2_XY->Draw("colzsame");
 
   float SS_max = 0;
@@ -1014,6 +1035,115 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TC[10]->Update();
   TC[10]->Show();
   TC[10]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
+  TH1 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
+
+  dummy_his1_XY_unw = new TH2F("dummy_his1_XY_unw", "(ADC-Pedestal) > 20 ADC North Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
+  dummy_his2_XY_unw = new TH2F("dummy_his2_XY_unw", "(ADC-Pedestal) > 20 ADC South Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800);
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_NSTPC_clusXY[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_unw");
+    tpcmon_NSTPC_clusXY[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_unw");
+    tpcmon_NSTPC_clusXY[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_unw");
+
+    tpcmon_SSTPC_clusXY[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_unw");
+    tpcmon_SSTPC_clusXY[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_unw");
+    tpcmon_SSTPC_clusXY[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_unw");
+  }
+
+  if (!gROOT->FindObject("TPCClusterXY_unw"))
+  {
+    MakeCanvas("TPCClusterXY_unw");
+  }  
+
+  TC[11]->SetEditable(true);
+  TC[11]->Clear("D");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_ADC-Pedestal>20 ADC Run, UNWEIGHTED " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[10]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TC[11]->cd(1);
+  gPad->SetTopMargin(0.15);
+  //gPad->SetLogz(kTRUE);
+  dummy_his1_XY_unw->Draw("colzsame");
+
+  float NS_max = 0;
+  for( int i=0; i<12; i++ )
+  {
+    for( int j=0; j<3; j++ )
+    {
+      if( tpcmon_NSTPC_clusXY[i][j] )
+      {
+        TC[11]->cd(1);
+        tpcmon_NSTPC_clusXY[i][j] -> Draw("colzsame");
+        //gStyle->SetLogz(kTRUE);
+        if ( tpcmon_NSTPC_clusXY[i][0]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin()) > NS_max)
+        {
+          NS_max = tpcmon_NSTPC_clusXY[i][j]->GetBinContent(tpcmon_NSTPC_clusXY[i][j]->GetMaximumBin());
+          dummy_his1_XY_unw->SetMaximum( NS_max );
+        }
+        gStyle->SetPalette(57); //kBird CVD friendly
+      }
+    }
+
+  }
+  TC[11]->Update();
+
+  TC[11]->cd(2);
+  gPad->SetTopMargin(0.15);
+  dummy_his2_XY_unw->Draw("colzsame");
+  //gPad->SetLogz(kTRUE);
+
+  float SS_max = 0;
+  for( int i=0; i<12; i++ )
+  {
+    for( int j=0; j<3; j++ )
+    {
+      if( tpcmon_SSTPC_clusXY[i+12][j] )
+      {
+        //std::cout<<"South Side Custer XY i: "<< i+12 <<", j: "<<j<<std::endl;
+        TC[11]->cd(2);
+        tpcmon_SSTPC_clusXY[i+12][j] -> Draw("colzsame");
+        //gStyle->SetLogz(kTRUE);
+        if ( tpcmon_SSTPC_clusXY[i+12][j]->GetBinContent(tpcmon_SSTPC_clusXY[i+12][j]->GetMaximumBin()) > SS_max)
+        {
+          SS_max = tpcmon_SSTPC_clusXY[i+12][j]->GetBinContent(tpcmon_SSTPC_clusXY[i+12][j]->GetMaximumBin());
+          dummy_his2_XY_unw->SetMaximum( SS_max );
+        }
+        gStyle->SetPalette(57); //kBird CVD friendly
+      }
+    }
+
+  }
+
+
+  TC[11]->Update();
+  TC[11]->Show();
+  TC[11]->SetEditable(false);
 
   return 0;
 }

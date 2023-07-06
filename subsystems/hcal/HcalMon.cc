@@ -84,9 +84,10 @@ HcalMon::~HcalMon()
   return;
 }
 
-const int depth = 1000;
+const int depth = 10000;
 const int packet_depth = 1000;
 const int historyLength = 100;
+const int historyScaleDown = 100;
 const int n_channel = 48;
 const float hit_threshold = 100;
 const int n_samples_show = 31;
@@ -129,12 +130,12 @@ int HcalMon::Init()
   h1_packet_event = new TH1F("h1_packet_event", "", 8, packetlow - 0.5, packethigh + 0.5);
 
   for (int ih = 0; ih < Nsector; ih++)
-    h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength);
+    h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength * historyScaleDown);
   for (int ieta = 0; ieta < 24; ieta++)
   {
     for (int iphi = 0; iphi < 64; iphi++)
     {
-      h_rm_tower[ieta][iphi] = new TH1F(Form("h_rm_tower_%d_%d", ieta, iphi), Form("running mean of tower ieta=%d, iphi=%d", ieta, iphi), historyLength, 0, historyLength);
+      h_rm_tower[ieta][iphi] = new TH1F(Form("h_rm_tower_%d_%d", ieta, iphi), Form("running mean of tower ieta=%d, iphi=%d", ieta, iphi), historyLength, 0, historyLength * historyScaleDown);
     }
   }
   // make the per-packet running mean objects
@@ -350,17 +351,26 @@ int HcalMon::process_event(Event* e /* evt */)
         h2_hcal_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
 
         // fill tower_rm here
-        if (evtcnt <= historyLength)
+        if (evtcnt <= historyLength * historyScaleDown)
         {
-          h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt, rm_vector_twr[towerNumber - 1]->getMean(0));
+          //only fill every scaledown event
+          if (evtcnt % historyScaleDown == 0)
+          {
+            h_rm_tower[eta_bin][phi_bin]->SetBinContent(evtcnt / historyScaleDown, rm_vector_twr[towerNumber - 1]->getMean(0));
+          }
         }
         else
         {
-          for (int ib = 1; ib < historyLength; ib++)
+          //only fill every scaledown event
+          if (evtcnt % historyScaleDown == 0)
           {
-            h_rm_tower[eta_bin][phi_bin]->SetBinContent(ib, h_rm_tower[eta_bin][phi_bin]->GetBinContent(ib + 1));
+            for (int ib = 1; ib < historyLength; ib++)
+            {
+              h_rm_tower[eta_bin][phi_bin]->SetBinContent(ib, h_rm_tower[eta_bin][phi_bin]->GetBinContent(ib + 1));
+            }
+            h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twr[towerNumber - 1]->getMean(0));
           }
-          h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twr[towerNumber - 1]->getMean(0));
+       
         }
 
         if (signal > hit_threshold)
@@ -431,17 +441,25 @@ int HcalMon::process_event(Event* e /* evt */)
     sectorAvg[isec] /= 48;
     h_sectorAvg_total->Fill(isec + 1, sectorAvg[isec]);
     rm_vector_sectAvg[isec]->Add(&sectorAvg[isec]);
-    if (evtcnt <= historyLength)
+    if (evtcnt <= historyLength * historyScaleDown)
     {
-      h_rm_sectorAvg[isec]->SetBinContent(evtcnt, rm_vector_sectAvg[isec]->getMean(0));
+      //only fill every scaledown event
+      if (evtcnt % historyScaleDown == 0)
+      {
+        h_rm_sectorAvg[isec]->SetBinContent(evtcnt / historyScaleDown, rm_vector_sectAvg[isec]->getMean(0));
+      }
     }
     else
     {
-      for (int ib = 1; ib < historyLength; ib++)
+      //only fill every scaledown event
+      if (evtcnt % historyScaleDown == 0)
       {
-        h_rm_sectorAvg[isec]->SetBinContent(ib, h_rm_sectorAvg[isec]->GetBinContent(ib + 1));
+        for (int ib = 1; ib < historyLength; ib++)
+        {
+          h_rm_sectorAvg[isec]->SetBinContent(ib, h_rm_sectorAvg[isec]->GetBinContent(ib + 1));
+        }
+        h_rm_sectorAvg[isec]->SetBinContent(historyLength, rm_vector_sectAvg[isec]->getMean(0));
       }
-      h_rm_sectorAvg[isec]->SetBinContent(historyLength, rm_vector_sectAvg[isec]->getMean(0));
     }
 
   }  // sector loop

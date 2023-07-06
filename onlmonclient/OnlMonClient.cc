@@ -405,7 +405,7 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
                 << subsys << " registered" << std::endl;
     }
   }
-  m_LastMonitorFetched = subsys;
+  m_MonitorFetchedSet.insert(subsys);
   return iret;
 }
 
@@ -502,7 +502,7 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
       }
       else if (opt == "SAVEPLOT")
       {
-        iter->second->SavePlot(what,"png");
+        iter->second->SavePlot(what, "png");
       }
       else if (opt == "HTML")
       {
@@ -518,10 +518,10 @@ int OnlMonClient::DoSomething(const std::string &who, const std::string &what, c
         }
       }
       else
-	{
-	  std::cout << "option " << opt << " not implemented" << std::endl;
-	  return 0;
-	}
+      {
+        std::cout << "option " << opt << " not implemented" << std::endl;
+        return 0;
+      }
       SetStyleToDefault();
       return 0;
     }
@@ -894,8 +894,8 @@ void OnlMonClient::updateHistoMap(const std::string &subsys, const std::string &
     std::map<const std::string, ClientHistoList *> newmap;
     ClientHistoList *entry = new ClientHistoList(subsys);
     entry->Histo(h1d);
-    newmap.insert(std::make_pair(hname,entry));
-    SubsysHisto.insert(std::make_pair(subsys,newmap));
+    newmap.insert(std::make_pair(hname, entry));
+    SubsysHisto.insert(std::make_pair(subsys, newmap));
     return;
   }
   auto histoiter = subsysiter->second.find(hname);
@@ -913,7 +913,7 @@ void OnlMonClient::updateHistoMap(const std::string &subsys, const std::string &
   {
     ClientHistoList *newhisto = new ClientHistoList(subsys);
     newhisto->Histo(h1d);
-    subsysiter->second.insert(std::make_pair(hname,newhisto));
+    subsysiter->second.insert(std::make_pair(hname, newhisto));
     if (Verbosity() > 2)
     {
       std::cout << "new histogram " << hname << " at " << newhisto->Histo() << std::endl;
@@ -1056,6 +1056,7 @@ int OnlMonClient::UpdateServerHistoMap(const std::string &hname, const std::stri
   int foundit = 0;
   do
   {
+    std::cout << "Connecting to " << hostname << ", if it is frozen here - this is the one you need to restart" << std::endl;
     TSocket sock(hostname.c_str(), MoniPort);
     TMessage *mess;
     if (verbosity > 0)
@@ -1180,15 +1181,13 @@ int OnlMonClient::LocateHistogram(const std::string &hname, const std::string &s
 int OnlMonClient::RunNumber()
 {
   int runno = -9999;
-  TH1 *frameworkvars = getHisto(m_LastMonitorFetched,"FrameWorkVars");
-  if (frameworkvars)
+  for (auto frwrkiter : m_MonitorFetchedSet)
   {
-    runno = frameworkvars->GetBinContent(RUNNUMBERBIN);
-  }
-  else
-  {
-    std::cout << __PRETTY_FUNCTION__ << " could not fetch FrameWorkVars from "
-	      << m_LastMonitorFetched << " returning " << runno << std::endl;
+    TH1 *frameworkvars = getHisto(frwrkiter, "FrameWorkVars");
+    if (frameworkvars)
+    {
+      runno = std::max(runno, (int) frameworkvars->GetBinContent(RUNNUMBERBIN));
+    }
   }
   return (runno);
 }
@@ -1214,14 +1213,14 @@ time_t OnlMonClient::EventTime(const std::string &servername, const std::string 
     std::cout << "Bad Option for Time: " << which
               << ", implemented are BOR EOR CURRENT" << std::endl;
   }
-  TH1 *frameworkvars = getHisto(servername,"FrameWorkVars");
+  TH1 *frameworkvars = getHisto(servername, "FrameWorkVars");
   if (frameworkvars == nullptr)
   {
     tret = 0;
   }
   else
   {
-    tret = (time_t)frameworkvars->GetBinContent(ibin);
+    tret = (time_t) frameworkvars->GetBinContent(ibin);
   }
   if (verbosity > 0)
   {
@@ -1416,7 +1415,6 @@ int OnlMonClient::HistoToPng(TH1 *histo, std::string const &pngfilename, const c
   delete cgiCanv;
   return 0;
 }
-
 
 int OnlMonClient::SaveLogFile(const OnlMonDraw &drawer)
 {
@@ -1664,8 +1662,8 @@ int OnlMonClient::IsMonitorRunning(const std::string &name)
 std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename)
 {
   std::string subsys = std::filesystem::path(fullfilename).filename();
-  subsys = subsys.substr(subsys.find('-')+1);
-  subsys = subsys.substr(0,subsys.find(".root"));
-  m_LastMonitorFetched = subsys;
+  subsys = subsys.substr(subsys.find('-') + 1);
+  subsys = subsys.substr(0, subsys.find(".root"));
+  m_MonitorFetchedSet.insert(subsys);
   return subsys;
 }

@@ -35,10 +35,11 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCRawADC1D(const std::string &what = "ALL");
   int DrawTPCMaxADC1D(const std::string &what = "ALL");
   int DrawTPCXYclusters(const std::string &what = "ALL");
+  int DrawTPCXYclusters_unweighted(const std::string &what = "ALL");
   time_t getTime();
   
-  TCanvas *TC[11] = {nullptr};
-  TPad *transparent[10] = {nullptr};
+  TCanvas *TC[12] = {nullptr};
+  TPad *transparent[11] = {nullptr};
   TPad *Pad[8] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
@@ -48,6 +49,9 @@ class TpcMonDraw : public OnlMonDraw
   //TPC Module
   TH2 *dummy_his1_XY = nullptr;
   TH2 *dummy_his2_XY = nullptr;
+
+  TH2 *dummy_his1_XY_unw = nullptr;
+  TH2 *dummy_his2_XY_unw = nullptr;
 
   TPaveLabel* NS18 = nullptr; //North Side labels
   TPaveLabel* NS17 = nullptr;
