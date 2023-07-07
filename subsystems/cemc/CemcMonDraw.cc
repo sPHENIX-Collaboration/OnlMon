@@ -489,10 +489,10 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   TLine *goodChans = new TLine(6000.5,192,6128.5,192);
   goodChans -> SetLineStyle(7);
 
-  float param = 0.75;
+  float param = 0.95;
   //float param = 0.99;
   
-  TLegend *leg = new TLegend(0.3,0.16,0.95,0.4);
+  TLegend *leg = new TLegend(0.3,0.70,0.95,0.90);
   leg -> SetFillStyle(0);
   leg -> SetBorderSize(0);
   
@@ -500,13 +500,13 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   warnLineOne -> SetLineStyle(7);
   warnLineOne -> SetLineColor(2);
   
-  leg -> AddEntry(warnLineOne,"75% Threshold","l");
+  leg -> AddEntry(warnLineOne,Form("%g%% Threshold",param*100),"l");
   
   TLine *warnLineOneS = new TLine(6000.5,param*1,6128.5,param*1);
   warnLineOneS -> SetLineStyle(10);
   warnLineOneS -> SetLineColor(2);
 
-  leg -> AddEntry(warnLineOneS,"75% Threshold, High Eta, South","l");
+  leg -> AddEntry(warnLineOneS,Form("%g%% Threshold, High Eta, South",100*param),"l");
 
   TLine *warnLineSize = new TLine(6000.5,param*5981.,6128.5,param*5981.);
   warnLineSize -> SetLineStyle(7);
@@ -564,7 +564,8 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   h1_packet_length[start[2]]->GetXaxis()->SetTitleSize(tsize-.01);
   h1_packet_length[start[2]]->GetYaxis()->SetTitleSize(tsize);
   h1_packet_length[start[2]]->GetXaxis()->SetTitleOffset(1);
-  h1_packet_length[start[2]]->GetYaxis()->SetTitleOffset(0.8);
+  h1_packet_length[start[2]]->GetYaxis()->SetTitleOffset(0.9);
+  h1_packet_length[start[2]]->GetYaxis()->SetRangeUser(0,10000);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
   gPad->SetRightMargin(0.05);
@@ -1135,9 +1136,9 @@ std::vector<int> CemcMonDraw::getBadPackets(TH1 *hist, int what, float cutoff)
   
   for(int i = 1; i < hist -> GetNbinsX(); i++)
     {
-      if(hist -> GetBinContent(i) < params[what]*cutoff &&  !(((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
+      if((hist -> GetBinContent(i) < params[what]*cutoff ||  hist -> GetBinContent(i) > params[what]) &&  !(((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
       
-      else if(hist -> GetBinContent(i) < params2[what]*cutoff &&  (((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
+      else if((hist -> GetBinContent(i) < params2[what]*cutoff || hist -> GetBinContent(i) > params2[what]) &&  (((6000 + i - 2.)/4.) == floor(((6000 + i - 2)/4))) ) badpacks.push_back(i+6000);
     }
   
   return badpacks;
