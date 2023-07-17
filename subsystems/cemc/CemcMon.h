@@ -42,6 +42,7 @@ class CemcMon : public OnlMon
   const int packethigh = 6128;
   const int m_nSamples = 16;
   const int m_nChannels = 192;
+  const int templateDepth = 10000;
   int eventCounter = 0;
   
   TH1* h1_packet_chans = nullptr;
@@ -51,7 +52,7 @@ class CemcMon : public OnlMon
   TH1* h1_cemc_fitting_pedDiff = nullptr;
   TH1* h1_cemc_fitting_timeDiff = nullptr;
   TH2* h2_cemc_hits = nullptr;
-  TH1* h1_waveform_twrAvg = nullptr;
+  TH2* h2_waveform_twrAvg = nullptr;
   TH1* h1_waveform_time = nullptr;
   TH1* h1_waveform_pedestal = nullptr;
   TH2* h2_cemc_rm = nullptr;

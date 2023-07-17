@@ -169,11 +169,17 @@ public:
 
 
 private:
+  int Read_Charge_Calib( const char *calfname );
+  int Read_TQ_T0_Offsets( const char *calfname );
+  float gaincorr[128] {};         // gain corrections
+  float tq_t0_offsets[128] {};    // t0 offsets in charge channels
+  float bz_offset{0.};
 
   static const int NCH = 256;
   static const int NSAMPLES = 31;
   static const int NCHPERPKT = 128;
 
+  int verbose;
   int EventNumber;
   int calib_done;
   Packet *p[2] {nullptr,nullptr} ;
@@ -186,7 +192,7 @@ private:
 
   std::vector<OnlBbcSig> bbcsig;
   
-  static const int BBC_N_PMT = 256;
+  static const int BBC_N_PMT = 128;
 
   // converted (corrected) data
   int iHit[BBC_N_PMT];
@@ -225,6 +231,7 @@ private:
   TH2 *h2_tmax[2] = {};  // [0 == time ch, 1 == chg ch], max sample in evt vs ch
 
   float TRIG_SAMP[16];  // [board]
+  float bbc_tq_t0_offsets[BBC_N_PMT] = {};
 
   TCanvas *ac;
   /*

@@ -17,7 +17,7 @@ void cemcDrawInit(const int online = 0)
       cl->registerHisto("h2_cemc_rm", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h2_cemc_mean", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_event", Form("CEMCMON_%d",serverid));
-      cl->registerHisto("h1_waveform_twrAvg", Form("CEMCMON_%d",serverid));
+      cl->registerHisto("h2_waveform_twrAvg", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_waveform_time", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_waveform_pedestal", Form("CEMCMON_%d",serverid));
       cl->registerHisto("h1_fitting_sigDiff",Form("CEMCMON_%d",serverid));

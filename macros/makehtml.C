@@ -44,8 +44,7 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   }
   else if (subsystem == "INTTMON")
   {
-    std::cout << "INTT html output not implemented" << std::endl;
-    gSystem->Exit(1);
+    drawer = new InttMonDraw("INTTMONDRAW");
   }
   else if (subsystem == "LL1MON")
   {
@@ -89,7 +88,6 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
     gSystem->Exit(1);
   }
   cl->Verbosity(1);
-  cl->Draw();
   cl->MakeHtml();
   delete cl;
   gSystem->Exit(0);

@@ -19,8 +19,11 @@
 #include "OnlBbcEvent.h"
 #include "OnlBbcSig.h"
 
+#include <bbc/BbcGeomV1.h>
+
 #include <TH1.h>
 #include <TH2.h>
+#include <TH2Poly.h>
 #include <TString.h>
 #include <TGraphErrors.h>
 
@@ -49,6 +52,7 @@ BbcMon::BbcMon(const std::string &name)
 BbcMon::~BbcMon()
 {
   delete bevt;
+  delete bbcgeom;
   return;
 }
 
@@ -60,6 +64,7 @@ int BbcMon::Init()
 
   bevt = new OnlBbcEvent();
 
+  /*
   // read our calibrations from BbcMonData.dat
   const char *bbccalib = getenv("BBCCALIB");
   if (!bbccalib)
@@ -67,9 +72,9 @@ int BbcMon::Init()
     std::cout << "BBCCALIB environment variable not set" << std::endl;
     exit(1);
   }
-  std::string fullfile = std::string(bbccalib) + "/" + "BbcMonData.dat";
-  std::ifstream calib(fullfile);
-  calib.close();
+  std::string gainfile = std::string(bbccalib) + "/" + "bbc_mip.calib";
+  Read_Charge_Calib( gainfile );
+  */
 
   // Book Histograms
   std::ostringstream name, title;
@@ -200,8 +205,8 @@ int BbcMon::Init()
   bbc_prescale_hist = new TH1F("bbc_prescale_hist", "", 100, 0, 100);
 
   // waveforms
-  bbc_time_wave = new TH2F("bbc_time_wave","time waveforms vs ch",bbc_onlmon::BBC_NSAMPLES,-0.5,bbc_onlmon::BBC_NSAMPLES-0.5,128,0,128);
-  bbc_charge_wave = new TH2F("bbc_charge_wave","charge waveforms vs ch",bbc_onlmon::BBC_NSAMPLES,-0.5,bbc_onlmon::BBC_NSAMPLES-0.5,128,0,128);
+  bbc_time_wave = new TH2F("bbc_time_wave","time waveforms by ch",bbc_onlmon::BBC_NSAMPLES,-0.5,bbc_onlmon::BBC_NSAMPLES-0.5,128,0,128);
+  bbc_charge_wave = new TH2F("bbc_charge_wave","charge waveforms by ch",bbc_onlmon::BBC_NSAMPLES,-0.5,bbc_onlmon::BBC_NSAMPLES-0.5,128,0,128);
 
   bbc_time_wave->GetXaxis()->SetTitle("Sample");
   bbc_time_wave->GetYaxis()->SetTitle("Ch");
@@ -215,6 +220,65 @@ int BbcMon::Init()
   bbc_charge_wave->GetYaxis()->SetTitleSize(0.05);
   bbc_charge_wave->GetXaxis()->SetTitleOffset(0.70);
   bbc_charge_wave->GetYaxis()->SetTitleOffset(1.75);
+
+  // hitmaps
+  bbc_south_hitmap = new TH2Poly();
+  bbc_south_hitmap->SetName( "bbc_south_hitmap" );
+  bbc_south_hitmap->SetTitle( "BBC/MBD South Hitmap" );
+  bbc_south_hitmap->GetXaxis()->SetTitle("x (cm)");
+  bbc_south_hitmap->GetYaxis()->SetTitle("y (cm)");
+  bbc_south_hitmap->GetXaxis()->SetTitleSize(0.05);
+  bbc_south_hitmap->GetYaxis()->SetTitleSize(0.05);
+  bbc_south_hitmap->GetXaxis()->SetTitleOffset(0.70);
+  bbc_south_hitmap->GetYaxis()->SetTitleOffset(0.70);
+  bbc_south_hitmap->SetMinimum(0.1);
+
+  bbc_north_hitmap = new TH2Poly();
+  bbc_north_hitmap->SetName( "bbc_north_hitmap" );
+  bbc_north_hitmap->SetTitle( "BBC/MBD North Hitmap" );
+  bbc_north_hitmap->GetXaxis()->SetTitle("x (cm)");
+  bbc_north_hitmap->GetYaxis()->SetTitle("y (cm)");
+  bbc_north_hitmap->GetXaxis()->SetTitleSize(0.05);
+  bbc_north_hitmap->GetYaxis()->SetTitleSize(0.05);
+  bbc_north_hitmap->GetXaxis()->SetTitleOffset(0.70);
+  bbc_north_hitmap->GetYaxis()->SetTitleOffset(0.70);
+  bbc_north_hitmap->SetMinimum(0.1);
+
+  // Get the detector geometry
+  bbcgeom = new BbcGeomV1{};
+  Double_t x[6];    // x,y location of the 6 points of the BBC hexagonal PMT's, in cm
+  Double_t y[6];
+  for (int ipmt=0; ipmt<128; ipmt++)
+  {
+    float xcent = bbcgeom->get_x(ipmt);
+    float ycent = bbcgeom->get_y(ipmt);
+    int arm = bbcgeom->get_arm(ipmt);
+    std::cout << ipmt << "\t" << xcent << "\t" << ycent << std::endl;
+
+    // create hexagon
+    x[0] = xcent - 0.8; // in cm
+    y[0] = ycent + 1.4;
+    x[1] = xcent + 0.8;
+    y[1] = ycent + 1.4;
+    x[2] = xcent + 1.6;
+    y[2] = ycent;
+    x[3] = xcent + 0.8;
+    y[3] = ycent - 1.4;
+    x[4] = xcent - 0.8;
+    y[4] = ycent - 1.4;
+    x[5] = xcent - 1.6;
+    y[5] = ycent;
+
+    if ( arm==0 )
+    {
+      bbc_south_hitmap->AddBin(6,x,y);
+    }
+    else if ( arm==1 )
+    {
+      bbc_north_hitmap->AddBin(6,x,y);
+    }
+
+  }
 
 
   // register histograms with server otherwise client won't get them
@@ -239,6 +303,8 @@ int BbcMon::Init()
   se->registerHisto(this, bbc_south_hittime);
   se->registerHisto(this, bbc_north_chargesum);
   se->registerHisto(this, bbc_south_chargesum);
+  se->registerHisto(this, bbc_north_hitmap);
+  se->registerHisto(this, bbc_south_hitmap);
   /*
   se->registerHisto(this, bbc_tmax[0]);
   se->registerHisto(this, bbc_tmax[1]);
@@ -255,13 +321,13 @@ int BbcMon::Init()
   return 0;
 }
 
-int BbcMon::BeginRun(const int /* runno */)
+int BbcMon::BeginRun(const int runno)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
+  std::cout << "BbcMon::BeginRun(), run " << runno << std::endl;
   Reset();
   bevt->InitRun();
-  
 
   return 0;
 }
@@ -339,7 +405,7 @@ int BbcMon::process_event(Event *evt)
 
   bbc_nevent_counter->Fill(1);
 
-  double zvtx = bevt->get_bbcz() - 12;
+  double zvtx = bevt->get_bbcz();
   double t0 = bevt->get_t0();
   double qsum[2] = {0,0};
   qsum[0] = bevt->getChargeSum(0);
@@ -406,8 +472,24 @@ int BbcMon::process_event(Event *evt)
     y = gwave->GetY();
     for (int isamp=0; isamp<n; isamp++)
     {
-      bbc_time_wave->Fill( x[isamp], ipmt, y[isamp] );
+      bbc_charge_wave->Fill( x[isamp], ipmt, y[isamp] );
     }
+
+    // hit map
+    float xcent = bbcgeom->get_x(ipmt);
+    float ycent = bbcgeom->get_y(ipmt);
+    int arm = bbcgeom->get_arm(ipmt);
+    float q = bevt->getQ(ipmt);
+
+    if ( arm==0 )
+    {
+      bbc_south_hitmap->Fill( xcent, ycent, q );
+    }
+    else if ( arm==1 )
+    {
+      bbc_north_hitmap->Fill( xcent, ycent, q );
+    }
+
   }
 
   delete p[0];
@@ -461,3 +543,4 @@ int BbcMon::DBVarInit()
   */
   return 0;
 }
+

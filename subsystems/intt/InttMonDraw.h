@@ -23,6 +23,7 @@
 
 #include <cctype>
 #include <cmath>
+#include <ctime>
 
 #include <fstream>
 #include <iostream>
@@ -33,13 +34,13 @@
 class InttMonDraw : public OnlMonDraw
 {
 public:
-	InttMonDraw(const std::string &name);
+	InttMonDraw(std::string const&);
 	~InttMonDraw() override;
 
 	int Init() override;
-	int Draw(const std::string &what = "ALL") override;
-	int MakeHtml(const std::string &what = "ALL") override;
-        int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
+	int Draw(std::string const& = "ALL") override;
+	int MakeHtml(std::string const& = "ALL") override;
+	int SavePlot(std::string const& = "ALL", std::string const& = "png") override;
 
 	typedef void(*HeadFunc_t)(std::string const&);
 	typedef void(*GlobalHistsPrepFunc_t)(std::string const&, TH2D**);

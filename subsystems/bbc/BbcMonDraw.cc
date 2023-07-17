@@ -152,7 +152,8 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(TextZvtx);
   ifdelete(TextZvtxNorth);
   ifdelete(TextZvtxSouth);
-  ifdelete(TextZVtxStatus[0]);
+  ifdelete(TextZvtxStatus[0]);
+  ifdelete(TextZvtxStatus[1]);
 
   ifdelete(ArmHit);
   ifdelete(TextArmHit);
@@ -184,8 +185,8 @@ BbcMonDraw::~BbcMonDraw()
     ifdelete(TextZVertex_mean[i]);
   }
   ifdelete( FitZvtx );
-  ifdelete( TextZVtxStatus[0] );
-  //delete TextZVtxStatus[1];
+  ifdelete( TextZvtxStatus[0] );
+  ifdelete( TextZvtxStatus[1] );
 
   for (int icv=0; icv<nCANVAS; icv++)
   {
@@ -262,8 +263,8 @@ int BbcMonDraw::Init()
   memset(TextZVertex_mean, 0, sizeof(TextZVertex_mean));
 
   FitZvtx = new TF1("FitZvtx", "gaus");
-  TextZVtxStatus[0] = new TLatex;
-  //TextZVtxStatus[1] = new TLatex;
+  TextZvtxStatus[0] = new TLatex;
+  TextZvtxStatus[1] = new TLatex;
 
   tspec = new TSpectrum(5);  // 5 peaks is enough - we have 4
 
@@ -394,12 +395,16 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     PadTop[0] = new TPad("PadTop0", "PadTop0", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
     PadZVertex = new TPad("PadZVertex", "PadZVertex", 0.00, 0.60, 1.00, 0.90, 0, 0, 0);
     PadZVertexSummary = new TPad("PadZVertexSummary", "PadZVertexSummary", 0.00, 0.40, 1.00, 0.60, 0, 0, 0);
-    PadTzeroZVertex = new TPad("PadTzeroZVertex", "PadTzeroZVertex", 0.00, 0.00, 1.00, 0.40, 0, 0, 0);
+    PadSouthHitMap = new TPad("PadSouthHitMap", "PadSouthHitMap", 0.00, 0.00, 0.495, 0.40, 0, 0, 0);
+    PadNorthHitMap = new TPad("PadNorthHitMap", "PadNorthHitMap", 0.505, 0.00, 1.0, 0.40, 0, 0, 0);
+    //PadTzeroZVertex = new TPad("PadTzeroZVertex", "PadTzeroZVertex", 0.00, 0.00, 1.00, 0.40, 0, 0, 0);
 
     PadTop[0]->Draw();
     // PadZVertex->SetLogy();
     PadZVertex->Draw();
-    PadTzeroZVertex->Draw();
+    //PadTzeroZVertex->Draw();
+    PadSouthHitMap->Draw();
+    PadNorthHitMap->Draw();
     PadZVertexSummary->Draw();
 
     PadZVertexSummary->cd();
@@ -431,6 +436,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     transparent[0]->SetFillStyle(4000);
     transparent[0]->Draw();
 
+    /*
     ifnew(TLine(bbc_onlmon::BBC_MIN_REGULAR_ZVERTEX_MEAN, -6,
                 bbc_onlmon::BBC_MIN_REGULAR_ZVERTEX_MEAN, 16),
           LineTzeroZvtx[0]);
@@ -444,6 +450,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
                 200, bbc_onlmon::BBC_MAX_REGULAR_TDC1_MEAN - 5),
           LineTzeroZvtx[3]);
     ifnew(TText, TextTzeroZvtx);
+    */
   }
 
   else if (name == "BbcMon2")
@@ -454,21 +461,21 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     gSystem->ProcessEvents();
     TC[1]->cd();
     PadTop[1] = new TPad("PadTop1", "PadTop1", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
-    PadArmHit = new TPad("PadArmHit", "PadArmHit", 0.50, 0.00, 1.00, 0.40, 0, 0, 0);
+    PadTimeWave = new TPad("PadTimeWave", "PadTimeWave", 0.00, 0.30, 1.00, 0.90, 0, 0, 0);
     PadSouthHitTime = new TPad("PadHitTimeSouth1", "PadHitTimeSouth1", 0.00, 0.00, 0.50, 0.30, 0, 0, 0);
     PadNorthHitTime = new TPad("PadHitTimeNorth1", "PadHitTimeNorth1", 0.50, 0.00, 1.00, 0.30, 0, 0, 0);
 
-    PadTimeWave = new TPad("PadTimeWave", "PadTimeWave", 0.00, 0.30, 1.00, 1.00, 0, 0, 0);
+    //PadArmHit = new TPad("PadArmHit", "PadArmHit", 0.50, 0.00, 1.00, 0.40, 0, 0, 0);
     //PadBbcSummary = new TPad("PadBbcSummary", "PadBbcSummary", 0.00, 0.40, 1.00, 0.55, 0, 0, 0);
     //PadAvrHitTime = new TPad("PadAvrHitTime", "PadAvrHitTime", 0.00, 0.00, 0.50, 0.40, 0, 0, 0);
 
-    PadArmHit->SetLogz();
+    //PadArmHit->SetLogz();
 
     PadTop[1]->Draw();
-    PadArmHit->Draw();
-    PadNorthHitTime->Draw();
-    PadSouthHitTime->Draw();
     if (PadTimeWave)   PadTimeWave->Draw();
+    if (PadNorthHitTime) PadNorthHitTime->Draw();
+    if (PadSouthHitTime) PadSouthHitTime->Draw();
+    if (PadArmHit) PadArmHit->Draw();
     if (PadBbcSummary) PadBbcSummary->Draw();
     if (PadAvrHitTime) PadAvrHitTime->Draw();
 
@@ -820,6 +827,8 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_prescale_hist{nullptr};
   TH2 *bbc_time_wave{nullptr};
   TH2 *bbc_charge_wave{nullptr};
+  TH2 *bbc_south_hitmap{nullptr};
+  TH2 *bbc_north_hitmap{nullptr};
 
   ClearWarning();
 
@@ -934,6 +943,14 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(ChargeWave);
   ChargeWave = static_cast<TH2 *>(bbc_charge_wave->Clone());
 
+  bbc_south_hitmap = static_cast<TH2 *>( cl->getHisto("BBCMON_0","bbc_south_hitmap") );
+  ifdelete(SouthHitMap);
+  SouthHitMap = static_cast<TH2 *>(bbc_south_hitmap->Clone());
+
+  bbc_north_hitmap = static_cast<TH2 *>( cl->getHisto("BBCMON_0","bbc_north_hitmap") );
+  ifdelete(NorthHitMap);
+  NorthHitMap = static_cast<TH2 *>(bbc_north_hitmap->Clone());
+
   PRINT_DEBUG("Start Creating graphs");
 
   // Create HitTime projection ------------------------------------------
@@ -970,7 +987,7 @@ int BbcMonDraw::Draw(const std::string &what)
   double pmt[nPMT_1SIDE_BBC] = {0.};
   double zero[nPMT_1SIDE_BBC] = {0.};
   double nhitPmt[nTRIGGER][nSIDE][nPMT_1SIDE_BBC];
-  double nhit_total = bbc_nevent_counter->GetBinContent(1);
+  double nhit_total = bbc_nevent_counter->GetBinContent(2);
   double nhit[nTRIGGER];
   nhit[0] = bbc_nevent_counter->GetBinContent(2);
   nhit[1] = bbc_nevent_counter->GetBinContent(3);
@@ -1102,7 +1119,8 @@ int BbcMonDraw::Draw(const std::string &what)
     // Fit No-Vertex Distribution
     FitZvtx->SetRange(-75, 75);
     FitZvtx->SetLineColor(7);
-    Zvtx->Fit("FitZvtx", "LRQ");
+    //Zvtx->Fit("FitZvtx", "LRQ");
+    Zvtx->Fit("FitZvtx", "R");
 
     // here we get the relative scaling right to put all on the same plot
     // the binning might be different, so we first find the bins corresponding to
@@ -1232,26 +1250,22 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Draw Status
     otext.str("");
-    otext << " Z_{All Trigs}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 << " cm" << std::endl
+    otext << "Z_{All Trigs}^{Fit}= " << ((float) int(FitZvtx->GetParameter(1) * 10)) / 10.0 << " cm";
         //	      << " #pm " << ((float)int(FitZvtx->GetParError(1)*10))/10.0
-          <<  "                             #sigma = " << int(FitZvtx->GetParameter(2))
         //	      << " #pm " << ((float)int(FitZvtx->GetParError(2)*10))/10.0
-        << " cm";
 
     text = otext.str();
-    //TextZVtxStatus[0]->SetText(0.0, 0.85, text.c_str());
-    TextZVtxStatus[0]->SetText(-250, maxEntries*0.8, text.c_str());
-    TextZVtxStatus[0]->SetTextSize(0.12);
-    TextZVtxStatus[0]->Draw();
+    //TextZvtxStatus[0]->SetText(0.0, 0.85, text.c_str());
+    TextZvtxStatus[0]->SetText(-230., maxEntries*0.8, text.c_str());
+    TextZvtxStatus[0]->SetTextSize(0.10);
+    TextZvtxStatus[0]->Draw();
 
-    /*
-       text = textok;
-       TextZVtxStatus[1]->SetText(0.6, 0.85, text.c_str());
-       TextZVtxStatus[1]->SetText(0.0, 0.85, text.c_str());
-       TextZVtxStatus[1]->SetTextSize(0.12);
-       TextZVtxStatus[1]->SetTextColor(3);
-       TextZVtxStatus[1]->Draw();
-    */
+    otext.str("");
+    otext << "#sigma = " << int(FitZvtx->GetParameter(2)) << " cm";
+    text = otext.str();
+    TextZvtxStatus[1]->SetText(100., maxEntries*0.8, text.c_str());
+    TextZvtxStatus[1]->SetTextSize(0.10);
+    TextZvtxStatus[1]->Draw();
 
     //chiu TextBbcSummaryTrigRate->Draw();
 
@@ -1263,6 +1277,8 @@ int BbcMonDraw::Draw(const std::string &what)
       Zvtx_bbll1->Draw("hist");
     }
 
+    /*
+    // replaced with hitmap
     PadTzeroZVertex->cd();
     TzeroZvtx->Draw("colz");
 
@@ -1275,6 +1291,16 @@ int BbcMonDraw::Draw(const std::string &what)
     // insert text
     TextTzeroZvtx->SetText(10, 4, "Good region");
     TextTzeroZvtx->Draw();
+    */
+
+    double nevents = bbc_nevent_counter->GetBinContent(2);
+    PadSouthHitMap->cd();
+    SouthHitMap->Scale(1.0/nevents);
+    SouthHitMap->Draw("colz");
+
+    PadNorthHitMap->cd();
+    NorthHitMap->Scale(1.0/nevents);
+    NorthHitMap->Draw("colz");
   }
 
 
@@ -1384,9 +1410,11 @@ int BbcMonDraw::Draw(const std::string &what)
       SouthHitTime->Fit("FitSouthHitTime", "QRL");
       FitSouthHitTime->Draw("same");
 
-      float height = SouthHitTime->GetMaximum();
       FitSouthHitTime->Draw("same");
 
+      /*
+      // Lines to indicate good mean
+      float height = SouthHitTime->GetMaximum();
       LineSouthHitTime[1]->SetY2(height);
       LineSouthHitTime[0]->SetY2(height);
       ArrowSouthHitTime->SetY1(height * 0.90);
@@ -1396,6 +1424,7 @@ int BbcMonDraw::Draw(const std::string &what)
       LineSouthHitTime[1]->Draw();
       ArrowSouthHitTime->Draw();
       TextSouthHitTime->Draw();
+      */
     }
 
     if (PadNorthHitTime)
@@ -1434,9 +1463,11 @@ int BbcMonDraw::Draw(const std::string &what)
       NorthHitTime->Fit("FitNorthHitTime", "QRL");
       FitNorthHitTime->Draw("same");
 
-      float height = NorthHitTime->GetMaximum();
       FitNorthHitTime->Draw("same");
 
+      /*
+      // Lines to indicate good mean
+      float height = NorthHitTime->GetMaximum();
       LineNorthHitTime[1]->SetY2(height);
       LineNorthHitTime[0]->SetY2(height);
       ArrowNorthHitTime->SetY1(height * 0.90);
@@ -1446,8 +1477,10 @@ int BbcMonDraw::Draw(const std::string &what)
       LineNorthHitTime[1]->Draw();
       ArrowNorthHitTime->Draw();
       TextNorthHitTime->Draw();
+      */
     }
 
+    /*
     PadArmHit->cd();
     if (ArmHit)
     {
@@ -1455,6 +1488,7 @@ int BbcMonDraw::Draw(const std::string &what)
       ArcArmHit->Draw();
       TextArmHit->Draw();
     }
+    */
 
     if ( PadBbcSummary )
     {

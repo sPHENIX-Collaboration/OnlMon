@@ -23,6 +23,7 @@ using namespace std;
 //static const float C = GSL_CONST_CGS_SPEED_OF_LIGHT / 1e9;
 
 OnlBbcEvent::OnlBbcEvent(void) :
+  verbose(0),
   EventNumber(0),
   calib_done(0),
   p{nullptr,nullptr},
@@ -67,15 +68,28 @@ OnlBbcEvent::OnlBbcEvent(void) :
 
   gaussian = nullptr;
 
+  // read in our calibrations
+  const char *bbccalib = getenv("BBCCALIB");
+  if (!bbccalib)
+  {
+    std::cout << "BBCCALIB environment variable not set" << std::endl;
+    exit(1);
+  }
+  std::string gainfile = std::string(bbccalib) + "/" + "bbc_mip.calib";
+  Read_Charge_Calib( gainfile.c_str() );
+
+  std::string tq_t0_offsetfile = std::string(bbccalib) + "/" + "bbc_tq_t0.calib";
+  Read_TQ_T0_Offsets( tq_t0_offsetfile.c_str() );
+
+  std::string mondata_fname = std::string(bbccalib) + "/" + "BbcMonData.dat";
+  ifstream mondatafile( mondata_fname );
+  string label;
+  mondatafile >> label >> bz_offset;
+  std::cout << label << "\t" << bz_offset << std::endl;
+  mondatafile.close();
+  
   Clear();
 
-  /*
-  if ( verbose )
-  {
-    ac = new TCanvas("ac","ac",550*1.5,425*1.5);
-    ac->Divide(2,1);
-  }
-  */
 }
 
 ///
@@ -226,16 +240,14 @@ int OnlBbcEvent::calculate()
     h2_tmax[tq]->Fill(x,pmtch);
   }
 
-  std::vector<float> hit_times[2];  // times of the hits in each [arm]
-  
-  if ( h2_tmax[0]->GetEntries() == 128*100 )
+  if ( h2_tmax[1]->GetEntries() == 128*100 )
   {
     TString name;
     TH1 *h_trigsamp[16]{};
     for (int iboard=0; iboard<16; iboard++)
     {
       name = "h_trigsamp"; name += iboard;
-      h_trigsamp[iboard] = h2_tmax[0]->ProjectionX( name, iboard*8 + 1, (iboard+1)*8 );
+      h_trigsamp[iboard] = h2_tmax[1]->ProjectionX( name, iboard*8 + 1, (iboard+1)*8 );
       int maxbin = h_trigsamp[iboard]->GetMaximumBin();
       TRIG_SAMP[iboard] = h_trigsamp[iboard]->GetBinCenter( maxbin );
       //std::cout << "iboard " << iboard << "\t" << iboard*8+1 << "\t" << (iboard+1)*8 << "\t" << h_trigsamp[iboard]->GetEntries() << std::endl;
@@ -249,28 +261,15 @@ int OnlBbcEvent::calculate()
   {
     return 0;
   }
-
+  std::vector<float> hit_times[2];  // times of the hits in each [arm]
+  
   //for (int ich=0; ich<NCH; ich++)
   for (int ich=0; ich<256; ich++)
   {
-    int arm = ich/128;    // south or north
     int board = ich/16;    // south or north
     //int quad = ich/64;    // quadrant
     int pmtch = (ich/16)*8 + ich%8;
     int tq = (ich/8)%2;   // 0 = T-channel, 1 = Q-channel
-
-    /*
-    // correct for offset of max samp
-    if ( board==15 || board==13 )
-    {
-      //if ( ich==255 ) cout << "trig_samp " << TRIG_SAMP << endl;
-      TRIG_SAMP = 16.;
-    }
-    else
-    {
-      TRIG_SAMP = 17.;
-    }
-    */
 
     if ( tq == 1 ) // Use dCFD method to get time for now in charge channels
     {
@@ -278,24 +277,11 @@ int OnlBbcEvent::calculate()
       //
       bbcsig[ich].GetSplineAmpl();
       Double_t threshold = 0.5;
-      //f_t0[ich] = bbcsig[ich].dCFD( threshold ) - (TRIG_SAMP - 2);
-      f_pmtt1[pmtch] = bbcsig[ich].dCFD( threshold ) - (TRIG_SAMP[board] - 2);
-      if ( board==10 || board==11 || board==14 )
-      {
-        //f_t0[ich] += 1;
-        f_pmtt1[pmtch] += 1;
-      }
-      else if ( board==13 )
-      {
-        //f_t0[ich] -= 1;
-        f_pmtt1[pmtch] -= 1;
-      }
-      //f_t0[ich] *= 17.7623;               // convert from sample to ns (1 sample = 1/56.299 MHz)
-      f_pmtt1[pmtch] *= 17.7623;               // convert from sample to ns (1 sample = 1/56.299 MHz)
-      f_ampl[ich] = bbcsig[ich].GetAmpl();
-      f_pmtq[pmtch] = f_ampl[ich]/100.; // for now, calibration is 100
+      f_pmtt1[pmtch] = bbcsig[ich].dCFD( threshold );
 
-      if ( f_ampl[ich]<40 || (f_pmtt1[pmtch]<-25.||f_pmtt1[pmtch]>25.) )
+      f_ampl[ich] = bbcsig[ich].GetAmpl();
+
+      if ( f_ampl[ich]<24 || ( fabs( f_pmtt1[pmtch] ) >25 ) )
       {
         //f_t0[ich] = -9999.;
         f_pmtt1[pmtch] = -9999.;
@@ -304,13 +290,13 @@ int OnlBbcEvent::calculate()
       {
         //if ( f_pmtt1[pmtch]<-50. && ich==255 ) cout << "hit_times " << ich << "\t" << f_pmtt1[pmtch] << endl;
         //if ( arm==1 ) cout << "hit_times " << ich << "\t" << setw(10) << f_pmtt1[pmtch] << "\t" << board << "\t" << TRIG_SAMP[board] << endl;
-        hit_times[arm].push_back( f_pmtt1[pmtch] );
-        hevt_bbct[arm]->Fill( f_pmtt1[pmtch] );
-        f_bbcn[arm]++;
-
-        ChargeSum[arm] += f_pmtq[pmtch]; // for now, calibration is 100
+        f_pmtt1[pmtch] -= (TRIG_SAMP[board] - 2);
+        f_pmtt1[pmtch] *= 17.7623;               // convert from sample to ns (1 sample = 1/56.299 MHz)
+        f_pmtt1[pmtch] = f_pmtt1[pmtch] - tq_t0_offsets[pmtch];
 
       }
+
+      f_pmtq[pmtch] = f_ampl[ich]*gaincorr[pmtch]; 
 
       if ( EventNumber<3 && ich==255 && f_ampl[ich] )
       {
@@ -322,9 +308,8 @@ int OnlBbcEvent::calculate()
       //Double_t threshold = 4.0*bbcsig[ich].GetPed0RMS();
       //Double_t threshold = 0.5
 
-      //const int TRIG_SAMP = 14;     // use this sample to get the time
       Double_t tdc = bbcsig[ich].MBD( TRIG_SAMP[board] );
-      f_ampl[ich] = bbcsig[ich].GetSplineAmpl();
+      //Double_t ampl = bbcsig[ich].GetSplineAmpl();
       //if ( ich==0 ) cout << "XXX " << tdc << endl;
 
       if ( tdc<100 )
@@ -346,31 +331,61 @@ int OnlBbcEvent::calculate()
 
   //cout << "nhits " << f_bbcn[0] << "\t" << f_bbcn[1] << endl;
   //cout << "bbcte " << f_bbcte[0] << "\t" << f_bbcte[1] << endl;
+ 
+  // calculate bbc global variables
+  for (int ipmt=0; ipmt<BBC_N_PMT; ipmt++)
+  {
+    int arm = ipmt/64;
+
+    //if ( f_q[ipmt] > 20 && f_tq[ipmt] > 0. && f_tq[ipmt] < 35. )
+    //if ( f_tq[ipmt] > 0. && f_tq[ipmt] < 35. )
+    if ( fabs(f_pmtt1[ipmt]) < 25. )
+    {
+      hit_times[arm].push_back( f_pmtt1[ipmt] );
+      hevt_bbct[arm]->Fill( f_pmtt1[ipmt] );
+
+      f_bbcn[arm]++;
+      ChargeSum[arm] += f_pmtq[ipmt]; // for now, calibration is 100
+
+    }
+
+  }
+
 
   for (int iarm = 0; iarm < 2; iarm++)
   {
     if ( hit_times[iarm].empty() )
     {
-        //cout << "hit_times size == 0" << endl;
-        continue;
+      //cout << "hit_times size == 0" << endl;
+      continue;
     }
 
     //cout << "EARLIEST " << iarm << endl;
     //cout << "ERROR hit_times size == " << hit_times[iarm].size() << endl;
 
-    //std::sort(hit_times[iarm].begin(), hit_times[iarm].end());
+    std::sort(hit_times[iarm].begin(), hit_times[iarm].end());
     float earliest = hit_times[iarm].at(0);
     //cout << "earliest" << iarm << "\t" << earliest << endl;
 
     gaussian->SetParameter(0, 5);
-    gaussian->SetParameter(1, earliest);
-    gaussian->SetRange(6, earliest + 5 * 0.05);
-    // gaussian->SetParameter(1,hevt_bbct[iarm]->GetMean());
-    // gaussian->SetRange(6,hevt_bbct[iarm]->GetMean()+0.125);
+    //gaussian->SetParameter(1, earliest);
+    //gaussian->SetRange(6, earliest + 5 * 0.05);
+    gaussian->SetParameter(1,hevt_bbct[iarm]->GetMean());
+    gaussian->SetParameter(2,hevt_bbct[iarm]->GetRMS());
+    gaussian->SetRange(hevt_bbct[iarm]->GetMean()-5,hevt_bbct[iarm]->GetMean()+5);
 
-    if ( ac ) ac->cd(iarm+1);
+    if ( verbose ) 
+    {
+      if ( ac == nullptr )
+      {
+        ac = new TCanvas("ac","ac",550*1.5,425*1.5);
+        ac->Divide(2,1);
+      }
+      ac->cd(iarm+1);
+    }
+
     hevt_bbct[iarm]->Fit(gaussian, "BNQLR");
-    //hevt_bbct[iarm]->Draw();
+    if ( verbose ) hevt_bbct[iarm]->Draw();
 
     // f_bbct[iarm] = f_bbct[iarm] / f_bbcn[iarm];
     f_bbct[iarm] = gaussian->GetParameter(1);
@@ -382,17 +397,21 @@ int OnlBbcEvent::calculate()
   // Get Zvertex, T0
   if (f_bbcn[0] > 0 && f_bbcn[1] > 0)
   {
-    /*
     // Now calculate zvtx, t0 from best times
-    cout << "t0\t" << f_bbct[0] << "\t" << f_bbct[1] << endl;
-    f_bbcz = (f_bbct[0] - f_bbct[1]) * C / 2.0;
+    if ( verbose>10 ) cout << "t0\t" << f_bbct[0] << "\t" << f_bbct[1] << endl;
+    f_bbcz = (f_bbct[0] - f_bbct[1]) * TMath::C() * 1e-7 / 2.0;   // in cm
     f_bbct0 = (f_bbct[0] + f_bbct[1]) / 2.0;
-    */
 
+    // correct z-vertex
+    f_bbcz += bz_offset;
+
+    /*
+    // Use earliest time
     //cout << "t0\t" << f_bbct[0] << "\t" << f_bbct[1] << endl;
     //cout << "te\t" << f_bbcte[0] << "\t" << f_bbcte[1] << endl;
     f_bbcz = (f_bbcte[0] - f_bbcte[1]) * TMath::C() * 1e-7 / 2.0; // in cm
     f_bbct0 = (f_bbcte[0] + f_bbcte[1]) / 2.0;
+    */
 
     //cout << "bbcz " << f_bbcz << endl;
     //_bbcout->set_Vertex(f_bbcz, 0.6);
@@ -402,4 +421,53 @@ int OnlBbcEvent::calculate()
 
   return 0;
 }
+
+
+int OnlBbcEvent::Read_Charge_Calib(const char *gainfname)
+{
+  std::ifstream gainfile( gainfname );
+
+  cout << "Reading gains from " << gainfname << endl;
+  int ch;
+  float integ, integerr;
+  float peak, peakerr;
+  float width, widtherr;
+  float chi2ndf;
+  while ( gainfile >> ch >> integ >> peak >> width >> integerr >> peakerr >> widtherr >> chi2ndf )
+  {
+    gaincorr[ch] = 1.0/peak;
+
+    //cout << ch << "\t" << peak << endl;
+  }
+
+  gainfile.close();
+
+  return 1;
+}
+
+// Read in tq t0 offset calibrations
+int OnlBbcEvent::Read_TQ_T0_Offsets(const char *t0cal_fname)
+{
+  ifstream tcalibfile( t0cal_fname );
+
+  cout << "Reading tq_t0 offset calibrations from " << t0cal_fname << endl;
+
+  int pmtnum;
+  float meanerr;
+  float sigma;
+  float sigmaerr;
+  for (int ipmt=0; ipmt<BBC_N_PMT; ipmt++)
+  {
+    tcalibfile >> pmtnum >> tq_t0_offsets[ipmt] >> meanerr >> sigma >> sigmaerr;
+    if ( pmtnum != ipmt )
+    {
+      cerr << "ERROR, pmtnum != ipmt, " << pmtnum << "\t" << ipmt << endl;
+    }
+  }
+
+  tcalibfile.close();
+
+  return 1;
+}
+
 

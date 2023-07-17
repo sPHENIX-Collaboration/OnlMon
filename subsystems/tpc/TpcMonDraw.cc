@@ -576,6 +576,7 @@ int TpcMonDraw::DrawTPCSampleSize(const std::string & /* what */)
       TC[4]->cd(i+5);
       tpcmon_samplesizedist[i]->DrawCopy("");
       gPad->SetLogx(kTRUE);
+      gPad->SetLogy(kTRUE);
     }
   }
 

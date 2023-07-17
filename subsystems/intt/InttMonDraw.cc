@@ -79,24 +79,28 @@ int InttMonDraw::Draw(const std::string &what)
 		for(Options_t::iterator itr = OPTIONS.begin(); itr != OPTIONS.end(); ++itr)
 		{
 			std::cout << "\t" << itr->first << std::endl;
+
+			return 1;
 		}
 	}
 
 	return 0;
 }
 
-int InttMonDraw::SavePlot(const std::string &what, const std::string &type)
+int InttMonDraw::MakeHtml(const std::string &what)
 {
 	OnlMonClient* cl = OnlMonClient::instance();
 	if(Draw(what))return 1;
 
+	TSeqCollection* canvases = gROOT->GetListOfCanvases();
 	TCanvas* canvas = nullptr;
-	std::ostringstream filename;
+	std::string pngfile;
 
 	bool b = false;
 	bool found = false;
 
 	std::string temp = "";
+	std::string name = "";
 	for(std::size_t s = 0; s < what.length(); ++s)
 	{
 		temp += (char)std::tolower(what[s]);
@@ -112,11 +116,20 @@ int InttMonDraw::SavePlot(const std::string &what, const std::string &type)
 
 		found = true;
 
-		filename << ThisName << "_" <<  itr->first << "_" << cl->RunNumber() << "." + type;
-		canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
-		if(canvas)canvas->Print(filename.str().c_str());
-		if(canvas)cl->CanvasToPng(canvas, cl->htmlRegisterPage(*this, itr->first, itr->first, "png"));
-		//needs attention
+		canvas = nullptr;
+		name = Form("Intt_%s_Global_Canvas", (itr->first).c_str());
+		for(TIter t_itr = canvases->begin(); t_itr != canvases->end(); ++t_itr)
+		{
+			if(std::string((*t_itr)->GetName()).find(name) == std::string::npos)continue;
+
+			canvas = (TCanvas*)(*t_itr);
+			break;
+		}
+
+		if(!canvas)continue;
+
+		pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), itr->first, "png");
+		cl->CanvasToPng(canvas, pngfile);
 	}
 
 	if(!found)
@@ -129,20 +142,39 @@ int InttMonDraw::SavePlot(const std::string &what, const std::string &type)
 		}
 	}
 
+	std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+	std::ofstream log_out(logfile.c_str());
+	log_out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber();
+	log_out << "</TITLE></HEAD>" << std::endl;
+	log_out << "<P>[Implement me]" << std::endl;
+	log_out.close();
+
+	std::string stsfile = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
+	std::ofstream sts_out(stsfile.c_str());
+	sts_out << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber();
+	sts_out << "</TITLE></HEAD>" << std::endl;
+	sts_out << "<P>[Implement me]" << std::endl;
+	sts_out.close();
+
+	cl->SaveLogFile(*this);
+
 	return 0;
 }
 
-int InttMonDraw::MakeHtml(const std::string &what)
+int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
 {
 	OnlMonClient* cl = OnlMonClient::instance();
 	if(Draw(what))return 1;
 
+	TSeqCollection* canvases = gROOT->GetListOfCanvases();
 	TCanvas* canvas = nullptr;
+	std::ostringstream filename;
 
 	bool b = false;
 	bool found = false;
 
 	std::string temp = "";
+	std::string name = "";
 	for(std::size_t s = 0; s < what.length(); ++s)
 	{
 		temp += (char)std::tolower(what[s]);
@@ -158,8 +190,21 @@ int InttMonDraw::MakeHtml(const std::string &what)
 
 		found = true;
 
-		canvas = (TCanvas*)gROOT->FindObject(Form("INTT_%s_Canvas", itr->first.c_str()));
-		if(canvas)cl->CanvasToPng(canvas, cl->htmlRegisterPage(*this, itr->first, itr->first, "png"));
+		canvas = nullptr;
+		name = Form("Intt_%s_Global_Canvas", (itr->first).c_str());
+		for(TIter t_itr = canvases->begin(); t_itr != canvases->end(); ++t_itr)
+		{
+			if(std::string((*t_itr)->GetName()).find(name) == std::string::npos)continue;
+
+			canvas = (TCanvas*)(*t_itr);
+			break;
+		}
+
+		if(!canvas)continue;
+
+		filename.clear();
+		filename << ThisName << "_" <<  itr->first << "_" << cl->RunNumber() << "." << type;
+		cl->CanvasToPng(canvas, filename.str());
 	}
 
 	if(!found)
@@ -262,16 +307,42 @@ void InttMonDraw::DrawGlobalChipMap(std::string const& option)
 			DISP_FRAC
 		);
 		DrawPad(cnvs, disp_pad);
+
 		TText* disp_text = new TText
 		(
 			0.5,
-			0.5,
+			0.80,
 			Form("Layer: %2d Ladder: %2d (%s) Chip: %2d", INTT::LAYER_OFFSET, 0, "South", INTT::CHIP_OFFSET)
 		);
 		disp_text->SetName(Form("Intt_%s_Global_DispText", option.c_str()));
 		disp_text->SetTextAlign(22);
 		disp_text->SetTextSize(DISP_TEXT_SIZE);
 		disp_text->Draw();
+
+		OnlMonClient* cl = OnlMonClient::instance();
+		TText* run_text = new TText
+		(
+			0.5,
+			0.50,
+			Form("Run: %08d", cl->RunNumber())
+		);
+		run_text->SetName(Form("Intt_%s_Global_RunText", option.c_str()));
+		run_text->SetTextAlign(22);
+		run_text->SetTextSize(DISP_TEXT_SIZE);
+		run_text->Draw();
+
+		std::time_t now = std::time(nullptr);
+		struct std::tm* time_s = std::localtime(&now);
+		TText* time_text = new TText
+		(
+			0.5,
+			0.20,
+			Form("%02d/%02d/%4d (mm/dd/yyy)", time_s->tm_mon + 1, time_s->tm_mday, time_s->tm_year + 1900)
+		);
+		time_text->SetName(Form("Intt_%s_Global_TimeText", option.c_str()));
+		time_text->SetTextAlign(22);
+		time_text->SetTextSize(DISP_TEXT_SIZE);
+		time_text->Draw();
 	}
 
 	Options_t::const_iterator itr = OPTIONS.find(option);
@@ -733,16 +804,42 @@ void InttMonDraw::DrawGlobalLadderMap(std::string const& option)
 			DISP_FRAC
 		);
 		DrawPad(cnvs, disp_pad);
+
 		TText* disp_text = new TText
 		(
 			0.5,
-			0.5,
+			0.80,
 			Form("Layer: %2d Ladder: %2d (%s)", INTT::LAYER_OFFSET, 0, "South")
 		);
 		disp_text->SetName(Form("Intt_%s_Global_DispText", option.c_str()));
 		disp_text->SetTextAlign(22);
 		disp_text->SetTextSize(DISP_TEXT_SIZE);
 		disp_text->Draw();
+
+		OnlMonClient* cl = OnlMonClient::instance();
+		TText* run_text = new TText
+		(
+			0.5,
+			0.50,
+			Form("Run: %08d", cl->RunNumber())
+		);
+		run_text->SetName(Form("Intt_%s_Global_RunText", option.c_str()));
+		run_text->SetTextAlign(22);
+		run_text->SetTextSize(DISP_TEXT_SIZE);
+		run_text->Draw();
+
+		std::time_t now = std::time(nullptr);
+		struct std::tm* time_s = std::localtime(&now);
+		TText* time_text = new TText
+		(
+			0.5,
+			0.20,
+			Form("%02d/%02d/%4d (mm/dd/yyy)", time_s->tm_mon + 1, time_s->tm_mday, time_s->tm_year + 1900)
+		);
+		time_text->SetName(Form("Intt_%s_Global_TimeText", option.c_str()));
+		time_text->SetTextAlign(22);
+		time_text->SetTextSize(DISP_TEXT_SIZE);
+		time_text->Draw();
 	}
 
 	Options_t::const_iterator itr = OPTIONS.find(option);

@@ -75,7 +75,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   if (name == "HcalMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "HcalMon Example Monitor", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "Hcal Towers", xsize / 3, 0, xsize / 3, ysize * 0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -99,7 +99,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if (name == "HcalMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "HcalMon2 Example Monitor", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[1] = new TCanvas(name.c_str(), "Hcal Sector Running Mean", xsize / 3, 0, xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[2] = new TPad("hcalpad3", "who needs this?", 0.0, 0.0, 1, 0.92, 0);
     // Pad[3] = new TPad("hcalpad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
@@ -113,7 +113,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalMon3")
   {
-    TC[3] = new TCanvas(name.c_str(), "HcalMon3 Example Monitor", xsize / 3, 0, xsize / 3, ysize * 0.9);
+    TC[3] = new TCanvas(name.c_str(), "HcalMon3 Waveform Info", xsize / 3, 0, xsize / 3, ysize * 0.9);
     gSystem->ProcessEvents();
     Pad[6] = new TPad("hcalpad6", "who needs this?", 0.0, 0.6, 1.0, 0.95, 0);
     Pad[7] = new TPad("hcalpad7", "who needs this?", 0.0, 0.3, 1.0, 0.6, 0);
@@ -516,7 +516,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   Pad[6]->cd();
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_hcal_waveform->ProfileX()->GetMaximum();
-  h2_hcal_waveform->GetYaxis()->SetRangeUser(0, ymaxp * 10);
+  h2_hcal_waveform->GetYaxis()->SetRangeUser(0, ymaxp * 20);
 
   h2_hcal_waveform->Draw("colz");
 

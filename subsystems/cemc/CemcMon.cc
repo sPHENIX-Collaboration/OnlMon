@@ -33,7 +33,7 @@ enum
     FILLMESSAGE = 2
   };
 
-const int depth = 50;
+const int depth = 10000;
 const int historyLength = 100;
 const float hit_threshold = 100;
 
@@ -97,7 +97,7 @@ int CemcMon::Init()
   h1_event = new TH1F("h1_event", "", 1, 0, 1);
 
   //waveform processing
-  h1_waveform_twrAvg = new TH1F("h1_waveform_twrAvg", "", 16, 0.5, 16.5);
+  h2_waveform_twrAvg = new TH2F("h2_waveform_twrAvg", "", 16, 0.5, 16.5, 10000,0,15000);
   h1_waveform_time = new TH1F("h1_waveform_time", "", 16, 0.5, 16.5);
   h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 25, 1.3e3, 2.0e3);
   
@@ -159,7 +159,7 @@ int CemcMon::Init()
   se->registerHisto(this, h2_cemc_mean);
   se->registerHisto(this, h1_event);
   se->registerHisto(this, h1_sectorAvg_total);
-  se->registerHisto(this, h1_waveform_twrAvg);
+  se->registerHisto(this, h2_waveform_twrAvg);
   se->registerHisto(this, h1_waveform_time);
   se->registerHisto(this, h1_waveform_pedestal);
   se->registerHisto(this, h1_cemc_fitting_sigDiff);
@@ -210,6 +210,10 @@ int CemcMon::BeginRun(const int /* runno */)
   // reset the running means
   std::vector<runningMean*>::iterator rm_it;
   for ( rm_it = rm_vector.begin(); rm_it != rm_vector.end(); ++rm_it)
+    {
+      (*rm_it)->Reset();
+    }
+  for(rm_it = rm_vector_twr.begin(); rm_it != rm_vector_twr.end(); ++rm_it)
     {
       (*rm_it)->Reset();
     }
@@ -291,7 +295,7 @@ std::vector<float> CemcMon::anaWaveformTemp(Packet *p, const int channel)
 
 int CemcMon::process_event(Event *e  /* evt */)
 {
-  h1_waveform_twrAvg->Reset();  // only record the latest event waveform
+  h2_waveform_twrAvg->Reset();  // only record the latest event waveform
   float sectorAvg[Nsector] = {0};
   unsigned int towerNumber = 0;	
   // loop over packets which contain a single sector
@@ -317,18 +321,19 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      	      
 	      h1_packet_chans -> Fill(packet);
 	      
-	      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
-		{
-		  h1_waveform_twrAvg->Fill(s, p->iValue(s, c));
-		}
-	      towerNumber++;
-	      
 	      // std::vector result =  getSignal(p,c); // simple peak extraction
 	      std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
 	      float signalFast = resultFast.at(0);
 	      float timeFast = resultFast.at(1);
 	      float pedestalFast = resultFast.at(2);
 	
+	      for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
+		{
+		  h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+		}
+	      towerNumber++;
+	      
+	     
 	      
 	
 	
@@ -350,11 +355,11 @@ int CemcMon::process_event(Event *e  /* evt */)
 	      h2_cemc_rm->SetBinContent(bin, rm_vector_twr[towerNumber - 1]->getMean(0));
 		
 	      //create beginning of run template
-	      if(eventCounter < 10000)h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
+	      if(eventCounter < templateDepth /*&& signalFast > hit_threshold*/)h2_cemc_mean->SetBinContent(bin, h2_cemc_mean->GetBinContent(bin) + signalFast);
 
 	      h1_cemc_adc ->Fill(signalFast);
 	      
-	      if(!((eventCounter -2)% 5000))
+	      if(!((eventCounter - 2)% 5000))
 		{
 		  std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
 		  float signalTemp = resultTemp.at(0);
@@ -366,7 +371,8 @@ int CemcMon::process_event(Event *e  /* evt */)
 		}
 	      if (signalFast > hit_threshold)
 		{
-		  h2_cemc_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
+		  //h2_cemc_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
+		  h2_cemc_hits -> SetBinContent(bin, h2_cemc_hits -> GetBinContent(bin) + signalFast);
 		}
 	    }  // channel loop
 	  if(nChannels < m_nChannels)
@@ -452,7 +458,7 @@ int CemcMon::process_event(Event *e  /* evt */)
 
   h1_event->Fill(0);
   //h1_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
-  h1_waveform_twrAvg->Scale((float)1/towerNumber);
+  h2_waveform_twrAvg->Scale((float)1/towerNumber);
  
   return 0;
 }

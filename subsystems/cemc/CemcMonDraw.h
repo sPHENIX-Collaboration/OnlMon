@@ -38,6 +38,7 @@ class CemcMonDraw : public OnlMonDraw
 
   const int nTowersEta = 96;
   const int nTowersPhi = 256;
+  const int templateDepth=10000;
   int save = 0;
   TCanvas *TC[9] = {nullptr};
   TPad *transparent[9] = {nullptr};

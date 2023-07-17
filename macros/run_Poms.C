@@ -66,8 +66,9 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("INTT", "intt");
-  subsys->AddAction("inttDraw(\"chip_hitmap\")", "INTT Chip Hitmap");
-  subsys->AddAction("inttDraw(\"ladder_hitmap\")", "INTT ladder Hitmap");
+  subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
+  subsys->AddAction("inttDraw(\"ladder_hitmap\")", "Ladder Hitmap");
+  subsys->AddAction("inttDraw(\"chip_nll\")", "Chip NLL");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -94,7 +95,8 @@ void StartPoms()
   subsys->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
   subsys->AddAction("tpcDraw(\"TPCRAWADC1D\")", "TPC RAW ADC 1D");
   subsys->AddAction("tpcDraw(\"TPCMAXADC1D\")", "TPC (WindowMAX-Pedestal) ADC 1D");
-  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXY\")","TPC Cluster XY MaxADC");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYWEIGTHED\")","TPC Cluster XY MaxADC-Pedestal,w");
+  subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYUNWEIGTHED\")","TPC Cluster XY MaxADC-Pedestal,u");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 

@@ -27,6 +27,8 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_south_chargesum", "BBCMON_0");
   cl->registerHisto("bbc_time_wave", "BBCMON_0");
   cl->registerHisto("bbc_charge_wave", "BBCMON_0");
+  cl->registerHisto("bbc_south_hitmap", "BBCMON_0");
+  cl->registerHisto("bbc_north_hitmap", "BBCMON_0");
 
   cl->AddServerHost("localhost");  // check local host first
   CreateHostList(online);

@@ -7,8 +7,9 @@ class Event;
 //class OnlMonDB;
 class TH1;
 class TH2;
-class TRandom3;
+class TH2Poly;
 class OnlBbcEvent;
+class BbcGeom;
 
 class BbcMon : public OnlMon
 {
@@ -24,10 +25,13 @@ public:
 
 protected:
   int DBVarInit();
+
   OnlBbcEvent *bevt { nullptr };
 
   int evtcnt = 0;
   //OnlMonDB *dbvars = nullptr;
+
+  BbcGeom *bbcgeom = nullptr;   // contains positions of BBC PMTs
 
   TH2 *bbc_adc = nullptr;
   TH2 *bbc_tdc = nullptr;
@@ -56,7 +60,9 @@ protected:
   TH2 *bbc_charge_wave = nullptr;    // raw waveforms, charge ch
   //TH2 *bbc_trange = nullptr;       // subtracted tdc at maxsamp vs ch
 
-  //TRandom3 *trand3 = nullptr;
+  TH2Poly *bbc_south_hitmap = nullptr;    // hitmap
+  TH2Poly *bbc_north_hitmap = nullptr;    // hitmap
+
 };
 
 #endif /* BBC_BBCMON_H */

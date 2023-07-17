@@ -209,6 +209,15 @@ void OnlMonClient::registerHisto(const std::string &hname, const std::string &su
 
 int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
 {
+  std::string mysubsys = subsys.substr(0,subsys.find('_'));
+  for (auto frwrkiter : m_MonitorFetchedSet)
+  {
+    if (frwrkiter.find(mysubsys) == std::string::npos)
+      {
+	m_MonitorFetchedSet.clear();
+	break;
+      }
+  }
   int iret = 0;
   std::map<const std::string, ClientHistoList *>::const_iterator histoiter;
   std::map<const std::string, ClientHistoList *>::const_iterator histonewiter;

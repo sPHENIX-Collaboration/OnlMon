@@ -125,6 +125,12 @@ class BbcMonDraw : public OnlMonDraw
   TH2 *ChargeWave = nullptr;
   TPad *PadChargeWave = nullptr;
 
+  TH2 *SouthHitMap = nullptr;
+  TPad *PadSouthHitMap = nullptr;
+
+  TH2 *NorthHitMap = nullptr;
+  TPad *PadNorthHitMap = nullptr;
+
   TLine *LineTzeroZvtx[4] = {};
   TText *TextTzeroZvtx = nullptr;
 
@@ -142,7 +148,7 @@ class BbcMonDraw : public OnlMonDraw
   //  TH1 * Zvtx_zdc_scale3 = nullptr;
   TH1 *Zvtx_bbll1_novtx = nullptr;
   TH1 *Zvtx_bbll1_narrowvtx = nullptr;
-  //  TH1 * Zvtx_bbll1_zdc = nullptr;
+  //  TH1 * Zvtx_bbll1_zdc = nullptrNor;
   TPad *PadZvtx = nullptr;
   TF1 *FitZvtx = nullptr;
   TLine *LineZvtx[2] = {};
@@ -185,7 +191,7 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextZVertex_scale[5] = {};  // RUN11 pp
   TText *TextZVertex_mean[5] = {};   // RUN11 pp
 
-  TLatex *TextZVtxStatus[2] = {};
+  TLatex *TextZvtxStatus[2] = {};
 
   TH2 *TzeroZvtx = nullptr;
 
