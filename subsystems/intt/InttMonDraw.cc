@@ -168,7 +168,7 @@ int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
 
 	TSeqCollection* canvases = gROOT->GetListOfCanvases();
 	TCanvas* canvas = nullptr;
-	std::ostringstream filename;
+	std::string filename;
 
 	bool b = false;
 	bool found = false;
@@ -202,9 +202,8 @@ int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
 
 		if(!canvas)continue;
 
-		filename.clear();
-		filename << ThisName << "_" <<  itr->first << "_" << cl->RunNumber() << "." << type;
-		cl->CanvasToPng(canvas, filename.str());
+		filename = ThisName + "_" + itr->first + "_" + cl->RunNumber() + "." + type;
+		cl->CanvasToPng(canvas, filename);
 	}
 
 	if(!found)

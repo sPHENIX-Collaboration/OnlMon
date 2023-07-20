@@ -30,7 +30,7 @@ for my $subsys (@subsystems)
     my $lastrun = 0;
     for my $run (sort { $a <=> $b } keys %todoruns)
     {
-	if ($run < 100000) # tpot creates large bad runnumbers
+	if ($run < 80000) # tpot/intt creates large bad runnumbers
 	{
 	    my $listfile = sprintf("%s.list",$subsys);
 	    my $cmd = sprintf("ls -1 /sphenix/lustre01/sphnxpro/commissioning/online_monitoring/histograms/%s/Run_%d-* > %s.list",$subsys,$run,$subsys);
@@ -77,7 +77,7 @@ sub findruns
 		{
 		    next;
 		}
-		if ($run > 100000)
+		if ($run > 80000)
 		{
 		    next;
 		}
