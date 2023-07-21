@@ -268,8 +268,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   {
     // get counters
-    const auto cl = OnlMonClient::instance();
-    const auto m_counters = cl->getHisto("TPOTMON_0","m_counters");
+    const auto m_counters = get_histogram( "m_counters");
     if( m_counters && Verbosity() )
     {
       const int events = m_counters->GetBinContent( TpotMonDefs::kEventCounter );
@@ -493,8 +492,7 @@ int TpotMonDraw::draw_counters()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_counters" << std::endl;
 
   // get histograms
-  auto cl = OnlMonClient::instance();
-  auto m_counters =  cl->getHisto("TPOTMON_0","m_counters");
+  auto m_counters =  get_histogram( "m_counters");
 
   auto cv = get_canvas("TPOT_counters");
   auto transparent = get_transparent_pad( cv, "TPOT_counters");
@@ -527,9 +525,8 @@ int TpotMonDraw::draw_detector_occupancy()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_detector_occupancy" << std::endl;
 
   // get histograms
-  auto cl = OnlMonClient::instance();
-  auto m_detector_occupancy_phi =  cl->getHisto("TPOTMON_0","m_detector_occupancy_phi");
-  auto m_detector_occupancy_z =  cl->getHisto("TPOTMON_0","m_detector_occupancy_z");
+  auto m_detector_occupancy_phi =  get_histogram( "m_detector_occupancy_phi");
+  auto m_detector_occupancy_z =  get_histogram( "m_detector_occupancy_z");
 
   for( const auto& h:{m_detector_occupancy_phi,m_detector_occupancy_z} )
   { h->SetStats(0); }
@@ -576,9 +573,8 @@ int TpotMonDraw::draw_resist_occupancy()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_resist_occupancy" << std::endl;
 
   // get histograms
-  auto cl = OnlMonClient::instance();
-  auto m_resist_occupancy_phi =  cl->getHisto("TPOTMON_0","m_resist_occupancy_phi");
-  auto m_resist_occupancy_z =  cl->getHisto("TPOTMON_0","m_resist_occupancy_z");
+  auto m_resist_occupancy_phi =  get_histogram( "m_resist_occupancy_phi");
+  auto m_resist_occupancy_z =  get_histogram( "m_resist_occupancy_z");
   for( const auto& h:{m_resist_occupancy_phi,m_resist_occupancy_z} )
   { h->SetStats(0); }
 
@@ -634,16 +630,21 @@ void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
 }
 
 //__________________________________________________________________________________
+TH1* TpotMonDraw::get_histogram( const std::string& name )
+{
+  auto cl = OnlMonClient::instance();
+  return cl->getHisto("TPOTMON_0", name );
+}
+
+//__________________________________________________________________________________
 TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& name )
 {
   histogram_array_t out{{nullptr}};
-
-  auto cl = OnlMonClient::instance();
   for( size_t i=0; i<m_detnames_sphenix.size(); ++i)
   {
     const auto& detector_name=m_detnames_sphenix[i];
     const auto hname = name + "_" + detector_name;
-    out[i] =  cl->getHisto("TPOTMON_0", hname );
+    out[i] =  get_histogram(  hname );
     if( Verbosity() )
     { std::cout << "TpotMonDraw::get_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }
   }

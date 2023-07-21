@@ -7,6 +7,8 @@
 #include <micromegas/MicromegasMapping.h>
 #include <onlmon/OnlMonDraw.h>
 
+#include <TFile.h>
+
 #include <array>
 #include <memory>
 #include <string>  
@@ -61,6 +63,9 @@ class TpotMonDraw : public OnlMonDraw
     Colz = 1<<3
   };
   
+  /// get histogram by name
+  TH1* get_histogram( const std::string& name );  
+
   /// get detector dependent histogram array from base name
   histogram_array_t get_histograms( const std::string& name );  
 
@@ -88,6 +93,9 @@ class TpotMonDraw : public OnlMonDraw
   
   // sample window
   sample_window_t m_sample_window_signal = {20, 40};
+  
+  // reference histograms TFile
+  std::unique_ptr<TFile> m_ref_histograms_tfile;
   
   // canvases
   std::vector<TCanvas*> m_canvas;
