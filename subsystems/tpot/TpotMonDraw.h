@@ -69,6 +69,12 @@ class TpotMonDraw : public OnlMonDraw
   /// get detector dependent histogram array from base name
   histogram_array_t get_histograms( const std::string& name );  
 
+  /// get histogram by name
+  TH1* get_ref_histogram( const std::string& name );  
+
+  /// get detector dependent histogram array from base name
+  histogram_array_t get_ref_histograms( const std::string& name );  
+
   /// draw histogram array
   int draw_array( const std::string& name, const histogram_array_t&, unsigned int /*option*/ = DrawOptions::None );
   
@@ -93,6 +99,9 @@ class TpotMonDraw : public OnlMonDraw
   
   // sample window
   sample_window_t m_sample_window_signal = {20, 40};
+  
+  // reference histograms filename
+  std::string m_ref_histograms_filename;
   
   // reference histograms TFile
   std::unique_ptr<TFile> m_ref_histograms_tfile;

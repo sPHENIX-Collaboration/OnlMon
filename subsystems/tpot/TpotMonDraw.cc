@@ -115,6 +115,19 @@ namespace
 TpotMonDraw::TpotMonDraw(const std::string &name)
   : OnlMonDraw(name)
 {
+  // setup default filename for reference histograms
+  const auto tpotcalibref = getenv("TPOTCALIBREF");
+  if( tpotcalibref )
+  {
+    m_ref_histograms_filename = std::string(tpotcalibref) + "/" + "Run_00000-TPOTMON_0.root";
+    std::cout << "TpotMon::TpotMon - reading reference histograms from: " << m_ref_histograms_filename << std::endl;
+    m_ref_histograms_tfile.reset( TFile::Open( m_ref_histograms_filename.c_str(), "READ" ) );
+  } else {
+    m_ref_histograms_filename = "Run_00000-TPOTMON_0.root";
+    std::cout << "TpotMon::TpotMon - TPOTCALIBREF environment variable not set. Reading reference histograms from: " << m_ref_histograms_filename << std::endl;
+    m_ref_histograms_tfile.reset( TFile::Open( m_ref_histograms_filename.c_str(), "READ" ) );
+  }
+  
   // this TimeOffsetTicks is neccessary to get the time axis right
   TDatime T0(2003, 01, 01, 00, 00, 00);
   TimeOffsetTicks = T0.Convert();
@@ -622,7 +635,6 @@ void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
     const auto name = m_geometry.get_detname_sphenix(i)+suffix;
     const auto [x,y] = m_geometry.get_tile_center(i);
     auto text = new TText();
-    // text->SetNDC( true );
     text->DrawText( x-0.8*m_geometry.m_tile_length/2, y-0.8*m_geometry.m_tile_width/2, name.c_str() );
     text->Draw();
   }
@@ -647,6 +659,26 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
     out[i] =  get_histogram(  hname );
     if( Verbosity() )
     { std::cout << "TpotMonDraw::get_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }
+  }
+
+  return out;
+}
+
+//__________________________________________________________________________________
+TH1* TpotMonDraw::get_ref_histogram( const std::string& name )
+{ return m_ref_histograms_tfile ? static_cast<TH1*>( m_ref_histograms_tfile->Get( name.c_str() ) ):nullptr; }
+
+//__________________________________________________________________________________
+TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms( const std::string& name )
+{
+  histogram_array_t out{{nullptr}};
+  for( size_t i=0; i<m_detnames_sphenix.size(); ++i)
+  {
+    const auto& detector_name=m_detnames_sphenix[i];
+    const auto hname = name + "_" + detector_name;
+    out[i] =  get_ref_histogram(  hname );
+    if( Verbosity() )
+    { std::cout << "TpotMonDraw::get_ref_histograms - " << hname << (out[i]?" found":" not found" ) << std::endl; }
   }
 
   return out;
