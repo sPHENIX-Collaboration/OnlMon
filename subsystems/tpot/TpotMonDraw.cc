@@ -506,6 +506,7 @@ int TpotMonDraw::draw_counters()
 
   // get histograms
   auto m_counters =  get_histogram( "m_counters");
+  std::unique_ptr<TH1> m_counters_ref( normalize( get_ref_histogram( "m_counters" ), get_ref_scale_factor() ) );
 
   auto cv = get_canvas("TPOT_counters");
   auto transparent = get_transparent_pad( cv, "TPOT_counters");
@@ -523,6 +524,13 @@ int TpotMonDraw::draw_counters()
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     m_counters->DrawCopy();
+    
+    if( m_counters_ref ) 
+    {
+      m_counters_ref->SetLineColor(2);
+      m_counters_ref->DrawCopy( "hist same" );
+    }
+    
     if( transparent ) draw_time(transparent);
     return 0;
   } else {
@@ -642,14 +650,14 @@ void TpotMonDraw::draw_detnames_sphenix( const std::string& suffix)
 }
 
 //__________________________________________________________________________________
-TH1* TpotMonDraw::get_histogram( const std::string& name )
+TH1* TpotMonDraw::get_histogram( const std::string& name ) const
 {
   auto cl = OnlMonClient::instance();
   return cl->getHisto("TPOTMON_0", name );
 }
 
 //__________________________________________________________________________________
-TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& name )
+TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& name ) const
 {
   histogram_array_t out{{nullptr}};
   for( size_t i=0; i<m_detnames_sphenix.size(); ++i)
@@ -665,11 +673,11 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_histograms( const std::string& n
 }
 
 //__________________________________________________________________________________
-TH1* TpotMonDraw::get_ref_histogram( const std::string& name )
+TH1* TpotMonDraw::get_ref_histogram( const std::string& name ) const
 { return m_ref_histograms_tfile ? static_cast<TH1*>( m_ref_histograms_tfile->Get( name.c_str() ) ):nullptr; }
 
 //__________________________________________________________________________________
-TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms( const std::string& name )
+TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms( const std::string& name ) const
 {
   histogram_array_t out{{nullptr}};
   for( size_t i=0; i<m_detnames_sphenix.size(); ++i)
@@ -682,6 +690,28 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms( const std::strin
   }
 
   return out;
+}
+
+//__________________________________________________________________________________
+double TpotMonDraw::get_ref_scale_factor() const
+{
+  if( !m_ref_histograms_tfile ) return 0;
+  const auto m_counters = get_histogram( "m_counters");
+  const auto m_counters_ref = get_ref_histogram( "m_counters");
+  if( !( m_counters && m_counters_ref ) ) return 0;
+  
+  const double full_events = m_counters->GetBinContent( TpotMonDefs::kFullEventCounter );
+  const double full_events_ref = m_counters_ref->GetBinContent( TpotMonDefs::kFullEventCounter );
+  return full_events_ref > 0 ? full_events/full_events_ref : 0;
+}
+
+//__________________________________________________________________________________
+TH1* TpotMonDraw::normalize( TH1* source, double scale ) const
+{
+  auto destination = static_cast<TH1*>( source->Clone() );
+  destination->SetName( TString( source->GetName() )+"_scaled" );
+  destination->Scale( scale );
+  return destination;
 }
 
 //__________________________________________________________________________________

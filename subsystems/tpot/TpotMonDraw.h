@@ -64,17 +64,27 @@ class TpotMonDraw : public OnlMonDraw
   };
   
   /// get histogram by name
-  TH1* get_histogram( const std::string& name );  
+  TH1* get_histogram( const std::string& name ) const; 
 
   /// get detector dependent histogram array from base name
-  histogram_array_t get_histograms( const std::string& name );  
+  histogram_array_t get_histograms( const std::string& name ) const;
 
   /// get histogram by name
-  TH1* get_ref_histogram( const std::string& name );  
+  TH1* get_ref_histogram( const std::string& name ) const;
 
   /// get detector dependent histogram array from base name
-  histogram_array_t get_ref_histograms( const std::string& name );  
+  histogram_array_t get_ref_histograms( const std::string& name ) const;  
 
+  /// get scale factor for reference histograms
+  /** the normaliztion factor is based on the ratio of number of events in the event counters histogram */
+  double get_ref_scale_factor() const;
+  
+  /// normalize reference histogram
+  /* 
+   * a copy of the source histogram is done. It must be deleted after the fact
+   */
+  TH1* normalize( TH1*, double scale = 1 ) const;
+  
   /// draw histogram array
   int draw_array( const std::string& name, const histogram_array_t&, unsigned int /*option*/ = DrawOptions::None );
   
