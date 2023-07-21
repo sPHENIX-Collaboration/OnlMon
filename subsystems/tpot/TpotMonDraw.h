@@ -75,6 +75,9 @@ class TpotMonDraw : public OnlMonDraw
   /// get detector dependent histogram array from base name
   histogram_array_t get_ref_histograms( const std::string& name ) const;  
 
+  /// get detector dependent histogram array from base name
+  histogram_array_t get_ref_histograms_scaled( const std::string& name ) const;  
+
   /// get scale factor for reference histograms
   /** the normaliztion factor is based on the ratio of number of events in the event counters histogram */
   double get_ref_scale_factor() const;
@@ -86,8 +89,12 @@ class TpotMonDraw : public OnlMonDraw
   TH1* normalize( TH1*, double scale = 1 ) const;
   
   /// draw histogram array
-  int draw_array( const std::string& name, const histogram_array_t&, unsigned int /*option*/ = DrawOptions::None );
-  
+  int draw_array( const std::string& name, const histogram_array_t& array, unsigned int options = DrawOptions::None )
+  { return draw_array( name, array, {{nullptr}}, options ); } 
+
+  /// draw histogram array and reference histgorams
+  int draw_array( const std::string& name, const histogram_array_t&, const histogram_array_t& /*reference*/, unsigned int /*options*/ = DrawOptions::None );
+
   /// draw detector names in current canvas
   /** only works if canvas contains one of the properly formated TH2Poly histograms */
   void draw_detnames_sphenix( const std::string& suffix = std::string());

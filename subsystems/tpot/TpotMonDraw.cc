@@ -335,7 +335,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_counts_vs_sample")
   {
-    iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ) );
+    iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ), get_ref_histograms_scaled( "m_counts_sample" ) );
     auto cv = get_canvas("TPOT_counts_vs_sample");
     if( cv )
     {
@@ -361,20 +361,19 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_hit_charge")
   {
-    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), DrawOptions::Logy );
+    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), get_ref_histograms_scaled( "m_hit_charge" ), DrawOptions::Logy );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_multiplicity")
   {
-    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), DrawOptions::Logy );
-        
+    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), get_ref_histograms_scaled( "m_hit_multiplicity" ), DrawOptions::Logy );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
-    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ) );
+    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ) );
     auto cv = get_canvas("TPOT_hit_vs_channel");
     if( cv )
     {
@@ -693,6 +692,19 @@ TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms( const std::strin
 }
 
 //__________________________________________________________________________________
+TpotMonDraw::histogram_array_t TpotMonDraw::get_ref_histograms_scaled( const std::string& name ) const
+{
+  histogram_array_t source( get_ref_histograms( name ) );
+  histogram_array_t out{{nullptr}};
+  
+  const double scale = get_ref_scale_factor();
+  for( size_t i=0; i<source.size(); ++i)
+  { if( source[i] ) out[i]=normalize( source[i], scale ); } 
+
+  return out;
+}
+
+//__________________________________________________________________________________
 double TpotMonDraw::get_ref_scale_factor() const
 {
   if( !m_ref_histograms_tfile ) return 0;
@@ -715,7 +727,7 @@ TH1* TpotMonDraw::normalize( TH1* source, double scale ) const
 }
 
 //__________________________________________________________________________________
-int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, unsigned int options )
+int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogram_array_t& histograms, const TpotMonDraw::histogram_array_t& ref_histograms, unsigned int options )
 {
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_array - name: " << name << std::endl;
 
@@ -732,6 +744,14 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       cv->cd(i+1);
       if( options&DrawOptions::Colz ) histograms[i]->DrawCopy( "col" );
       else histograms[i]->DrawCopy();
+
+      // also draw reference
+      if( ref_histograms[i] )
+      {
+        ref_histograms[i]->SetLineColor(2);
+        ref_histograms[i]->Draw("hist same" );
+      }
+      
       gPad->SetBottomMargin(0.12);
       if( options&DrawOptions::Logx ) gPad->SetLogx( true );
       if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 ) gPad->SetLogy( true );
@@ -748,4 +768,8 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
     if( transparent ) DrawDeadServer(transparent);
     return -1;
   }
+  
+  // need to delete reference histograms to avoid leak
+  for( auto h:ref_histograms ) { delete h; }
+  
 }
