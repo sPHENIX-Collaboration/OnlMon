@@ -505,8 +505,12 @@ int TpotMonDraw::draw_counters()
 
   // get histograms
   auto m_counters =  get_histogram( "m_counters");
+  std::cout << "TpotMonDraw::draw_counters - after histograms." << std::endl;
+  
   std::unique_ptr<TH1> m_counters_ref( normalize( get_ref_histogram( "m_counters" ), get_ref_scale_factor() ) );
 
+  std::cout << "TpotMonDraw::draw_counters - after ref histograms." << std::endl;
+  
   auto cv = get_canvas("TPOT_counters");
   auto transparent = get_transparent_pad( cv, "TPOT_counters");
   if( !cv )
@@ -723,6 +727,7 @@ double TpotMonDraw::get_ref_scale_factor() const
 //__________________________________________________________________________________
 TH1* TpotMonDraw::normalize( TH1* source, double scale ) const
 {
+  if( !source ) return nullptr;
   auto destination = static_cast<TH1*>( source->Clone() );
   destination->SetName( TString( source->GetName() )+"_scaled" );
   destination->Scale( scale );
