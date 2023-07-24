@@ -54,7 +54,7 @@ namespace
     auto out = dynamic_cast<TPad*>( parent->FindObject( transparent_name.c_str() ) );
 
     if( !out ) std::cout << "get_transparent_pad - " << transparent_name << " not found" << std::endl;
-    if( clear ) out->Clear("D");
+    if( out && clear ) out->Clear("D");
     return out;
 
   }
@@ -170,7 +170,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TPOT event counters", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     cv->cd();
-    create_transparent_pad(name)->Draw();
+    create_transparent_pad(name);
     divide_canvas( cv, 1, 1 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -181,7 +181,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     cv->cd();
-    create_transparent_pad(name)->Draw();
+    create_transparent_pad(name);
     divide_canvas( cv, 1, 2 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -193,7 +193,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TPOT resist occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     cv->cd();
-    create_transparent_pad(name)->Draw();
+    create_transparent_pad(name);
     divide_canvas( cv, 1, 2 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -204,7 +204,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     cv->cd();
-    create_transparent_pad(name)->Draw();
+    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
     for( int i = 0; i < 16; ++i )
     {
@@ -220,7 +220,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TpotMon counts vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     cv->cd();
-    create_transparent_pad(name)->Draw();
+    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
     for( int i = 0; i < 16; ++i )
     {
@@ -238,7 +238,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     cv->cd();
-    create_transparent_pad(name)->Draw();
+    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -249,7 +249,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     cv->cd();
-    create_transparent_pad(name)->Draw();
+    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -260,7 +260,7 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
     cv->cd();
-    create_transparent_pad(name)->Draw();
+    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -504,13 +504,9 @@ int TpotMonDraw::draw_counters()
   if( Verbosity() ) std::cout << "TpotMonDraw::draw_counters" << std::endl;
 
   // get histograms
-  auto m_counters =  get_histogram( "m_counters");
-  std::cout << "TpotMonDraw::draw_counters - after histograms." << std::endl;
-  
+  auto m_counters =  get_histogram( "m_counters");  
   std::unique_ptr<TH1> m_counters_ref( normalize( get_ref_histogram( "m_counters" ), get_ref_scale_factor() ) );
 
-  std::cout << "TpotMonDraw::draw_counters - after ref histograms." << std::endl;
-  
   auto cv = get_canvas("TPOT_counters");
   auto transparent = get_transparent_pad( cv, "TPOT_counters");
   if( !cv )
