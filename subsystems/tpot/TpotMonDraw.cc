@@ -144,6 +144,48 @@ int TpotMonDraw::Init()
 { return 0; }
 
 //__________________________________________________________________________________
+int TpotMonDraw::DrawDeadServer( TPad* pad )
+{
+  if( !pad ) 
+  {
+    if( Verbosity() ) std::cout << "TpotMonDraw::DrawDeadServer - invalid pad" << std::endl;
+    return 0;
+  } else {  
+    pad->SetPad(0,0,1,1);
+    return OnlMonDraw::DrawDeadServer( pad );
+  }
+}
+
+//__________________________________________________________________________________
+void TpotMonDraw::draw_time( TPad* pad )
+{
+  if( !pad ) 
+  {
+    if( Verbosity() ) std::cout << "TpotMonDraw::draw_time - invalid pad" << std::endl;
+    return;
+  }
+  
+  pad->SetPad( 0, 0.94, 1, 1 );
+  pad->Clear();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.6);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+
+  std::ostringstream runnostream;
+  auto cl = OnlMonClient::instance();
+  time_t evttime = cl->EventTime("TPOTMON_0", "CURRENT");
+
+  runnostream
+    << ThisName << " Run " << cl->RunNumber()
+    << ", Time: " << ctime(&evttime);
+
+  pad->cd();
+  PrintRun.DrawText(0.5, 0.5, runnostream.str().c_str());
+}
+
+//__________________________________________________________________________________
 TCanvas* TpotMonDraw::get_canvas(const std::string& name, bool clear )
 {
   auto cv = dynamic_cast<TCanvas*>( gROOT->FindObject( name.c_str() ) );
@@ -169,9 +211,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT event counters", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name);
     divide_canvas( cv, 1, 1 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -180,9 +221,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name);
     divide_canvas( cv, 1, 2 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -192,9 +232,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
     // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT resist occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name);
     divide_canvas( cv, 1, 2 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -203,9 +242,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     for( int i = 0; i < 16; ++i )
     {
       cv->GetPad(i+1)->SetLeftMargin(0.15);
@@ -219,9 +257,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon counts vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     for( int i = 0; i < 16; ++i )
     {
       auto&& pad = cv->GetPad(i+1);
@@ -237,9 +274,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -248,9 +284,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -259,9 +294,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    cv->cd();
-    create_transparent_pad(name);
     divide_canvas( cv, 4, 4 );
+    create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -476,28 +510,6 @@ int TpotMonDraw::MakeHtml(const std::string &what)
 }
 
 //__________________________________________________________________________________
-void TpotMonDraw::draw_time( TPad* pad )
-{
-  pad->Clear();
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-
-  std::ostringstream runnostream;
-  auto cl = OnlMonClient::instance();
-  time_t evttime = cl->EventTime("TPOTMON_0", "CURRENT");
-
-  runnostream
-    << ThisName << " Run " << cl->RunNumber()
-    << ", Time: " << ctime(&evttime);
-
-  pad->cd();
-  PrintRun.DrawText(0.5, 0.98, runnostream.str().c_str());
-}
-
-//__________________________________________________________________________________
 int TpotMonDraw::draw_counters()
 {
 
@@ -530,10 +542,11 @@ int TpotMonDraw::draw_counters()
       m_counters_ref->DrawCopy( "hist same" );
     }
     
-    if( transparent ) draw_time(transparent);
+    draw_time(transparent);
     return 0;
   } else {
-    if( transparent ) DrawDeadServer(transparent);
+    
+    DrawDeadServer(transparent);
     return -1;
   }
 }
@@ -576,12 +589,12 @@ int TpotMonDraw::draw_detector_occupancy()
     m_detector_occupancy_phi->DrawCopy( "colz" );
     draw_detnames_sphenix( "P" );
 
-    if( transparent ) draw_time(transparent);
+    draw_time(transparent);
     return 0;
 
   } else {
 
-    if( transparent ) DrawDeadServer(transparent);
+    DrawDeadServer(transparent);
     return -1;
 
   }
@@ -625,14 +638,12 @@ int TpotMonDraw::draw_resist_occupancy()
     m_resist_occupancy_phi->DrawCopy( "colz" );
     draw_detnames_sphenix( "P" );
 
-    if( transparent ) draw_time(transparent);
+    draw_time(transparent);
     return 0;
 
   } else {
-
-    if( transparent ) DrawDeadServer(transparent);
+    DrawDeadServer(transparent);
     return -1;
-
   }
 }
 
@@ -766,10 +777,10 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
   if( drawn )
   {
-    if( transparent ) draw_time(transparent);
+    draw_time(transparent);
     return 0;
   } else {
-    if( transparent ) DrawDeadServer(transparent);
+    DrawDeadServer(transparent);
     return -1;
   }
   

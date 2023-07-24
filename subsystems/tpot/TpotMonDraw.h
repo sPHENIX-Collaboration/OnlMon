@@ -43,6 +43,12 @@ class TpotMonDraw : public OnlMonDraw
   { m_sample_window_signal = value; }
   
   private:
+  
+  // draw message to specify that server is dead
+  int DrawDeadServer(TPad*) override;
+  
+  // draw run and time in a given pad
+  void draw_time( TPad*);
 
   TCanvas* get_canvas(const std::string& name, bool clear = true );
   TCanvas* create_canvas(const std::string &name);
@@ -110,9 +116,6 @@ class TpotMonDraw : public OnlMonDraw
   
   /// needed to get time axis right
   int TimeOffsetTicks = -1;
-  
-  // draw run and time in a given pad
-  void draw_time( TPad*);
   
   // sample window
   sample_window_t m_sample_window_signal = {20, 40};
