@@ -23,6 +23,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TF1.h>
 #include <TH2Poly.h>
 #include <TString.h>
 #include <TGraphErrors.h>
@@ -141,6 +142,17 @@ int BbcMon::Init()
   bbc_zvertex_bbll1->GetXaxis()->SetTitleOffset(0.70);
   bbc_zvertex_bbll1->GetYaxis()->SetTitleOffset(1.75);
 
+  bbc_zvertex_short = new TH1F("bbc_zvertex_short", "BBC/MBD ZVertex (All triggers), short time scale",
+                               bbc_onlmon::zvtnbin, bbc_onlmon::min_zvertex, bbc_onlmon::max_zvertex);
+  bbc_zvertex_short->Sumw2();
+  bbc_zvertex_short->GetXaxis()->SetTitle("ZVertex [cm]");
+  bbc_zvertex_short->GetYaxis()->SetTitle("Number of Event");
+  bbc_zvertex_short->GetXaxis()->SetTitleSize(0.05);
+  bbc_zvertex_short->GetYaxis()->SetTitleSize(0.05);
+  bbc_zvertex_short->GetXaxis()->SetTitleOffset(0.70);
+  bbc_zvertex_short->GetYaxis()->SetTitleOffset(1.75);
+
+  f_zvtx = new TF1("f_zvtx", "gaus", -30., 30.);
   bbc_nevent_counter = new TH1F("bbc_nevent_counter",
                                 "The nEvent Counter bin1:Total Event bin2:Collision Event bin3:Laser Event",
                                 16, 0, 16);
@@ -427,6 +439,28 @@ int BbcMon::process_event(Event *evt)
   //bbc_south_hittime->Fill( tq );
   //bbc_north_hittime->Fill( tq );
 
+  bbc_zvertex_short->Fill(zvtx);
+
+  int n_goodevt = bbc_nevent_counter->GetBinContent(2);
+  if ( n_goodevt%1000 == 0 )
+  {
+    f_zvtx->SetRange( -75., 75. );
+    f_zvtx->SetParameters( 250, 0., 10 );
+    bbc_zvertex_short->Fit( f_zvtx, "RNQ");
+
+    // Report z-vertex mean and width
+    Double_t mean = f_zvtx->GetParameter(1);
+    Double_t rms = f_zvtx->GetParameter(2);
+    // we should do a check of a good fit here (skip for now)
+
+    std::ostringstream msg;
+    msg << "BBC/MBD zvertex mean/width: " << mean << " " << rms;
+    se->send_message(this,MSG_SOURCE_BBC,MSG_SEV_INFORMATIONAL, msg.str(),1);
+    std::cout << "BBC/MBD zvtx mean/width: " << mean << " " << rms << std::endl;
+
+    bbc_zvertex_short->Reset();
+  }
+
   for (int ipmt=0; ipmt<128; ipmt++)
   {
     float q = bevt->getQ(ipmt);
@@ -511,6 +545,7 @@ int BbcMon::Reset()
   bbc_nevent_counter->Reset();
   bbc_zvertex->Reset();
   bbc_zvertex_bbll1->Reset();
+  bbc_zvertex_short->Reset();
   bbc_tzero_zvtx->Reset();
   bbc_avr_hittime->Reset();
   bbc_south_hittime->Reset();

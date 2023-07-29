@@ -7,6 +7,7 @@ class Event;
 //class OnlMonDB;
 class TH1;
 class TH2;
+class TF1;
 class TH2Poly;
 class OnlBbcEvent;
 class BbcGeom;
@@ -44,6 +45,8 @@ protected:
 
   TH1 *bbc_zvertex = nullptr;
   TH1 *bbc_zvertex_bbll1 = nullptr;
+  TH1 *bbc_zvertex_short {nullptr};   // Used for short time scales
+  TF1 *f_zvtx {nullptr};              // Used for fitting central vertex peak
   //TH1 *bbc_zvertex_bbll1_novtx = nullptr;
   //TH1 *bbc_zvertex_bbll1_narrowvtx = nullptr;  // Run11 pp
 
