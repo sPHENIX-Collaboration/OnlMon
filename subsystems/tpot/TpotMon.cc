@@ -248,7 +248,8 @@ int TpotMon::process_event(Event* event)
     if( !packet )
     {
       // no data
-      std::cout << "TpotMon::process_event -packet " << packet_id << " not found" << std::endl;
+      if( Verbosity() )
+      { std::cout << "TpotMon::process_event - packet " << packet_id << " not found" << std::endl; }
       continue;
     }
 
