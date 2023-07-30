@@ -87,11 +87,20 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
+  // subsys = new SubSystem("SEPD", "sepd");
+  // subsys->AddAction("sepdDraw(\"FIRST\")", "Towers");
+  // subsys->AddAction("sepdDraw(\"SECOND\")", "Packet Health");
+  // subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
+  // subsys->AddAction("sepdDraw(\"FIFTH\")", "Wave vs Fast Fitting");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
+
   subsys = new SubSystem("TPC", "tpc");
   subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
   subsys->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
   subsys->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
   subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLE\")", "TPC ADC vs. Sample");
+  subsys->AddAction("tpcDraw(\"TPCADCVSSAMPLELARGE\")", "TPC ADC vs. Large Sample");
   subsys->AddAction("tpcDraw(\"TPCMAXADCMODULE\")", "TPC MAX ADC");
   subsys->AddAction("tpcDraw(\"TPCRAWADC1D\")", "TPC RAW ADC 1D");
   subsys->AddAction("tpcDraw(\"TPCMAXADC1D\")", "TPC (WindowMAX-Pedestal) ADC 1D");

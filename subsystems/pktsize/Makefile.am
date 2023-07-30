@@ -3,53 +3,48 @@ AUTOMAKE_OPTIONS = foreign
 BUILT_SOURCES = \
   testexternals.cc
 
-SUBDIRS = calib
-
 AM_CPPFLAGS = \
   -I$(includedir) \
   -I$(ONLINE_MAIN)/include \
+  -I$(OPT_SPHENIX)/include \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
-  libonlsepdmon_client.la \
-  libonlsepdmon_server.la
+  libonlpktsizemon_server.la \
+  libonlpktsizemon_client.la
 
-libonlsepdmon_server_la_LIBADD = \
+libonlpktsizemon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonserver \
   -lonlmondb \
-  -lonlmonutils \
-  -lcalo_io \
-  -lcalo_reco
+  -lodbc++
 
-libonlsepdmon_client_la_LIBADD = \
+libonlpktsizemon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
+  libonlpktsizemon_server.la \
   -lonlmonclient \
   -lonlmondb
 
+pktsizeincludedir=$(pkgincludedir)/pktsize
 
-sepdincludedir=$(pkgincludedir)/sepd
+pktsizeinclude_HEADERS = \
+  PktSizeMon.h \
+  PktSizeMonDraw.h
 
-sepdinclude_HEADERS = \
-  SepdMon.h \
-  SepdMonDraw.h
+libonlpktsizemon_server_la_SOURCES = \
+  PktSizeCommon.cc \
+  PktSizeDBodbc.cc \
+  PktSizeMon.cc
 
-libonlsepdmon_server_la_SOURCES = \
-  SepdMon.cc
+libonlpktsizemon_client_la_SOURCES = \
+  PktSizeMonDraw.cc
 
-libonlsepdmon_client_la_SOURCES = \
-  SepdMonDraw.cc
-
-bin_SCRIPTS = \
-  SepdMonSetup.csh \
-  SepdMonSetup.sh
 
 noinst_PROGRAMS = \
   testexternals_server \
   testexternals_client
-
 
 testexternals_server_SOURCES = \
   testexternals.cc
@@ -58,10 +53,10 @@ testexternals_client_SOURCES = \
   testexternals.cc
 
 testexternals_server_LDADD = \
-  libonlsepdmon_server.la
+  libonlpktsizemon_server.la
 
 testexternals_client_LDADD = \
-  libonlsepdmon_client.la
+  libonlpktsizemon_client.la
 
 testexternals.cc:
 	echo "//*** this is a generated file. Do not commit, do not edit" > $@
@@ -69,6 +64,7 @@ testexternals.cc:
 	echo "{" >> $@
 	echo "  return 0;" >> $@
 	echo "}" >> $@
+
 
 clean-local:
 	rm -f $(BUILT_SOURCES)

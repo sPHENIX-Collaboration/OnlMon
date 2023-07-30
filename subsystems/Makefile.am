@@ -16,6 +16,7 @@ SUBDIRS = \
   hcal \
   intt \
   mvtx \
+  pktsize \
   tpc \
   tpot \
   zdc

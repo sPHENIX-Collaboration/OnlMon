@@ -31,6 +31,7 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCSampleSize(const std::string &what = "ALL");
   int DrawTPCCheckSum(const std::string &what = "ALL");
   int DrawTPCADCSample(const std::string &what = "ALL");
+  int DrawTPCADCSampleLarge(const std::string &what = "ALL");
   int DrawTPCMaxADCModule(const std::string &what = "ALL");
   int DrawTPCRawADC1D(const std::string &what = "ALL");
   int DrawTPCMaxADC1D(const std::string &what = "ALL");
@@ -38,8 +39,8 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCXYclusters_unweighted(const std::string &what = "ALL");
   time_t getTime();
   
-  TCanvas *TC[12] = {nullptr};
-  TPad *transparent[11] = {nullptr};
+  TCanvas *TC[13] = {nullptr};
+  TPad *transparent[12] = {nullptr};
   TPad *Pad[8] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module

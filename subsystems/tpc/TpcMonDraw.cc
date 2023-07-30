@@ -194,6 +194,17 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[10]->Draw();
     TC[11]->SetEditable(false);
   }
+  else if (name == "TPCADCSamplelarge")
+  {
+    TC[12] = new TCanvas(name.c_str(), "TPC ADC vs Large Sample in Whole Sector",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[12]->Divide(4,7);
+    transparent[11] = new TPad("transparent11", "this does not show", 0, 0, 1, 1);
+    transparent[11]->SetFillStyle(4000);
+    transparent[11]->Draw();
+    TC[12]->SetEditable(false);
+  }
   
   
   return 0;
@@ -256,6 +267,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCCLUSTERSXYUNWEIGTHED")
   {
     iret += DrawTPCXYclusters_unweighted(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCADCVSSAMPLELARGE")
+  {
+    iret += DrawTPCADCSampleLarge(what);
     idraw++;
   }
   if (!idraw)
@@ -1081,7 +1097,7 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   std::string runstring;
   time_t evttime = getTime();// cl->EventTime("CURRENT"); 
   // fill run number and event time into string
-  runnostream << ThisName << "_ADC-Pedestal>20 ADC Run, UNWEIGHTED " << cl->RunNumber()
+  runnostream << ThisName << "_ADC-Pedestal>20, UNWEIGHTED " << cl->RunNumber()
               << ", Time: " << ctime(&evttime);
   runstring = runnostream.str();
   transparent[10]->cd();
@@ -1145,6 +1161,63 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   TC[11]->Update();
   TC[11]->Show();
   TC[11]->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCADCSampleLarge(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_ADCSAMPLE_large[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_ADCSAMPLE_large[i] = (TH2*) cl->getHisto(TPCMON_STR,"ADC_vs_SAMPLE_large");
+  }
+
+
+  if (!gROOT->FindObject("TPCADCSamplelarge"))
+  {
+    MakeCanvas("TPCADCSamplelarge");
+  }  
+
+  TC[12]->SetEditable(true);
+  TC[12]->Clear("D");
+
+  for( int i=0; i<24; i++ )
+  {
+    if( tpcmon_ADCSAMPLE_large[i] )
+    {
+      TC[12]->cd(i+5);
+      gStyle->SetPalette(57); //kBird CVD friendly
+      gPad->SetLogz(kTRUE);
+      tpcmon_ADCSAMPLE_large[i] -> DrawCopy("colz");
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  time_t evttime = getTime();// cl->EventTime("CURRENT"); 
+  // fill run number and event time into string
+  runnostream << ThisName << "_ADC_vs_SAMPLE_large Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime);
+  runstring = runnostream.str();
+  transparent[11]->cd();
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+
+  TC[12]->Update();
+  TC[12]->Show();
+  TC[12]->SetEditable(false);
 
   return 0;
 }

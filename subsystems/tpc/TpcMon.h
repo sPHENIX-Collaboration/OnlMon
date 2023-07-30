@@ -71,6 +71,7 @@ class TpcMon : public OnlMon
   TH2 *SouthSideADC = nullptr;
 
   TH2 *ADC_vs_SAMPLE = nullptr;
+  TH2 *ADC_vs_SAMPLE_large = nullptr;
 
   TH1 *sample_size_hist = nullptr;
   TH1 *Check_Sum_Error = nullptr;
