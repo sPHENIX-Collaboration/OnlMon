@@ -113,6 +113,7 @@ void StartPoms()
   subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy");
   subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy");
   subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC Sample");
+  subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts Sample");
   subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
   subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity");
   subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit Channel");
