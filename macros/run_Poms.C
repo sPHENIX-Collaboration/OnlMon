@@ -110,6 +110,7 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPOT", "tpot");
+  subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters");
   subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy");
   subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy");
   subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC Sample");
