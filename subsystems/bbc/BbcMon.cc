@@ -19,7 +19,7 @@
 #include "OnlBbcEvent.h"
 #include "OnlBbcSig.h"
 
-#include <bbc/BbcGeomV1.h>
+#include <mbd/BbcGeomV1.h>
 
 #include <TH1.h>
 #include <TH2.h>
