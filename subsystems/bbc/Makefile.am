@@ -17,7 +17,7 @@ lib_LTLIBRARIES = \
 libonlbbcmon_server_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
-  -lmbd_io \
+  -lbbc_io \
   -lonlmonserver
 
 libonlbbcmon_client_la_LIBADD = \
