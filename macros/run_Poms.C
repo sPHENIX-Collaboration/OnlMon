@@ -36,8 +36,8 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("DAQ", "daq");
-  subsys->AddAction("daqDraw(\"FIRST\")", "DAQ 1st Monitor");
-  subsys->AddAction("daqDraw(\"SECOND\")", "DAQ 2nd Monitor");
+  subsys->AddAction("daqDraw(\"FIRST\")", "Calo-GL1 Check");
+  subsys->AddAction("daqDraw(\"SECOND\")", ""Calo-GL1 Snapshot);
   // subsys->AddAction("daqDraw(\"HISTORY\")", "DAQ History Monitor");
    subsys->AddAction(new SubSystemActionSavePlot(subsys));
    pmf->RegisterSubSystem(subsys);
