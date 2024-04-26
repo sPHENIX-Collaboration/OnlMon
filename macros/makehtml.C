@@ -1,11 +1,15 @@
 #include <onlmon/bbc/BbcMonDraw.h>
 #include <onlmon/cemc/CemcMonDraw.h>
+#include <onlmon/daq/DaqMonDraw.h>
 #include <onlmon/hcal/HcalMonDraw.h>
 #include <onlmon/intt/InttMonDraw.h>
 #include <onlmon/ll1/LL1MonDraw.h>
 #include <onlmon/mvtx/MvtxMonDraw.h>
+#include <onlmon/sepd/SepdMonDraw.h>
+#include <onlmon/spin/SpinMonDraw.h>
 #include <onlmon/tpc/TpcMonDraw.h>
 #include <onlmon/tpot/TpotMonDraw.h>
+#include <onlmon/zdc/ZdcMonDraw.h>
 
 #include <onlmon/OnlMonClient.h>
 
@@ -13,6 +17,8 @@
 R__LOAD_LIBRARY(libonlbbcmon_client.so)
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
+// cppcheck-suppress unknownMacro
+R__LOAD_LIBRARY(libonldaqmon_client.so)
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlhcalmon_client.so)
 // cppcheck-suppress unknownMacro
@@ -22,9 +28,15 @@ R__LOAD_LIBRARY(libonlll1mon_client.so)
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmvtxmon_client.so)
 // cppcheck-suppress unknownMacro
+R__LOAD_LIBRARY(libonlsepdmon_client.so)
+// cppcheck-suppress unknownMacro
+R__LOAD_LIBRARY(libonlspinmon_client.so)
+// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpcmon_client.so)
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpotmon_client.so)
+// cppcheck-suppress unknownMacro
+R__LOAD_LIBRARY(libonlzdcmon_client.so)
 
 void makehtml(const std::string &filelist, const std::string &subsystem)
 {
@@ -37,6 +49,10 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   else if (subsystem == "CEMCMON")
   {
     drawer = new CemcMonDraw("CEMCMONDRAW");
+  }
+  else if (subsystem == "DAQMON")
+  {
+    drawer = new CemcMonDraw("DAQMONDRAW");
   }
   else if (subsystem == "IHCALMON")
   {
@@ -58,6 +74,14 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   {
     drawer = new HcalMonDraw("OHCALMONDRAW");
   }
+  else if (subsystem == "SEPDMON")
+  {
+    drawer = new SepdMonDraw("SEPDMONDRAW");
+  }
+  else if (subsystem == "SPINMON")
+  {
+    drawer = new SepdMonDraw("SPINMONDRAW");
+  }
   else if (subsystem == "TPCMON")
   {
     drawer = new TpcMonDraw("TPCMONDRAW");
@@ -65,6 +89,10 @@ void makehtml(const std::string &filelist, const std::string &subsystem)
   else if (subsystem == "TPOTMON")
   {
     drawer = new TpotMonDraw("TPOTMONDRAW");
+  }
+  else if (subsystem == "ZDCMON")
+  {
+    drawer = new TpotMonDraw("ZDCMONDRAW");
   }
   else
   {
