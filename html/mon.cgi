@@ -577,6 +577,18 @@ sub select_run {
       dirlist("cosmics",$runrange);
       print "</td>\n";
   }
+  if (-d "junk")
+  {
+      print "<td>\n";
+      dirlist("junk",$runrange);
+      print "</td>\n";
+  }
+  if (-d "led")
+  {
+      print "<td>\n";
+      dirlist("led",$runrange);
+      print "</td>\n";
+  }
   if (-d "pulser")
   {
       print "<td>\n";
