@@ -76,7 +76,7 @@ int SpinMon::Init()
 
   Reset();
 
-  erc = new eventReceiverClient("gl1daq"); // commented out to be able to do prun(100) in the server
+//  erc = new eventReceiverClient("gl1daq"); // commented out to be able to do prun(100) in the server
   
   // CalculateCrossingShift(xingshift, scalercounts, success);
 
