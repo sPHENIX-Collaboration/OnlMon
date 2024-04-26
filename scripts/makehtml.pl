@@ -5,11 +5,17 @@ use warnings;
 
 sub findruns;
 
+my $stopthis = sprintf("stopthis");
 my $histodir = sprintf("/sphenix/lustre01/sphnxpro/commissioning/online_monitoring/histograms");
-my @subsystems = ("BBCMON", "CEMCMON", "IHCALMON", "INTTMON", "LL1MON", "OHCALMON", "TPCMON", "TPOTMON");
+my @subsystems = ("BBCMON", "CEMCMON", "DAQMON", "IHCALMON", "INTTMON", "LL1MON", "MVTXMON", "OHCALMON", "SEPDMON", "TPCMON", "TPOTMON", "ZDCMON");
+#my @subsystems = ("BBCMON", "CEMCMON", "INTTMON", "LL1MON", "TPOTMON", "TPCMON");
 
 for my $subsys (@subsystems)
 {
+    if (-e $stopthis)
+    {
+	last;
+    }
     my %donehash = ();
     my $rundone = sprintf("%s.done",$subsys);
     if (-f $rundone)
@@ -40,7 +46,11 @@ for my $subsys (@subsystems)
 	    print "$rootcmd\n";
 	    system($rootcmd);
 	    print "handled $run for $subsys\n";
-	    $lastrun = $run; #process the last run again next ti
+	    $lastrun = $run; #process the last run again next time
+	}
+	if (-e $stopthis)
+	{
+	    last;
 	}
     }
     for my $run (sort { $a <=> $b } keys %todoruns)
@@ -52,7 +62,7 @@ for my $subsys (@subsystems)
 	my $updatedone = sprintf("echo %d >> %s",$run,$rundone);
 	system($updatedone);
     }
-
+    unlink $stopthis;
 }
 
 sub findruns
