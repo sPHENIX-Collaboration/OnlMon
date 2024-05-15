@@ -67,7 +67,9 @@ int HcalMonDraw::Init()
   gROOT->ForceStyle();
   char TEMPFILENAME[100];
 
-  sprintf(TEMPFILENAME, "../subsystems/hcal/%s_40747.root", prefix.c_str());
+    const char *hcalcalib = getenv("HCALCALIB");
+
+  sprintf(TEMPFILENAME, "%s/%s_40747.root",hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
@@ -2253,9 +2255,9 @@ int HcalMonDraw::DrawServerStats()
   {
     MakeCanvas("HcalMon6");
   }
-  TC[5]->Clear("D");
-  TC[5]->SetEditable(true);
-  transparent[5]->cd();
+  TC[7]->Clear("D");
+  TC[7]->SetEditable(true);
+  transparent[7]->cd();
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetNDC();          // set to normalized coordinates
@@ -2295,9 +2297,9 @@ int HcalMonDraw::DrawServerStats()
     PrintRun.DrawText(0.5, vpos, txt.str().c_str());
     vpos -= vdist;
   }
-  TC[5]->Update();
-  TC[5]->Show();
-  TC[5]->SetEditable(false);
+  TC[7]->Update();
+  TC[7]->Show();
+  TC[7]->SetEditable(false);
 
   return 0;
 }
