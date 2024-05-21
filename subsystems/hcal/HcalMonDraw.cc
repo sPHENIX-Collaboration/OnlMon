@@ -87,7 +87,7 @@ int HcalMonDraw::Init()
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
 
-  
+  MakeZSPalette();
   return 0;
 }
 
@@ -2365,7 +2365,8 @@ int HcalMonDraw::DrawSeventh(const std::string& /* what */)
   gPad->SetTicky();
   gPad->SetTickx();
   //gStyle->SetPalette(57);
-  SetBirdPalette();
+  gStyle->SetPalette(255, ZSPalette);
+  gStyle->SetNumberContours(255);
   gStyle->SetOptStat(0);
   
   {

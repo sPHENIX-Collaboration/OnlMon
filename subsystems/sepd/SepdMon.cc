@@ -82,34 +82,34 @@ int SepdMon::Init()
   // system (all couts are redirected)
   printf("doing the Init\n");
 
-  h_ADC_all_channel = new TH1F("h_ADC_all_channel",";;",768,-0.5,767.5);
-  h_hits_all_channel = new TH1F("h_hits_all_channel",";;",768,-0.5,767.5);
+  h_ADC_all_channel = new TH1D("h_ADC_all_channel",";;",768,-0.5,767.5);
+  h_hits_all_channel = new TH1D("h_hits_all_channel",";;",768,-0.5,767.5);
 
   int nADCcorr = 500;
   double ADCcorrmax = 2e4;
   int nhitscorr = 500;
   double hitscorrmax = 1000;
-  h_ADC_corr = new TH2F("h_ADC_corr", ";ADC avg sum (south); ADC avg sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
-  h_hits_corr = new TH2F("h_hits_corr", ";N hits avg sum (south); N hits avg sum (north)", nhitscorr, 0, hitscorrmax, nhitscorr, 0, hitscorrmax);
+  h_ADC_corr = new TH2F("h_ADC_corr", ";ADC sum (south); ADC sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
+  h_hits_corr = new TH2F("h_hits_corr", ";N hits sum (south); N hits sum (north)", nhitscorr, 0, hitscorrmax, nhitscorr, 0, hitscorrmax);
 
-  h_event = new TH1F("h_event", "", 1, 0, 1);
+  h_event = new TH1D("h_event", "", 1, 0, 1);
 
   // waveform processing
-  h1_waveform_twrAvg = new TH1F("h1_waveform_twrAvg", "", n_samples_show, 0.5, n_samples_show + 0.5);
-  h1_waveform_time = new TH1F("h1_waveform_time", "", n_samples_show, 0.5, n_samples_show + 0.5);
-  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 42, 1.0e3, 2.0e3);
+  h1_waveform_twrAvg = new TH1D("h1_waveform_twrAvg", "", n_samples_show, 0.5, n_samples_show + 0.5);
+  h1_waveform_time = new TH1D("h1_waveform_time", "", n_samples_show, 0.5, n_samples_show + 0.5);
+  h1_waveform_pedestal = new TH1D("h1_waveform_pedestal", "", 42, 1.0e3, 2.0e3);
   h2_sepd_waveform = new TH2F("h2_sepd_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
 
   // waveform processing, template vs. fast interpolation
-  h1_sepd_fitting_sigDiff = new TH1F("h1_fitting_sigDiff", "", 50, 0, 2);
-  h1_sepd_fitting_pedDiff = new TH1F("h1_fitting_pedDiff", "", 50, 0, 2);
-  h1_sepd_fitting_timeDiff = new TH1F("h1_fitting_timeDiff", "", 50, -10, 10);
+  h1_sepd_fitting_sigDiff = new TH1D("h1_fitting_sigDiff", "", 50, 0, 2);
+  h1_sepd_fitting_pedDiff = new TH1D("h1_fitting_pedDiff", "", 50, 0, 2);
+  h1_sepd_fitting_timeDiff = new TH1D("h1_fitting_timeDiff", "", 50, -10, 10);
 
   // packet stuff
-  h1_packet_number = new TH1F("h1_packet_number", "", 6, packetlow - 0.5, packethigh + 0.5);
-  h1_packet_length = new TH1F("h1_packet_length", "", 6, packetlow - 0.5, packethigh + 0.5);
-  h1_packet_chans = new TH1F("h1_packet_chans", "", 6, packetlow - 0.5, packethigh + 0.5);
-  h1_packet_event = new TH1F("h1_packet_event", "", 6, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_number = new TH1D("h1_packet_number", "", 6, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_length = new TH1D("h1_packet_length", "", 6, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_chans = new TH1D("h1_packet_chans", "", 6, packetlow - 0.5, packethigh + 0.5);
+  h1_packet_event = new TH1D("h1_packet_event", "", 6, packetlow - 0.5, packethigh + 0.5);
 
   for (int i = 0; i < 6; i++)
   {
@@ -142,7 +142,7 @@ int SepdMon::Init()
   //for (int ichannel = 0; ichannel < nChannels; ichannel++)
   for (int ichannel = 0; ichannel < 768; ichannel++)
   {
-    h_ADC_channel[ichannel] = new TH1F(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 1000);
+    h_ADC_channel[ichannel] = new TH1D(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 1000);
     se->registerHisto(this, h_ADC_channel[ichannel]);
   }
 

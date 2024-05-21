@@ -41,17 +41,23 @@ class HcalMonDraw : public OnlMonDraw
   void DrawAvgTime();
   time_t getTime();
 
-  void SetBirdPalette()
+  void MakeZSPalette()
   {
     Double_t red[9] = {1.0, 0.0592, 0.0780, 0.0232, 0.1802, 0.5301, 0.8186, 0.9956, 0.9764};
     Double_t green[9] = {0.0, 0.3599, 0.5041, 0.6419, 0.7178, 0.7492, 0.7328, 0.7862, 0.9832};
     Double_t blue[9] = {0.0, 0.8684, 0.8385, 0.7914, 0.6425, 0.4662, 0.3499, 0.1968, 0.0539};
     Double_t stops[9] = {0.0, 0.04, 0.12, 0.15, 0.2, 0.25, 0.3, 0.35, 1.0000};
     Int_t nb = 255;
-    TColor::CreateGradientColorTable(9, stops, red, green, blue, nb);
+    Int_t FI = TColor::CreateGradientColorTable(9, stops, red, green, blue, nb, false);
+
+    for (int i = 0; i < nb; i++)
+    {
+      ZSPalette[i] = FI + i;
+    }
 
     gStyle->SetNumberContours(nb);
   }
+
 
   // int DrawDeadServer(TPad *transparent);
   std::string prefix = "HCALMON";
@@ -63,6 +69,7 @@ class HcalMonDraw : public OnlMonDraw
   TH1F* h1_zs = nullptr;
   TH1F* h1_zs_low = nullptr;
   TH1F* h1_zs_high = nullptr;
+  Int_t ZSPalette[255];
   
   //  TGraphErrors* gr[2] = {nullptr};
   TStyle* hcalStyle = nullptr;

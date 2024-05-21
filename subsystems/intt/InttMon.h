@@ -36,10 +36,16 @@ class InttMon : public OnlMon
 
   // InttMon_o_Binning.cc
   // (public so InttMonDraw can use them)
-  struct HitData_s {int fee, chp;};
+  struct HitData_s
+  {
+    int fee, chp;
+  };
   int static HitBin(HitData_s const&);
 
-  struct BcoData_s {int fee, bco;};
+  struct BcoData_s
+  {
+    int fee, bco;
+  };
   int static BcoBin(BcoData_s const&);
 
  private:

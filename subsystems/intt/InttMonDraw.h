@@ -50,11 +50,11 @@ class InttMonDraw : public OnlMonDraw
   // InttMonDraw_o_FelixBcoFphxBco.cc
   struct FelixBcoFphxBco_s
   {
-	double cnvs_width, cnvs_height;
-	double disp_frac, lgnd_frac;
-	double disp_text_size;
-	double lgnd_box_width, lgnd_box_height, lgnd_text_size;
-	std::string name;
+    double cnvs_width, cnvs_height;
+    double disp_frac, lgnd_frac;
+    double disp_text_size;
+    double lgnd_box_width, lgnd_box_height, lgnd_text_size;
+    std::string name;
   } static const m_FelixBcoFphxBco;
   int DrawFelixBcoFphxBco(int);
   int DrawFelixBcoFphxBco_DispPad();
@@ -65,12 +65,12 @@ class InttMonDraw : public OnlMonDraw
   // InttMonDraw_o_HitMap.cc
   struct HitMap_s
   {
-	double cnvs_width, cnvs_height;
-	double disp_frac, lgnd_frac;
-	double disp_text_size;
-	double lgnd_box_width, lgnd_box_height, lgnd_text_size;
-	double lower, upper;
-	std::string name;
+    double cnvs_width, cnvs_height;
+    double disp_frac, lgnd_frac;
+    double disp_text_size;
+    double lgnd_box_width, lgnd_box_height, lgnd_text_size;
+    double lower, upper;
+    std::string name;
   } static const m_HitMap;
   int DrawHitMap(int);
   int DrawHitMap_DispPad();
@@ -94,12 +94,12 @@ class InttMonDraw : public OnlMonDraw
   // InttMonDraw_o_Peaks.cc
   struct Peaks_s
   {
-	double cnvs_width, cnvs_height;
-	double disp_frac;
-	double disp_text_size;
-	double frac;
-	double max_width;
-	std::string name;
+    double cnvs_width, cnvs_height;
+    double disp_frac;
+    double disp_text_size;
+    double frac;
+    double max_width;
+    std::string name;
   } static const m_Peaks;
   int DrawPeaks(int);
   int DrawPeaks_DispPad();

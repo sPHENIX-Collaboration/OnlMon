@@ -41,7 +41,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // --- this is called by int DrawFirst(string&)
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "UNDER CONSTRUCTION - sEPD Monitor 1 - Hits/Event vs Tile", 1200, 600);
+    TC[0] = new TCanvas(name.c_str(), "sEPD Monitor 1 - UNDER CONSTRUCTION - Hits/Event vs Tile", 1200, 600);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -61,7 +61,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     // xpos negative: do not draw menu bar
     //TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - ADC Distributions", 1200, 600);
-    TC[1] = new TCanvas(name.c_str(), "EXPERT - sEPD Monitor 2 - ADC Distributions", 1600, 800);
+    TC[1] = new TCanvas(name.c_str(), "sEPD Monitor 2 - EXPERT - ADC Distributions", 1600, 800);
     gSystem->ProcessEvents();
     for ( int i = 0; i < 32; ++i )
       {
@@ -193,8 +193,8 @@ int SepdMonDraw::Draw(const std::string &what)
 int SepdMonDraw::DrawFirst(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  //TH1F *h_ADC_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
-  TH1F *h_hits_all_channel = (TH1F *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
+  //TH1D *h_ADC_all_channel = (TH1D *) cl->getHisto("SEPDMON_0", "h_ADC_all_channel");
+  TH1D *h_hits_all_channel = (TH1D *) cl->getHisto("SEPDMON_0", "h_hits_all_channel");
   TH1 *h_event = (TH1*)cl->getHisto("SEPDMON_0", "h_event");
   time_t evttime = cl->EventTime("CURRENT");
 
@@ -219,18 +219,18 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   float R_PI = 3.1415926535;
 
-  TH2F* polar_histS = new TH2F("polar_histS","polar_hist",
+  TH2* polar_histS = new TH2F("polar_histS","polar_hist",
                                24, 0, 2*R_PI,
                                16, 0.15, 3.5);
-  TH2F* polar_histN = new TH2F("polar_histN","polar_hist",
+  TH2* polar_histN = new TH2F("polar_histN","polar_hist",
                                24, 0, 2*R_PI,
                                16, 0.15, 3.5);
 
   //tile 0 is 2x the angular size of the rest of the tiles and needs a separate histogram
-  TH2F* polar_histS01 = new TH2F("polar_histS01","polar_hist",
+  TH2* polar_histS01 = new TH2F("polar_histS01","polar_hist",
                                  12, 0, 2*R_PI,
                                  16, 0.15, 3.5);
-  TH2F* polar_histN01 = new TH2F("polar_histN01","polar_hist",
+  TH2* polar_histN01 = new TH2F("polar_histN01","polar_hist",
                                  12, 0, 2*R_PI,
                                  16, 0.15, 3.5);
 
@@ -501,9 +501,12 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1F *h_waveform_time = (TH1F *) cl->getHisto("SEPDMON_0", "h1_waveform_time");
-  TH1F *h_waveform_pedestal = (TH1F *) cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
-  TH2F *h2_sepd_waveform = (TH2F *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
+  TH1 *h_waveform_time = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_time");
+  TH1 *h_waveform_pedestal = (TH1D *) cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
+  TH2 *h2_sepd_waveform = (TH2F *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
+
+  TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
+  int nevt = h_event->GetEntries();
 
   if (!gROOT->FindObject("SepdMon4"))
   {
@@ -589,12 +592,13 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   h_waveform_time->GetXaxis()->SetRangeUser(0,11);
+  h_waveform_time->Scale(1.0/nevt);
   h_waveform_time->Draw("hist");
   // ---
   //h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetNdivisions(12);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
-  h_waveform_time->GetYaxis()->SetTitle("Counts");
+  h_waveform_time->GetYaxis()->SetTitle("Counts/Event");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize);
   h_waveform_time->GetYaxis()->SetLabelSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleSize(tsize);
@@ -630,10 +634,11 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   // x-axis range is set in SepdMon.cc, need to change there if want a wider range
+  h_waveform_pedestal->Scale(1.0/nevt);
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(505);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
-  h_waveform_pedestal->GetYaxis()->SetTitle("Counts");
+  h_waveform_pedestal->GetYaxis()->SetTitle("Counts/Event");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize);
@@ -661,10 +666,10 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1F *h1_packet_number = (TH1F *) cl->getHisto("SEPDMON_0", "h1_packet_number");
-  TH1F *h1_packet_length = (TH1F *) cl->getHisto("SEPDMON_0", "h1_packet_length");
-  TH1F *h1_packet_chans = (TH1F *) cl->getHisto("SEPDMON_0", "h1_packet_chans");
-  TH1F *h1_packet_event = (TH1F *) cl->getHisto("SEPDMON_0", "h1_packet_event");
+  TH1 *h1_packet_number = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_number");
+  TH1 *h1_packet_length = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_length");
+  TH1 *h1_packet_chans = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_chans");
+  TH1 *h1_packet_event = (TH1D *) cl->getHisto("SEPDMON_0", "h1_packet_event");
 
   if (!gROOT->FindObject("SepdMon5"))
   {

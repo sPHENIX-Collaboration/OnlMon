@@ -1,6 +1,7 @@
 #ifndef ONLMONHTML_H
 #define ONLMONHTML_H
 
+#include <filesystem>
 #include <set>
 #include <string>
 
@@ -64,6 +65,7 @@ class OnlMonHtml
   void plainHtmlMenu(const std::set<std::string>&);
   void runInit();
   std::string runRange();
+  void set_group_sticky_bit(const std::filesystem::path& dir);
 
   RunDBodbc* rundb = nullptr;
 

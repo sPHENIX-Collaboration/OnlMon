@@ -20,7 +20,7 @@ class eventReceiverClient;
 class CemcMon : public OnlMon
 {
  public:
-  explicit CemcMon(const std::string &name);
+  explicit CemcMon(const std::string& name);
   virtual ~CemcMon();
 
   int process_event(Event* evt);
@@ -47,16 +47,16 @@ class CemcMon : public OnlMon
   const int packethigh = 6128;
   const int m_nChannels = 192;
   const int templateDepth = 10000;
-  const int nPhiIndex=256;
-  const int nEtaIndex=96;
+  const int nPhiIndex = 256;
+  const int nEtaIndex = 96;
   int eventCounter = 0;
-  TH2D* h2_template_hit=nullptr;
+  TH2D* h2_template_hit = nullptr;
   TH2* h2_cemc_hits_trig[64] = {nullptr};
   TH1* h1_cemc_trig = nullptr;
   TH1* h1_packet_event = nullptr;
   TH2* h2_caloPack_gl1_clock_diff = nullptr;
   TProfile* h_evtRec = nullptr;
-  TProfile2D* p2_zsFrac_etaphi=nullptr;
+  TProfile2D* p2_zsFrac_etaphi = nullptr;
 
   TH1* h1_packet_chans = nullptr;
   TH1* h1_packet_length = nullptr;
@@ -74,7 +74,7 @@ class CemcMon : public OnlMon
   TH1* h1_sectorAvg_total = nullptr;
   TH1* h1_event = nullptr;
   TH1* h1_rm_sectorAvg[100] = {nullptr};
-  //TProfile*** h2_waveform= {nullptr};
+  // TProfile*** h2_waveform= {nullptr};
   std::vector<runningMean*> rm_vector_twr;
   std::vector<runningMean*> rm_vector_twrhits;
 
@@ -82,10 +82,10 @@ class CemcMon : public OnlMon
 
   eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
+  bool usembdtrig = true;
 
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
   CaloWaveformFitting* WaveformProcessingTemp = nullptr;
-
 };
 
 #endif /* CEMC_CEMCMON_H */

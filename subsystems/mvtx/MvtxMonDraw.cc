@@ -540,7 +540,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   Pad[padID]->Divide(4, 2);
   int returnCode = 0;
 
-  Pad[padID]->cd(4)->SetRightMargin(0.12);
+  Pad[padID]->cd(4)->SetRightMargin(0.2);
   Pad[padID]->cd(6)->SetLeftMargin(0.16);
   Pad[padID]->cd(6)->SetTopMargin(0.16);
   Pad[padID]->cd(6)->SetBottomMargin(0.14);
@@ -1747,14 +1747,14 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH
         bincontent = lane->GetBinContent(ibin);
       }
       
-      if (bincontent /*hp[iflag][NFlx]->GetBinContent(ibin)*/ > maxbadchips / 9.)
+      if (bincontent /*hp[iflag][NFlx]->GetBinContent(ibin)*/ >= maxbadchips / 9.)
       {
         // std::cout<<"bad stave"<<std::endl;
         countStave++;
         result.at(ilayer) = Quality::Medium;
       }
     }
-    if (countStave > 0.25 * NStaves[ilayer])
+    if (countStave > 0.2 * NStaves[ilayer])
     {
       result.at(ilayer) = Quality::Bad;
     }
@@ -1791,7 +1791,7 @@ std::vector<MvtxMonDraw::Quality> MvtxMonDraw::analyseForError(TH2Poly *lane, TH
       avrs =+ binc;
     }
     if(strobes->GetNbinsX() > 0) avrs = avrs/strobes->GetNbinsX();
-    if(mins < 0.5*avrs || maxs > 0.5*avrs){
+    if(mins < 0.5*avrs || maxs > 1.5*avrs){
       result.at(4) = Quality::Medium;
     }
   }

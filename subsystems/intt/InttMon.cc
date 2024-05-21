@@ -72,15 +72,11 @@ int InttMon::process_event(Event *evt)
       int chp = (p->iValue(n, "CHIP_ID") + 25) % 26;
       int bco = ((0x7f & p->lValue(n, "BCO")) - p->iValue(n, "FPHX_BCO") + 128) % 128;
 
-	  HitHist->AddBinContent(HitBin({
-        .fee = fee,
-        .chp = chp
-      }));
+      HitHist->AddBinContent(HitBin({.fee = fee,
+                                     .chp = chp}));
 
-	  BcoHist->AddBinContent(BcoBin({
-        .fee = fee,
-        .bco = bco
-      }));
+      BcoHist->AddBinContent(BcoBin({.fee = fee,
+                                     .bco = bco}));
     }
 
     delete p;
@@ -107,21 +103,23 @@ int InttMon::Reset()
 
 int InttMon::MiscDebug()
 {
-  for(int fee = 0; fee < 14; ++fee) {
-    for(int chp = 0; chp < 26; ++chp) {
-      HitHist->SetBinContent(HitBin({
-        .fee = fee,
-        .chp = chp
-      }), chp);
-	}
+  for (int fee = 0; fee < 14; ++fee)
+  {
+    for (int chp = 0; chp < 26; ++chp)
+    {
+      HitHist->SetBinContent(HitBin({.fee = fee,
+                                     .chp = chp}),
+                             chp);
+    }
   }
 
-  for(int fee = 0; fee < 14; ++fee) {
-    for(int bco = 0; bco < 128; ++bco) {
-      BcoHist->SetBinContent(BcoBin({
-        .fee = fee,
-        .bco = bco
-      }), fee);
+  for (int fee = 0; fee < 14; ++fee)
+  {
+    for (int bco = 0; bco < 128; ++bco)
+    {
+      BcoHist->SetBinContent(BcoBin({.fee = fee,
+                                     .bco = bco}),
+                             fee);
     }
   }
 
@@ -146,4 +144,3 @@ int InttMon::DBVarUpdate()
 
   return 0;
 }
-

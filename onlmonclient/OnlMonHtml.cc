@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <algorithm>
 #include <cstddef>  // for size_t
+#include <cstring>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -340,9 +341,23 @@ void OnlMonHtml::runInit()
       {
         std::cout << __PRETTY_FUNCTION__ << "Trying to create dir " << md << std::endl;
       }
-      if (mkdir(md.c_str(), S_IRWXU | S_IRWXG | S_IRWXO))
+      std::filesystem::perms permissions = std::filesystem::perms::owner_all | std::filesystem::perms::group_all | std::filesystem::perms::group_exec | std::filesystem::perms::others_read | std::filesystem::perms::others_exec;
+      if (std::filesystem::create_directory(md))
       {
-        std::cout << __PRETTY_FUNCTION__ << "Error creating directory " << md << std::endl;
+	if (verbosity())
+	{
+	  std::cout << "created " << md << std::endl;
+	}
+        char* onlprod_real_html = getenv("ONLMON_REAL_HTML");
+        if (!onlprod_real_html)
+        {
+          std::filesystem::permissions(md, permissions);
+          set_group_sticky_bit(md);
+        }
+      }
+      else
+      {
+        std::cout << "Error creating directory " << md << std::endl;
         fHtmlRunDir = fHtmlDir;
         break;
       }
@@ -395,4 +410,32 @@ OnlMonHtml::runRange()
     << "_" << std::setw(10) << std::setfill('0') << (start + 1) * range;
 
   return s.str();
+}
+
+void OnlMonHtml::set_group_sticky_bit(const std::filesystem::path& dir)
+{
+  struct stat st
+  {
+  };
+  if (stat(dir.c_str(), &st) != 0)
+  {
+    std::cout << "Failed to stat directory: " << std::strerror(errno) << std::endl;
+    return;
+  }
+
+  // Add the setgid bit to the existing permissions
+  // NOLINTNEXTLINE(hicpp-signed-bitwise)
+  mode_t new_mode = st.st_mode | S_ISGID;
+
+  if (chmod(dir.c_str(), new_mode) != 0)
+  {
+    std::cerr << "Failed to set group sticky bit: " << std::strerror(errno) << std::endl;
+  }
+  else
+  {
+    if (verbosity() > 0)
+    {
+      std::cout << "Group sticky bit set for directory: " << dir << std::endl;
+    }
+  }
 }

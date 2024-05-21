@@ -281,7 +281,7 @@ int MvtxMon::Init()
 
   hFeeStrobes = new TH1I("General_hfeeStrobes", "Chip Strobes vs FeeId", NFees,0,NFees);
   hFeeStrobes->GetXaxis()->SetTitle("FEE ID");
-  hFeeStrobes->GetYaxis()->SetTitle("Strobes");
+  hFeeStrobes->GetYaxis()->SetTitle("Number of MVTX strobes");
   hFeeStrobes->SetStats(0);
   se->registerHisto(this, hFeeStrobes);
 

@@ -83,6 +83,7 @@ class HcalMon : public OnlMon
 
   eventReceiverClient* erc = {nullptr};
   bool anaGL1 = true;
+  bool usembdtrig = true;
 
   CaloWaveformFitting* WaveformProcessing = nullptr;
 

@@ -20,29 +20,33 @@ int InttMonDraw::Draw(const std::string& what)
 {
   int idraw = 0;
   int iret = 0;
-  int icnvs = 0; // So each draws to the canvas at TC[icnvs]
+  int icnvs = 0;  // So each draws to the canvas at TC[icnvs]
 
-  if(what == "ALL" || what == "SERVERSTATS") {
-	  iret += DrawServerStats();
-	  ++idraw;
+  if (what == "ALL" || what == "SERVERSTATS")
+  {
+    iret += DrawServerStats();
+    ++idraw;
   }
   ++icnvs;
 
-  if(what == "ALL" || what == "chip_hitmap") {
-	  iret += DrawHitMap(icnvs);
-	  ++idraw;
+  if (what == "ALL" || what == "chip_hitmap")
+  {
+    iret += DrawHitMap(icnvs);
+    ++idraw;
   }
   ++icnvs;
 
-  if(what == "ALL" || what == "bco_diff") {
-	  iret += DrawFelixBcoFphxBco(icnvs);
-	  ++idraw;
+  if (what == "ALL" || what == "bco_diff")
+  {
+    iret += DrawFelixBcoFphxBco(icnvs);
+    ++idraw;
   }
   ++icnvs;
 
-  if(what == "ALL" || what == "peaks") {
-	  iret += DrawPeaks(icnvs);
-	  ++idraw;
+  if (what == "ALL" || what == "peaks")
+  {
+    iret += DrawPeaks(icnvs);
+    ++idraw;
   }
   ++icnvs;
 
@@ -62,25 +66,26 @@ int InttMonDraw::Draw(const std::string& what)
 
 int InttMonDraw::MakeHtml(const std::string& what)
 {
-  if(Draw(what)) {
-      std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << std::endl;
-	  return 1;
+  if (Draw(what))
+  {
+    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << std::endl;
+    return 1;
   }
 
   OnlMonClient* cl = OnlMonClient::instance();
 
-//  this code must not be modified
+  //  this code must not be modified
   Draw("SERVERSTATS");
 
   int icnt = 0;
-  for (TCanvas *canvas : TC)
+  for (TCanvas* canvas : TC)
   {
     if (canvas == nullptr)
     {
       continue;
     }
     icnt++;
-   // Register the canvas png file to the menu and produces the png file.
+    // Register the canvas png file to the menu and produces the png file.
     std::string pngfile = cl->htmlRegisterPage(*this, canvas->GetTitle(), std::to_string(icnt), "png");
     cl->CanvasToPng(canvas, pngfile);
   }
@@ -90,9 +95,10 @@ int InttMonDraw::MakeHtml(const std::string& what)
 
 int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
 {
-  if(Draw(what)) {
-      std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << std::endl;
-	  return 1;
+  if (Draw(what))
+  {
+    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << std::endl;
+    return 1;
   }
 
   OnlMonClient* cl = OnlMonClient::instance();
@@ -100,13 +106,13 @@ int InttMonDraw::SavePlot(std::string const& what, std::string const& type)
   int icnt = 0;
   for (TCanvas* canvas : TC)
   {
-	if(canvas == nullptr)
-	{
+    if (canvas == nullptr)
+    {
       continue;
-	}
-	++icnt;
-	std::string filename = ThisName + "_" + std::to_string(icnt) + "_" + std::to_string(cl->RunNumber()) + "." + type;
-	cl->CanvasToPng(canvas, filename);
+    }
+    ++icnt;
+    std::string filename = ThisName + "_" + std::to_string(icnt) + "_" + std::to_string(cl->RunNumber()) + "." + type;
+    cl->CanvasToPng(canvas, filename);
   }
   return 0;
 }
@@ -169,7 +175,7 @@ int InttMonDraw::DrawServerStats()
           << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
-        PrintRun.SetTextColor(kGray+2);
+        PrintRun.SetTextColor(kGray + 2);
       }
       else
       {
@@ -186,51 +192,50 @@ int InttMonDraw::DrawServerStats()
   return 0;
 }
 
-void
-InttMonDraw::DrawPad (
-	TPad* b,
-	TPad* p
-) {
-	if(!b)return;
-	if(!p)return;
+void InttMonDraw::DrawPad(
+    TPad* b,
+    TPad* p)
+{
+  if (!b) return;
+  if (!p) return;
 
-	p->SetFillStyle(4000);	// transparent
-	p->Range(0.0, 0.0, 1.0, 1.0);
+  p->SetFillStyle(4000);  // transparent
+  p->Range(0.0, 0.0, 1.0, 1.0);
 
-	CdPad(b);
-	p->Draw();
-	CdPad(p);
+  CdPad(b);
+  p->Draw();
+  CdPad(p);
 }
 
-void
-InttMonDraw::CdPad (
-	TPad* p
-) {
-	if(!p)return;
+void InttMonDraw::CdPad(
+    TPad* p)
+{
+  if (!p) return;
 
-	p->cd();
-	gROOT->SetSelectedPad(p); // So TObject::DrawClone draws where you expect
+  p->cd();
+  gROOT->SetSelectedPad(p);  // So TObject::DrawClone draws where you expect
 }
 
 Color_t
-InttMonDraw::GetFeeColor (
-	int const& fee
-) {
-	switch (fee % 7) {
-	case 0:
-		return (fee / 7) ? kGray + 3 : kBlack;
-	case 1:
-		return kRed + 3 * (fee / 7);
-	case 2:
-		return kYellow + 3 * (fee / 7);
-	case 3:
-		return kGreen + 3 * (fee / 7);
-	case 4:
-		return kCyan + 3 * (fee / 7);
-	case 5:
-		return kBlue + 3 * (fee / 7);
-	case 6:
-		return kMagenta + 3 * (fee / 7);
-	}
-	return kBlack;
+InttMonDraw::GetFeeColor(
+    int const& fee)
+{
+  switch (fee % 7)
+  {
+  case 0:
+    return (fee / 7) ? kGray + 3 : kBlack;
+  case 1:
+    return kRed + 3 * (fee / 7);
+  case 2:
+    return kYellow + 3 * (fee / 7);
+  case 3:
+    return kGreen + 3 * (fee / 7);
+  case 4:
+    return kCyan + 3 * (fee / 7);
+  case 5:
+    return kBlue + 3 * (fee / 7);
+  case 6:
+    return kMagenta + 3 * (fee / 7);
+  }
+  return kBlack;
 }

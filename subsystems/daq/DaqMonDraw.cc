@@ -63,7 +63,7 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
   if (name == "DaqMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "Calo ADC System Clock Check", -1, 0, xsize / 2, ysize);
+    TC[0] = new TCanvas(name.c_str(), "Calo ADC System Clock Check", -1, 0, xsize *0.7, ysize*0.7);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -87,7 +87,7 @@ int DaqMonDraw::MakeCanvas(const std::string &name)
   else if (name == "DaqMon2")
   {
     gStyle->SetOptStat(0);
-    TC[1] = new TCanvas(name.c_str(), "Calo ADC FEM Check", -1, 0, xsize / 2, ysize);
+    TC[1] = new TCanvas(name.c_str(), "Calo ADC FEM Check", -1, 0, xsize *0.7, ysize * 0.8);
     gSystem->ProcessEvents();
     Pad[1] = new TPad("pad2", "pad2", 0., 0.2, 1., 1.);
     Pad[1]->Draw();
@@ -193,6 +193,12 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
     return 0;
   }
 
+  Int_t color[3];
+  color[0] = kWhite;
+  color[1] = kRed;
+  color[2] = kGreen;
+  gStyle->SetPalette(3, color);
+
   int nbinsx = h_gl1_clock_diff[start]->GetNbinsX();
   int nbinsy = h_gl1_clock_diff[start]->GetNbinsY();
   for (int ibx = 1; ibx <= nbinsx; ibx++)
@@ -200,11 +206,12 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
     for (int iby = 1; iby <= nbinsy; iby++)
     {
       double content = h_gl1_clock_diff[start]->GetBinContent(ibx,iby);
-      if(content >0){
+      if(content >0){ 
           h_gl1_clock_diff[start]->SetBinContent(ibx,iby,iby);
       }
     }
   }
+
   h_gl1_clock_diff[start]->Draw("col");
   TLine line(h_gl1_clock_diff[start]->GetXaxis()->GetXmin(), 0.5, h_gl1_clock_diff[start]->GetXaxis()->GetXmax(), 0.5);
   line.SetLineColor(kBlack);

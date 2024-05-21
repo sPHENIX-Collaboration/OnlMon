@@ -1,69 +1,79 @@
 #include "InttMon.h"
 
-int
-InttMon::HitBin (
-	struct InttMon::HitData_s const& hit_data
-) {
-	int b = 1;
-	int s = 1;
+int InttMon::HitBin(
+    struct InttMon::HitData_s const& hit_data)
+{
+  int b = 1;
+  int s = 1;
 
-	if(0 < b &&   0 <= hit_data.chp && hit_data.chp <   26) {
-		b += hit_data.chp * s;
-	} else {
-		b = -1;
-	}
-	s *= 26;
+  if (0 < b && 0 <= hit_data.chp && hit_data.chp < 26)
+  {
+    b += hit_data.chp * s;
+  }
+  else
+  {
+    b = -1;
+  }
+  s *= 26;
 
-	if(0 < b &&   0 <= hit_data.fee && hit_data.fee <   14) {
-		b += hit_data.fee * s;
-	} else {
-		b = -1;
-	}
-	s *= 14;
+  if (0 < b && 0 <= hit_data.fee && hit_data.fee < 14)
+  {
+    b += hit_data.fee * s;
+  }
+  else
+  {
+    b = -1;
+  }
+  s *= 14;
 
-	// if(0 < b && 3001 <= hit_data.pid && hit_data.pid < 3009) {
-	// 	b += (hit_data.pid - 3001) * s;
-	// } else {
-	// 	b = -1;
-	// }
-	// s *= 8;
+  // if(0 < b && 3001 <= hit_data.pid && hit_data.pid < 3009) {
+  // 	b += (hit_data.pid - 3001) * s;
+  // } else {
+  // 	b = -1;
+  // }
+  // s *= 8;
 
-	// return the bin index if the parameters are valid
-	// otherwise, return the overflow bin index
-	return (0 < b) ? b : ++s;
+  // return the bin index if the parameters are valid
+  // otherwise, return the overflow bin index
+  return (0 < b) ? b : ++s;
 }
 
-int
-InttMon::BcoBin (
-	struct InttMon::BcoData_s const& bco_data
-) {
-	int b = 1;
-	int s = 1;
+int InttMon::BcoBin(
+    struct InttMon::BcoData_s const& bco_data)
+{
+  int b = 1;
+  int s = 1;
 
-	if(0 < b &&   0 <= bco_data.bco && bco_data.bco <  128) {
-		b += bco_data.bco * s;
-	} else {
-		b = -1;
-	}
-	s *= 128;
+  if (0 < b && 0 <= bco_data.bco && bco_data.bco < 128)
+  {
+    b += bco_data.bco * s;
+  }
+  else
+  {
+    b = -1;
+  }
+  s *= 128;
 
-	if(0 < b &&   0 <= bco_data.fee && bco_data.fee <   14) {
-		b += bco_data.fee * s;
-	} else {
-		b = -1;
-	}
-	s *= 14;
+  if (0 < b && 0 <= bco_data.fee && bco_data.fee < 14)
+  {
+    b += bco_data.fee * s;
+  }
+  else
+  {
+    b = -1;
+  }
+  s *= 14;
 
-	// if(0 < b && 3001 <= bco_data.pid && bco_data.pid < 3009) {
-	// 	b += (bco_data.pid - 3001)  * s;
-	// } else {
-	// 	b = -1;
-	// }
-	// s *= 8;
+  // if(0 < b && 3001 <= bco_data.pid && bco_data.pid < 3009) {
+  // 	b += (bco_data.pid - 3001)  * s;
+  // } else {
+  // 	b = -1;
+  // }
+  // s *= 8;
 
-	// return the bin index if the parameters are valid
-	// otherwise, return the overflow bin index
-	return (0 < b) ? b : ++s;
+  // return the bin index if the parameters are valid
+  // otherwise, return the overflow bin index
+  return (0 < b) ? b : ++s;
 }
 
 //             Ladder Structure                //
@@ -98,4 +108,3 @@ InttMon::BcoBin (
 //      U2      U15     .        .       .     //
 //      U1      U14  Ladder_z  Type B  South   //
 //=============================================//
-
