@@ -36,7 +36,7 @@ int InttMonDraw::Draw(const std::string& what)
   }
   ++icnvs;
 
-  if (what == "ALL" || what == "bco_diff")
+  if (what == "ALL" || what == "bco_diff") // Expert
   {
     iret += DrawFelixBcoFphxBco(icnvs);
     ++idraw;
@@ -50,7 +50,8 @@ int InttMonDraw::Draw(const std::string& what)
   }
   ++icnvs;
 
-  if(what == "ALL" || what == "hitrates") {
+  if(what == "ALL" || what == "hitrates") // Expert
+  {
 	  iret += DrawHitRates(icnvs);
 	  ++idraw;
   }
