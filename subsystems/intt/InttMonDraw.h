@@ -78,6 +78,19 @@ class InttMonDraw : public OnlMonDraw
   int DrawHitMap_SubPads();
   int DrawHitMap_SubPad(int);
 
+  // InttMonDraw_o_HitRates.cc
+  struct HitRates_s
+  {
+	double cnvs_width, cnvs_height;
+	double disp_frac, lgnd_frac;
+	double disp_text_size;
+	std::string name;
+  } static const m_HitRates;
+  int DrawHitRates(int);
+  int DrawHitRates_DispPad();
+  int DrawHitRates_SubPads();
+  int DrawHitRates_SubPad(int);
+
   // InttMonDraw_o_Peaks.cc
   struct Peaks_s
   {
@@ -101,7 +114,7 @@ class InttMonDraw : public OnlMonDraw
   Color_t static GetFeeColor(int const&);
 
   // Member Variables
-  TCanvas* TC[4] = {nullptr};
+  TCanvas* TC[999] = {nullptr}; // Make it large--code compiles if I forget to change it, but isn't safe
   TPad* transparent[1] = {nullptr};
 };
 

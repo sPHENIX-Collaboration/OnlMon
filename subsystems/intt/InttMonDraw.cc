@@ -46,6 +46,12 @@ int InttMonDraw::Draw(const std::string& what)
   }
   ++icnvs;
 
+  if(what == "ALL" || what == "hitrates") {
+	  iret += DrawHitRates(icnvs);
+	  ++idraw;
+  }
+  ++icnvs;
+
   if(!idraw) {
     std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
               << "\tUnimplemented drawing option \"" << what << "\"" << std::endl;
