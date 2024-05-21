@@ -2,8 +2,15 @@
 #include "InttMonDraw.h"
 
 InttMonDraw::HitMap_s const
-    InttMonDraw::m_HitMap{
-        .cnvs_width = 1280, .cnvs_height = 720, .disp_frac = 0.1, .lgnd_frac = 0.1, .disp_text_size = 0.25, .lgnd_box_width = 0.16, .lgnd_box_height = 0.03, .lgnd_text_size = 0.12, .lower = 10e-4, .upper = 10e-2, .name = "INTT_HitMap"};
+InttMonDraw::m_HitMap{
+	.cnvs_width = 1280, .cnvs_height = 720, //
+	.disp_frac = 0.1, .lgnd_frac = 0.1, //
+	.disp_text_size = 0.25, //
+	.warn_text_size = 0.2, .min_events = 50000, //
+	.lgnd_box_width = 0.16, .lgnd_box_height = 0.01, .lgnd_text_size = 0.08, //
+	.lower = 10e-4, .upper = 10e-2, //
+	.name = "INTT_HitMap"
+};
 
 int InttMonDraw::DrawHitMap(
     int icnvs)
@@ -12,39 +19,27 @@ int InttMonDraw::DrawHitMap(
 
   // use gROOT to find TStyle
   name = Form("%s_style", m_HitMap.name.c_str());
-  TStyle* style = dynamic_cast<TStyle*>(gROOT->FindObject(name.c_str()));
-  if (!style)
-  {
-    style = new TStyle(name.c_str(), name.c_str());
-    style->SetOptStat(0);
-    //...
+  TStyle* style = new TStyle(name.c_str(), name.c_str());
+  style->SetOptStat(0);
+  //...
 
-    Int_t palette[3] = {kBlue, kGreen, kRed};
-    style->SetPalette(3, palette);
-  }
+  Int_t palette[3] = {kBlue, kGreen, kRed};
+  style->SetPalette(3, palette);
+
   style->cd();
-  gROOT->SetStyle(name.c_str());
-  gROOT->ForceStyle();
 
   // use member TCanvas instead of (purely) gROOT here
   name = Form("%s", m_HitMap.name.c_str());
-  if (!dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str())))
-  {  // Only allocate if gROOT doesn't find it
-    // If ROOT freed the memory when a user closed the TCanvas,
-    // This next line would throw a double free() and cause it to crash
-    // This next line does not cause it to crash
-    delete TC[icnvs];
-    TC[icnvs] = new TCanvas(
-        name.c_str(), name.c_str(),
-        0, 0,
-        m_HitMap.cnvs_width, m_HitMap.cnvs_height);
-  }
+  TC[icnvs] = new TCanvas(
+	name.c_str(), name.c_str(),
+	0, 0,
+	m_HitMap.cnvs_width, m_HitMap.cnvs_height);
   gSystem->ProcessEvents();  // ...ROOT garbage collection?
 
   int iret = 0;
-  iret += DrawHitMap_DispPad();
-  iret += DrawHitMap_LgndPad();
-  iret += DrawHitMap_SubPads();
+  iret += DrawHitMap_DispPad(icnvs);
+  iret += DrawHitMap_LgndPad(icnvs);
+  iret += DrawHitMap_SubPads(icnvs);
 
   TC[icnvs]->Update();
   TC[icnvs]->Show();
@@ -53,48 +48,21 @@ int InttMonDraw::DrawHitMap(
   return iret;
 }
 
-int InttMonDraw::DrawHitMap_DispPad()
+int InttMonDraw::DrawHitMap_DispPad(
+	int icnvs)
 {
   std::string name;
 
-  // use gROOT to find parent TPad (TCanvas)
-  name = Form("%s", m_HitMap.name.c_str());
-  TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
-  if (!cnvs)
-  {  // If we fail to find it, give up
-    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-    return 1;
-  }
-
-  // find or make this this pad
   name = Form("%s_disp_pad", m_HitMap.name.c_str());
-  TPad* disp_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
-  if (!disp_pad)
-  {  // Make if it does not exist
-    disp_pad = new TPad(
+  TPad* disp_pad = new TPad(
         name.c_str(), name.c_str(),
         0.0, 1.0 - m_HitMap.disp_frac,  // Southwest x, y
         1.0 - m_HitMap.lgnd_frac, 1.0   // Northeast x, y
-    );
-    DrawPad(cnvs, disp_pad);
-  }
-  CdPad(disp_pad);
-
-  name = Form("%s_disp_text", m_HitMap.name.c_str());
-  TText* disp_text = dynamic_cast<TText*>(gROOT->FindObject(name.c_str()));
-  if (!disp_text)
-  {
-    disp_text = new TText(0.5, 0.5, name.c_str());
-    disp_text->SetName(name.c_str());
-    disp_text->SetTextAlign(22);
-    disp_text->SetTextSize(m_HitMap.disp_text_size);
-    disp_text->Draw();
-  }
-
-  OnlMonClient* cl = OnlMonClient::instance();
+  );
+  DrawPad(TC[icnvs], disp_pad);
 
   name = "InttEvtHist";
+  OnlMonClient* cl = OnlMonClient::instance();
   TH1D* evt_hist = (TH1D*) cl->getHisto(Form("INTTMON_%d", 0), name);
   if (!evt_hist)
   {
@@ -110,57 +78,50 @@ int InttMonDraw::DrawHitMap_DispPad()
       cl->RunNumber(),
       (int) evt_hist->GetBinContent(1),
       ts->tm_mon + 1, ts->tm_mday, ts->tm_year + 1900);
-  disp_text->SetTitle(name.c_str());
+  TText* disp_text = new TText(0.5, 0.5, name.c_str());
+  disp_text->SetTextAlign(22);
+  disp_text->SetTextSize(m_HitMap.disp_text_size);
+  disp_text->Draw();
 
-  name = Form("%s_title_text", m_HitMap.name.c_str());
-  TText* title_text = dynamic_cast<TText*>(gROOT->FindObject(name.c_str()));
-  if (title_text) return 0;
-  // Everything that follows doesn't change,
-  // early return if we've drawn it
-
-  title_text = new TText(0.5, 0.75, name.c_str());
-  title_text->SetName(name.c_str());
+  name = Form("%s", m_HitMap.name.c_str());
+  TText* title_text = new TText(0.5, 0.75, name.c_str());
   title_text->SetTextAlign(22);
   title_text->SetTextSize(m_HitMap.disp_text_size);
   title_text->Draw();
 
-  name = Form("%s", m_HitMap.name.c_str());
-  title_text->SetTitle(name.c_str());
+  name = "  "; // Nothing if we have enough events
+  if (evt_hist->GetBinContent(1) < m_HitMap.min_events) {
+  	name = Form("Not enough events (min %0.E) to be statistically significant yet", m_HitMap.min_events);
+  }
+  TText* warn_text = new TText(0.5, 0.25, name.c_str());
+  warn_text->SetName(name.c_str());
+  warn_text->SetTextAlign(22);
+  warn_text->SetTextSize(m_HitMap.warn_text_size);
+  warn_text->SetTextColor(kRed);
+  warn_text->Draw();
 
   return 0;
 }
 
-int InttMonDraw::DrawHitMap_LgndPad()
-{
+int InttMonDraw::DrawHitMap_LgndPad(
+	int icnvs
+) {
   std::string name;
-
-  // use gROOT to find parent TPad (TCanvas)
-  name = Form("%s", m_HitMap.name.c_str());
-  TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
-  if (!cnvs)
-  {  // If we fail to find it, give up
-    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-    return 1;
-  }
 
   // find or make this this pad
   name = Form("%s_lgnd_pad", m_HitMap.name.c_str());
-  TPad* lgnd_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
-  if (lgnd_pad) return 0;
-  // Everything that follows doesn't change,
-  // early return if we've drawn it
-
-  lgnd_pad = new TPad(
+  TPad* lgnd_pad = new TPad(
       name.c_str(), name.c_str(),
       1.0 - m_HitMap.lgnd_frac, 0.5 - m_HitMap.disp_frac,  // Southwest x, y
       1.0, 0.5 + m_HitMap.disp_frac                        // Northeast x, y
   );
-  DrawPad(cnvs, lgnd_pad);
+  DrawPad(TC[icnvs], lgnd_pad);
 
   int color;
   std::string label;
   double x0, y0, x[4], y[4];
+  double w[4] = {-1, +1, +1, -1};
+  double h[4] = {-1, -1, +1, +1};
   for (int c = 0; c < 3; ++c)
   {
     x0 = 0.5 - m_HitMap.lgnd_box_width;
@@ -191,19 +152,13 @@ int InttMonDraw::DrawHitMap_LgndPad()
     lgnd_text->SetTextColor(kBlack);
     lgnd_text->Draw();
 
-    x[0] = -1;
-    x[1] = +1;
-    x[2] = +1;
-    x[3] = -1;
-    y[0] = -1;
-    y[1] = -1;
-    y[2] = +1;
-    y[3] = +1;
     for (int i = 0; i < 4; ++i)
     {
+      x[i] = w[i];
       x[i] *= 0.5 * m_HitMap.lgnd_box_width;
       x[i] += x0;
 
+      y[i] = h[i];
       y[i] *= 0.5 * m_HitMap.lgnd_box_height;
       y[i] += y0;
     }
@@ -218,24 +173,14 @@ int InttMonDraw::DrawHitMap_LgndPad()
   return 0;
 }
 
-int InttMonDraw::DrawHitMap_SubPads()
-{
+int InttMonDraw::DrawHitMap_SubPads(
+	int icnvs
+) {
   std::string name;
 
-  // use gROOT to find parent TPad (TCanvas)
-  name = Form("%s", m_HitMap.name.c_str());
-  TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
-  if (!cnvs)
-  {  // If we fail to find it, give up
-    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-    return 1;
-  }
-
-  double x_min = 0.0;
-  double x_max = 1.0;
-  double y_min = 0.0;
-  double y_max = 1.0 - m_HitMap.disp_frac;
+  int iret = 0;
+  double x_min = 0.0, x_max = 1.0 - m_HitMap.lgnd_frac;
+  double y_min = 0.0, y_max = 1.0 - m_HitMap.disp_frac;
   for (int i = 0; i < 8; ++i)
   {
     name = Form("%s_hist_pad_%d", m_HitMap.name.c_str(), i);
@@ -248,30 +193,23 @@ int InttMonDraw::DrawHitMap_SubPads()
         x_min + (x_max - x_min) * (i % 4 + 1) / 4.0, y_min + (y_max - y_min) * (i / 4 + 1) / 2.0   // Southwest x, y
     );
     hist_pad->SetRightMargin(0.2);
-    DrawPad(cnvs, hist_pad);
-  }
+    DrawPad(TC[icnvs], hist_pad);
 
-  int iret = 0;
-  for (int i = 0; i < 8; ++i)
-  {
-    iret += DrawHitMap_SubPad(i);
+    iret += DrawHitMap_SubPad(hist_pad, i);
   }
 
   return iret;
 }
 
 int InttMonDraw::DrawHitMap_SubPad(
+	TPad* prnt_pad,
     int i)
 {
   std::string name;
 
-  // use gROOT to find parent TPad
-  name = Form("%s_hist_pad_%d", m_HitMap.name.c_str(), i);
-  TPad* prnt_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
-  if (!prnt_pad)
-  {  // If we fail to find it, give up
+  if (!prnt_pad) { // If we fail to find it, give up
     std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
+              << "\tnull TPad*" << std::endl;
     return 1;
   }
   CdPad(prnt_pad);
@@ -357,7 +295,7 @@ int InttMonDraw::DrawHitMap_SubPad(
     hist->SetTitle(Form("intt%01d;Chip ID (0-base);Felix Channel", i));
   }
 
-  hist->DrawCopy("COL");  // "COLZ" for a legend; no legend is preferrable here
+  hist->Draw("COL");  // "COLZ" for a legend; no legend is preferrable here
 
   return 0;
 }

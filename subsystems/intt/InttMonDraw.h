@@ -53,14 +53,15 @@ class InttMonDraw : public OnlMonDraw
     double cnvs_width, cnvs_height;
     double disp_frac, lgnd_frac;
     double disp_text_size;
+    double warn_text_size, min_events;
     double lgnd_box_width, lgnd_box_height, lgnd_text_size;
     std::string name;
   } static const m_FelixBcoFphxBco;
   int DrawFelixBcoFphxBco(int);
-  int DrawFelixBcoFphxBco_DispPad();
-  int DrawFelixBcoFphxBco_LgndPad();
-  int DrawFelixBcoFphxBco_SubPads();
-  int DrawFelixBcoFphxBco_SubPad(int);
+  int DrawFelixBcoFphxBco_DispPad(int);
+  int DrawFelixBcoFphxBco_LgndPad(int);
+  int DrawFelixBcoFphxBco_SubPads(int);
+  int DrawFelixBcoFphxBco_SubPad(TPad*, int);
 
   // InttMonDraw_o_HitMap.cc
   struct HitMap_s
@@ -68,28 +69,31 @@ class InttMonDraw : public OnlMonDraw
     double cnvs_width, cnvs_height;
     double disp_frac, lgnd_frac;
     double disp_text_size;
+    double warn_text_size, min_events;
     double lgnd_box_width, lgnd_box_height, lgnd_text_size;
     double lower, upper;
     std::string name;
   } static const m_HitMap;
   int DrawHitMap(int);
-  int DrawHitMap_DispPad();
-  int DrawHitMap_LgndPad();
-  int DrawHitMap_SubPads();
-  int DrawHitMap_SubPad(int);
+  int DrawHitMap_DispPad(int);
+  int DrawHitMap_LgndPad(int);
+  int DrawHitMap_SubPads(int);
+  int DrawHitMap_SubPad(TPad*, int);
 
   // InttMonDraw_o_HitRates.cc
   struct HitRates_s
   {
 	double cnvs_width, cnvs_height;
-	double disp_frac, lgnd_frac;
+	double disp_frac;
 	double disp_text_size;
+    double warn_text_size, min_events;
+    double lower, upper;
 	std::string name;
   } static const m_HitRates;
   int DrawHitRates(int);
-  int DrawHitRates_DispPad();
-  int DrawHitRates_SubPads();
-  int DrawHitRates_SubPad(int);
+  int DrawHitRates_DispPad(int);
+  int DrawHitRates_SubPads(int);
+  int DrawHitRates_SubPad(TPad*, int);
 
   // InttMonDraw_o_Peaks.cc
   struct Peaks_s
@@ -97,14 +101,15 @@ class InttMonDraw : public OnlMonDraw
     double cnvs_width, cnvs_height;
     double disp_frac;
     double disp_text_size;
+    double warn_text_size, min_events;
     double frac;
     double max_width;
     std::string name;
   } static const m_Peaks;
   int DrawPeaks(int);
-  int DrawPeaks_DispPad();
-  int DrawPeaks_SubPads();
-  int DrawPeaks_SubPad(int);
+  int DrawPeaks_DispPad(int);
+  int DrawPeaks_SubPads(int);
+  int DrawPeaks_SubPad(TPad*, int);
   int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
   // ...
 

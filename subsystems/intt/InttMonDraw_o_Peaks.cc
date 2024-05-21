@@ -6,7 +6,9 @@
 
 InttMonDraw::Peaks_s const
     InttMonDraw::m_Peaks{
-        .cnvs_width = 1280, .cnvs_height = 720, .disp_frac = 0.1, .disp_text_size = 0.25,
+        .cnvs_width = 1280, .cnvs_height = 720, //
+		.disp_frac = 0.1, .disp_text_size = 0.25, //
+		.warn_text_size = 0.2, .min_events = 50000, //
         .frac = 0.035,   // between 0.01 and 0.1 is reasonable
         .max_width = 3,  // The max "width" of a peak before we denote a problem
         .name = "INTT_Peaks"};
@@ -18,35 +20,27 @@ int InttMonDraw::DrawPeaks(
 
   // use gROOT to find TStyle
   name = Form("%s_style", m_Peaks.name.c_str());
-  TStyle* style = dynamic_cast<TStyle*>(gROOT->FindObject(name.c_str()));
-  if (!style)
-  {
-    style = new TStyle(name.c_str(), name.c_str());
-    style->SetOptStat(0);
-    style->SetMarkerStyle(8);  // Circle
-    style->SetMarkerSize(0.5);
-    style->SetMarkerColor(kBlack);
-    //...
-  }
-  style->cd();
-  gROOT->SetStyle(name.c_str());
-  gROOT->ForceStyle();
+  TStyle* style = new TStyle(name.c_str(), name.c_str());
+  style->SetOptStat(0);
+  style->SetMarkerStyle(8);  // Circle
+  style->SetMarkerSize(0.5);
+  style->SetMarkerColor(kBlack);
+  //...
 
-  // Only allocate if gROOT doesn't find it
+  style->cd();
+  // gROOT->SetStyle(name.c_str());
+  // gROOT->ForceStyle();
+
   name = Form("%s", m_Peaks.name.c_str());
-  if (!dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str())))
-  {
-    delete TC[icnvs];
-    TC[icnvs] = new TCanvas(
-        name.c_str(), name.c_str(),
-        0, 0,
-        m_Peaks.cnvs_width, m_Peaks.cnvs_height);
-  }
+  TC[icnvs] = new TCanvas(
+    name.c_str(), name.c_str(),
+    0, 0,
+    m_Peaks.cnvs_width, m_Peaks.cnvs_height);
   gSystem->ProcessEvents();  // ...ROOT garbage collection?
 
   int iret = 0;
-  iret += DrawPeaks_DispPad();
-  iret += DrawPeaks_SubPads();
+  iret += DrawPeaks_DispPad(icnvs);
+  iret += DrawPeaks_SubPads(icnvs);
 
   TC[icnvs]->Update();
   TC[icnvs]->Show();
@@ -55,44 +49,18 @@ int InttMonDraw::DrawPeaks(
   return iret;
 }
 
-int InttMonDraw::DrawPeaks_DispPad()
-{
+int InttMonDraw::DrawPeaks_DispPad(
+	int icnvs
+) {
   std::string name;
 
-  // use gROOT to find parent TPad (TCanvas)
-  name = Form("%s", m_Peaks.name.c_str());
-  TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
-  if (!cnvs)
-  {
-    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-    return 1;
-  }
-
-  // find or make this this pad
   name = Form("%s_disp_pad", m_Peaks.name.c_str());
-  TPad* disp_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
-  if (!disp_pad)
-  {
-    disp_pad = new TPad(
-        name.c_str(), name.c_str(),
-        0.0, 1.0 - m_Peaks.disp_frac,  // Southwest x, y
-        1.0, 1.0                       // Northeast x, y
-    );
-    DrawPad(cnvs, disp_pad);
-  }
-  CdPad(disp_pad);
-
-  name = Form("%s_disp_text", m_Peaks.name.c_str());
-  TText* disp_text = dynamic_cast<TText*>(gROOT->FindObject(name.c_str()));
-  if (!disp_text)
-  {
-    disp_text = new TText(0.5, 0.5, name.c_str());
-    disp_text->SetName(name.c_str());
-    disp_text->SetTextAlign(22);
-    disp_text->SetTextSize(m_Peaks.disp_text_size);
-    disp_text->Draw();
-  }
+  TPad* disp_pad = new TPad (
+    name.c_str(), name.c_str(),
+    0.0, 1.0 - m_Peaks.disp_frac,  // Southwest x, y
+    1.0, 1.0                                 // Northeast x, y
+  );
+  DrawPad(TC[icnvs], disp_pad); // Floor of division will be the right icnvs
 
   name = "InttEvtHist";
   OnlMonClient* cl = OnlMonClient::instance();
@@ -111,76 +79,68 @@ int InttMonDraw::DrawPeaks_DispPad()
       cl->RunNumber(),
       (int) evt_hist->GetBinContent(1),
       ts->tm_mon + 1, ts->tm_mday, ts->tm_year + 1900);
-  disp_text->SetTitle(name.c_str());
+  TText* disp_text = new TText(0.5, 0.5, name.c_str());
+  disp_text->SetTextAlign(22);
+  disp_text->SetTextSize(m_Peaks.disp_text_size);
+  disp_text->Draw();
 
-  name = Form("%s_title_text", m_Peaks.name.c_str());
-  TText* title_text = dynamic_cast<TText*>(gROOT->FindObject(name.c_str()));
-  if (title_text) return 0;  // Early return since the title text is unchanging, and this means we've drawn it
-
-  title_text = new TText(0.5, 0.75, name.c_str());
-  title_text->SetName(name.c_str());
+  name = Form("%s", m_Peaks.name.c_str());
+  TText* title_text = new TText(0.5, 0.75, name.c_str());
   title_text->SetTextAlign(22);
   title_text->SetTextSize(m_Peaks.disp_text_size);
   title_text->Draw();
 
-  name = Form("%s", m_Peaks.name.c_str());
-  title_text->SetTitle(name.c_str());
+  name = "  "; // Nothing if we have enough events
+  if (evt_hist->GetBinContent(1) < m_Peaks.min_events) {
+  	name = Form("Not enough events (min %0.E) to be statistically significant yet", m_Peaks.min_events);
+  }
+  TText* warn_text = new TText(0.5, 0.25, name.c_str());
+  warn_text->SetName(name.c_str());
+  warn_text->SetTextAlign(22);
+  warn_text->SetTextSize(m_Peaks.warn_text_size);
+  warn_text->SetTextColor(kRed);
+  warn_text->Draw();
 
   return 0;
 }
 
-int InttMonDraw::DrawPeaks_SubPads()
-{
+
+int InttMonDraw::DrawPeaks_SubPads(
+	int icnvs
+) {
   std::string name;
 
-  // use gROOT to find parent TPad (TCanvas)
-  name = Form("%s", m_Peaks.name.c_str());
-  TCanvas* cnvs = dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()));
-  if (!cnvs)
-  {  // If we fail to find it, give up
-    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
-    return 1;
-  }
-
+  int iret = 0;
   double x_min = 0.0, x_max = 1.0;
   double y_min = 0.0, y_max = 1.0 - m_Peaks.disp_frac;
   for (int i = 0; i < 8; ++i)
   {
     name = Form("%s_hist_pad_%d", m_Peaks.name.c_str(), i);
-    TPad* hist_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
-    if (hist_pad) continue;
-
-    hist_pad = new TPad(
+    TPad* hist_pad = new TPad(
         name.c_str(), name.c_str(),
         x_min + (x_max - x_min) * (i % 4 + 0) / 4.0, y_min + (y_max - y_min) * (i / 4 + 0) / 2.0,  // Southwest x, y
         x_min + (x_max - x_min) * (i % 4 + 1) / 4.0, y_min + (y_max - y_min) * (i / 4 + 1) / 2.0   // Southwest x, y
     );
     hist_pad->SetBottomMargin(0.15);
     hist_pad->SetLeftMargin(0.15);
-    DrawPad(cnvs, hist_pad);
-  }
+    DrawPad(TC[icnvs], hist_pad);
 
-  int iret = 0;
-  for (int i = 0; i < 8; ++i)
-  {
-    iret += DrawPeaks_SubPad(i);
+    iret += DrawPeaks_SubPad(hist_pad, i);
   }
 
   return iret;
+
 }
 
 int InttMonDraw::DrawPeaks_SubPad(
+	TPad* prnt_pad,
     int i)
 {
   std::string name;
 
-  name = Form("%s_hist_pad_%01d", m_Peaks.name.c_str(), i);
-  TPad* prnt_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
-  if (!prnt_pad)
-  {  // If we fail to find it, give up
+  if (!prnt_pad) {
     std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tCouldn't get parent pad \"" << name << "\"" << std::endl;
+              << "\tnull TPad*" << std::endl;
     return 1;
   }
   CdPad(prnt_pad);
@@ -192,9 +152,7 @@ int InttMonDraw::DrawPeaks_SubPad(
   }
 
   name = Form("%s_graph_%01d", m_Peaks.name.c_str(), i);
-  TGraphErrors* graph = dynamic_cast<TGraphErrors*>(gROOT->FindObject(name.c_str()));
-  delete graph;
-  graph = new TGraphErrors(14, x, y, x_err, y_err);
+  TGraphErrors* graph = new TGraphErrors(14, x, y, x_err, y_err);
   graph->SetName(name.c_str());
   graph->SetTitle(Form("BCO Peaks for intt%01d;Felix Channel;Felix BCO - FPHX BCO", i));
   graph->GetXaxis()->SetRangeUser(-0.5, 13.5);
