@@ -240,3 +240,96 @@ InttMonDraw::GetFeeColor(
   }
   return kBlack;
 }
+
+int InttMonDraw::Draw_DispPad (
+	int icnvs,
+	std::string const& m_name
+) {
+  std::string name;
+
+  name = Form("%s_disp_pad", m_name.c_str());
+  TPad* disp_pad = dynamic_cast<TPad*>(gROOT->FindObject(name.c_str()));
+  if(!disp_pad) {
+ 	disp_pad = new TPad (
+      name.c_str(), name.c_str(),
+      0.0, 1.0 - m_disp_frac, // Southwest x, y
+      1.0, 1.0                // Northeast x, y
+    );
+    DrawPad(TC[icnvs], disp_pad);
+  }
+  CdPad(disp_pad);
+
+  // Display info
+  name = Form("%s_disp_text", m_name.c_str());
+  TText* disp_text = dynamic_cast<TText*>(gROOT->FindObject(name.c_str()));
+  if(!disp_text) {
+ 	disp_text = new TText(0.5, 0.5, name.c_str());
+	disp_text->SetName(name.c_str());
+    disp_text->SetTextAlign(22);
+    disp_text->SetTextSize(m_disp_text_size);
+    disp_text->Draw();
+  }
+
+  // Disclaimer if there are not enough events
+  name = Form("%s_warn_text", m_name.c_str());
+  TText* warn_text = dynamic_cast<TText*>(gROOT->FindObject(name.c_str()));
+  if(!warn_text) {
+    warn_text = new TText(0.5, 0.25, name.c_str());
+    warn_text->SetName(name.c_str());
+    warn_text->SetTextAlign(22);
+    warn_text->SetTextSize(m_warn_text_size);
+    warn_text->SetTextColor(kRed);
+    warn_text->Draw();
+  }
+
+  // Title
+  name = Form("%s_title_text", m_name.c_str());
+  TText* title_text = dynamic_cast<TText*>(gROOT->FindObject(name.c_str()));
+  if(!title_text)
+  {
+    title_text = new TText(0.5, 0.75, name.c_str());
+    title_text->SetName(name.c_str());
+    title_text->SetTextAlign(22);
+    title_text->SetTextSize(m_disp_text_size);
+    title_text->Draw();
+    name = Form("%s", m_name.c_str());
+    title_text->SetTitle(name.c_str());
+  }
+
+  // Update after making
+  OnlMonClient* cl = OnlMonClient::instance();
+
+  name = "InttEvtHist";
+  TH1D* evt_hist = (TH1D*) cl->getHisto(Form("INTTMON_%d", 0), name);
+  if (!evt_hist)
+  {
+    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
+              << "\tCould not get \"" << name << "\" from " << Form("INTTMON_%d", 0) << std::endl;
+    return 1;
+  }
+
+  // Update display text
+  std::time_t t = cl->EventTime("CURRENT");  // BOR, CURRENT, or EOR
+  struct tm* ts = std::localtime(&t);
+  name = Form (
+    "Run: %08d, Events: %d, Date: %02d/%02d/%4d", //
+    cl->RunNumber(), //
+    (int) evt_hist->GetBinContent(1), //
+    ts->tm_mon + 1, ts->tm_mday, ts->tm_year + 1900 //
+  );
+  disp_text->SetTitle(name.c_str());
+
+  // Update warn text
+  if (evt_hist->GetBinContent(1) < m_min_events) {
+  	name = Form (
+      "Not enough events (min %0.E) to be statistically significant yet",
+	  m_min_events
+	);
+  } else {
+    name = " ";
+  }
+  warn_text->SetTitle(name.c_str());
+
+  return 0;
+}
+

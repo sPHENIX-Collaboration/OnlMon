@@ -50,66 +50,48 @@ class InttMonDraw : public OnlMonDraw
   // InttMonDraw_o_FelixBcoFphxBco.cc
   struct FelixBcoFphxBco_s
   {
-    double cnvs_width, cnvs_height;
-    double disp_frac, lgnd_frac;
-    double disp_text_size;
-    double warn_text_size, min_events;
+    double lgnd_frac;
     double lgnd_box_width, lgnd_box_height, lgnd_text_size;
     std::string name;
   } static const m_FelixBcoFphxBco;
   int DrawFelixBcoFphxBco(int);
-  int DrawFelixBcoFphxBco_DispPad(int);
   int DrawFelixBcoFphxBco_LgndPad(int);
   int DrawFelixBcoFphxBco_SubPads(int);
-  int DrawFelixBcoFphxBco_SubPad(TPad*, int);
+  int DrawFelixBcoFphxBco_SubPad(int);
 
   // InttMonDraw_o_HitMap.cc
   struct HitMap_s
   {
-    double cnvs_width, cnvs_height;
-    double disp_frac, lgnd_frac;
-    double disp_text_size;
-    double warn_text_size, min_events;
+    double lgnd_frac;
     double lgnd_box_width, lgnd_box_height, lgnd_text_size;
     double lower, upper;
     std::string name;
   } static const m_HitMap;
   int DrawHitMap(int);
-  int DrawHitMap_DispPad(int);
   int DrawHitMap_LgndPad(int);
   int DrawHitMap_SubPads(int);
-  int DrawHitMap_SubPad(TPad*, int);
+  int DrawHitMap_SubPad(int);
 
   // InttMonDraw_o_HitRates.cc
   struct HitRates_s
   {
-	double cnvs_width, cnvs_height;
-	double disp_frac;
-	double disp_text_size;
-    double warn_text_size, min_events;
     double lower, upper;
 	std::string name;
   } static const m_HitRates;
   int DrawHitRates(int);
-  int DrawHitRates_DispPad(int);
   int DrawHitRates_SubPads(int);
-  int DrawHitRates_SubPad(TPad*, int);
+  int DrawHitRates_SubPad(int);
 
   // InttMonDraw_o_Peaks.cc
   struct Peaks_s
   {
-    double cnvs_width, cnvs_height;
-    double disp_frac;
-    double disp_text_size;
-    double warn_text_size, min_events;
-    double frac;
+    double peak_frac;
     double max_width;
     std::string name;
   } static const m_Peaks;
   int DrawPeaks(int);
-  int DrawPeaks_DispPad(int);
   int DrawPeaks_SubPads(int);
-  int DrawPeaks_SubPad(TPad*, int);
+  int DrawPeaks_SubPad(int);
   int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
   // ...
 
@@ -117,10 +99,18 @@ class InttMonDraw : public OnlMonDraw
   void static DrawPad(TPad*, TPad*);
   void static CdPad(TPad*);
   Color_t static GetFeeColor(int const&);
+  int Draw_DispPad(int, std::string const&);
 
   // Member Variables
   TCanvas* TC[999] = {nullptr}; // Make it large--code compiles if I forget to change it, but isn't safe
   TPad* transparent[1] = {nullptr};
+
+  int const static m_cnvs_width = 1280;
+  int const static m_cnvs_height = 720;
+  double constexpr static m_min_events = 50000;
+  double constexpr static m_disp_frac = 0.2;
+  double constexpr static m_disp_text_size = 0.25;
+  double constexpr static m_warn_text_size = 0.2;
 };
 
 #endif
