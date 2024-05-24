@@ -56,7 +56,7 @@ class InttMonDraw : public OnlMonDraw
     double lgnd_box_width, lgnd_box_height, lgnd_text_size;
     std::string name;
   } static const m_FelixBcoFphxBco;
-  int DrawFelixBcoFphxBco(int);
+  int DrawFelixBcoFphxBco();
   int DrawFelixBcoFphxBco_DispPad();
   int DrawFelixBcoFphxBco_LgndPad();
   int DrawFelixBcoFphxBco_SubPads();
@@ -72,7 +72,7 @@ class InttMonDraw : public OnlMonDraw
     double lower, upper;
     std::string name;
   } static const m_HitMap;
-  int DrawHitMap(int);
+  int DrawHitMap();
   int DrawHitMap_DispPad();
   int DrawHitMap_LgndPad();
   int DrawHitMap_SubPads();
@@ -101,8 +101,17 @@ class InttMonDraw : public OnlMonDraw
   Color_t static GetFeeColor(int const&);
 
   // Member Variables
-  TCanvas* TC[4] = {nullptr};
-  TPad* transparent[1] = {nullptr};
+  TCanvas* TC[9] = {nullptr};
+  TPad* transparent[4] = {nullptr};
+  // Hit map
+  TPad* Pad_hit_hist[8]{nullptr};
+  TPad* Pad_felixbcofphxbco_hist[8]{nullptr};
+  TPad* lgnd_pad[9]{nullptr};
+  TPad* disp_pad[9]{nullptr};
+  TH2D* hist[8]{nullptr};
+  TH1D* hist_FB[8][14]{nullptr};
+
+  
 };
 
 #endif
