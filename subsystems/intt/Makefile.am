@@ -41,6 +41,7 @@ libonlinttmon_client_la_SOURCES = \
   InttMon_o_Binning.cc \
   InttMonDraw_o_FelixBcoFphxBco.cc \
   InttMonDraw_o_HitMap.cc \
+  InttMonDraw_o_HitRates.cc \
   InttMonDraw_o_Peaks.cc \
   InttMonDraw.cc
 
