@@ -29,7 +29,7 @@ int InttMonDraw::DrawFelixBcoFphxBco(
   {
 	// I'm almost certain this line is safe (and preventing a leak)
 	// But I leave it out--better to leak than crash
-    // delete TC[icnvs];
+    delete TC[icnvs];
     TC[icnvs] = new TCanvas (
       name.c_str(), name.c_str(), //
 	  m_cnvs_width, m_cnvs_height //

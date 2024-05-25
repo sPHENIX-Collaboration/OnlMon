@@ -47,70 +47,83 @@ class InttMonDraw : public OnlMonDraw
   int MakeCanvas(const std::string& name);
   int DrawServerStats();
 
-  // InttMonDraw_o_FelixBcoFphxBco.cc
-  struct FelixBcoFphxBco_s
-  {
-    double lgnd_frac;
-    double lgnd_box_width, lgnd_box_height, lgnd_text_size;
-    std::string name;
-  } static const m_FelixBcoFphxBco;
-  int DrawFelixBcoFphxBco(int);
-  int DrawFelixBcoFphxBco_LgndPad(int);
-  int DrawFelixBcoFphxBco_SubPads(int);
-  int DrawFelixBcoFphxBco_SubPad(int);
+  int MakeCanvas_Generic(int);
+  int DrawDispPad_Generic(int);
 
-  // InttMonDraw_o_HitMap.cc
-  struct HitMap_s
-  {
-    double lgnd_frac;
-    double lgnd_box_width, lgnd_box_height, lgnd_text_size;
-    double lower, upper;
-    std::string name;
-  } static const m_HitMap;
-  int DrawHitMap(int);
-  int DrawHitMap_LgndPad(int);
-  int DrawHitMap_SubPads(int);
-  int DrawHitMap_SubPad(int);
-
-  // InttMonDraw_o_HitRates.cc
-  struct HitRates_s
-  {
-    double lower, upper;
-	std::string name;
-  } static const m_HitRates;
-  int DrawHitRates(int);
-  int DrawHitRates_SubPads(int);
-  int DrawHitRates_SubPad(int);
-
-  // InttMonDraw_o_Peaks.cc
-  struct Peaks_s
-  {
-    double peak_frac;
-    double max_width;
-    std::string name;
-  } static const m_Peaks;
-  int DrawPeaks(int);
-  int DrawPeaks_SubPads(int);
-  int DrawPeaks_SubPad(int);
-  int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
-  // ...
-
-  // InttMonDraw.cc (Helper functions I want to declare last)
   void static DrawPad(TPad*, TPad*);
   void static CdPad(TPad*);
   Color_t static GetFeeColor(int const&);
-  int Draw_DispPad(int, std::string const&);
+
+  // InttMonDraw_o_HitRates.cc
+  int Draw_HitRates(int);
+  int DrawSubPad_HitRates(int, int);
+
+  // InttMonDraw_o_FelixBcoFphxBco.cc
+  // struct FelixBcoFphxBco_s
+  // {
+  //   double lgnd_frac;
+  //   double lgnd_box_width, lgnd_box_height, lgnd_text_size;
+  //   std::string name;
+  // } static const m_FelixBcoFphxBco;
+  // int DrawFelixBcoFphxBco(int);
+  // int DrawFelixBcoFphxBco_LgndPad(int);
+  // int DrawFelixBcoFphxBco_SubPads(int);
+  // int DrawFelixBcoFphxBco_SubPad(int);
+
+  // InttMonDraw_o_HitMap.cc
+  // struct HitMap_s
+  // {
+  //   double lgnd_frac;
+  //   double lgnd_box_width, lgnd_box_height, lgnd_text_size;
+  //   double lower, upper;
+  //   std::string name;
+  // } static const m_HitMap;
+  // int DrawHitMap(int);
+  // int DrawHitMap_LgndPad(int);
+  // int DrawHitMap_SubPads(int);
+  // int DrawHitMap_SubPad(int);
+
+
+  // InttMonDraw_o_Peaks.cc
+  // struct Peaks_s
+  // {
+  //   double peak_frac;
+  //   double max_width;
+  //   std::string name;
+  // } static const m_Peaks;
+  // int DrawPeaks(int);
+  // int DrawPeaks_SubPads(int);
+  // int DrawPeaks_SubPad(int);
+  // int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
+  // ...
+
+  int const static ALOT = 99; // Make it large--code compiles if I forget to change it, but isn't safe
+  enum Pad_e {
+	  // big chunk of space for methods to use how they need
+	  k_disp_pad = ALOT,
+	  k_lgnd_pad,
+      k_end,
+  };
 
   // Member Variables
-  TCanvas* TC[999] = {nullptr}; // Make it large--code compiles if I forget to change it, but isn't safe
+  TCanvas* TC[ALOT] = {nullptr};
+  TPad* TP[ALOT][k_end] = {nullptr};
   TPad* transparent[1] = {nullptr};
 
-  int const static m_cnvs_width = 1280;
-  int const static m_cnvs_height = 720;
-  double constexpr static m_min_events = 50000;
-  double constexpr static m_disp_frac = 0.2;
-  double constexpr static m_disp_text_size = 0.25;
-  double constexpr static m_warn_text_size = 0.2;
+  // Not constant so methods can set them as they need
+  std::string m_name;
+  int m_cnvs_width = 1280;
+  int m_cnvs_height = 720;
+
+  double m_disp_frac = 0.2;
+  double m_disp_text_size = 0.25;
+  double m_warn_text_size = 0.2;
+
+  double m_lgnd_frac = 0.2;
+  double m_lgnd_text_size = 0.2;
+  double m_lgnd_box_size = 0.2;
+
+  double m_min_events = 50000;
 };
 
 #endif
