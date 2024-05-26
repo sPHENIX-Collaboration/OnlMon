@@ -42,7 +42,6 @@ libonlinttmon_client_la_SOURCES = \
   InttMonDraw_o_FelixBcoFphxBco.cc \
   InttMonDraw_o_HitMap.cc \
   InttMonDraw_o_HitRates.cc \
-  InttMonDraw_o_Peaks.cc \
   InttMonDraw.cc
 
 bin_SCRIPTS = \

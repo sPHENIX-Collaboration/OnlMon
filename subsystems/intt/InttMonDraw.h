@@ -52,90 +52,63 @@ class InttMonDraw : public OnlMonDraw
   int MakeCanvas_Generic(int);
   int DrawDispPad_Generic(int);
 
-  void static DrawPad(TPad*, TPad*);
-  void static CdPad(TPad*);
-  Color_t static GetFeeColor(int const&);
-
   // InttMonDraw_o_HitRates.cc
-  int Draw_HitRates(int);
-  int DrawSubPad_HitRates(int, int);
+  int Draw_HitRates();
+  int DrawHistPad_HitRates(int);
   TH1D* m_hist_hitrates[8] = {nullptr};
 
   // InttMonDraw_o_FelixBcoFphxBco.cc
-  int Draw_FelixBcoFphxBco(int);
-  int DrawLgndPad_FelixBcoFphxBco(int);
-  int DrawSubPad_FelixBcoFphxBco(int, int);
-  TH1D* m_hist_bco[8][14] = {nullptr};
+  int Draw_FelixBcoFphxBco();
+  int DrawLgndPad_FelixBcoFphxBco();
+  int DrawHistPad_FelixBcoFphxBco(int);
+  TH1D* m_hist_felixbcofphxbco[8][14] = {nullptr};
+  Color_t static GetFeeColor(int const&);
 
   // InttMonDraw_o_HitMap.cc
-  struct HitMap_s
-  {
-    double cnvs_width, cnvs_height;
-    double disp_frac, lgnd_frac;
-    double disp_text_size;
-    double lgnd_box_width, lgnd_box_height, lgnd_text_size;
-    double lower, upper;
-    std::string name;
-  } static const m_HitMap;
-  int DrawHitMap();
-  int DrawHitMap_DispPad();
-  int DrawHitMap_LgndPad();
-  int DrawHitMap_SubPads();
-  int DrawHitMap_SubPad(int);
+  int Draw_HitMap();
+  int DrawLgndPad_HitMap();
+  int DrawHistPad_HitMap(int);
+  TH2D* m_hist_hitmap[8] = {nullptr};
 
-  // InttMonDraw_o_Peaks.cc
-  struct Peaks_s
-  {
-    double cnvs_width, cnvs_height;
-    double disp_frac;
-    double disp_text_size;
-    double frac;
-    double max_width;
-    std::string name;
-  } static const m_Peaks;
-  int DrawPeaks(int);
-  int DrawPeaks_DispPad();
-  int DrawPeaks_SubPads();
-  int DrawPeaks_SubPad(int);
-  int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
+  // // InttMonDraw_o_Peaks.cc
+  // int Draw_Peaks();
+  // int DrawHistPad_Peaks(int);
+  // int DrawPeaks_GetFeePeakAndWidth(int, double*, double*, double*);
+  // TMultiGraph* m_hist_hitrates[8] = {nullptr};
   // ...
 
+  enum Method_e {
+	  k_server_stats = 0, // Reserved for Chris
+	  // I don't use it, it just offsets the enum
 
-  enum Pad_e {
-      // big chunk of space for methods to use how they need
-      k_disp_pad = 99,
-      k_lgnd_pad,
-      k_end,
+	  k_hitmap,
+	  k_hitrates,
+	  k_felixbcofphxbco,
+	  k_peaks,
+
+	  k_end = 10,
   };
 
   // Member Variables
-  TCanvas* TC[99] = {nullptr};
-  TPad* TP[99][k_end] = {nullptr};
+  TCanvas* TC[k_end] = {nullptr};
+  TPad* transparent[1] = {nullptr};
 
-  TPad* transparent[4] = {nullptr};
-  // Hit map
-  TPad* Pad_hit_hist[8]{nullptr};
-  TPad* Pad_felixbcofphxbco_hist[8]{nullptr};
-  TPad* lgnd_pad[9]{nullptr};
-  TPad* disp_pad[9]{nullptr};
-  TH2D* hist[8]{nullptr};
-  TH1D* hist_FB[8][14]{nullptr};
+  TPad* m_disp_pad[k_end]     = {nullptr};
+  TPad* m_lgnd_pad[k_end]     = {nullptr};
+  TPad* m_hist_pad[k_end][10] = {nullptr};
 
-  // Not constant so methods can set them as they need
+  // Some things are universal
+  int const static m_cnvs_width = 1280;
+  int const static m_cnvs_height = 720;
+
+  double constexpr static m_disp_frac = 0.2;
+  double constexpr static m_disp_text_size = 0.25;
+  double constexpr static m_warn_text_size = 0.2;
+  double constexpr static m_min_events = 50000;
+
+  // Each Draw...() sets these to what it needs them to be
   std::string m_name;
-  int m_cnvs_width = 1280;
-  int m_cnvs_height = 720;
-
-  double m_disp_frac = 0.2;
-  double m_disp_text_size = 0.25;
-  double m_warn_text_size = 0.2;
-
   double m_lgnd_frac = 0.2;
-  double m_lgnd_text_size = 0.2;
-  double m_lgnd_box_width = 0.2;
-  double m_lgnd_box_height = 0.2;
-
-  double m_min_events = 50000;
 };
 
 #endif
