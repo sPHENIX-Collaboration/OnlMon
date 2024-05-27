@@ -23,7 +23,6 @@
 class InttMon : public OnlMon
 {
  public:
-  // InttMon.cc
   InttMon(const std::string& name);
   virtual ~InttMon();
 
@@ -34,7 +33,6 @@ class InttMon : public OnlMon
 
   int MiscDebug();
 
-  // InttMon_o_Binning.cc
   // (public so InttMonDraw can use them)
   struct HitData_s
   {
@@ -49,7 +47,6 @@ class InttMon : public OnlMon
   int static BcoBin(BcoData_s const&);
 
  private:
-  // InttMon.cc
   int DBVarInit();
   int DBVarUpdate();
 

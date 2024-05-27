@@ -34,14 +34,10 @@ inttinclude_HEADERS = \
   InttMonDraw.h
 
 libonlinttmon_server_la_SOURCES = \
-  InttMon_o_Binning.cc \
   InttMon.cc
 
 libonlinttmon_client_la_SOURCES = \
-  InttMon_o_Binning.cc \
-  InttMonDraw_o_FelixBcoFphxBco.cc \
-  InttMonDraw_o_HitMap.cc \
-  InttMonDraw_o_HitRates.cc \
+  InttMon.cc \
   InttMonDraw.cc
 
 bin_SCRIPTS = \
