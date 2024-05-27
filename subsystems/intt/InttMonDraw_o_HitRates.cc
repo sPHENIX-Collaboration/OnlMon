@@ -7,16 +7,14 @@ InttMonDraw::Draw_HitRates (
   // Set member variables we use to what they should be at beginning of each call
   m_name = "INTT_HitRates";
   m_lgnd_frac = 0.0;
+  m_style->cd();
 
   std::string name;
 
-  // This uses m_name for name mangling and it is set to the right value
   MakeCanvas_Generic(k_hitrates);
   TC[k_hitrates]->SetEditable(true);
 
   DrawDispPad_Generic(k_hitrates);
-  // DrawLgndPad_HitRates(k_hitrates);
-  // This option doesn't need a legend but I leave it here to emphasize the idiom
 
   int iret = 1;
   for(int i = 0; i < 8; ++i) {
@@ -42,8 +40,6 @@ InttMonDraw::DrawHistPad_HitRates (
 	// Validate member histos
 	name = Form("%s_hist_%01d", m_name.c_str(), i);
 	if(!m_hist_hitrates[i]) {
-		std::cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-		          << "\tNote: TH1D \"" << name << "\" allocated" << std::endl;
 		m_hist_hitrates[i] = new TH1D (
 			name.c_str(), name.c_str(), //
 			112, m_lower, m_upper       //

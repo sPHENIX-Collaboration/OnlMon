@@ -52,23 +52,23 @@ class InttMonDraw : public OnlMonDraw
   int MakeCanvas_Generic(int);
   int DrawDispPad_Generic(int);
 
-  // InttMonDraw_o_HitRates.cc
-  int Draw_HitRates();
-  int DrawHistPad_HitRates(int);
-  TH1D* m_hist_hitrates[8] = {nullptr};
-
   // InttMonDraw_o_FelixBcoFphxBco.cc
   int Draw_FelixBcoFphxBco();
   int DrawLgndPad_FelixBcoFphxBco();
   int DrawHistPad_FelixBcoFphxBco(int);
-  TH1D* m_hist_felixbcofphxbco[8][14] = {nullptr};
+  TH1D* m_hist_felixbcofphxbco[8][14] = {nullptr}; // delete
   Color_t static GetFeeColor(int const&);
 
   // InttMonDraw_o_HitMap.cc
   int Draw_HitMap();
   int DrawLgndPad_HitMap();
   int DrawHistPad_HitMap(int);
-  TH2D* m_hist_hitmap[8] = {nullptr};
+  TH2D* m_hist_hitmap[8] = {nullptr}; // delete
+
+  // InttMonDraw_o_HitRates.cc
+  int Draw_HitRates();
+  int DrawHistPad_HitRates(int);
+  TH1D* m_hist_hitrates[8] = {nullptr}; // delete
 
   // // InttMonDraw_o_Peaks.cc
   // int Draw_Peaks();
@@ -81,15 +81,17 @@ class InttMonDraw : public OnlMonDraw
 	  k_server_stats = 0, // Reserved for Chris
 	  // I don't use it, it just offsets the enum
 
+	  k_felixbcofphxbco,
 	  k_hitmap,
 	  k_hitrates,
-	  k_felixbcofphxbco,
 	  k_peaks,
 
 	  k_end = 10,
   };
 
   // Member Variables
+  TStyle* m_style = nullptr; // delete
+
   TCanvas* TC[k_end] = {nullptr};
   TPad* transparent[1] = {nullptr};
 
@@ -101,13 +103,13 @@ class InttMonDraw : public OnlMonDraw
   int const static m_cnvs_width = 1280;
   int const static m_cnvs_height = 720;
 
-  double constexpr static m_disp_frac = 0.2;
-  double constexpr static m_disp_text_size = 0.25;
-  double constexpr static m_warn_text_size = 0.2;
+  double constexpr static m_disp_frac = 0.15;
+  double constexpr static m_disp_text_size = 0.2;
+  double constexpr static m_warn_text_size = 0.15;
   double constexpr static m_min_events = 50000;
 
   // Each Draw...() sets these to what it needs them to be
-  std::string m_name;
+  std::string m_name = "INTT";
   double m_lgnd_frac = 0.2;
 };
 

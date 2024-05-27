@@ -6,6 +6,7 @@ int InttMonDraw::Draw_HitMap(
   // Set member variables we use to what they should be at beginning of each call
   m_name = "INTT_HitMap";
   m_lgnd_frac = 0.1;
+  m_style->cd();
 
   std::string name;
 
@@ -104,12 +105,10 @@ int InttMonDraw::DrawHistPad_HitMap(
   name = Form("%s_hist_%01d", m_name.c_str(), i);
   if(!m_hist_hitmap[i])
   {
-    std::cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tNote: TH2D \"" << name << "\" allocated" << std::endl;
     m_hist_hitmap[i] = new TH2D(
         name.c_str(), name.c_str(),
-        26, 0, 25,  // 26, -0.5, 25.5,
-        14, 0, 13   // 14, -0.5, 13.5
+        26, 0, 26,  // 26, -0.5, 25.5,
+        14, 0, 14   // 14, -0.5, 13.5
     );
     m_hist_hitmap[i]->SetTitle(Form("intt%01d;Chip ID (0-base);Felix Channel", i));
 
@@ -124,7 +123,7 @@ int InttMonDraw::DrawHistPad_HitMap(
   m_hist_pad[k_hitmap][i]->cd();
 
   m_hist_hitmap[i]->Reset();
-  m_hist_hitmap[i]->Draw("COL");  // "COLZ" for a legend; no legend is preferrable here
+  m_hist_hitmap[i]->Draw("COL");  // "COLZ" for a legend, "COL" for no legend; no legend is preferrable here
 
   // Access client
   OnlMonClient* cl = OnlMonClient::instance();
@@ -134,7 +133,7 @@ int InttMonDraw::DrawHistPad_HitMap(
   if (!evt_hist)
   {
     std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-              << "\tCould not get \"" << name << "\" from " << Form("INTTMON_%d", 0) << std::endl;
+              << "\tCould not get \"" << name << "\" from " << Form("INTTMON_%d", i) << std::endl;
     return 1;
   }
 
@@ -163,15 +162,15 @@ int InttMonDraw::DrawHistPad_HitMap(
       // based on how it compares to the hot/cold thresholds
       if (bin < lower)
       {
-        bin = 0.4;  // Cold/Dead
+        bin = 0.4;  // 0.4 Cold/Dead
       }
       else if (upper < bin)
       {
-        bin = 3.0;  // Hot
+        bin = 3.0;  // 3.0 Hot
       }
       else
       {
-        bin = 1.7;  // Good
+        bin = 1.7;  // 1.7 Good
       }
 
       m_hist_hitmap[i]->SetBinContent(

@@ -9,11 +9,37 @@ InttMonDraw::InttMonDraw(const std::string& name)
 
 InttMonDraw::~InttMonDraw()
 {
+	delete m_style;
+
+	for(int i = 0; i < 8; ++i)
+	{
+		for(int j = 0; j < 14; ++j)
+		{
+			delete m_hist_felixbcofphxbco[i][j];
+		}
+	}
+
+	for(int i = 0; i < 8; ++i)
+	{
+		delete m_hist_hitmap[i];
+	}
+
+	for(int i = 0; i < 8; ++i)
+	{
+		delete m_hist_hitrates[i];
+	}
 }
 
 int InttMonDraw::Init()
 {
-	return 0;
+  m_style = new TStyle("INTT_Style", "INTT_Style");
+  m_style->SetOptStat(0);
+
+  Int_t palette[3] = {kBlue, kGreen, kRed};
+  m_style->SetPalette(3, palette);
+  // m_style->SetNumberContours(3);
+
+  return 0;
 }
 
 int InttMonDraw::Draw(const std::string& what)
@@ -195,8 +221,11 @@ InttMonDraw::MakeCanvas_Generic (
 ) {
 	std::string name;
 
+	// Caller sets m_name
+	if(m_name.empty())return 1;
+
     name = Form("%s", m_name.c_str());
-    if(dynamic_cast<TCanvas*>(gROOT->FindObject(name.c_str()))) return 0;
+    if( gROOT->FindObject(name.c_str()) ) return 0;
 
 	TC[icnvs] = new TCanvas (
     	name.c_str(), name.c_str(), //
@@ -222,7 +251,7 @@ InttMonDraw::MakeCanvas_Generic (
 		m_lgnd_pad[icnvs] = new TPad (
 				name.c_str(), name.c_str(), //
 				1.0 - m_lgnd_frac, 0.0,     // Southwest x, y
-				1.0, 1.0                    // Northeast x, y
+				1.0, 1.0 - m_disp_frac      // Northeast x, y
 		);
 		TC[icnvs]->cd();
 		m_lgnd_pad[icnvs]->SetFillStyle(4000); // Transparent
@@ -261,8 +290,6 @@ int InttMonDraw::DrawDispPad_Generic (
 	TH1D* evt_hist = nullptr;
 	for (int i = 0; i < 8; ++i)
 	{
-		// Return value of assignment is the assigned value
-		// It's a pointer, so we can test it directly without further comparison
 		if((evt_hist = dynamic_cast<TH1D*>(cl->getHisto(Form("INTTMON_%d", i), name))))break;
 	}
 
@@ -291,10 +318,11 @@ int InttMonDraw::DrawDispPad_Generic (
 	std::time_t t = cl->EventTime("CURRENT"); // BOR, CURRENT, or EOR
 	struct tm* ts = std::localtime(&t);
 	name = Form (
-		"Run: %08d, Events: %d, Date: %02d/%02d/%4d",    //
-		cl->RunNumber(),                                 //
-		(int) evt_hist->GetBinContent(1),                //
-		ts->tm_mon + 1, ts->tm_mday, ts->tm_year + 1900  //
+		"Run: %08d, Events: %d, Date: %02d/%02d/%4d %02d:%02d", //
+		cl->RunNumber(),                                        //
+		(int) evt_hist->GetBinContent(1),                       //
+		ts->tm_mon + 1, ts->tm_mday, ts->tm_year + 1900,        //
+		ts->tm_hour, ts->tm_min                                 //
 	);
 	TText disp_text;
 	disp_text.SetTextAlign(22);

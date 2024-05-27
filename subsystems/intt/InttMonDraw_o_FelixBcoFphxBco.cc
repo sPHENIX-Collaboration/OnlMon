@@ -7,6 +7,7 @@ InttMonDraw::Draw_FelixBcoFphxBco(
   // Set global values we use to what they should be at the beginning of each call
   m_name = "INTT_FelixBco_FphxBco_Diff";
   m_lgnd_frac = 0.15;
+  m_style->cd();
 
   std::string name;
 
@@ -18,6 +19,7 @@ InttMonDraw::Draw_FelixBcoFphxBco(
 
   int iret = 1;
   for(int i = 0; i < 8; ++i) {
+	  // If any subdraw succeeds, say the entire call succeeds
 	  iret = DrawHistPad_FelixBcoFphxBco(i) && iret;
   }
   
@@ -45,14 +47,11 @@ int InttMonDraw::DrawLgndPad_FelixBcoFphxBco(
     x0 = 0.5 - lgnd_box_width;
     y0 = (2.0 * fee + 1.0) / (2.0 * 14);
 
-    TText lgnd_text(
-        x0 + 1.5 * lgnd_box_width,
-        y0,
-        Form("FCh %2d", fee));
+    TText lgnd_text;
     lgnd_text.SetTextAlign(12);
     lgnd_text.SetTextSize(lgnd_text_size);
     lgnd_text.SetTextColor(kBlack);
-    lgnd_text.Draw();
+    lgnd_text.DrawText(x0 + 1.5 * lgnd_box_width, y0, Form("FCh %2d", fee));
 
     x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
     y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
@@ -65,11 +64,11 @@ int InttMonDraw::DrawLgndPad_FelixBcoFphxBco(
       y[i] += y0;
     }
 
-    TPolyLine box(4, x, y);
+    TPolyLine box;
     box.SetFillColor(GetFeeColor(fee));
     box.SetLineColor(kBlack);
     box.SetLineWidth(1);
-    box.Draw("f");
+    box.DrawPolyLine(4, x, y, "f");
   }
 
   return 0;
@@ -87,8 +86,6 @@ int InttMonDraw::DrawHistPad_FelixBcoFphxBco(
     name = Form("%s_hist_%01d_%02d", m_name.c_str(), i, bco_data.fee);
     if (!m_hist_felixbcofphxbco[i][bco_data.fee])
     {
-	  std::cout << __PRETTY_FUNCTION__ << ":" << __LINE__ << "\n"
-                << "\tNote: TH1D \"" << name << "\" allocated" << std::endl;
       m_hist_felixbcofphxbco[i][bco_data.fee] = new TH1D(
           name.c_str(), name.c_str(), //
           128, 0, 128                 //
