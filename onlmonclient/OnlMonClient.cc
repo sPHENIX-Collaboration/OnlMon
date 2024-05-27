@@ -1014,10 +1014,13 @@ void OnlMonClient::Print(const char *what)
     std::map<const std::string, ClientHistoList *>::const_iterator hiter;
     for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
     {
+      if (hiter->second)
+      {
       std::cout << hiter->first << " Address " << hiter->second->Histo()
                 << " on host " << hiter->second->ServerHost()
                 << " port " << hiter->second->ServerPort()
                 << ", subsystem " << hiter->second->SubSystem() << std::endl;
+      }
     }
     std::cout << std::endl;
     for (auto &subs : SubsysHisto)
@@ -1049,13 +1052,32 @@ void OnlMonClient::Print(const char *what)
     std::map<const std::string, ClientHistoList *>::const_iterator hiter;
     for (hiter = Histo.begin(); hiter != Histo.end(); ++hiter)
     {
-      if (hiter->second->ServerHost() == "UNKNOWN" ||
-          hiter->second->SubSystem() == "UNKNOWN")
+      if (hiter->second)
       {
-        std::cout << hiter->first << " Address " << hiter->second->Histo()
-                  << " on host " << hiter->second->ServerHost()
-                  << " port " << hiter->second->ServerPort()
-                  << ", subsystem " << hiter->second->SubSystem() << std::endl;
+	if (hiter->second->ServerHost() == "UNKNOWN" ||
+	    hiter->second->SubSystem() == "UNKNOWN")
+	{
+	  std::cout << hiter->first << " Address " << hiter->second->Histo()
+		    << " on host " << hiter->second->ServerHost()
+		    << " port " << hiter->second->ServerPort()
+		    << ", subsystem " << hiter->second->SubSystem() << std::endl;
+	}
+      }
+    }
+    std::cout << std::endl;
+    for (auto &subs : SubsysHisto)
+    {
+      for (auto &histos : subs.second)
+      {
+	if ( histos.second->ServerHost() == "UNKNOWN" ||
+	     histos.second->SubSystem() == "UNKNOWN")
+	{
+	  std::cout << histos.first << " @ " << subs.first
+		    << " Address " << histos.second->Histo()
+		    << " on host " << histos.second->ServerHost()
+		    << " port " << histos.second->ServerPort()
+		    << ", subsystem " << histos.second->SubSystem() << std::endl;
+	}
       }
     }
     std::cout << std::endl;
@@ -1205,7 +1227,10 @@ void OnlMonClient::AddServerHost(const std::string &hostname)
 {
   if (find(MonitorHosts.begin(), MonitorHosts.end(), hostname) != MonitorHosts.end())
   {
-    std::cout << "Host " << hostname << " already in list" << std::endl;
+    if (Verbosity() > 2)
+    {
+      std::cout << "Host " << hostname << " already in list" << std::endl;
+    }
   }
   else
   {
@@ -1775,7 +1800,7 @@ std::string OnlMonClient::ExtractSubsystem(const std::string &fullfilename, OnlM
 {
   std::string subsys = std::filesystem::path(fullfilename).filename();
   subsys = subsys.substr(subsys.find('-') + 1);
-  subsys = subsys.substr(0, subsys.find(".root"));
+  subsys.resize(subsys.find(".root"));
   m_MonitorFetchedSet.insert(subsys);
   drawer->AddServer(subsys);
   return subsys;
@@ -1790,4 +1815,49 @@ OnlMonDraw *OnlMonClient::GetDrawer(const std::string &name)
   }
   std::cout << "Cannot locate Drawer " << name << " in my list" << std::endl;
   return nullptr;
+}
+
+void OnlMonClient::SaveServerHistoMap(const std::string &cachefilename)
+{
+  std::ofstream cachefile(cachefilename);
+  std::cout << "saving histomap to " << cachefilename << std::endl;
+  for (auto &subs : SubsysHisto)
+  {
+    for (auto &histos : subs.second)
+    {
+      cachefile << histos.first << " " << histos.second->SubSystem() << " " << histos.second->ServerHost() << " " << histos.second->ServerPort() << std::endl;
+    }
+  }
+  cachefile.close();
+  return;
+}
+
+void OnlMonClient::ReadServerHistoMap(const std::string &cachefilename)
+{
+  std::ifstream cachefile(cachefilename);
+  std::string hname;
+  std::string subsys;
+  std::string hostname;
+  int port;
+  if (cachefile.good())
+  {
+    std::cout << "opened histogram map cache file " << cachefilename << std::endl;
+    std::string line;
+    while (std::getline(cachefile, line))
+    {
+      std::istringstream iss(line);
+      iss >> hname;
+      iss >> subsys;
+      iss >> hostname;
+      iss >> port;
+      AddServerHost(hostname);
+      PutHistoInMap(hname,subsys,hostname,port);
+      MonitorHostPorts.insert(std::make_pair(subsys, std::make_pair(hostname,port)));
+    }
+    cachefile.close();
+  }
+  else
+  {
+    std::cout << "failed to open histogram map cache file " << cachefilename << std::endl;
+  }
 }

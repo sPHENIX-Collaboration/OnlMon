@@ -129,11 +129,11 @@ int HcalMon::Init()
   // system (all couts are redirected)
   printf("doing the Init\n");
 
-  
-  h2_hcal_hits_trig1 = new TH2F("h2_hcal_hits_trig1", "", 24, 0, 24, 64, 0, 64);
-  h2_hcal_hits_trig2 = new TH2F("h2_hcal_hits_trig2", "", 24, 0, 24, 64, 0, 64);
-  h2_hcal_hits_trig3 = new TH2F("h2_hcal_hits_trig3", "", 24, 0, 24, 64, 0, 64);
-  h2_hcal_hits_trig4 = new TH2F("h2_hcal_hits_trig4", "", 24, 0, 24, 64, 0, 64);
+  for (int itrig = 0; itrig < 64; itrig++)
+  {
+    h2_hcal_hits_trig[itrig] = new TH2F(Form("h2_hcal_hits_trig_%d", itrig), "", 24, 0, 24, 64, 0, 64);
+  }
+
   pr_zsFrac_etaphi = new TProfile2D("pr_zsFrac_etaphi", "", 24, 0, 24, 64, 0, 64);
   h_hcal_trig = new TH1F("h_hcal_trig", "", 64, 0, 64);
   h2_hcal_rm = new TH2F("h2_hcal_rm", "", 24, 0, 24, 64, 0, 64);
@@ -190,10 +190,11 @@ int HcalMon::Init()
   OnlMonServer* se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, h2_hcal_hits);
-  se->registerHisto(this, h2_hcal_hits_trig1);
-  se->registerHisto(this, h2_hcal_hits_trig2);
-  se->registerHisto(this, h2_hcal_hits_trig3);
-  se->registerHisto(this, h2_hcal_hits_trig4);
+  for (int itrig = 0; itrig < 64; itrig++)
+  {
+    se->registerHisto(this, h2_hcal_hits_trig[itrig]);
+  }
+
   se->registerHisto(this, pr_zsFrac_etaphi);
   se->registerHisto(this, h_hcal_trig);
   se->registerHisto(this, h_evtRec);
@@ -284,7 +285,7 @@ std::vector<float> HcalMon::getSignal(Packet* p, const int channel)
 std::vector<float> HcalMon::anaWaveform(Packet* p, const int channel)
 {
   std::vector<float> waveform;
-  //waveform.reserve(p->iValue(0, "SAMPLES"));
+  // waveform.reserve(p->iValue(0, "SAMPLES"));
   float supppressed = 1;
   if (p->iValue(channel, "SUPPRESSED"))
   {
@@ -366,10 +367,7 @@ int HcalMon::process_event(Event* e /* evt */)
   float energy1 = 0;
   float energy2 = 0;
 
-  bool trig1_fire = false;
-  bool trig2_fire = false;
-  bool trig3_fire = false;
-  bool trig4_fire = false;
+ 
   bool fillhist = true;
   std::vector<bool> trig_bools;
   trig_bools.resize(64);
@@ -378,7 +376,7 @@ int HcalMon::process_event(Event* e /* evt */)
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
-    Event* gl1Event = erc->getEvent(evtnr+1);
+    Event* gl1Event = erc->getEvent(evtnr + 1);
     if (gl1Event)
     {
       have_gl1 = true;
@@ -392,17 +390,14 @@ int HcalMon::process_event(Event* e /* evt */)
         {
           bool trig_decision = ((triggervec & 0x1U) == 0x1U);
           trig_bools[i] = trig_decision;
-          
+
           if (trig_decision)
           {
             h_hcal_trig->Fill(i);
           }
           triggervec = (triggervec >> 1U) & 0xffffffffU;
         }
-        trig1_fire = trig_bools[trig1];
-        trig2_fire = trig_bools[trig2];
-        trig3_fire = trig_bools[trig3];
-        trig4_fire = trig_bools[trig4];
+
         delete p;
       }
       delete gl1Event;
@@ -412,9 +407,11 @@ int HcalMon::process_event(Event* e /* evt */)
       std::cout << "GL1 event is null" << std::endl;
       h_evtRec->Fill(0.0, 0.0);
     }
-  //this is for only process event with the MBD>=1 trigger
-    if(usembdtrig){
-      if(trig_bools.at(10) == 0){
+    // this is for only process event with the MBD>=1 trigger
+    if (usembdtrig)
+    {
+      if (trig_bools.at(10) == 0)
+      {
         fillhist = false;
       }
     }
@@ -428,7 +425,6 @@ int HcalMon::process_event(Event* e /* evt */)
     int packet_bin = packet - packetlow + 1;
     if (p)
     {
-      
       rm_packet_number[packet - packetlow]->Add(one);
       int packet_length[1] = {p->getLength()};
       rm_packet_length[packet - packetlow]->Add(packet_length);
@@ -438,9 +434,9 @@ int HcalMon::process_event(Event* e /* evt */)
       h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
       if (have_gl1)
       {
-	long long int p_clock = p->lValue(0, "CLOCK");
-	long long int diff = (p_clock - gl1_clock) % 65536;
-	h_caloPack_gl1_clock_diff->Fill(packet, diff);
+        long long int p_clock = p->lValue(0, "CLOCK");
+        long long int diff = (p_clock - gl1_clock) % 65536;
+        h_caloPack_gl1_clock_diff->Fill(packet, diff);
       }
       int nChannels = p->iValue(0, "CHANNELS");
       if (nChannels > m_nChannels)
@@ -462,7 +458,7 @@ int HcalMon::process_event(Event* e /* evt */)
         float signal = result.at(0);
         float time = result.at(1);
         float pedestal = result.at(2);
-        float suppressed = result.at(result.size()-1);
+        float suppressed = result.at(result.size() - 1);
         if (signal > 15 && signal < 15000)
         {
           energy1 += signal;
@@ -476,7 +472,6 @@ int HcalMon::process_event(Event* e /* evt */)
         //________________________________for this part we only want to deal with the MBD>=1 trigger
         if (fillhist)
         {
-          
           if (signal > hit_threshold)
           {
             rm_vector_twrTime[towerNumber - 1]->Add(&time);
@@ -486,7 +481,7 @@ int HcalMon::process_event(Event* e /* evt */)
           {
             rm_vector_twrhit[towerNumber - 1]->Add(zero);
           }
-          h_waveform_pedestal->Fill(pedestal); 
+          h_waveform_pedestal->Fill(pedestal);
 
           if (suppressed == 1)
           {
@@ -527,7 +522,6 @@ int HcalMon::process_event(Event* e /* evt */)
               h_rm_tower[eta_bin][phi_bin]->SetBinContent(historyLength, rm_vector_twrhit[towerNumber - 1]->getMean(0));
             }
           }
-          
         }
         //_______________________________________________________end of MBD trigger requirement
         // record waveform
@@ -547,25 +541,14 @@ int HcalMon::process_event(Event* e /* evt */)
         if (signal > hit_threshold)
         {
           h2_hcal_hits->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          if (trig1_fire)
+          for (int itrig = 0; itrig < 64; itrig++)
           {
-            h2_hcal_hits_trig1->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig2_fire)
-          {
-            h2_hcal_hits_trig2->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig3_fire)
-          {
-            h2_hcal_hits_trig3->Fill(eta_bin + 0.5, phi_bin + 0.5);
-          }
-          if (trig4_fire)
-          {
-            h2_hcal_hits_trig4->Fill(eta_bin + 0.5, phi_bin + 0.5);
+            if (trig_bools[itrig])
+            {
+              h2_hcal_hits_trig[itrig]->Fill(eta_bin + 0.5, phi_bin + 0.5);
+            }
           }
         }
-
-        
 
       }  // channel loop
 
@@ -652,7 +635,7 @@ int HcalMon::process_event(Event* e /* evt */)
 
   }  // sector loop
 
-  if(fillhist)h_event->Fill(0);
+  if (fillhist) h_event->Fill(0);
   h_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
 
   return 0;

@@ -33,8 +33,10 @@ void ihcalDrawInit(const int online = 0)
     cl->registerHisto("h1_packet_number", servername);
     cl->registerHisto("h1_packet_event", servername);
     cl->registerHisto("h_evtRec", servername);
-    cl->registerHisto("h2_hcal_hits_trig1", servername);
-    cl->registerHisto("h2_hcal_hits_trig2", servername);
+    for (int itrig = 0; itrig < 64; itrig++)
+    {
+      cl->registerHisto(Form("h2_hcal_hits_trig_bit_%d", itrig), servername);
+    }
     cl->registerHisto("h_hcal_trig", servername);
     cl->registerHisto("pr_zsFrac_etaphi", servername);
 

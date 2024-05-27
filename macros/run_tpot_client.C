@@ -21,6 +21,9 @@ void tpotDrawInit(const int online = 0)
   if( std::ifstream( local_calibration_filename ).good() )
   { tpotmon->set_calibration_file( local_calibration_filename ); }
 
+  tpotmon->set_sample_window( {0, 50} );
+  tpotmon->set_sample_window_signal( {5, 20} );
+
   cl->registerDrawer(tpotmon);
 
   // get detector names

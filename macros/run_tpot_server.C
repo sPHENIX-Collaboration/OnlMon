@@ -12,12 +12,13 @@ void run_tpot_server(
   const std::string &name = "TPOTMON",
   unsigned int serverid = 0,
   // const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/junk/TPOT_ebdc39_junk-00041227-0000.evt"
-  const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/TPOT/beam/TPOT_ebdc39_beam-00041374-0000.evt"
+  const std::string &prdffile = "/sphenix/lustre01/sphnxpro/physics/TPOT/junk/TPOT_ebdc39_junk-00043402-0000.evt"
   )
 {
   // create subsystem Monitor object
   auto m = new TpotMon(name);
   m->SetMonitorServerId(serverid);
+  m->set_sample_window_signal( {5, 20} );
 
   // prefer local calibration filename if exists
   const std::string local_calibration_filename( "TPOT_Pedestal-000.root" );

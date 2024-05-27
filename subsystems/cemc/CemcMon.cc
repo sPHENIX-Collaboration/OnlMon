@@ -12,6 +12,8 @@
 #include <calobase/TowerInfoDefs.h>
 #include <caloreco/CaloWaveformFitting.h>
 
+#include <cdbobjects/CDBTTree.h>
+
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
 #include <Event/eventReceiverClient.h>
@@ -84,6 +86,8 @@ int CemcMon::Init()
   // use printf for stuff which should go the screen but not into the message
   // system (all couts are redirected)
   printf("CemcMon::Init()\n");
+  std::string cdbfile = std::string(cemccalib) + "/cemc_adcskipmask_40430.root";
+  cdbttree = new CDBTTree(cdbfile.c_str());
   // Histograms definitions
   // Trigger histograms
   for (int itrig = 0; itrig < 64; itrig++)
@@ -368,6 +372,7 @@ int CemcMon::process_event(Event *e /* evt */)
 
     if (p)
     {
+      unsigned int adc_skip_mask = cdbttree->GetIntValue(packet, "adcskipmask");
       h1_packet_number->Fill(packet);
       h1_packet_length->SetBinContent(packet - 6000, h1_packet_length->GetBinContent(packet - 6000) + p->getLength());
 
@@ -380,14 +385,26 @@ int CemcMon::process_event(Event *e /* evt */)
         h2_caloPack_gl1_clock_diff->Fill(packet, diff);
       }
       int nChannels = p->iValue(0, "CHANNELS");
+      int skiped_channel = 0;
       if (nChannels > m_nChannels)
       {
         return -1;  // packet is corrupted, reports too many channels
       }
+      //print packet and nCHannels
       for (int c = 0; c < nChannels; c++)
       {
         h1_packet_chans->Fill(packet);
+        // skip masked ADC board 
+        if(c % 64 ==0){
+          unsigned int adcboard = (unsigned int) c / 64;
+          if ((adc_skip_mask >> adcboard) & 0x1U){
+            
+             towerNumber += 64;
+             skiped_channel += 64;
+          }
+        }
 
+        
         towerNumber++;
         // channel mapping
         unsigned int key = TowerInfoDefs::encode_emcal(towerNumber - 1);
@@ -489,10 +506,11 @@ int CemcMon::process_event(Event *e /* evt */)
         */
 
       }  // channel loop
-      if (nChannels < m_nChannels)
+      if ((nChannels + skiped_channel) < m_nChannels)
       {
+        
         // still need to correctly set bad channels to zero.
-        for (int channel = 0; channel < m_nChannels - nChannels; channel++)
+        for (int channel = 0; channel < m_nChannels - (nChannels + skiped_channel); channel++)
         {
           towerNumber++;
 

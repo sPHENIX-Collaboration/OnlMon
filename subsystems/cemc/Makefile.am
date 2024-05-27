@@ -20,7 +20,8 @@ libonlcemcmon_server_la_LIBADD = \
   -lonlmonserver \
   -lonlmonutils \
   -lcalo_io \
-  -lcalo_reco
+  -lcalo_reco \
+  -lcdbobjects
 
 libonlcemcmon_client_la_LIBADD = \
   -L$(libdir) \

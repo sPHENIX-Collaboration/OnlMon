@@ -572,7 +572,7 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
      l[3].SetTextSize(textsize);
      zdc_N1->SetXTitle("ZDC North First Module ADC Distribution");
      zdc_N1->SetYTitle("Counts");
-     zdc_S3->DrawCopy();
+     zdc_N1->DrawCopy();
      l[3].DrawLatex(0.15, 0.75, zdclabels[3]);
   }
 

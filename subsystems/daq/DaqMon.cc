@@ -88,7 +88,7 @@ int DaqMon::Init()
 
 
   std::string mappingfile = std::string(daqcalib) + "/" + "packetid_seb_mapping.txt";
-  loadpacketMapping(mappingfile.c_str());
+  loadpacketMapping(mappingfile);
 
   return 0;
 }

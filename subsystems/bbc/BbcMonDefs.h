@@ -3,7 +3,7 @@
 
 //#include <gsl/gsl_const_cgsm.h>
 
-#define AUAU  // PROTONPROTON //PAL //PAU //DAU //HE3AU //CUCU //AUAU
+#define AUAU  // PROTONPROTON //PAU //DAU
 
 namespace BbcMonDefs
 {
@@ -24,7 +24,7 @@ namespace BbcMonDefs
 #define nPMT_1SIDE_BBC 64
 #define nPMT_BBC (nPMT_1SIDE_BBC * 2)
 
-#define nCANVAS 4
+#define nCANVAS 5
 
 #define nSIDE 2
 #define nTRIGGER 2
@@ -176,6 +176,8 @@ namespace BbcMonDefs
   // color definition
   // static const int BBC_COLOR_ZVTX[4] = {4,2,7,1};
   static const int BBC_COLOR_ZVTX[5] = {4, 2, 7, 6, 1};
+
+  static const int MAX_WARNING = 16;
 
   static const int BBC_MAXSAMPLES = 31;  // number of digitizer samples
 

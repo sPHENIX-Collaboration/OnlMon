@@ -8,12 +8,15 @@
 // See run_Poms.C.README
 
 #include <onlmon/Poms.h>
+#include <onlmon/OnlMonClient.h>
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libpoms.so)
 
 void StartPoms()
 {
+  OnlMonClient *cl = OnlMonClient::instance();
+  cl->ReadServerHistoMap();
   PomsMainFrame *pmf;
   pmf = PomsMainFrame::Instance();
 
@@ -25,6 +28,7 @@ void StartPoms()
   subsys->AddAction("bbcDraw(\"FIRST\")", "MBD Vertex Monitor");
   subsys->AddAction("bbcDraw(\"SECOND\")", "MBD Timing Monitor");
   subsys->AddAction("bbcDraw(\"THIRD\")", "MBD Triggered Monitor");
+  //  subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -32,9 +36,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"FIRST\")", "Towers");
   subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Health [Expert]");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
-  subsys->AddAction("cemcDraw(\"FOURTH\")", "Wave vs Fast Fitting [Expert]");
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
-  subsys->AddAction("cemcDraw(\"SIXTH\")", "All waveform summary [Expert]");
   subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -149,15 +151,15 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPOT", "tpot");
-  subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters");
-  subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy");
-  subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy");
-  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC vs Sample");
-  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_channel\")", "ADC vs Strip");
   subsys->AddAction("tpotDraw(\"TPOT_counts_vs_sample\")", "Counts vs Sample");
-  subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge");
-  subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity");
   subsys->AddAction("tpotDraw(\"TPOT_hit_vs_channel\")", "Hit vs Strip");
+  subsys->AddAction("tpotDraw(\"TPOT_counters\")", "Event counters [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_detector_occupancy\")", "Detector Occupancy [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_resist_occupancy\")", "Resist Occupnacy [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_sample\")", "ADC vs Sample [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_adc_vs_channel\")", "ADC vs Strip [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_hit_charge\")", "Hit Charge [EXPERT]");
+  subsys->AddAction("tpotDraw(\"TPOT_hit_multiplicity\")", "Hit Multiplicity [EXPERT]");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -173,11 +175,11 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("LOCALPOL", "localpol");
-  subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries");
-  subsys->AddAction("localpolDraw(\"SECOND\")", "Polarisation direction");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // subsys = new SubSystem("LOCALPOL", "localpol");
+  // subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries");
+  // subsys->AddAction("localpolDraw(\"SECOND\")", "Polarisation direction");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
 
   pmf->Draw();

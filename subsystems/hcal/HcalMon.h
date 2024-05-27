@@ -44,48 +44,50 @@ class HcalMon : public OnlMon
     return;
   }
 
- protected:
-  int evtcnt = 0;
-  int idummy = 0;
-  static const int Nsector = 32;
-  const int Ntower = 1536;
-  const int m_nChannels = 192;
-  int packetlow = 8001;
-  int packethigh = 8008;
-  // TH1 *hcalhist1 = nullptr;
-  // TH2 *hcalhist2 = nullptr;
-  TH2* h2_hcal_hits = nullptr;
-  TH2* h2_hcal_hits_trig1 = nullptr;
-  TH2* h2_hcal_hits_trig2 = nullptr;
-  TH2* h2_hcal_hits_trig3 = nullptr;
-  TH2* h2_hcal_hits_trig4 = nullptr;
-  TProfile2D* pr_zsFrac_etaphi = nullptr;
-  TH1* h_waveform_twrAvg = nullptr;
-  TH1* h_waveform_time = nullptr;
-  TH1* h_waveform_pedestal = nullptr;
-  TH2* h2_hcal_rm = nullptr;
-  TH2* h2_hcal_mean = nullptr;
-  TH2* h2_hcal_waveform = nullptr;
-  TH2* h2_hcal_correlation = nullptr;
-  TH2* h2_hcal_time = nullptr;
-  TH1* h_sectorAvg_total = nullptr;
-  TH1* h_event = nullptr;
-  TH1* h_ntower = nullptr;
-  TH1* h1_packet_chans = nullptr;
-  TH1* h1_packet_length = nullptr;
-  TH1* h1_packet_number = nullptr;
-  TH1* h1_packet_event = nullptr;
-  TH1* h_rm_sectorAvg[32] = {nullptr};
+ private:
+  static constexpr int Nsector {32};
+  static constexpr int Ntower {1536};
+  static constexpr int m_nChannels {192};
+  // TH1 *hcalhist1 {nullptr};
+  // TH2 *hcalhist2 {nullptr};
+  TH2* h2_hcal_hits {nullptr};
+  TH2* h2_hcal_hits_trig[64] {nullptr};
+  TProfile2D* pr_zsFrac_etaphi {nullptr};
+  TH1* h_waveform_twrAvg {nullptr};
+  TH1* h_waveform_time {nullptr};
+  TH1* h_waveform_pedestal {nullptr};
+  TH2* h2_hcal_rm {nullptr};
+  TH2* h2_hcal_mean {nullptr};
+  TH2* h2_hcal_waveform {nullptr};
+  TH2* h2_hcal_correlation {nullptr};
+  TH2* h2_hcal_time {nullptr};
+  TH1* h_sectorAvg_total {nullptr};
+  TH1* h_event {nullptr};
+  TH1* h_ntower {nullptr};
+  TH1* h1_packet_chans {nullptr};
+  TH1* h1_packet_length {nullptr};
+  TH1* h1_packet_number {nullptr};
+  TH1* h1_packet_event {nullptr};
+  TH1* h_rm_sectorAvg[32] {nullptr};
   TH1* h_rm_tower[24][64]{{nullptr}};
-  TH1* h_hcal_trig = {nullptr};
-  TH2* h_caloPack_gl1_clock_diff = {nullptr};
-  TProfile* h_evtRec = {nullptr};
+  TH1* h_hcal_trig {nullptr};
+  TH2* h_caloPack_gl1_clock_diff {nullptr};
+  TProfile* h_evtRec {nullptr};
+  CaloWaveformFitting* WaveformProcessing {nullptr};
+  eventReceiverClient* erc {nullptr};
 
-  eventReceiverClient* erc = {nullptr};
-  bool anaGL1 = true;
-  bool usembdtrig = true;
+  int evtcnt {0};
+  int idummy {0};
+  int packetlow {8001};
+  int packethigh {8008};
+  int trig1 {28};
+  int trig2 {5};
+  int trig3 {10};
+  int trig4 {4};
 
-  CaloWaveformFitting* WaveformProcessing = nullptr;
+  bool anaGL1 {true};
+  bool usembdtrig {true};
+
 
   std::vector<runningMean*> rm_vector_sectAvg;
   std::vector<runningMean*> rm_vector_twr;
@@ -95,10 +97,6 @@ class HcalMon : public OnlMon
   std::vector<runningMean*> rm_packet_length;
   std::vector<runningMean*> rm_packet_chans;
 
-  int trig1 = 28;
-  int trig2 = 5;
-  int trig3 = 10;
-  int trig4 = 4;
 };
 
 #endif /* HCAL_HCALMON_H */

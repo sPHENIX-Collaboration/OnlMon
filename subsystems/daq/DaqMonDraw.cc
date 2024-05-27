@@ -171,7 +171,7 @@ int DaqMonDraw::DrawFirst(const std::string & /* what */)
       for (int ibiny = 1; ibiny <= h_gl1_clock_diff[i]->GetNbinsY(); ibiny++)
       {
         float content = h_gl1_clock_diff[i]->GetBinContent(ibinx, ibiny);
-        if (content < 10)
+        if (content < 100)
         {
           h_gl1_clock_diff[i]->SetBinContent(ibinx, ibiny, 0);
         }
@@ -288,6 +288,19 @@ int DaqMonDraw::DrawSecond(const std::string & /* what */)
     {
       continue;
     }
+    
+    for (int ibinx = 1; ibinx <= h_fem_match[i]->GetNbinsX(); ibinx++)
+    {
+      for (int ibiny = 1; ibiny <= h_fem_match[i]->GetNbinsY(); ibiny++)
+      {
+        float content = h_fem_match[i]->GetBinContent(ibinx, ibiny);
+        if (content < 100)
+        {
+          h_fem_match[i]->SetBinContent(ibinx, ibiny, 0);
+        }
+      }
+    }
+
     if (start == -1)
     {
       start = i;

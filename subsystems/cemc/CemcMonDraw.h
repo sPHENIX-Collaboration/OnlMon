@@ -3,17 +3,21 @@
 
 #include <onlmon/OnlMonDraw.h>
 
-#include <TH2.h>
-#include <TStyle.h>
+#include <Rtypes.h>
+#include <TColor.h>
+
 #include <iostream>  // for cout, endl
 #include <ostream>   // for operator<<, basic_ostream, ostream
 #include <string>    // for allocator, string
+#include <vector>
 
 class TCanvas;
 class TGraphErrors;
-class TH2D;
+class TH1;
+class TH2;
 class TPad;
 class TProfile;
+class TStyle;
 
 class CemcMonDraw : public OnlMonDraw
 {
@@ -27,7 +31,7 @@ class CemcMonDraw : public OnlMonDraw
   int MakeHtml(const std::string &what = "ALL") override;
   int SavePlot(const std::string &what = "ALL", const std::string &type = "png") override;
   void setSave(int s) { save = s; }
-  void HandleEvent(int event, int x, int y, TObject *sel);
+//  void HandleEvent(int event, int x, int y, TObject *sel);
 
  private:
   int MakeCanvas(const std::string &name);
@@ -63,14 +67,14 @@ class CemcMonDraw : public OnlMonDraw
   TGraphErrors *gr[2]{nullptr};
   // TProfile *summedProfile[8][8]{{nullptr}};
   // TProfile *AllProfiles[256][96]{{nullptr}};
-  TH2D *h2_template_hit{nullptr};
-  TH2D *h_cemc_datahits{nullptr};
+  TH2 *h2_template_hit{nullptr};
+  TH2 *h_cemc_datahits{nullptr};
   TStyle *cemcStyle{nullptr};
 
-  TH1F *h1_zs = nullptr;
-  TH1F *h1_zs_low = nullptr;
-  TH1F *h1_zs_high = nullptr;
-  Int_t ZSPalette[255] = {0};
+  TH1 *h1_zs {nullptr};
+  TH1 *h1_zs_low {nullptr};
+  TH1 *h1_zs_high {nullptr};
+  Int_t ZSPalette[255] {0};
 
   void MakeZSPalette()
   {

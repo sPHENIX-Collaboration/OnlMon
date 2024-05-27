@@ -526,6 +526,10 @@ int ZdcMon::process_event(Event *e /* evt */)
          {
              zdc_adc[i] = z[i];
          }
+         else
+         {
+            zdc_adc[i] = 0.0;
+         }
      }//zdc
 
      for (int j = 0; j < ssize; j++) //smd

@@ -12,7 +12,9 @@
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TLine.h>
+#include <TLatex.h>
 #include <TPad.h>
+#include <TPaveText.h>
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TText.h>
@@ -91,6 +93,28 @@ namespace
     return new TLine( xMin, y, xMax, y );
   }
 
+  // draw text in relative coordinate
+  TLatex* draw_text( Double_t x_ndc, Double_t y_ndc, const TString& value, double text_size = 0.1 )
+  {
+    auto text = new TLatex;
+    text->SetNDC( true );
+    text->SetTextColor(1);
+    text->SetTextSize(text_size);
+    text->DrawLatex( x_ndc, y_ndc, value );
+    return text;
+  }
+
+  void mask_scoz( double xmin, double ymin, double xmax, double ymax )
+  {
+    auto text = new TPaveText(xmin, ymin, xmax, ymax, "NDC" );
+    text->SetFillColor(0);
+    text->SetFillStyle(1001);
+    text->SetBorderSize(1);
+    text->SetTextAlign(11);
+    text->AddText( "   Ignore   " );
+    text->Draw();
+  }
+
   // divide canvas, adjusting canvas positions to leave room for a banner at the top
   void divide_canvas( TCanvas* cv, int ncol, int nrow )
   {
@@ -111,6 +135,43 @@ namespace
     }
   }
 
+  // hide margins between pads
+  void hide_margins( TCanvas* cv, const double left_margin = 0.15, const double bottom_margin = 0.17 )
+  {
+    static constexpr double max_height = 0.94;
+    const double height = 1./(4.+bottom_margin);
+    const double width = 1./(4.+left_margin);
+    for( int row = 0; row < 4; ++row )
+    {
+      double ymin = row < 3 ? max_height*(1.-double(row+1)*height):0;
+      double ymax = max_height*(1.-double(row)*height);
+
+      for( int column = 0; column < 4; ++column )
+      {
+        double xmin = column == 0 ? 0:width*(column+left_margin);
+        double xmax = width*(column+1+left_margin);
+
+        const int i = column + 4*row;
+        const auto pad = cv->GetPad(i+1);
+        pad->SetPad( xmin, ymin, xmax, ymax );
+
+        pad->SetTopMargin(0);
+
+        if(row<3) pad->SetBottomMargin(0);
+        else pad->SetBottomMargin(bottom_margin);
+
+        if(column>0) pad->SetLeftMargin(0);
+        else pad->SetLeftMargin(left_margin);
+
+        if(column<3) pad->SetRightMargin(0);
+        else pad->SetRightMargin(0.01);
+
+        // draw ticks on both sides
+        pad->SetTicky();
+
+      }
+    }
+  }
 
   // streamer for sample window
   std::ostream& operator << ( std::ostream&o, const TpotMonDraw::sample_window_t& window )
@@ -166,6 +227,7 @@ int TpotMonDraw::Init()
   if( Verbosity() )
   {
     std::cout << "TpotMonDraw::Init - m_calibration_filename: " << m_calibration_filename << std::endl;
+    std::cout << "TpotMonDraw::Init - m_sample_window: " << m_sample_window << std::endl;
     std::cout << "TpotMonDraw::Init - m_sample_window_signal: " << m_sample_window_signal << std::endl;
     std::cout << "TpotMon::Init - m_n_sigma: " << m_n_sigma << std::endl;
   }
@@ -259,7 +321,7 @@ void TpotMonDraw::draw_time( TPad* pad )
     return;
   }
 
-  pad->SetPad( 0, 0.94, 1, 1 );
+  pad->SetPad( 0, 0.95, 1, 1 );
   pad->Clear();
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -302,20 +364,19 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
   if (name == "TPOT_counters")
   {
 
-    // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT event counters", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 1, 1 );
+    divide_canvas(cv, 1, 1);
     create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
+
   } else if (name == "TPOT_detector_occupancy") {
 
-    // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT detector occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 1, 2 );
+    divide_canvas(cv, 1, 2);
     create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -323,10 +384,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
   } else if (name == "TPOT_resist_occupancy") {
 
-    // xpos (-1) negative: do not draw menu bar
     auto cv = new TCanvas(name.c_str(), "TPOT resist occupancy", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 1, 2 );
+    divide_canvas(cv, 1, 2);
     create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -336,13 +396,10 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon adc vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv,0.2);
     create_transparent_pad(name);
-    for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
-    {
-      cv->GetPad(i+1)->SetLeftMargin(0.15);
-      cv->GetPad(i+1)->SetRightMargin(0.02);
-    }
+
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -351,13 +408,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon adc vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv,0.2);
     create_transparent_pad(name);
-    for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
-    {
-      cv->GetPad(i+1)->SetLeftMargin(0.15);
-      cv->GetPad(i+1)->SetRightMargin(0.02);
-    }
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -366,15 +419,9 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon counts vs sample", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv,0.2);
     create_transparent_pad(name);
-    for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
-    {
-      auto&& pad = cv->GetPad(i+1);
-      pad->SetLeftMargin(0.15);
-      pad->SetRightMargin(0.02);
-    }
-
     cv->SetEditable(false);
     m_canvas.push_back( cv );
     return cv;
@@ -383,7 +430,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit charge", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv);
     create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -393,7 +441,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit multiplicity", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv);
     create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -403,7 +452,8 @@ TCanvas* TpotMonDraw::create_canvas(const std::string &name)
 
     auto cv = new TCanvas(name.c_str(), "TpotMon hit vs channel", -1, 0, xsize / 2, ysize);
     gSystem->ProcessEvents();
-    divide_canvas( cv, 4, 4 );
+    divide_canvas(cv, 4, 4);
+    hide_margins(cv,0.2);
     create_transparent_pad(name);
     cv->SetEditable(false);
     m_canvas.push_back( cv );
@@ -425,11 +475,18 @@ int TpotMonDraw::Draw(const std::string &what)
   {
     // get counters
     const auto m_counters = get_histogram( "m_counters");
+    if( m_counters )
+    {
+      m_triggercnt =  m_counters->GetBinContent( TpotMonDefs::kTriggerCounter );
+    } else {
+      m_triggercnt = 0;
+    }
+
     if( m_counters && Verbosity() )
     {
       const int events = m_counters->GetBinContent( TpotMonDefs::kEventCounter );
       const int valid_events = m_counters->GetBinContent( TpotMonDefs::kValidEventCounter );
-      std::cout << "TpotMonDraw::Draw - events: " << events << " valid events: " << valid_events << std::endl;
+      std::cout << "TpotMonDraw::Draw - RCDAQ frames: " << events << " valid RCDAQ frames: " << valid_events << std::endl;
     }
   }
 
@@ -453,12 +510,22 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_adc_vs_sample")
   {
-    iret += draw_array("TPOT_adc_vs_sample", get_histograms( "m_adc_sample" ), DrawOptions::Colz );
+
+    // adjust histogram range
+    auto h_array = get_histograms( "m_adc_sample" );
+    for( const auto& h:h_array )
+    {
+      if( h )
+      { h->GetXaxis()->SetRangeUser( m_sample_window.first, m_sample_window.second ); }
+    }
+
+    iret += draw_array("TPOT_adc_vs_sample", h_array, DrawOptions::Colz|DrawOptions::Logz );
     auto cv = get_canvas("TPOT_adc_vs_sample");
     if( cv )
     {
       CanvasEditor cv_edit(cv);
       cv->Update();
+
       for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
       {
         // draw vertical lines that match sample window
@@ -489,7 +556,7 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_adc_vs_channel")
   {
-    iret += draw_array("TPOT_adc_vs_channel", get_histograms( "m_adc_channel" ), DrawOptions::Colz );
+    iret += draw_array("TPOT_adc_vs_channel", get_histograms( "m_adc_channel" ), DrawOptions::Colz|DrawOptions::Logz );
     auto cv = get_canvas("TPOT_adc_vs_channel");
     if( cv )
     {
@@ -515,17 +582,36 @@ int TpotMonDraw::Draw(const std::string &what)
           line->Draw();
         }
       }
+
+      {
+        // maks scoz
+        auto&& pad = cv->GetPad(9);
+        pad->cd();
+        mask_scoz(0.22,0.02,0.58, 0.98);
+      }
+
     }
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_counts_vs_sample")
   {
-    iret += draw_array("TPOT_counts_vs_sample", get_histograms( "m_counts_sample" ), get_ref_histograms_scaled( "m_counts_sample" ) );
+    // adjust histogram range
+    auto h_array = get_histograms( "m_counts_sample" );
+    for( const auto& h:h_array )
+    {
+      if( h )
+      {
+        h->GetXaxis()->SetRangeUser( m_sample_window.first, m_sample_window.second );
+        h->SetMinimum(0);
+      }
+    }
+
+    // iret += draw_array("TPOT_counts_vs_sample", h_array, get_ref_histograms_scaled( "m_counts_sample" ), DrawOptions::MatchRange );
+    iret += draw_array("TPOT_counts_vs_sample", h_array, get_ref_histograms_scaled( "m_counts_sample" ) );
     auto cv = get_canvas("TPOT_counts_vs_sample");
     if( cv )
     {
-      std::cout << "TpotMonDraw::Draw - draw vertical lines" << std::endl;
       CanvasEditor cv_edit(cv);
       cv->Update();
       for( int i = 0; i < MicromegasDefs::m_nfee; ++i )
@@ -547,19 +633,19 @@ int TpotMonDraw::Draw(const std::string &what)
 
   if (what == "ALL" || what == "TPOT_hit_charge")
   {
-    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), get_ref_histograms_scaled( "m_hit_charge" ), DrawOptions::Logy );
+    iret += draw_array("TPOT_hit_charge", get_histograms( "m_hit_charge" ), get_ref_histograms_scaled( "m_hit_charge" ), DrawOptions::Logy|DrawOptions::MatchRange );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_multiplicity")
   {
-    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), get_ref_histograms_scaled( "m_hit_multiplicity" ), DrawOptions::Logy );
+    iret += draw_array("TPOT_hit_multiplicity", get_histograms( "m_hit_multiplicity" ), get_ref_histograms_scaled( "m_hit_multiplicity" ), DrawOptions::Logy|DrawOptions::MatchRange );
     ++idraw;
   }
 
   if (what == "ALL" || what == "TPOT_hit_vs_channel")
   {
-    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ) );
+    iret += draw_array("TPOT_hit_vs_channel", get_histograms( "m_hit_vs_channel" ), get_ref_histograms_scaled( "m_hit_vs_channel" ), DrawOptions::Logy|DrawOptions::MatchRange|DrawOptions::Normalize);
     auto cv = get_canvas("TPOT_hit_vs_channel");
     if( cv )
     {
@@ -571,7 +657,6 @@ int TpotMonDraw::Draw(const std::string &what)
         // also set log y
         auto&& pad = cv->GetPad(i+1);
         pad->cd();
-        pad->SetLogy(true);
         pad->Update();
         for( const int& channel:{64, 128, 196} )
         {
@@ -581,8 +666,18 @@ int TpotMonDraw::Draw(const std::string &what)
           line->SetLineWidth(1);
           line->Draw();
         }
+
+      }
+
+      {
+        // maks scoz
+        auto&& pad = cv->GetPad(9);
+        pad->cd();
+        mask_scoz(0.22,0.02,0.58, 0.98);
+        // mask_scoz(0.17,0.02,0.55, 0.98);
       }
     }
+
     ++idraw;
   }
 
@@ -686,12 +781,15 @@ int TpotMonDraw::draw_counters()
 
   if( m_counters )
   {
+    m_counters->SetMinimum(0);
+
     cv->cd(1);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
     m_counters->SetFillStyle(1001);
     m_counters->SetFillColor(kYellow );
-    m_counters->DrawCopy( "h" );
+    auto copy = m_counters->DrawCopy( "h" );
+    copy->SetStats(false);
 
     if( m_counters_ref )
     {
@@ -737,13 +835,20 @@ int TpotMonDraw::draw_detector_occupancy()
     cv->cd(1);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
-    m_detector_occupancy_z->DrawCopy( "colz" );
+    auto copy = m_detector_occupancy_z->DrawCopy( "colz" );
+    copy->SetStats(false);
+    copy->GetXaxis()->SetTitleOffset(1);
+    copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "Z" );
+
 
     cv->cd(2);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
-    m_detector_occupancy_phi->DrawCopy( "colz" );
+    copy = m_detector_occupancy_phi->DrawCopy( "colz" );
+    copy->SetStats(false);
+    copy->GetXaxis()->SetTitleOffset(1);
+    copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "P" );
 
     draw_time(transparent);
@@ -786,13 +891,21 @@ int TpotMonDraw::draw_resist_occupancy()
     cv->cd(1);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
-    m_resist_occupancy_z->DrawCopy( "colz" );
+    auto copy = m_resist_occupancy_z->DrawCopy( "colz" );
+    copy->SetStats(false);
+    copy->GetXaxis()->SetTitleOffset(1);
+    copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "Z" );
+
+    mask_scoz(0.1,0.4,0.18, 0.6);
 
     cv->cd(2);
     gPad->SetLeftMargin( 0.07 );
     gPad->SetRightMargin( 0.15 );
-    m_resist_occupancy_phi->DrawCopy( "colz" );
+    copy = m_resist_occupancy_phi->DrawCopy( "colz" );
+    copy->SetStats(false);
+    copy->GetXaxis()->SetTitleOffset(1);
+    copy->GetYaxis()->SetTitleOffset(0.65);
     draw_detnames_sphenix( "P" );
 
     draw_time(transparent);
@@ -883,9 +996,9 @@ double TpotMonDraw::get_ref_scale_factor() const
   const auto m_counters_ref = get_ref_histogram( "m_counters");
   if( !( m_counters && m_counters_ref ) ) return 0;
 
-  const double full_events = m_counters->GetBinContent( TpotMonDefs::kFullEventCounter );
-  const double full_events_ref = m_counters_ref->GetBinContent( TpotMonDefs::kFullEventCounter );
-  return full_events_ref > 0 ? full_events/full_events_ref : 0;
+  const double triggercnt = m_counters->GetBinContent( TpotMonDefs::kTriggerCounter );
+  const double triggercnt_ref = m_counters_ref->GetBinContent( TpotMonDefs::kTriggerCounter );
+  return triggercnt_ref > 0 ? triggercnt/triggercnt_ref : 0;
 }
 
 //__________________________________________________________________________________
@@ -909,18 +1022,57 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
 
   bool drawn = false;
   CanvasEditor cv_edit(cv);
+
+  // calculate matched maximum
+  double maximum = 0;
+  if(options&DrawOptions::MatchRange)
+  {
+    for( const auto& h:histograms )
+    { if( h ) maximum = std::max( maximum, h->GetMaximum() ); }
+  }
+
+  // also scale by number of triggers if normalization is required
+  if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+  { maximum/=m_triggercnt; }
+
+  // draw
   for( size_t i = 0; i < histograms.size(); ++i )
   {
     if( histograms[i] )
     {
       cv->cd(i+1);
-      if( options&DrawOptions::Colz ) histograms[i]->DrawCopy( "col" );
-      else {
-
+      TH1* copy = nullptr;
+      if( options&DrawOptions::Colz )
+      {
+        copy = histograms[i]->DrawCopy( "col" );
+      } else {
         histograms[i]->SetFillStyle(1001);
         histograms[i]->SetFillColor(kYellow );
-        histograms[i]->DrawCopy( "h" );
-        histograms[i]->DrawCopy();
+        copy = histograms[i]->DrawCopy( "h" );
+      }
+
+      if( copy )
+      {
+        copy->SetTitle("");
+        copy->SetStats(false);
+        copy->GetXaxis()->SetTitleOffset(1.);
+        copy->GetXaxis()->SetTitleSize( 0.08 );
+        copy->GetXaxis()->SetLabelSize( 0.08 );
+
+        copy->GetYaxis()->SetTitleOffset( i<12 ? 1.4:1.6);
+        copy->GetYaxis()->SetTitleSize( i<12 ? 0.08:0.07 );
+        copy->GetYaxis()->SetLabelSize( i<12 ? 0.08:0.07 );
+
+        // normalize
+        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+        {
+          copy->Scale( 1./m_triggercnt );
+          copy->GetYaxis()->SetTitle("counts/trigger");
+        }
+
+        // equalize maximum
+        if(options&DrawOptions::MatchRange)
+        { copy->SetMaximum( 1.2*maximum ); }
 
       }
 
@@ -928,13 +1080,36 @@ int TpotMonDraw::draw_array( const std::string& name, const TpotMonDraw::histogr
       if( ref_histograms[i] )
       {
         ref_histograms[i]->SetLineColor(2);
-        ref_histograms[i]->Draw("hist same" );
+
+        const auto& ref_copy = ref_histograms[i]->DrawCopy("hist same" );
+        ref_copy->SetStats(false);
+
+        // normalize
+        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+        { ref_copy->Scale( 1./m_triggercnt ); }
+
       }
 
-      gPad->SetBottomMargin(0.12);
-      if( options&DrawOptions::Logx ) gPad->SetLogx( true );
-      if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 ) gPad->SetLogy( true );
-      if( options&DrawOptions::Logz ) gPad->SetLogz( true );
+      // apply log scales
+      if( options&DrawOptions::Logx )
+      { gPad->SetLogx( true ); }
+
+      if( options&DrawOptions::Logy && histograms[i]->GetEntries() > 0 )
+      {
+        gPad->SetLogy( true );
+        if((options&DrawOptions::Normalize) && (m_triggercnt>0))
+        {
+          copy->SetMinimum(1./m_triggercnt);
+        } else {
+          copy->SetMinimum(1);
+        }
+      }
+
+      if( options&DrawOptions::Logz )
+      { gPad->SetLogz( true ); }
+
+      // draw detector name
+      draw_text( 0.7, 0.9, m_detnames_sphenix[i].c_str() );
       drawn = true;
     }
   }

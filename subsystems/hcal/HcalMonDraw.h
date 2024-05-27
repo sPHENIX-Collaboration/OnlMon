@@ -3,14 +3,17 @@
 
 #include <onlmon/OnlMonDraw.h>
 
-#include <TH2.h>
-#include <TStyle.h>
+#include <Rtypes.h>
+#include <TColor.h>
 
 #include <string>  // for allocator, string
 
 class TCanvas;
 class TGraphErrors;
+class TH1;
+class TH2;
 class TPad;
+class TStyle;
 
 class HcalMonDraw : public OnlMonDraw
 {
@@ -59,19 +62,20 @@ class HcalMonDraw : public OnlMonDraw
   }
 
   // int DrawDeadServer(TPad *transparent);
-  std::string prefix = "HCALMON";
-  TCanvas* TC[10] = {nullptr};
-  TPad* transparent[19] = {nullptr};
-  TPad* Pad[29] = {nullptr};
-  TPad* warning[28] = {nullptr};
-  TH2F* h2_mean_template = nullptr;
-  TH1F* h1_zs = nullptr;
-  TH1F* h1_zs_low = nullptr;
-  TH1F* h1_zs_high = nullptr;
-  Int_t ZSPalette[255] = {0};
+  std::string prefix {"HCALMON"};
+  TCanvas* TC[10] {nullptr};
+  TPad* transparent[19] {nullptr};
+  TPad* Pad[29] {nullptr};
+  TPad* warning[28] {nullptr};
+  TH2* h2_mean_template {nullptr};
+  TH1* h1_zs {nullptr};
+  TH1* h1_zs_low {nullptr};
+  TH1* h1_zs_high {nullptr};
+  Int_t ZSPalette[255] {0};
 
-  //  TGraphErrors* gr[2] = {nullptr};
-  TStyle* hcalStyle = nullptr;
+  //  TGraphErrors* gr[2] {nullptr};
+  TStyle* hcalStyle {nullptr};
+  std::string hcalmon[2];
 };
 
 #endif /* HCAL_HCALMONDRAW_H */
