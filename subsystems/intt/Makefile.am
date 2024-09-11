@@ -28,14 +28,30 @@ inttincludedir=$(pkgincludedir)/intt
 
 inttinclude_HEADERS = \
   InttMon.h \
-  InttMonDraw.h
+  InttMonDraw.h \
+  ServerStats.h \
+  BcoDiff.h \
+  FphxBco.h \
+  History.h \
+  Hitmap.h \
+  Hitrates.cc \
+  ZoomedFphxBco.h \
+  SingleInttDrawer.h
 
 libonlinttmon_server_la_SOURCES = \
   InttMon.cc
 
 libonlinttmon_client_la_SOURCES = \
   InttMon.cc \
-  InttMonDraw.cc
+  InttMonDraw.cc \
+  ServerStats.cc \
+  BcoDiff.cc \
+  FphxBco.cc \
+  History.cc \
+  Hitmap.cc \
+  Hitrates.cc \
+  ZoomedFphxBco.cc \
+  SingleInttDrawer.cc
 
 noinst_PROGRAMS = \
   testexternals_server \

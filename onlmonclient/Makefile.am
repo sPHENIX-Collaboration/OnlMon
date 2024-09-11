@@ -17,13 +17,15 @@ noinst_HEADERS = \
 
 pkginclude_HEADERS = \
   OnlMonClient.h \
-  OnlMonDraw.h
+  OnlMonDraw.h \
+  SingleCanvasDrawer.h
 
 libonlmonclient_la_SOURCES = \
   OnlMonClient.cc \
   OnlMonDraw.cc \
   OnlMonHtml.cc \
-  ClientHistoList.cc
+  ClientHistoList.cc \
+  SingleCanvasDrawer.cc
 
 libonlmonclient_la_LDFLAGS = \
   -L$(libdir) \
