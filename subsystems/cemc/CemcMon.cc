@@ -378,7 +378,7 @@ int CemcMon::process_event(Event *e /* evt */)
     
     //this is for only process event with the MBD>=1 trigger
     if(usembdtrig){
-      if(trig_bools.at(10) == 0){
+      if(trig_bools.at(11) == 0){
         fillhist = false;
       }
     }

@@ -434,7 +434,7 @@ int HcalMon::process_event(Event* e /* evt */)
     // this is for only fill certain histogram with the MBD>=1 trigger or cosmic single trigger(and they should never run together!!)
     if (usetrig4_10)
     {
-      if (trig_bools.at(10) == 0 && trig_bools.at(4) == 0)
+      if (trig_bools.at(11) == 0 && trig_bools.at(4) == 0)
       {
         fillhist = false;
       }
