@@ -103,6 +103,8 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("Packet_Type_Fraction_HB",servername);
     cl->registerHisto("Packet_Type_Fraction_NORM",servername);
     cl->registerHisto("Packet_Type_Fraction_ELSE",servername);
+
+    cl->registerHisto("Noise_Channel_Plots",servername);
   } //
 
 
