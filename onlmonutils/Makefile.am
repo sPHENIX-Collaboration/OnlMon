@@ -22,7 +22,8 @@ pkginclude_HEADERS = \
   runningMean.h \
   pseudoRunningMean.h \
   fullRunningMean.h \
-  GL1Manager.h	
+  GL1Manager.h	\
+  triggerEnum.h
 
 libonlmonutils_la_SOURCES = \
   runningMean.cc \
