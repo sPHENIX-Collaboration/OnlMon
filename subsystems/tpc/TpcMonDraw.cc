@@ -436,6 +436,16 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[34]->SetFillStyle(4000);
     transparent[34]->Draw();
     TC[34]->SetEditable(false);
+  }
+  else if (name == "TPCNoiseChannelsPlots")
+  {
+    TC[35] = new TCanvas(name.c_str(), "Noise Channel Check for nonZS events w/ no load in TPC",-1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[35]->Divide(4,7);
+    transparent[35] = new TPad("transparent35", "this does not show", 0, 0, 1, 1);
+    transparent[35]->SetFillStyle(4000);
+    transparent[35]->Draw();
+    TC[35]->SetEditable(false);
   }     
   return 0;
 }
@@ -617,6 +627,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SHIFTER_DRIFT_PLOT")
   {
     iret += DrawShifterTPCDriftWindow(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCNOISECHANNELPLOTS")
+  {
+    iret += DrawTPCNoiseChannelPlots(what);
     idraw++;
   }
   if (!idraw)
@@ -4021,6 +4036,102 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_Shifter_Drift Window, ADC-Pedestal>(5sigma||20ADC) Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCNoiseChannelPlots(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_noise_channel_plots[24] = {nullptr};
+  TH1 *tpcmon_lvl1_per_EBDC[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_noise_channel_plots[i] = (TH1*) cl->getHisto(TPCMON_STR,"Noise_Channel_Plots");
+    tpcmon_lvl1_per_EBDC[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+  }
+
+  if (!gROOT->FindObject("TPCNoiseChannelsPlots"))
+  {
+    MakeCanvas("TPCNoiseChannelsPlots");
+  }
+
+  TCanvas *MyTC = TC[35];
+  TPad *TransparentTPad = transparent[35];
+
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
+
+  char title[50];
+
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+  for( int i=0; i<24; i++ ) 
+  {
+    if( tpcmon_noise_channel_plots[i] && tpcmon_lvl1_per_EBDC[i]  )
+    {
+      MyTC->cd(i+5);
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+      tpcmon_noise_channel_plots[i]->Scale(1./tpcmon_lvl1_per_EBDC[i]->GetEntries());
+      
+      double Yrange_upper = 2.0*tpcmon_noise_channel_plots[i]->GetMaximum();
+      tpcmon_noise_channel_plots[i]->GetYaxis()->SetRangeUser(0,Yrange_upper);
+      tpcmon_noise_channel_plots[i]->DrawCopy("HIST");      
+
+      MyTC->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,Yrange_upper);
+      }
+      for(int k=0;k<26;k++)
+      {
+        sprintf(title,"%d",FEEid[k]);
+        tt1->DrawText(k*256+128,0.84*Yrange_upper,title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(800,0.92*Yrange_upper,"R1");
+      tt1->DrawText(2450,0.92*Yrange_upper,"R2");
+      tt1->DrawText(5200,0.92*Yrange_upper,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(1536,0,1536,Yrange_upper);
+      t1->DrawLine(3584,0,3584,Yrange_upper);
+
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_Counts of ADC-Ped. > 300, t < 360 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   TransparentTPad->cd();

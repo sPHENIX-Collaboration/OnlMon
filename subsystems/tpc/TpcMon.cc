@@ -709,6 +709,19 @@ int TpcMon::Init()
   Packet_Type_Fraction_ELSE -> GetYaxis() -> SetTitleSize(0.08);
   Packet_Type_Fraction_ELSE -> GetYaxis() -> SetTitleOffset(0.6);
 
+  char Noise_Channel_Plots_title_str[256];
+  sprintf(Noise_Channel_Plots_title_str,"Counts of ADC-Ped. > 300, t < 360 ,Sector # %i",MonitorServerId());
+  Noise_Channel_Plots = new TH1F("Noise_Channel_Plots","",6656,-0.5,6655.5);
+  Noise_Channel_Plots -> GetXaxis() -> SetLabelSize(0.05);
+  Noise_Channel_Plots -> GetXaxis() -> SetTitleSize(0.05);
+  Noise_Channel_Plots -> GetYaxis() -> SetLabelSize(0.05);
+  Noise_Channel_Plots -> GetYaxis() -> SetTitleSize(0.05);
+  Noise_Channel_Plots -> GetYaxis() -> SetTitleOffset(1.0);
+
+  Noise_Channel_Plots->SetXTitle("(FEE # * 256) + chan. #");
+  Noise_Channel_Plots->SetYTitle("Counts/Event");
+  Noise_Channel_Plots->SetStats(0); 
+
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
   se->registerHisto(this, NorthSideADC);
@@ -788,6 +801,8 @@ int TpcMon::Init()
   se->registerHisto(this, Packet_Type_Fraction_HB);
   se->registerHisto(this, Packet_Type_Fraction_NORM);
   se->registerHisto(this, Packet_Type_Fraction_ELSE);
+
+  se->registerHisto(this, Noise_Channel_Plots);
 
   Reset();
   return 0;
@@ -1076,6 +1091,11 @@ int TpcMon::process_event(Event *evt/* evt */)
           //int t = s + 2 * (current_BCO - starting_BCO);
 
           int adc = p->iValue(wf,s);
+
+          if( ((adc-pedestal) > 300 && (adc < 1500)) && s < 360){
+	    //std::cout<<"FEE #: "<<fee<<", channel #: "<<channel<<", sample: "<<s<<", adc-pedestal: "<<(adc-pedestal)<<std::endl;
+            Noise_Channel_Plots->Fill(channel + (256*FEE_transform[fee]));
+          } // only intended to be looked at during pedestal runs with 360 time samples
 
 	  //std::cout<<"adc = "<<adc<<" ADC, FEE = "<<fee<<", channel: "<<channel<<", layer: "<<layer<<", phi: "<<phi<<", event num: "<<evtcnt<<std::endl;
 
