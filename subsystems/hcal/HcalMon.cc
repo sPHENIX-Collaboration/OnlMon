@@ -9,6 +9,7 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
+#include <onlmon/triggerEnum.h>
 
 #include <calobase/TowerInfoDefs.h>
 #include <caloreco/CaloWaveformFitting.h>
@@ -434,7 +435,7 @@ int HcalMon::process_event(Event* e /* evt */)
     // this is for only fill certain histogram with the MBD>=1 trigger or cosmic single trigger(and they should never run together!!)
     if (usetrig4_10)
     {
-      if (trig_bools.at(10) == 0 && trig_bools.at(4) == 0)
+      if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS1) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0)
       {
         fillhist = false;
       }
