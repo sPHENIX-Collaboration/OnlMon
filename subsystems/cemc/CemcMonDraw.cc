@@ -2,6 +2,8 @@
 
 #include <onlmon/OnlMonClient.h>
 
+#include <onlmon/triggerEnum.h>
+
 #include <calobase/TowerInfoDefs.h>
 
 #include <TAxis.h>  // for TAxis
@@ -1825,7 +1827,11 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   for (int itrig = 0; itrig < 64; itrig++)
   {
     // Priority to the bits between 24 and 31 (draw photon trig first)
-    if (n_entries[itrig].second >= 24 && n_entries[itrig].second <= 31)
+    // if (n_entries[itrig].second >= 24 && n_entries[itrig].second <= 31)
+    if ( n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON6_MBD_NS2 || 
+        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON8_MBD_NS2 ||
+        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON10_MBD_NS2 ||
+        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON12_MBD_NS2 )
     {
       if (n_entries[itrig].first > 0. && priority_triggers.size() < 4)
       {
@@ -1839,7 +1845,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   {
     for (int itrig = 0; itrig < 64; itrig++)
     {
-      if (priority_triggers.size() < 4 && n_entries[itrig].second < 24)
+      if (priority_triggers.size() < 4 && n_entries[itrig].second < TriggerEnum::BitCodes::PHOTON12_MBD_NS2 )
       {
         priority_triggers.push_back(n_entries[itrig].second);
       }
