@@ -1,6 +1,7 @@
 #include "BbcMonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
+#include <onlmon/triggerEnum.h>
 
 #include <TArc.h>
 #include <TArrow.h>
@@ -3099,21 +3100,26 @@ int BbcMonDraw::DrawDeadServer(TPad *transparent_pad)
 void BbcMonDraw::GetMinBiasTrigName()
 {
 
-  const char *trignames[] = {
-      "MBDNS>=1",
-      "MBDNS>=2",
-      "MBDNS |z|<10",
-      "MBDNS |z|<30",
-      "MBDNS |z|<60"
-  };
+  // const char *trignames[] = {
+  //     "MBDNS>=1",
+  //     "MBDNS>=2",
+  //     "MBDNS |z|<10",
+  //     "MBDNS |z|<30",
+  //     "MBDNS |z|<60"
+  // };
 
+ 
   // look for MB triggers, in order (bits 10-14)
-  for (int ibit=10; ibit<=14; ibit++)
+  // for (int ibit=10; ibit<=14; ibit++)
+  // {
+  for ( int itrig = 0; itrig < TriggerEnum::nMBTriggers; itrig++ )
   {
+    int ibit = static_cast<int>(TriggerEnum::MBTriggers[itrig]);
     double prescale = Prescale_hist->GetBinContent(ibit+1);
     if ( prescale >= 0 )
     {
-        TrigName = trignames[ibit-10];
+        // TrigName = trignames[ibit-10];
+        TrigName = TriggerEnum::MBTriggerNames[itrig];
         return;
     }
   }
@@ -3121,5 +3127,6 @@ void BbcMonDraw::GetMinBiasTrigName()
 
   // no mb bit found, take all triggers
   TrigName = "ALL TRIGGERS";
+  return;
 }
 

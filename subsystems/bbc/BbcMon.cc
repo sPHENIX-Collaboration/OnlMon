@@ -10,6 +10,7 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/RunDBodbc.h>
+#include <onlmon/triggerEnum.h>
 
 #include <Event/msg_profile.h>
 
@@ -689,7 +690,7 @@ uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
   // look for MB triggers, in order (bits 10-14)
   for (int ibit=10; ibit<=14; ibit++)
   {
-    uint64_t mb_bit = 0x1UL<<ibit;
+    uint64_t mb_bit = 0x1UL<< ibit;
     if ( (mb_bit&trigs_enabled) == mb_bit )
     {
       return mb_bit;
