@@ -75,6 +75,21 @@ int BbcMon::Init()
   bevt = new MbdEvent();
   _mbdgeom = new MbdGeomV1();
 
+  // Set trigger bits
+  mbdns = TriggerEnum::MBD_NS2 | TriggerEnum::MBD_NS1; // mbd wide triggers
+  mbdnsvtx10 = TriggerEnum::MBD_NS2_ZVRTX10 | TriggerEnum::MBD_NS1_ZVRTX10;
+  mbdnsvtx30 = TriggerEnum::MBD_NS2_ZVRTX30;
+  mbdnsvtx150 = TriggerEnum::MBD_NS2_ZVRTX150;
+  mbdtrig = mbdns | mbdnsvtx10 | mbdnsvtx30 | mbdnsvtx150;
+  zdcns = TriggerEnum::ZDC_NS;
+  emcal = TriggerEnum::PHOTON6_MBD_NS2 | TriggerEnum::PHOTON8_MBD_NS2
+          | TriggerEnum::PHOTON10_MBD_NS2 | TriggerEnum::PHOTON12_MBD_NS2;
+  hcal = TriggerEnum::HCAL_SINGLES;
+  emcalmbd = emcal | mbdtrig;
+  hcalmbd = hcal | mbdtrig;
+  trigmask = mbdtrig | zdcns | emcal | hcal;    // any reasonable trigger
+  orig_trigmask = trigmask;
+
   // read settings from BbcMonData.dat
   const char *bbccalib = getenv("BBCCALIB");
   if (!bbccalib)
@@ -91,52 +106,7 @@ int BbcMon::Init()
     uint64_t trigbit{0};
     while ( configfile >> label >> std::hex >> trigbit >> std::dec )
     {
-      if ( label == "MBDTRIG" )
-      {
-          mbdtrig = trigbit;            // any mbd trigge
-      }
-      else if ( label == "MBDNS" )
-      {
-          mbdns = trigbit;
-      }
-      else if ( label == "MBDNSVTX10" )
-      {
-          mbdnsvtx10 = trigbit;
-      }
-      else if ( label == "MBDNSVTX30" )
-      {
-          mbdnsvtx30 = trigbit;
-      }
-      else if ( label == "MBDNSVTX60" )
-      {
-          mbdnsvtx60 = trigbit;
-      }
-      else if ( label == "ZDCNS" )
-      {
-          zdcns = trigbit;
-      }
-      else if ( label == "EMCAL" )
-      {
-          emcal = trigbit;
-      }
-      else if ( label == "HCAL" )
-      {
-          hcal = trigbit;
-      }
-      else if ( label == "EMCALMBD" )
-      {
-          emcalmbd = trigbit;
-      }
-      else if ( label == "HCALMBD" )
-      {
-          hcalmbd = trigbit;
-      }
-      else if ( label == "TRIGMASK" )
-      {
-          trigmask = trigbit;
-          orig_trigmask = trigbit;
-      }
-      else if ( label == "USEGL1" )
+      if ( label == "USEGL1" )
       {
           useGL1 = static_cast<int>(trigbit);
       }
@@ -690,7 +660,7 @@ uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
   // look for MB triggers, in order (bits 10-14)
   for (int ibit=10; ibit<=14; ibit++)
   {
-    uint64_t mb_bit = 0x1UL<< ibit;
+    uint64_t mb_bit = 0x1UL<<ibit;
     if ( (mb_bit&trigs_enabled) == mb_bit )
     {
       return mb_bit;
@@ -986,7 +956,7 @@ int BbcMon::process_event(Event *evt)
       {
           bbc_zvertex_30_chk->Fill(zvtx);
       }
-      if ( triginput&mbdnsvtx60 )
+      if ( triginput&mbdnsvtx150 )
       {
           bbc_zvertex_60_chk->Fill(zvtx);
       }
@@ -1000,7 +970,7 @@ int BbcMon::process_event(Event *evt)
   {
       bbc_zvertex_30->Fill(zvtx);
   }
-  if ( triggervec&mbdnsvtx60 )
+  if ( triggervec&mbdnsvtx150 )
   {
       bbc_zvertex_60->Fill(zvtx);
   }
