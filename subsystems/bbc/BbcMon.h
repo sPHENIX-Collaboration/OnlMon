@@ -53,7 +53,7 @@ class BbcMon : public OnlMon
   uint64_t mbdns{0};          // mbdns n>=1 or 2 bit
   uint64_t mbdnsvtx10{0};     // mbdns vtx<10 bit
   uint64_t mbdnsvtx30{0};     // mbdns vtx<30 bit
-  uint64_t mbdnsvtx60{0};     // mbdns vtx<60 bit
+  uint64_t mbdnsvtx150{0};     // mbdns vtx<150 bit
   uint64_t zdcns{0};          // zdcns
   uint64_t emcal{0};          // all emcal triggers, no bbc
   uint64_t hcal{0};           // all hcal triggers, no bbc
