@@ -435,12 +435,13 @@ int HcalMon::process_event(Event* e /* evt */)
     // this is for only fill certain histogram with the MBD>=1 trigger or cosmic single trigger(and they should never run together!!)
     if (usetrig4_10)
     {
-      if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS1) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0)
-      {
-        fillhist = false;
-      }
+      // commenting out until we have a better way to handle cosmic bits -- tanner
+      // if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS1) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0)
+      // {
+        // fillhist = false;
+      // }
       //if we have hcal single cosmic trigger we are in cosmic running mode and need to adjust thresholds accordingly
-      else if(trig_bools.at(4))
+      if(trig_bools.at(TriggerEnum::BitCodes::RANDOM)==1)
       {
         hit_threshold = 1000;
         waveform_hit_threshold = 1000;
