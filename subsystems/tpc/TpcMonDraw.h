@@ -59,12 +59,13 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCNStreaksvsEventNo(const std::string &what = "ALL");
   int DrawTPCNEventsvsEBDC(const std::string &what = "ALL");
   int DrawTPCPacketTypes(const std::string &what = "ALL");
+  int DrawTPCNoiseChannelPlots(const std::string &what = "ALL");
   int DrawShifterTPCDriftWindow(const std::string &what = "ALL");
   int DrawServerStats();
   time_t getTime();
   
-  TCanvas *TC[35] = {nullptr};
-  TPad *transparent[35] = {nullptr};
+  TCanvas *TC[36] = {nullptr};
+  TPad *transparent[36] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module
