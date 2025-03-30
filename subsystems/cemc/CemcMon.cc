@@ -8,6 +8,7 @@
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
+#include <onlmon/triggerEnum.h>
 
 #include <calobase/TowerInfoDefs.h>
 #include <caloreco/CaloWaveformFitting.h>
@@ -378,7 +379,7 @@ int CemcMon::process_event(Event *e /* evt */)
     
     //this is for only process event with the MBD>=1 trigger
     if(usembdtrig){
-      if(trig_bools.at(10) == 0){
+      if(trig_bools.at(TriggerEnum::BitCodes::MBD_NS1) == 0){
         fillhist = false;
       }
     }

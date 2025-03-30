@@ -1,6 +1,7 @@
 #include "HcalMonDraw.h"
 
 #include <onlmon/OnlMonClient.h>
+#include <onlmon/triggerEnum.h>
 
 #include <TAxis.h>  // for TAxis
 #include <TButton.h>
@@ -2175,24 +2176,26 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   // Get the 4 priority trigger bits to be displayed
   std::vector<int> priority_triggers;
 
-  for (int itrig = 0; itrig < 64; itrig++)
-  {
-    // Priority to the bits between 16 and 23, don't need to plot photon trigger
-    if (n_entries[itrig].second >= 16 && n_entries[itrig].second <= 23)
-    {
-      if (n_entries[itrig].first > 0. && priority_triggers.size() < 4)
-      {
-        priority_triggers.push_back(n_entries[itrig].second);
-      }
-    }
-  }
+
+  // these are jet triggers which aren't available in 2025 -- tanner
+  // for (int itrig = 0; itrig < 64; itrig++)
+  // {
+  //   // Priority to the bits between 16 and 23, don't need to plot photon trigger
+  //   if (n_entries[itrig].second >= 16 && n_entries[itrig].second <= 23)
+  //   {
+  //     if (n_entries[itrig].first > 0. && priority_triggers.size() < 4)
+  //     {
+  //       priority_triggers.push_back(n_entries[itrig].second);
+  //     }
+  //   }
+  // }
 
   // If trigger bits from 16 to 23 do not have 4 with entries, plot the others
   if (priority_triggers.size() < 4)
   {
     for (int itrig = 0; itrig < 64; itrig++)
     {
-      if (priority_triggers.size() < 4 && n_entries[itrig].second < 16)
+      if (priority_triggers.size() < 4 && n_entries[itrig].second < TriggerEnum::BitCodes::MBD_NS1_ZVRTX10) // < 15 ( last non-photon trigger)
       {
         priority_triggers.push_back(n_entries[itrig].second);
       }

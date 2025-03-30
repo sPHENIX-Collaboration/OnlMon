@@ -9,6 +9,7 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
+#include <onlmon/triggerEnum.h>
 
 #include <calobase/TowerInfoDefs.h>
 #include <caloreco/CaloWaveformFitting.h>
@@ -434,16 +435,23 @@ int HcalMon::process_event(Event* e /* evt */)
     // this is for only fill certain histogram with the MBD>=1 trigger or cosmic single trigger(and they should never run together!!)
     if (usetrig4_10)
     {
-      if (trig_bools.at(10) == 0 && trig_bools.at(4) == 0)
-      {
-        fillhist = false;
-      }
+      // commenting out until we have a better way to handle cosmic bits -- tanner
+      // if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS1) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0)
+      // {
+        // fillhist = false;
+      // }
       //if we have hcal single cosmic trigger we are in cosmic running mode and need to adjust thresholds accordingly
-      else if(trig_bools.at(4))
-      {
-        hit_threshold = 1000;
-        waveform_hit_threshold = 1000;
-      }
+      if( trig_bools.at(TriggerEnum::BitCodes::RANDOM)
+	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES)
+	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_VERT)
+	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_VERT)
+	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_HORZ)
+	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_HORZ)
+	  )
+	{
+	  hit_threshold = 1000;
+	  waveform_hit_threshold = 1000;
+	}
     }
     
   }
