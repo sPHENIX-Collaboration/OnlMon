@@ -436,6 +436,16 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[34]->SetFillStyle(4000);
     transparent[34]->Draw();
     TC[34]->SetEditable(false);
+  }
+  else if (name == "TPCNoiseChannelsPlots")
+  {
+    TC[35] = new TCanvas(name.c_str(), "Noise Channel Check for nonZS events w/ no load in TPC",-1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[35]->Divide(4,7);
+    transparent[35] = new TPad("transparent35", "this does not show", 0, 0, 1, 1);
+    transparent[35]->SetFillStyle(4000);
+    transparent[35]->Draw();
+    TC[35]->SetEditable(false);
   }     
   return 0;
 }
@@ -617,6 +627,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SHIFTER_DRIFT_PLOT")
   {
     iret += DrawShifterTPCDriftWindow(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCNOISECHANNELPLOTS")
+  {
+    iret += DrawTPCNoiseChannelPlots(what);
     idraw++;
   }
   if (!idraw)
@@ -3242,10 +3257,10 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
     {
       if( tpcmon_DriftWindow[i][j] )
       {
-        for( int k = 1; k < tpcmon_DriftWindow[i][j]->GetNbinsX(); k++ )
+        for( int k = 1; k < tpcmon_DriftWindow[i][j]->GetNbinsX(); k++ ) // old laser peak 416, new laser peak 403, new laser peak w/ 57.14 ns clock 368
 	{
-          if( (k>=0 && k<=390) || (k>420) ){ no_laser_window = 1;}
-          if( k>390 && k<=420){ no_laser_window = 0;}
+          if( (k>=0 && k<=350) || (k>380) ){ no_laser_window = 1;}
+          if( k>350 && k<=380){ no_laser_window = 0;}
           if( (tpcmon_DriftWindow[i][j]->GetBinContent(k) > no_laser_max && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0) && (no_laser_window==1) ){no_laser_max = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
           if( tpcmon_DriftWindow[i][j]->GetBinContent(k) > max && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0 ){max = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
           if( tpcmon_DriftWindow[i][j]->GetBinContent(k) < min && tpcmon_DriftWindow[i][j]->GetBinContent(k) > 0 ){min = tpcmon_DriftWindow[i][j]->GetBinContent(k);}
@@ -3927,15 +3942,15 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
     if( tpcmon_DriftWindow_shifter[i][1] ){  R2_max = tpcmon_DriftWindow_shifter[i][1]->GetBinCenter(tpcmon_DriftWindow_shifter[i][1]->GetMaximumBin());}
     if( tpcmon_DriftWindow_shifter[i][2] ){  R3_max = tpcmon_DriftWindow_shifter[i][2]->GetBinCenter(tpcmon_DriftWindow_shifter[i][2]->GetMaximumBin());}
 
-    if( (R1_max>std::numeric_limits<int>::min() && (R1_max < 413)) || R1_max > 423 ){ R1_bad = 1;} 
-    if( (R2_max>std::numeric_limits<int>::min() && (R2_max < 413)) || R2_max > 423 ){ R2_bad = 1;} 
-    if( (R3_max>std::numeric_limits<int>::min() && (R3_max < 413)) || R3_max > 423 ){ R3_bad = 1;}
+    if( (R1_max>std::numeric_limits<int>::min() && (R1_max < 365)) || R1_max > 374 ){ R1_bad = 1;} // old peak - 416, new peak 403 50 ns clock, new peak 368 57.14 ns clock 
+    if( (R2_max>std::numeric_limits<int>::min() && (R2_max < 365)) || R2_max > 374 ){ R2_bad = 1;} 
+    if( (R3_max>std::numeric_limits<int>::min() && (R3_max < 365)) || R3_max > 374 ){ R3_bad = 1;}
 
     for( int l = 2; l>-1; l-- )
     {
       if( tpcmon_DriftWindow_shifter[i][l] )
       {
-        tpcmon_DriftWindow_shifter[i][l]->GetXaxis()->SetRangeUser(390,440);
+        tpcmon_DriftWindow_shifter[i][l]->GetXaxis()->SetRangeUser(346,396); // old peak - 416, new peak 403, new peak 368 57.14 ns clock
         if(l == 2)
         { 
           tpcmon_DriftWindow_shifter[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.3*max);tpcmon_DriftWindow_shifter[i][l] -> DrawCopy("HIST");
@@ -3947,8 +3962,8 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       }
     }
 
-    t2->DrawLine(413,0.9*min,413,1.3*max);
-    t2->DrawLine(423,0.9*min,423,1.3*max);
+    t2->DrawLine(365,0.9*min,365,1.3*max);
+    t2->DrawLine(375,0.9*min,375,1.3*max);
     
     gPad->Update();  
 
@@ -4021,6 +4036,102 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_Shifter_Drift Window, ADC-Pedestal>(5sigma||20ADC) Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCNoiseChannelPlots(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_noise_channel_plots[24] = {nullptr};
+  TH1 *tpcmon_lvl1_per_EBDC[24] = {nullptr};
+
+  char TPCMON_STR[100];
+  for( int i=0; i<24; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_noise_channel_plots[i] = (TH1*) cl->getHisto(TPCMON_STR,"Noise_Channel_Plots");
+    tpcmon_lvl1_per_EBDC[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+  }
+
+  if (!gROOT->FindObject("TPCNoiseChannelsPlots"))
+  {
+    MakeCanvas("TPCNoiseChannelsPlots");
+  }
+
+  TCanvas *MyTC = TC[35];
+  TPad *TransparentTPad = transparent[35];
+
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1= new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26]={2,4,3,13,17,16, // R1
+                 11,12,19,18,0,1,15,14, // R2
+                 20,22,21,23,25,24,10,9,8,6,7,5 // R3
+                };
+
+  char title[50];
+
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+  for( int i=0; i<24; i++ ) 
+  {
+    if( tpcmon_noise_channel_plots[i] && tpcmon_lvl1_per_EBDC[i]  )
+    {
+      MyTC->cd(i+5);
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+      tpcmon_noise_channel_plots[i]->Scale(1./tpcmon_lvl1_per_EBDC[i]->GetEntries());
+      
+      double Yrange_upper = 2.0*tpcmon_noise_channel_plots[i]->GetMaximum();
+      tpcmon_noise_channel_plots[i]->GetYaxis()->SetRangeUser(0,Yrange_upper);
+      tpcmon_noise_channel_plots[i]->DrawCopy("HIST");      
+
+      MyTC->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j+1)*256,-0.01,(j+1)*256,Yrange_upper);
+      }
+      for(int k=0;k<26;k++)
+      {
+        sprintf(title,"%d",FEEid[k]);
+        tt1->DrawText(k*256+128,0.84*Yrange_upper,title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(800,0.92*Yrange_upper,"R1");
+      tt1->DrawText(2450,0.92*Yrange_upper,"R2");
+      tt1->DrawText(5200,0.92*Yrange_upper,"R3");
+      tt1->SetTextSize(0.05); 
+
+      t1->DrawLine(1536,0,1536,Yrange_upper);
+      t1->DrawLine(3584,0,3584,Yrange_upper);
+
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_Counts of ADC-Ped. > 300, t < 360 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   TransparentTPad->cd();

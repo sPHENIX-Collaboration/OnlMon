@@ -140,6 +140,8 @@ class TpcMon : public OnlMon
   TH1 *Packet_Type_Fraction_NORM = nullptr;
   TH1 *Packet_Type_Fraction_ELSE = nullptr;
 
+  TH1 *Noise_Channel_Plots = nullptr;
+
   TpcMap M; //declare Martin's map
 
   int starting_BCO;
