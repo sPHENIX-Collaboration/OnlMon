@@ -48,7 +48,12 @@ TpcMon::TpcMon(const std::string &name)
   starting_BCO = -1;
   rollover_value = 0;
   current_BCOBIN = 0;
+  //Evgeny Map
   M.setMapNames("AutoPad-R1-RevA.sch.ChannelMapping.csv", "AutoPad-R2-RevA-Pads.sch.ChannelMapping.csv", "AutoPad-R3-RevA.sch.ChannelMapping.csv");
+  //Mariia MAp
+  // M.setMapNames("../../../../../../../../../../../sphenix/user/mitrankova/PadPlane_Readout/map/AutoPad-R1-RevA.sch.ChannelMapping.csv", 
+  //               "../../../../../../../../../../../sphenix/user/mitrankova/PadPlane_Readout/map/AutoPad-R2-RevA-Pads.sch.ChannelMapping.csv", 
+  //               "../../../../../../../../../../../sphenix/user/mitrankova/PadPlane_Readout/map/AutoPad-R3-RevA.sch.ChannelMapping.csv");
   return;
 }
 
@@ -230,7 +235,7 @@ int TpcMon::Init()
   char ADC_vs_SAMPLE_str[100];
   char ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
-  sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
+  sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",MonitorServerId());
   ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 500, 0, 500, 256, 0, 1024);
   ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
   ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
@@ -245,7 +250,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_str[100];
   char PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",MonitorServerId());
   PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetYTitle("ADC-ped. [ADU]");
@@ -260,7 +265,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R1_str[100];
   char PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_str,"ADC Counts vs Sample: SECTOR %i R1",MonitorServerId());
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str,"Sector %i R1: ADC Time bin [1/20MHz]",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str,"Sector %i R1: ADC Time bin [1/17.5MHz]",MonitorServerId());
   PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetYTitle("ADC-ped. [ADU]");
@@ -275,7 +280,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R2_str[100];
   char PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_str,"ADC Counts vs Sample: SECTOR %i R2",MonitorServerId());
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str,"Sector %i R2: ADC Time bin [1/20MHz]",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str,"Sector %i R2: ADC Time bin [1/17.5MHz]",MonitorServerId());
   PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetYTitle("ADC-ped. [ADU]");
@@ -290,7 +295,7 @@ int TpcMon::Init()
   char PEDEST_SUB_ADC_vs_SAMPLE_R3_str[100];
   char PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str[100];
   sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_str,"ADC Counts vs Sample: SECTOR %i R3",MonitorServerId());
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str,"Sector %i R3: ADC Time bin [1/20MHz]",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str,"Sector %i R3: ADC Time bin [1/17.5MHz]",MonitorServerId());
   PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetYTitle("ADC-ped. [ADU]");
@@ -305,7 +310,7 @@ int TpcMon::Init()
   char ADC_vs_SAMPLE_large_str[100];
   char ADC_vs_SAMPLE_xaxis_large_str[100];
   sprintf(ADC_vs_SAMPLE_large_str,"ADC Counts vs Large Sample: SECTOR %i",MonitorServerId());
-  sprintf(ADC_vs_SAMPLE_xaxis_large_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
+  sprintf(ADC_vs_SAMPLE_xaxis_large_str,"Sector %i: ADC Time bin [1/17.5MHz]",MonitorServerId());
   ADC_vs_SAMPLE_large = new TH2F("ADC_vs_SAMPLE_large", ADC_vs_SAMPLE_large_str, 1080, 0, 1080, 256, 0, 1024);
   ADC_vs_SAMPLE_large -> SetXTitle(ADC_vs_SAMPLE_xaxis_large_str);
 
@@ -436,8 +441,8 @@ int TpcMon::Init()
   char ZS_ADC_vs_SAMPLE_str[100];
   char ZS_ADC_vs_SAMPLE_xaxis_str[100];
   sprintf(ZS_ADC_vs_SAMPLE_str,"ADC Counts vs Sample - Trigger QA: SECTOR %i",MonitorServerId());
-  sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/20MHz]",MonitorServerId());
-  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 500, -0.5, 499.5, 1024, 0, 1024);
+  sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",MonitorServerId());
+  ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 500, 0, 500, 1024, 0, 1024);
   ZS_Trigger_ADC_vs_Sample -> SetXTitle(ZS_ADC_vs_SAMPLE_xaxis_str);
   ZS_Trigger_ADC_vs_Sample -> SetYTitle("ADC [ADU]");
 
@@ -451,8 +456,8 @@ int TpcMon::Init()
   char First_ADC_vs_First_Time_Bin_str[100];
   char First_ADC_vs_First_Time_Bin_xaxis_str[100];
   sprintf(First_ADC_vs_First_Time_Bin_str,"1st nonZS ADC vs 1st nonZS Sample Time: SECTOR %i",MonitorServerId());
-  sprintf(First_ADC_vs_First_Time_Bin_xaxis_str,"Sector %i: 1st non-ZS Time bin [1/20MHz]",MonitorServerId());
-  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 500, -0.5, 499.5, 256, 0, 1024);
+  sprintf(First_ADC_vs_First_Time_Bin_xaxis_str,"Sector %i: 1st non-ZS Time bin [1/17.5MHz]",MonitorServerId());
+  First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 500, 0, 500, 256, 0, 1024);
   First_ADC_vs_First_Time_Bin -> SetXTitle(First_ADC_vs_First_Time_Bin_xaxis_str);
   First_ADC_vs_First_Time_Bin -> SetYTitle("1st non-ZS ADC [ADU]");
 
@@ -492,7 +497,7 @@ int TpcMon::Init()
   sprintf(MAXADC_1D_titlestr,"MAX ADC in SLIDING WINDOW for Sector %i R1",MonitorServerId());
   sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R1",MonitorServerId());
   sprintf(COUNTS_SAMPLE_1D_titlestr,"COUNTS_vs_SAMPLE for Sector %i R1",MonitorServerId());
-  sprintf(COUNTS_SAMPLE_1D_xtitlestr,"Sector %i: Time bin [1/20MHz]",MonitorServerId()); 
+  sprintf(COUNTS_SAMPLE_1D_xtitlestr,"Sector %i: Time bin [1/17.5MHz]",MonitorServerId()); 
 
   RAWADC_1D_R1 = new TH1F("RAWADC_1D_R1",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R1 = new TH1F("MAXADC_1D_R1",MAXADC_1D_titlestr,1025,-0.5,1024.5);
@@ -908,7 +913,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         }
 
 	int type = p->iValue(wf,"TYPE");
-	switch(type)
+        switch(type)
 	{
 	case 0:
 	  Packet_Type_Fraction_HB->Fill(0.5); //HEARTBEAT_T 0b000
@@ -991,7 +996,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         // getting R and Phi coordinates
         double R = M.getR(feeM, channel);
         double padphi = 0;
-
+	
         if( side(serverid) == 0 ) //NS
         {
           padphi =  M.getPad(feeM, channel) + (serverid ) * (2304./12.); 
@@ -1000,12 +1005,14 @@ int TpcMon::process_event(Event *evt/* evt */)
         {
           padphi = -M.getPad(feeM, channel) - (serverid-12) * (2304./12) ; 
         }
-
+	        
         int layer = M.getLayer(feeM, channel) + (serverid);
         double phi = 0;
 
         //double phi = M.getPhi(feeM, channel) + (serverid - 12*side(serverid)) * M_PI / 6 ;
 
+	
+        //Evgeny Map
         if( side(serverid) == 0 ) //NS
         {
           phi = M.getPhi(feeM, channel) + (serverid ) * M_PI / 6 ; 
@@ -1014,7 +1021,19 @@ int TpcMon::process_event(Event *evt/* evt */)
         {
           phi = M.getPhi(feeM, channel) + (18 - serverid ) * M_PI / 6 ; 
         }
+	
 
+        /*
+        //Mariia map
+        if( side(serverid) == 0 ) //NS
+        {
+          phi = M.getPhi(feeM, channel) + (serverid ) * M_PI / 6    - (M_PI/2.) ; 
+        }
+        else if( side(serverid) == 1 ) //SS
+        {
+          phi = M.getPhi(feeM, channel) + (18 - serverid ) * M_PI / 6 - (- M_PI/2.) ; 
+        }
+	*/
         //std::cout<<"Sector = "<< serverid <<" FEE = "<<fee<<" channel = "<<channel<<std::endl;
 
         //int mid = floor(360/2); //get median sample from 0-360 (we are assuming the sample > 360 is not useful to us as of 05.01.24)
@@ -1106,7 +1125,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           if( adc > wf_max){ wf_max = adc; t_max = s; pedest_sub_wf_max = adc - pedestal;}
 
-          if( (s> 410 && s < 422) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; }   
+          if( (s> 362 && s < 374) && (adc > wf_max_laser_peak) ){ wf_max_laser_peak = adc; pedest_sub_wf_max_laser_peak = adc - pedestal; } //old peak near 416, new peak near 403-404 wth 50 ns clock, 368 with 57.14 ns clock   
 
           if( (store_ten.size() < 10) ) // get first 10
           {
@@ -1181,7 +1200,8 @@ int TpcMon::process_event(Event *evt/* evt */)
 	  //old gas (Ar:CF4 - 60:40)
           //if( t_max >= 10 && t_max <=255 ){z = 1030 - (t_max - 10)*(50 * 0.084);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
           //new gas (Ar:CF4:ISO - 75:20:5)
-          if( t_max >= 40 && t_max <=320 ){z = 1030 - (t_max - 40)*(50 * 0.0735);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+          //if( t_max >= 40 && t_max <=320 ){z = 1030 - (t_max - 40)*(50 * 0.0735);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}//50 clock
+          if( t_max >= 50 && t_max <=330 ){z = 1030 - (t_max - 50)*(57.14 * 0.0735);NorthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);NorthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}//57 clock
         }
         else if( (serverid >=12 && (pedest_sub_wf_max) > std::max(5.0*noise,20.)) && layer != 0)
         {
@@ -1192,17 +1212,18 @@ int TpcMon::process_event(Event *evt/* evt */)
           //old gas (Ar:CF4 - 60:40)
           //if( t_max >= 10 && t_max <=255 ){z = -1030 + (t_max - 10)*(50 * 0.084);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
           //new gas (Ar:CF4:ISO - 75:20:5)
-          if( t_max >= 40 && t_max <=320 ){z = -1030 + (t_max - 40)*(50 * 0.0735);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}
+          //if( t_max >= 40 && t_max <=320 ){z = -1030 + (t_max - 40)*(50 * 0.0735);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}//50 clock
+          if( t_max >= 50 && t_max <=330 ){z = -1030 + (t_max - 50)*(57.14 * 0.0735);SouthSideADC_clusterZY->Fill(z,R*sin(phi),pedest_sub_wf_max);SouthSideADC_clusterZY_unw->Fill(z,R*sin(phi));}//57 clock
         }
         //________________________________________________________________________________
         //XY laser peak
-        if( (serverid < 12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && ((t_max > 410 && t_max < 422) && (layer != 0))) // only fill if the laser was the max
+        if( (serverid < 12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && ((t_max > 362 && t_max < 374) && (layer != 0))) // only fill if the laser was the max old peak 416, new 403 w/ 50 clock, 368 w/ 57.14 clock
         {
           if(Module_ID(fee)==0){NorthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
           else if(Module_ID(fee)==1){NorthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
           else if(Module_ID(fee)==2){NorthSideADC_clusterXY_R3_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R3
         }
-        else if( (serverid >=12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && ((t_max > 410 && t_max < 422) && (layer != 0))) // only fill if the laser was the max
+        else if( (serverid >=12 && (pedest_sub_wf_max_laser_peak) > std::max(5.0*noise,20.)) && ((t_max > 362 && t_max < 374) && (layer != 0))) // only fill if the laser was the max old peak 416, new 403 w/ 50 clock, 368 w/ 57.14 clock 
         {
           if(Module_ID(fee)==0){SouthSideADC_clusterXY_R1_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R1
           else if(Module_ID(fee)==1){SouthSideADC_clusterXY_R2_LASER->Fill(R*cos(phi),R*sin(phi),pedest_sub_wf_max_laser_peak);} //Raw 1D for R2
