@@ -451,9 +451,25 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   hist1->Add(hist1_1);
   bool iscosmic = false;
-  if(h_hcal_trig->GetBinContent(5) > 0)
+
+  std::set<int> hcal_cosmic_bits = {TriggerEnum::BitCodes::RANDOM,
+                                    TriggerEnum::BitCodes::HCAL_SINGLES,
+                                    TriggerEnum::BitCodes::HCAL_NARROW_VERT,
+                                    TriggerEnum::BitCodes::HCAL_WIDE_VERT,
+                                    TriggerEnum::BitCodes::HCAL_NARROW_HORZ,
+                                    TriggerEnum::BitCodes::HCAL_WIDE_HORZ};
+
+  for (auto bit : hcal_cosmic_bits)
   {
-    iscosmic = true;
+    if (h_hcal_trig->GetBinContent(bit+1) > 0)
+    {
+      iscosmic = true;
+      break;
+    }
+  }
+
+  if(iscosmic)
+  {
     hist1->Divide(h2_mean_template_cosmic);
   }
   else
