@@ -8,6 +8,7 @@
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TF1.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TSystem.h>
@@ -446,7 +447,17 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[35]->SetFillStyle(4000);
     transparent[35]->Draw();
     TC[35]->SetEditable(false);
-  }     
+  }
+  else if (name == "ShifterTPCTransmissionDist")
+  {
+    TC[36] = new TCanvas(name.c_str(), "Background Corrected Tranmission Distribution",-1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[36]->Divide(1,1);
+    transparent[36] = new TPad("transparent36", "this does not show", 0, 0, 1, 1);
+    transparent[36]->SetFillStyle(4000);
+    transparent[36]->Draw();
+    TC[36]->SetEditable(false);
+  }          
   return 0;
 }
 
@@ -632,6 +643,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCNOISECHANNELPLOTS")
   {
     iret += DrawTPCNoiseChannelPlots(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SHIFTER_TRANSMISSION_PLOT")
+  {
+    iret += DrawShifterTransmissionDist(what); 
     idraw++;
   }
   if (!idraw)
@@ -3221,9 +3237,9 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
     {
       //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
       sprintf(TPCMON_STR,"TPCMON_%i",i);
-      tpcmon_DriftWindow[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");
-      tpcmon_DriftWindow[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");
-      tpcmon_DriftWindow[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");
+      tpcmon_DriftWindow[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");//tpcmon_DriftWindow[i][0]->GetXaxis()->SetRangeUser(0,500);
+      tpcmon_DriftWindow[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");//tpcmon_DriftWindow[i][1]->GetXaxis()->SetRangeUser(0,500);
+      tpcmon_DriftWindow[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");//tpcmon_DriftWindow[i][2]->GetXaxis()->SetRangeUser(0,500);
     }
   }
 
@@ -3273,6 +3289,7 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
     {
       if( tpcmon_DriftWindow[i][l] )
       {
+        tpcmon_DriftWindow[i][l]->GetXaxis()->SetRangeUser(0,500);
         if(l == 2){tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HIST");} //used to be 
         else      {tpcmon_DriftWindow[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.1*max);tpcmon_DriftWindow[i][l] -> DrawCopy("HISTsame");} //assumes that R3 will always exist and is most entries
       }
@@ -4142,6 +4159,144 @@ int TpcMonDraw::DrawTPCNoiseChannelPlots(const std::string & /* what */)
   MyTC->Show();
   MyTC->SetEditable(false);
 
+  return 0;
+}
+
+int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  //TH1F *tpcmon_back[24][3] = {nullptr};
+  // TH1F *tpcmon_drift[24][3] = {nullptr};
+
+  TH1F *tpcmon_Drift[24][3] = {nullptr};
+  //TH1 *tpcmoneventsebdc[24] = {nullptr};
+
+  TH1F *PERCENT = new TH1F("PERCENT","TPC PERCENT TRANSMISSION; % Transmission; Counts",75,-1.5,151.5);
+
+  TF1 *exxy = new TF1("exxy","[0]*exp(x*[1])",0,500);
+
+  char TPCMON_STR[100];
+ 
+  for( int i=0; i<24; i++ ) 
+  {
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    //tpcmoneventsebdc[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
+    for( int j=0; j<3; j++ )
+    {
+
+      tpcmon_Drift[i][0] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");
+      tpcmon_Drift[i][1] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");
+      tpcmon_Drift[i][2] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");
+
+      /*
+      sprintf(DRIFT_CLONE_STR,"drift_sec_%i_R%i",i,j+1);
+
+      tpcmon_DriftBackground[i][j] = (TH1F*)tpcmon_back[i][j]->Clone(BACK_CLONE_STR);
+      tpcmon_DriftNorm[i][j] = (TH1F*)tpcmon_back[i][j]->Clone(DRIFT_CLONE_STR);
+      */
+    }
+  }
+
+
+  if (!gROOT->FindObject("ShifterTPCTransmissionDist"))
+  {
+    MakeCanvas("ShifterTPCTransmissionDist");
+  }
+
+  TCanvas *MyTC = TC[36];
+  TPad *TransparentTPad = transparent[36];
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+
+  //left = 34, right = 350 for new firmware with laser around 380 samples
+  int left=35; int right=350;
+
+  //gStyle->SetOptStat(0);
+  //gStyle->SetPalette(57); //kBird CVD friendly
+
+  char norm_str[100];
+  char back_str[100];
+
+  for(int sector=0; sector<24; sector++)
+  {
+    for(int rad=0; rad<3; rad++)
+    {
+      if( (!tpcmon_Drift[sector][rad] || tpcmon_Drift[sector][rad]->GetEntries()<20000) ){continue;} //if doesn't exist move on
+      //first zero the drift signal out of the background spectra
+      sprintf(norm_str,"norm_sec_%i_r%i",sector,rad+1);
+      sprintf(back_str,"back_sec_%i_r%i",sector,rad+1);
+      
+      TH1F *current_norm = (TH1F*) tpcmon_Drift[sector][rad]->Clone(norm_str);
+      current_norm->GetXaxis()->SetRangeUser(0,500);
+      TH1F *back_norm = (TH1F*) tpcmon_Drift[sector][rad]->Clone(back_str);
+      back_norm->GetXaxis()->SetRangeUser(0,500);
+
+      for(int bin=left; bin<=right; bin++)
+      {
+        back_norm->SetBinContent(bin,0.0);
+      }
+      //  second zero the laser signal out of the background spectra.
+      for (int bin=367; bin<=376; bin++)
+      {
+        back_norm->SetBinContent(bin,0.0);
+      }
+
+      //Now Fit a function to each background and divide...
+      exxy->SetParameter(0,back_norm->GetBinContent(2));
+      exxy->SetParameter(1,0);
+      back_norm->Fit(exxy,"QW");
+      current_norm->Divide( back_norm->GetFunction("exxy")  );
+      //  Subtract the "1" offset and set the minimum to -0.2...
+      for (int bin=1; bin<=current_norm->GetNbinsX(); bin++)
+      {
+	current_norm->SetBinContent(bin, std::max(-0.2,  current_norm->GetBinContent(bin)-1.0 ));
+      }
+
+      if ( current_norm->GetBinContent(75) > 0)
+      {
+	exxy->SetParameter(0,current_norm->GetBinContent(75));
+	exxy->SetParameter(1,0);
+	current_norm->Fit(exxy,"QW","",75,275);
+	double one  =  current_norm->GetFunction("exxy")->GetParameter(1);
+	double percent = 100.0*exp(one*(275-75));
+	PERCENT->Fill(percent);
+      }
+      
+    }
+  } 
+
+  MyTC->Clear("D");
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << " Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  TLine *t1 = new TLine(); t1->SetLineWidth(4); t1->SetLineColor(kBlack);
+  TLine *t2 = new TLine(); t2->SetLineWidth(2); t2->SetLineStyle(10); t2->SetLineColor(kRed);
+
+  MyTC->cd(1);
+  gPad->SetTopMargin(0.15);
+  PERCENT->DrawCopy("hist");
+  if(PERCENT->GetEntries()>36){PERCENT->Fit("gaus");t2->DrawLine( PERCENT->GetFunction("gaus")->GetParameter(1),0, PERCENT->GetFunction("gaus")->GetParameter(1),1.05*PERCENT->GetMaximum());}
+  t1->DrawLine(70,0,70,1.05*PERCENT->GetMaximum());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+  
   return 0;
 }
 
