@@ -4170,7 +4170,7 @@ int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
   // TH1F *tpcmon_drift[24][3] = {nullptr};
 
   TH1F *tpcmon_Drift[24][3] = {nullptr};
-  TH1 *tpcmoneventsebdc[24] = {nullptr};
+  //TH1 *tpcmoneventsebdc[24] = {nullptr};
 
   TH1F *PERCENT = new TH1F("PERCENT","TPC PERCENT TRANSMISSION; % Transmission; Counts",75,-1.5,151.5);
 
@@ -4181,7 +4181,7 @@ int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
   for( int i=0; i<24; i++ ) 
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmoneventsebdc[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
+    //tpcmoneventsebdc[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
     for( int j=0; j<3; j++ )
     {
 
@@ -4222,7 +4222,7 @@ int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
   {
     for(int rad=0; rad<3; rad++)
     {
-      if( !tpcmon_Drift[sector][rad] || tpcmoneventsebdc[sector]->GetEntries()<1E6 ){continue;} //if doesn't exist move on
+      if( (!tpcmon_Drift[sector][rad] || tpcmon_Drift[sector][rad]->GetEntries()<20000) ){continue;} //if doesn't exist move on
       //first zero the drift signal out of the background spectra
       sprintf(norm_str,"norm_sec_%i_r%i",sector,rad+1);
       sprintf(back_str,"back_sec_%i_r%i",sector,rad+1);
