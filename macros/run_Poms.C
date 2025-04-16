@@ -12,6 +12,7 @@
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libpoms.so)
+R__LOAD_LIBRARY(libonlmonserver.so)
 
 void StartPoms()
 {
