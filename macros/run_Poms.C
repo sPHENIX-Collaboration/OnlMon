@@ -170,6 +170,7 @@ void StartPoms()
   subsys = new SubSystem("TPC SHIFTER", "tpc");
   subsys->AddAction("tpcDraw(\"SHIFTER_DRIFT_PLOT\")", "SHIFTER TPC DRIFT");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYWEIGTHED\")", "SHIFTER TPC ACCEPTANCE");
+  subsys->AddAction("tpcDraw(\"SHIFTER_TRANSMISSION_PLOT\")", "SHIFTER TPC TRANSMISSION");
   subsys->AddAction("tpcDraw(\"TPCCHANSPERLVL1NS\")", "SHIFTER TPC NS OCCUP.");
   subsys->AddAction("tpcDraw(\"TPCCHANSPERLVL1SS\")", "SHIFTER TPC SS OCCUP.");
   subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
