@@ -88,7 +88,7 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-  sprintf(TEMPFILENAME, "%s/%s_cosmic_45022_1000ADC.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_cosmic_63461_1000ADC.root", hcalcalib, prefix.c_str());
   TFile* tempfile2 = new TFile(TEMPFILENAME, "READ");
   if (!tempfile2->IsOpen())
   {
