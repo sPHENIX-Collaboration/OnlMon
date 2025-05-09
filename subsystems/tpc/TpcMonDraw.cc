@@ -4648,7 +4648,7 @@ void TpcMonDraw::add_TH1(TH1* hist[48], TH1* histadd[24]) {
       if(!hist[i] && !hist[i+24]){continue;}
       if(hist[i] && !hist[i+24]){histadd[i] = (TH1*)hist[i]->Clone(Form("histadd_%d",i));}
       if(!hist[i] && hist[i+24]){histadd[i] = (TH1*)hist[i+24]->Clone(Form("histadd_%d",i));}
-      if(hist[i] && hist[i+24]){;
+      if(hist[i] && hist[i+24]){
 	histadd[i] = (TH1*)hist[i]->Clone(Form("histadd_%d",i));
         histadd[i]->Add(hist[i+24]);
       }
