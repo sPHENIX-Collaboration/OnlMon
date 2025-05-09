@@ -3057,7 +3057,7 @@ int TpcMonDraw::DrawTPCChansinPacketSS(const std::string & /* what */)
 
   MyTC->SetEditable(true);
   MyTC->Clear("D");
-  for( int i=0; i<12; i++ ) 
+  for( int i=12; i<24; i++ ) 
   {
     if( tpcmon_chanpacketSS[i] && tpcmon_chanpacketalwaysSS[i] )
     {
@@ -3871,7 +3871,7 @@ int TpcMonDraw::DrawTPCChansperLVL1_SS(const std::string & /* what */)
 
   MyTC->SetEditable(true);
   MyTC->Clear("D");
-  for( int i=0; i<12; i++ ) 
+  for( int i=12; i<24; i++ ) 
   {
     if( tpcmon_chanlvl1SS[i] && lvl1_per_EBDC[i] )
     {
@@ -4648,7 +4648,7 @@ void TpcMonDraw::add_TH1(TH1* hist[48], TH1* histadd[24]) {
       if(!hist[i] && !hist[i+24]){continue;}
       if(hist[i] && !hist[i+24]){histadd[i] = (TH1*)hist[i]->Clone(Form("histadd_%d",i));}
       if(!hist[i] && hist[i+24]){histadd[i] = (TH1*)hist[i+24]->Clone(Form("histadd_%d",i));}
-      if(hist[i] && hist[i+24]){
+      if(hist[i] && hist[i+24]){;
 	histadd[i] = (TH1*)hist[i]->Clone(Form("histadd_%d",i));
         histadd[i]->Add(hist[i+24]);
       }
