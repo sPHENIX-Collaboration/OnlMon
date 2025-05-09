@@ -234,8 +234,8 @@ int TpcMon::Init()
   // ADC vs Sample (small)
   char ADC_vs_SAMPLE_str[100];
   char ADC_vs_SAMPLE_xaxis_str[100];
-  sprintf(ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
-  sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",MonitorServerId());
+  sprintf(ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
   ADC_vs_SAMPLE = new TH2F("ADC_vs_SAMPLE", ADC_vs_SAMPLE_str, 500, 0, 500, 256, 0, 1024);
   ADC_vs_SAMPLE -> SetXTitle(ADC_vs_SAMPLE_xaxis_str);
   ADC_vs_SAMPLE -> SetYTitle("ADC [ADU]");
@@ -249,8 +249,8 @@ int TpcMon::Init()
   // PEDEST SUB ADC vs Sample (small)
   char PEDEST_SUB_ADC_vs_SAMPLE_str[100];
   char PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str[100];
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",MonitorServerId());
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_str,"ADC Counts vs Sample: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
   PEDEST_SUB_ADC_vs_SAMPLE = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE", PEDEST_SUB_ADC_vs_SAMPLE_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE -> SetYTitle("ADC-ped. [ADU]");
@@ -264,8 +264,8 @@ int TpcMon::Init()
   // ADC vs Sample (small)
   char PEDEST_SUB_ADC_vs_SAMPLE_R1_str[100];
   char PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str[100];
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_str,"ADC Counts vs Sample: SECTOR %i R1",MonitorServerId());
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str,"Sector %i R1: ADC Time bin [1/17.5MHz]",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_str,"ADC Counts vs Sample: SECTOR %i R1",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str,"Sector %i R1: ADC Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
   PEDEST_SUB_ADC_vs_SAMPLE_R1 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R1", PEDEST_SUB_ADC_vs_SAMPLE_R1_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R1_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R1 -> SetYTitle("ADC-ped. [ADU]");
@@ -279,8 +279,8 @@ int TpcMon::Init()
   // ADC vs Sample (small)
   char PEDEST_SUB_ADC_vs_SAMPLE_R2_str[100];
   char PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str[100];
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_str,"ADC Counts vs Sample: SECTOR %i R2",MonitorServerId());
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str,"Sector %i R2: ADC Time bin [1/17.5MHz]",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_str,"ADC Counts vs Sample: SECTOR %i R2",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str,"Sector %i R2: ADC Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
   PEDEST_SUB_ADC_vs_SAMPLE_R2 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R2", PEDEST_SUB_ADC_vs_SAMPLE_R2_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R2_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R2 -> SetYTitle("ADC-ped. [ADU]");
@@ -294,8 +294,8 @@ int TpcMon::Init()
   // ADC vs Sample (small)
   char PEDEST_SUB_ADC_vs_SAMPLE_R3_str[100];
   char PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str[100];
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_str,"ADC Counts vs Sample: SECTOR %i R3",MonitorServerId());
-  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str,"Sector %i R3: ADC Time bin [1/17.5MHz]",MonitorServerId());
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_str,"ADC Counts vs Sample: SECTOR %i R3",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str,"Sector %i R3: ADC Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
   PEDEST_SUB_ADC_vs_SAMPLE_R3 = new TH2F("PEDEST_SUB_ADC_vs_SAMPLE_R3", PEDEST_SUB_ADC_vs_SAMPLE_R3_str, 500, 0, 500, 281, -100, 1024);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetXTitle(PEDEST_SUB_ADC_vs_SAMPLE_R3_xaxis_str);
   PEDEST_SUB_ADC_vs_SAMPLE_R3 -> SetYTitle("ADC-ped. [ADU]");
@@ -309,8 +309,8 @@ int TpcMon::Init()
   // ADC vs Sample (large)
   char ADC_vs_SAMPLE_large_str[100];
   char ADC_vs_SAMPLE_xaxis_large_str[100];
-  sprintf(ADC_vs_SAMPLE_large_str,"ADC Counts vs Large Sample: SECTOR %i",MonitorServerId());
-  sprintf(ADC_vs_SAMPLE_xaxis_large_str,"Sector %i: ADC Time bin [1/17.5MHz]",MonitorServerId());
+  sprintf(ADC_vs_SAMPLE_large_str,"ADC Counts vs Large Sample: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(ADC_vs_SAMPLE_xaxis_large_str,"Sector %i: ADC Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
   ADC_vs_SAMPLE_large = new TH2F("ADC_vs_SAMPLE_large", ADC_vs_SAMPLE_large_str, 1080, 0, 1080, 256, 0, 1024);
   ADC_vs_SAMPLE_large -> SetXTitle(ADC_vs_SAMPLE_xaxis_large_str);
 
@@ -323,7 +323,7 @@ int TpcMon::Init()
 
   // Sample size distribution 1D histogram
   char sample_size_title_str[100];
-  sprintf(sample_size_title_str,"Distribution of Sample Sizes in Events: SECTOR %i",MonitorServerId());
+  sprintf(sample_size_title_str,"Distribution of Sample Sizes in Events: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
   sample_size_hist = new TH1F("sample_size_hist" , sample_size_title_str, 1500, 0.5, 1500.5);
   sample_size_hist->SetXTitle("sample size");
   sample_size_hist->SetYTitle("counts");
@@ -336,7 +336,7 @@ int TpcMon::Init()
 
   // Stuck Channel 1D histogram
   char stuck_channel_title_str[100];
-  sprintf(stuck_channel_title_str,"Stuck Channels per FEE in Events: Sector %i",MonitorServerId());
+  sprintf(stuck_channel_title_str,"Stuck Channels per FEE in Events: Sector %i",ebdc_from_serverid( MonitorServerId() ));
   Stuck_Channels = new TH1F("Stuck_Channels",stuck_channel_title_str,26,-0.5,25.5);
   Stuck_Channels->SetXTitle("FEE_NUM");
   Stuck_Channels->SetYTitle("NUM_STUCK_CHANNELS");
@@ -362,7 +362,7 @@ int TpcMon::Init()
 
   // checksum error vs FEE*8 + SAMPA Number
   char checksum_title_str[100];
-  sprintf(checksum_title_str,"Check Sum Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",MonitorServerId());
+  sprintf(checksum_title_str,"Check Sum Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
   Check_Sum_Error = new TH1F("Check_Sum_Error" , checksum_title_str,208,-0.5, 207.5);
   Check_Sum_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
   Check_Sum_Error->SetYTitle("Prob. Check Sum. Err.");
@@ -377,7 +377,7 @@ int TpcMon::Init()
 
   // Parity error vs FEE*8 + SAMPA Number
   char parity_title_str[100];
-  sprintf(parity_title_str,"Parity Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",MonitorServerId());
+  sprintf(parity_title_str,"Parity Error Probability vs Fee*8 + SAMPA in Events: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
   Parity_Error = new TH1F("Parity_Error" , checksum_title_str,208,-0.5, 207.5);
   Parity_Error->SetXTitle("FEE_NUM*8 + SAMPA_ADDR");
   Parity_Error->SetYTitle("Prob. Parity Err.");
@@ -392,7 +392,7 @@ int TpcMon::Init()
  
   // number of nonZS channels - <number of channels in sampa with values != 65 K ADC> vs sampa number + (feeID * sampa number)
   char num_nonZS_channels_title_str[100];
-  sprintf(num_nonZS_channels_title_str,"Number of non ZS Channels: # of samples in channel waveform != 65K vs SAMPA ID: SECTOR %i",MonitorServerId());  
+  sprintf(num_nonZS_channels_title_str,"Number of non ZS Channels: # of samples in channel waveform != 65K vs SAMPA ID: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));  
   // x-axis is channel phi, y-axis is channel layer, z axis is ADC weithing
   Num_non_ZS_channels_vs_SAMPA = new TH2F("Num_non_ZS_channels_vs_SAMPA",num_nonZS_channels_title_str,208,-0.5,207.5,1324,-300.5,1023.5);
   Num_non_ZS_channels_vs_SAMPA->SetXTitle("SAMPA ID: SAMPA # + (feeID * 8)");
@@ -406,7 +406,7 @@ int TpcMon::Init()
 
   // # of times channels are in packet per RCDAQ event
   char chans_in_packet_title_str[100];
-  sprintf(chans_in_packet_title_str,"Channel counts vs Channel in packets in  RCDAQ Events: SECTOR %i",MonitorServerId());  
+  sprintf(chans_in_packet_title_str,"Channel counts vs Channel in packets in  RCDAQ Events: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));  
   Channels_in_Packet = new TH1F("Channels_in_Packet" , chans_in_packet_title_str, 6656, -0.5, 6655.5);
   Channels_in_Packet->SetXTitle("(FEE # * 256) + chan. #");
   Channels_in_Packet->SetYTitle("Counts / Packet in RCDAQ Event");
@@ -420,7 +420,7 @@ int TpcMon::Init()
   
   // # of times channels could be in packet per RCDAQ event
   char chans_always_title_str[100];
-  sprintf(chans_always_title_str,"Channel counts vs all channels (filled once per event w/ packets): SECTOR %i",MonitorServerId());  
+  sprintf(chans_always_title_str,"Channel counts vs all channels (filled once per event w/ packets): SECTOR %i",ebdc_from_serverid( MonitorServerId() ));  
   Channels_Always = new TH1F("Channels_Always" , chans_always_title_str, 6656, -0.5, 6655.5);
   Channels_Always->SetXTitle("(FEE # * 256) + chan. #");
   Channels_Always->SetYTitle("Counts");
@@ -440,8 +440,8 @@ int TpcMon::Init()
   //ZS ADC vs Sample (small)
   char ZS_ADC_vs_SAMPLE_str[100];
   char ZS_ADC_vs_SAMPLE_xaxis_str[100];
-  sprintf(ZS_ADC_vs_SAMPLE_str,"ADC Counts vs Sample - Trigger QA: SECTOR %i",MonitorServerId());
-  sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",MonitorServerId());
+  sprintf(ZS_ADC_vs_SAMPLE_str,"ADC Counts vs Sample - Trigger QA: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(ZS_ADC_vs_SAMPLE_xaxis_str,"Sector %i: ADC Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
   ZS_Trigger_ADC_vs_Sample = new TH2F("ZS_Trigger_ADC_vs_Sample", ZS_ADC_vs_SAMPLE_str, 500, 0, 500, 1024, 0, 1024);
   ZS_Trigger_ADC_vs_Sample -> SetXTitle(ZS_ADC_vs_SAMPLE_xaxis_str);
   ZS_Trigger_ADC_vs_Sample -> SetYTitle("ADC [ADU]");
@@ -455,8 +455,8 @@ int TpcMon::Init()
   //First non-ZS ADC vs Sample (small)
   char First_ADC_vs_First_Time_Bin_str[100];
   char First_ADC_vs_First_Time_Bin_xaxis_str[100];
-  sprintf(First_ADC_vs_First_Time_Bin_str,"1st nonZS ADC vs 1st nonZS Sample Time: SECTOR %i",MonitorServerId());
-  sprintf(First_ADC_vs_First_Time_Bin_xaxis_str,"Sector %i: 1st non-ZS Time bin [1/17.5MHz]",MonitorServerId());
+  sprintf(First_ADC_vs_First_Time_Bin_str,"1st nonZS ADC vs 1st nonZS Sample Time: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(First_ADC_vs_First_Time_Bin_xaxis_str,"Sector %i: 1st non-ZS Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
   First_ADC_vs_First_Time_Bin = new TH2F("First_ADC_vs_First_Time_Bin", First_ADC_vs_First_Time_Bin_str, 500, 0, 500, 256, 0, 1024);
   First_ADC_vs_First_Time_Bin -> SetXTitle(First_ADC_vs_First_Time_Bin_xaxis_str);
   First_ADC_vs_First_Time_Bin -> SetYTitle("1st non-ZS ADC [ADU]");
@@ -471,7 +471,7 @@ int TpcMon::Init()
   char MAXADC_str[100];
   char YLabel_str[5];
 
-  sprintf(MAXADC_str,"MAX ADC per Waveform in SLIDING WINDOW: SECTOR %i",MonitorServerId());
+  sprintf(MAXADC_str,"MAX ADC per Waveform in SLIDING WINDOW: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));
 
   MAXADC = new TH2F("MAXADC" , MAXADC_str,1025,-0.5, 1024.5,3,-0.5,2.5);
   MAXADC->SetXTitle("LocalMAX ADC in Waveform [ADU]");
@@ -493,11 +493,11 @@ int TpcMon::Init()
   char COUNTS_SAMPLE_1D_titlestr[100];
   char COUNTS_SAMPLE_1D_xtitlestr[100];
 
-  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R1",MonitorServerId());
-  sprintf(MAXADC_1D_titlestr,"MAX ADC in SLIDING WINDOW for Sector %i R1",MonitorServerId());
-  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R1",MonitorServerId());
-  sprintf(COUNTS_SAMPLE_1D_titlestr,"COUNTS_vs_SAMPLE for Sector %i R1",MonitorServerId());
-  sprintf(COUNTS_SAMPLE_1D_xtitlestr,"Sector %i: Time bin [1/17.5MHz]",MonitorServerId()); 
+  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R1",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(MAXADC_1D_titlestr,"MAX ADC in SLIDING WINDOW for Sector %i R1",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R1",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(COUNTS_SAMPLE_1D_titlestr,"COUNTS_vs_SAMPLE for Sector %i R1",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(COUNTS_SAMPLE_1D_xtitlestr,"Sector %i: Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() )); 
 
   RAWADC_1D_R1 = new TH1F("RAWADC_1D_R1",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R1 = new TH1F("MAXADC_1D_R1",MAXADC_1D_titlestr,1025,-0.5,1024.5);
@@ -550,10 +550,10 @@ int TpcMon::Init()
   COUNTS_vs_SAMPLE_1D_R1 -> GetYaxis() -> SetTitleSize(0.05);
   COUNTS_vs_SAMPLE_1D_R1 -> GetYaxis() -> SetTitleOffset(1.0);
 
-  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R2",MonitorServerId());
-  sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R2",MonitorServerId());
-  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R2`",MonitorServerId());
-  sprintf(COUNTS_SAMPLE_1D_titlestr,"COUNTS_vs_SAMPLE for Sector %i R2",MonitorServerId());  
+  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R2",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R2",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R2`",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(COUNTS_SAMPLE_1D_titlestr,"COUNTS_vs_SAMPLE for Sector %i R2",ebdc_from_serverid( MonitorServerId() ));  
 
   RAWADC_1D_R2 = new TH1F("RAWADC_1D_R2",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R2 = new TH1F("MAXADC_1D_R2",MAXADC_1D_titlestr,1025,-0.5,1024.5);
@@ -603,9 +603,9 @@ int TpcMon::Init()
   COUNTS_vs_SAMPLE_1D_R2 -> GetYaxis() -> SetTitleSize(0.05);
   COUNTS_vs_SAMPLE_1D_R2 -> GetYaxis() -> SetTitleOffset(1.0);
 
-  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R3",MonitorServerId());
-  sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R3",MonitorServerId());
-  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R3",MonitorServerId()); 
+  sprintf(RAWADC_1D_titlestr,"RAW ADC for Sector %i R3",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(MAXADC_1D_titlestr,"MAX ADC for Sector %i R3",ebdc_from_serverid( MonitorServerId() ));
+  sprintf(SUBADC_1D_titlestr,"PEDEST_SUB RAW ADC for Sector %i R3",ebdc_from_serverid( MonitorServerId() )); 
 
   RAWADC_1D_R3 = new TH1F("RAWADC_1D_R3",RAWADC_1D_titlestr,1025,-0.5,1024.5);
   MAXADC_1D_R3 = new TH1F("MAXADC_1D_R3",MAXADC_1D_titlestr,1025,-0.5,1024.5);
@@ -663,7 +663,7 @@ int TpcMon::Init()
   Layer_ChannelPhi_ADC_weighted->SetYTitle("Layer");
 
   char NStreakers_vs_Event_title_str[256];
-  sprintf(NStreakers_vs_Event_title_str,"Number of Streakers vs Event, Sector # %i",MonitorServerId());
+  sprintf(NStreakers_vs_Event_title_str,"Number of Streakers vs Event, Sector # %i",ebdc_from_serverid( MonitorServerId() ));
   NStreaks_vs_EventNo = new TH1F("NStreaks_vs_EventNo",NStreakers_vs_Event_title_str, 1000000, -0.5, 999999.5 );
   NStreaks_vs_EventNo->SetXTitle("Event #");
   NStreaks_vs_EventNo->SetYTitle("Number of horizontal streak channels");
@@ -680,7 +680,7 @@ int TpcMon::Init()
   NEvents_vs_EBDC->SetYTitle("N_{Events}");  
 
   char Packet_Type_Fraction_title_str[256];
-  sprintf(Packet_Type_Fraction_title_str,"Numer of Waveforms per Packet Type, Sector # %i",MonitorServerId());
+  sprintf(Packet_Type_Fraction_title_str,"Numer of Waveforms per Packet Type, Sector # %i",ebdc_from_serverid( MonitorServerId() ));
   Packet_Type_Fraction_HB = new TH1F("Packet_Type_Fraction_HB",Packet_Type_Fraction_title_str,7,0,7);
   Packet_Type_Fraction_HB->SetYTitle("N_{Waveforms}");
   Packet_Type_Fraction_HB->SetLineColor(4);
@@ -715,7 +715,7 @@ int TpcMon::Init()
   Packet_Type_Fraction_ELSE -> GetYaxis() -> SetTitleOffset(0.6);
 
   char Noise_Channel_Plots_title_str[256];
-  sprintf(Noise_Channel_Plots_title_str,"Counts of ADC-Ped. > 300, t < 360 ,Sector # %i",MonitorServerId());
+  sprintf(Noise_Channel_Plots_title_str,"Counts of ADC-Ped. > 300, t < 360 ,Sector # %i",ebdc_from_serverid( MonitorServerId() ));
   Noise_Channel_Plots = new TH1F("Noise_Channel_Plots","",6656,-0.5,6655.5);
   Noise_Channel_Plots -> GetXaxis() -> SetLabelSize(0.05);
   Noise_Channel_Plots -> GetXaxis() -> SetTitleSize(0.05);
@@ -870,7 +870,7 @@ int TpcMon::process_event(Event *evt/* evt */)
   //}
 //  int lastpacket = firstpacket+232;
 
-  NEvents_vs_EBDC->Fill(MonitorServerId());
+  NEvents_vs_EBDC->Fill(ebdc_from_serverid( MonitorServerId() ));
   //std::cout<<"Event #"<< evtcnt <<std::endl;
 
     std::vector<Packet *> pktvec = evt->getPacketVector();
@@ -952,7 +952,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         for (int t = 0; t < n_tagger; t++)
         {
           const bool is_lvl1_tagger( static_cast<uint8_t>(p->lValue(t, "IS_LEVEL1_TRIGGER" )));
-          if( is_lvl1_tagger ){ LVL_1_TAGGER_per_EBDC->Fill(MonitorServerId()); }
+          if( is_lvl1_tagger ){ LVL_1_TAGGER_per_EBDC->Fill(ebdc_from_serverid( MonitorServerId() )); }
 	}
 
         int fee = p->iValue(wf, "FEE");
@@ -986,7 +986,7 @@ int TpcMon::process_event(Event *evt/* evt */)
         //int pads_per_sector[3] = {96, 128, 192};
 
 
-        serverid = MonitorServerId();
+        serverid = ebdc_from_serverid( MonitorServerId() );
 
         // setting the mapp of the FEE
         int feeM = FEE_map[fee];
@@ -1321,6 +1321,15 @@ int TpcMon::Module_ID(int fee_id) //for simply determining which module you are 
   return mod_id;
 }
 
+int TpcMon::ebdc_from_serverid(int server_id) // for getting the ebdc from the serverid with the double rcdaq
+{
+  int ebdc_id;
+  
+  if( server_id < 24){ ebdc_id = server_id; }
+  else if( server_id >= 24 ){ ebdc_id = server_id - 24;}
+
+  return ebdc_id;
+}
 
 int TpcMon::Index_from_Module(int sec_id, int fee_id) //for placing in the array (takes into account sector)
 {

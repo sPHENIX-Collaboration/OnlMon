@@ -153,6 +153,7 @@ class TpcMon : public OnlMon
   int stuck_channel_count [256][26] = {0}; // array for counting # of times a unique channel get stuck
 
   void Locate(int id, float *rbin, float *thbin);
+  int ebdc_from_serverid(int server_id);
   int Index_from_Module(int sec_id, int fee_id);
   int Module_ID(int fee_id);
   int Max_Nine(int one, int two, int three, int four, int five, int six, int seven, int eight, int nine);
