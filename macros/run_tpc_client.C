@@ -16,7 +16,7 @@ void tpcDrawInit(const int online = 0)
   // register histos we want with monitor name
 
   // TPC ADC pie chart
-  for (int serverid = 0; serverid < 24; serverid++)
+  for (int serverid = 0; serverid < 48; serverid++)
   {
     std::string servername = "TPCMON_" + std::to_string(serverid);
     tpcmon->AddServer(servername);

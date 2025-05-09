@@ -661,20 +661,25 @@ int TpcMonDraw::Draw(const std::string &what)
 int TpcMonDraw::DrawTPCModules(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
+  TH2 *tpcmon_NSIDEADC_u[48] = {nullptr};
+  TH2 *tpcmon_SSIDEADC_u[48] = {nullptr};
+
   TH2 *tpcmon_NSIDEADC[24] = {nullptr};
   TH2 *tpcmon_SSIDEADC[24] = {nullptr};
-
+  
   char TPCMON_STR[100];
   // TPC ADC pie chart
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC");
-    tpcmon_SSIDEADC[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC");
+    tpcmon_NSIDEADC_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC");
+    tpcmon_SSIDEADC_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC");
   }
 
-
+  add_TH2(tpcmon_NSIDEADC_u, tpcmon_NSIDEADC);
+  add_TH2(tpcmon_SSIDEADC_u, tpcmon_SSIDEADC);
+  
   //TH2 *tpcmon_NSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","NorthSideADC");
   //TH2 *tpcmon_SSIDEADC1 = (TH2*) cl->getHisto("TPCMON_0","SouthSideADC");
 
@@ -852,16 +857,19 @@ int TpcMonDraw::DrawTPCSampleSize(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
+  TH1 *tpcmon_samplesizedist_u[48] = {nullptr};
   TH1 *tpcmon_samplesizedist[24] = {nullptr};
 
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_samplesizedist[i] = (TH1*) cl->getHisto(TPCMON_STR,"sample_size_hist");
+    tpcmon_samplesizedist_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"sample_size_hist");
   }
 
+  add_TH1(tpcmon_samplesizedist_u, tpcmon_samplesizedist);
+  
   if (!gROOT->FindObject("TPCSampleSize"))
   {
     MakeCanvas("TPCSampleSize");
@@ -913,15 +921,21 @@ int TpcMonDraw::DrawTPCCheckSum(const std::string & /* what */)
   TH1 *tpcmon_checksumerror[24] = {nullptr};
   TH1 *tpcmon_checksums[24] = {nullptr};
 
+  TH1 *tpcmon_checksumerror_u[48] = {nullptr};
+  TH1 *tpcmon_checksums_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_checksumerror[i] = (TH1*) cl->getHisto(TPCMON_STR,"Check_Sum_Error");
-    tpcmon_checksums[i] = (TH1*) cl->getHisto(TPCMON_STR,"Check_Sums");
+    tpcmon_checksumerror_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Check_Sum_Error");
+    tpcmon_checksums_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Check_Sums");
   }
 
+  add_TH1(tpcmon_checksumerror_u, tpcmon_checksumerror);
+  add_TH1(tpcmon_checksums_u, tpcmon_checksums);
+  
   if (!gROOT->FindObject("TPCCheckSumError"))
   {
     MakeCanvas("TPCCheckSumError");
@@ -1007,15 +1021,17 @@ int TpcMonDraw::DrawTPCADCSample(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *tpcmon_ADCSAMPLE[24] = {nullptr};
-
+  TH2 *tpcmon_ADCSAMPLE_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_ADCSAMPLE[i] = (TH2*) cl->getHisto(TPCMON_STR,"ADC_vs_SAMPLE");
+    tpcmon_ADCSAMPLE_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"ADC_vs_SAMPLE");
   }
 
+  add_TH2(tpcmon_ADCSAMPLE_u, tpcmon_ADCSAMPLE);
 
   if (!gROOT->FindObject("TPCADCSample"))
   {
@@ -1068,16 +1084,18 @@ int TpcMonDraw::DrawTPCMaxADCModule(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *tpcmon_MAXADC_MODULE[24] = {nullptr};
-
+  TH2 *tpcmon_MAXADC_MODULE_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_MAXADC_MODULE[i] = (TH2*) cl->getHisto(TPCMON_STR,"MAXADC");
+    tpcmon_MAXADC_MODULE_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"MAXADC");
   }
 
-
+  add_TH2(tpcmon_MAXADC_MODULE_u, tpcmon_MAXADC_MODULE);
+  
   if (!gROOT->FindObject("TPCMaxADCModule"))
   {
     MakeCanvas("TPCMaxADCModule");
@@ -1131,16 +1149,19 @@ int TpcMonDraw::DrawTPCRawADC1D(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmon_RAWADC1D[24][3] = {nullptr};
-
+  TH1 *tpcmon_RAWADC1D_u[48][3] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_RAWADC1D[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R1");
-    tpcmon_RAWADC1D[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R2");
-    tpcmon_RAWADC1D[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R3");
+    tpcmon_RAWADC1D_u[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R1");
+    tpcmon_RAWADC1D_u[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R2");
+    tpcmon_RAWADC1D_u[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"RAWADC_1D_R3");
   }
+
+  add_TH1_modules( tpcmon_RAWADC1D_u, tpcmon_RAWADC1D );
 
 
   if (!gROOT->FindObject("TPCRawADC1D"))
@@ -1211,17 +1232,19 @@ int TpcMonDraw::DrawTPCMaxADC1D(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmon_MAXADC1D[24][3] = {nullptr};
-
+  TH1 *tpcmon_MAXADC1D_u[48][3] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_MAXADC1D[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R1");
-    tpcmon_MAXADC1D[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R2");
-    tpcmon_MAXADC1D[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R3");
+    tpcmon_MAXADC1D_u[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R1");
+    tpcmon_MAXADC1D_u[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R2");
+    tpcmon_MAXADC1D_u[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"MAXADC_1D_R3");
   }
 
+  add_TH1_modules(tpcmon_MAXADC1D_u, tpcmon_MAXADC1D);
 
   if (!gROOT->FindObject("TPCMaxADC1D"))
   {
@@ -1292,6 +1315,9 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
   TH2 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
+  TH2 *tpcmon_NSTPC_clusXY_u[48][3] = {nullptr};
+  TH2 *tpcmon_SSTPC_clusXY_u[48][3] = {nullptr};  
+  
   dummy_his1_XY = new TH2F("dummy_his1_XY", "(ADC-Pedestal) > (5#sigma||20ADC) North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
   dummy_his2_XY = new TH2F("dummy_his2_XY", "(ADC-Pedestal) > (5#sigma||20ADC) South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
 
@@ -1326,19 +1352,22 @@ int TpcMonDraw::DrawTPCXYclusters(const std::string & /* what */)
   //__________________
 
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NSTPC_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1");
-    tpcmon_NSTPC_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2");
-    tpcmon_NSTPC_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3");
+    tpcmon_NSTPC_clusXY_u[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1");
+    tpcmon_NSTPC_clusXY_u[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2");
+    tpcmon_NSTPC_clusXY_u[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3");
 
-    tpcmon_SSTPC_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1");
-    tpcmon_SSTPC_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2");
-    tpcmon_SSTPC_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3");
+    tpcmon_SSTPC_clusXY_u[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1");
+    tpcmon_SSTPC_clusXY_u[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2");
+    tpcmon_SSTPC_clusXY_u[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3");
   }
 
+  add_TH2_modules(tpcmon_NSTPC_clusXY_u, tpcmon_NSTPC_clusXY);
+  add_TH2_modules(tpcmon_SSTPC_clusXY_u, tpcmon_SSTPC_clusXY);
+  
   if (!gROOT->FindObject("TPCClusterXY"))
   {
     MakeCanvas("TPCClusterXY");
@@ -1464,6 +1493,9 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusXY[24][3] = {nullptr};
   TH2 *tpcmon_SSTPC_clusXY[24][3] = {nullptr};
 
+  TH2 *tpcmon_NSTPC_clusXY_u[48][3] = {nullptr};
+  TH2 *tpcmon_SSTPC_clusXY_u[48][3] = {nullptr};
+  
   dummy_his1_XY_unw = new TH2F("dummy_his1_XY_unw", "(ADC-Pedestal) > (5#sigma||20ADC) North Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
   dummy_his2_XY_unw = new TH2F("dummy_his2_XY_unw", "(ADC-Pedestal) > (5#sigma||20ADC) South Side, UNWEIGHTED", 400, -800, 800, 400, -800, 800);
 
@@ -1498,19 +1530,23 @@ int TpcMonDraw::DrawTPCXYclusters_unweighted(const std::string & /* what */)
   //__________________
 
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NSTPC_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_unw");
-    tpcmon_NSTPC_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_unw");
-    tpcmon_NSTPC_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_unw");
+    tpcmon_NSTPC_clusXY_u[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_unw");
+    tpcmon_NSTPC_clusXY_u[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_unw");
+    tpcmon_NSTPC_clusXY_u[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_unw");
 
-    tpcmon_SSTPC_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_unw");
-    tpcmon_SSTPC_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_unw");
-    tpcmon_SSTPC_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_unw");
+    tpcmon_SSTPC_clusXY_u[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_unw");
+    tpcmon_SSTPC_clusXY_u[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_unw");
+    tpcmon_SSTPC_clusXY_u[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_unw");
   }
 
+  add_TH2_modules(tpcmon_NSTPC_clusXY_u, tpcmon_NSTPC_clusXY);
+  add_TH2_modules(tpcmon_SSTPC_clusXY_u, tpcmon_SSTPC_clusXY);
+  
   if (!gROOT->FindObject("TPCClusterXY_unw"))
   {
     MakeCanvas("TPCClusterXY_unw");
@@ -1634,15 +1670,17 @@ int TpcMonDraw::DrawTPCADCSampleLarge(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *tpcmon_ADCSAMPLE_large[24] = {nullptr};
-
+  TH2 *tpcmon_ADCSAMPLE_large_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_ADCSAMPLE_large[i] = (TH2*) cl->getHisto(TPCMON_STR,"ADC_vs_SAMPLE_large");
+    tpcmon_ADCSAMPLE_large_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"ADC_vs_SAMPLE_large");
   }
 
+  add_TH2(tpcmon_ADCSAMPLE_large_u, tpcmon_ADCSAMPLE_large);  
 
   if (!gROOT->FindObject("TPCADCSamplelarge"))
   {
@@ -1700,20 +1738,26 @@ int TpcMonDraw::DrawTPCZYclusters(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusZY[24] = {nullptr};
   TH2 *tpcmon_SSTPC_clusZY[24] = {nullptr};
 
+  TH2 *tpcmon_NSTPC_clusZY_u[48] = {nullptr};
+  TH2 *tpcmon_SSTPC_clusZY_u[48] = {nullptr};
+  
   dummy_his1_ZY = new TH2F("dummy_his1_ZY", "(ADC-Pedestal) > ((5#sigma||20ADC), WEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
   dummy_his1_ZY->SetXTitle("Z [mm]");
   dummy_his1_ZY->SetYTitle("Y [mm]");
 
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NSTPC_clusZY[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterZY");
+    tpcmon_NSTPC_clusZY_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterZY");
 
-    tpcmon_SSTPC_clusZY[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterZY");
+    tpcmon_SSTPC_clusZY_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterZY");
   }
 
+  add_TH2(tpcmon_NSTPC_clusZY_u, tpcmon_NSTPC_clusZY);
+  add_TH2(tpcmon_SSTPC_clusZY_u, tpcmon_SSTPC_clusZY);
+  
   if (!gROOT->FindObject("TPCClusterZY"))
   {
     MakeCanvas("TPCClusterZY");
@@ -1802,20 +1846,26 @@ int TpcMonDraw::DrawTPCZYclusters_unweighted(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_clusZY_unw[24] = {nullptr};
   TH2 *tpcmon_SSTPC_clusZY_unw[24] = {nullptr};
 
+  TH2 *tpcmon_NSTPC_clusZY_unw_u[48] = {nullptr};
+  TH2 *tpcmon_SSTPC_clusZY_unw_u[48] = {nullptr};
+  
   dummy_his1_ZY_unw = new TH2F("dummy_his1_ZY_unw", "(ADC-Pedestal) > (5#sigma||20ADC), UNWEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
   dummy_his1_ZY_unw->SetXTitle("Z [mm]");
   dummy_his1_ZY_unw->SetYTitle("Y [mm]");
 
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NSTPC_clusZY_unw[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterZY_unw");
+    tpcmon_NSTPC_clusZY_unw_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterZY_unw");
 
-    tpcmon_SSTPC_clusZY_unw[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterZY_unw");
+    tpcmon_SSTPC_clusZY_unw_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterZY_unw");
   }
 
+  add_TH2(tpcmon_NSTPC_clusZY_unw_u, tpcmon_NSTPC_clusZY_unw);
+  add_TH2(tpcmon_SSTPC_clusZY_unw_u, tpcmon_SSTPC_clusZY_unw);
+  
   if (!gROOT->FindObject("TPCClusterZY_unw"))
   {
     MakeCanvas("TPCClusterZY_unw");
@@ -1898,7 +1948,8 @@ int TpcMonDraw::DrawTPCchannelphi_layer_weighted(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *tpcmonth2channelphi_layer[24] = {nullptr};
-
+  TH2 *tpcmonth2channelphi_layer_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
 
   dummy_his1_channelphi_layer_w = new TH2F("dummy_his1_channelphi_layer_", "(ADC-Pedestal) > 20 ADC, UNWEIGHTED", 515, -1030, 1030, 400, -800, 800); //dummy histos for titles
@@ -1906,12 +1957,14 @@ int TpcMonDraw::DrawTPCchannelphi_layer_weighted(const std::string & /* what */)
   dummy_his1_channelphi_layer_w->SetYTitle("layer ");
   dummy_his1_channelphi_layer_w->SetZTitle("#Sigma(ADC-ped.)");
 
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmonth2channelphi_layer[i] = (TH2*) cl->getHisto(TPCMON_STR,"Layer_ChannelPhi_ADC_weighted");
+    tpcmonth2channelphi_layer_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"Layer_ChannelPhi_ADC_weighted");
   }
+
+  add_TH2(tpcmonth2channelphi_layer_u, tpcmonth2channelphi_layer);
 
   if (!gROOT->FindObject("TPCLayerPhi"))
   {
@@ -1977,18 +2030,20 @@ int TpcMonDraw::DrawTPCPedestSubADC1D(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmon_PEDESTSUBADC1D[24][3] = {nullptr};
-
+  TH1 *tpcmon_PEDESTSUBADC1D_u[48][3] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_PEDESTSUBADC1D[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R1");
-    tpcmon_PEDESTSUBADC1D[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R2");
-    tpcmon_PEDESTSUBADC1D[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R3");
+    tpcmon_PEDESTSUBADC1D_u[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R1");
+    tpcmon_PEDESTSUBADC1D_u[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R2");
+    tpcmon_PEDESTSUBADC1D_u[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_1D_R3");
   }
 
-
+  add_TH1_modules(tpcmon_PEDESTSUBADC1D_u, tpcmon_PEDESTSUBADC1D);
+  
   if (!gROOT->FindObject("TPCPedestSubADC1D"))
   {
     MakeCanvas("TPCPedestSubADC1D");
@@ -2056,20 +2111,23 @@ int TpcMonDraw::DrawTPCNEventsvsEBDC(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmoneventsebdc[24] = {nullptr};
-
+  TH1 *tpcmoneventsebdc_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
 
   dummy_his1_NEvents_EBDC = new TH1F("dummy_his1_Nevents_EBDC", "N_{Events} vs EBDC", 24, -0.5, 23.5); //dummy histos for titles
   dummy_his1_NEvents_EBDC->SetXTitle("EBDC #");
   dummy_his1_NEvents_EBDC->SetYTitle("N_{Events}");
 
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmoneventsebdc[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
+    tpcmoneventsebdc_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
   }
 
+  add_TH1( tpcmoneventsebdc_u,  tpcmoneventsebdc);
+  
   if (!gROOT->FindObject("TPCNEventsEBDC"))
   {
     MakeCanvas("TPCNEventsEBDC");
@@ -2130,15 +2188,17 @@ int TpcMonDraw::DrawTPCPedestSubADCSample(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *tpcmon_PEDESTSUBADCSAMPLE[24] = {nullptr};
-
+  TH2 *tpcmon_PEDESTSUBADCSAMPLE_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_PEDESTSUBADCSAMPLE[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE");
+    tpcmon_PEDESTSUBADCSAMPLE_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE");
   }
 
+  add_TH2(tpcmon_PEDESTSUBADCSAMPLE_u, tpcmon_PEDESTSUBADCSAMPLE);  
 
   if (!gROOT->FindObject("TPCPedestSubADCSample"))
   {
@@ -2191,15 +2251,17 @@ int TpcMonDraw::DrawTPCPedestSubADCSample_R1(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *tpcmon_PEDESTSUBADCSAMPLE_R1[24] = {nullptr};
-
+  TH2 *tpcmon_PEDESTSUBADCSAMPLE_R1_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_PEDESTSUBADCSAMPLE_R1[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R1");
+    tpcmon_PEDESTSUBADCSAMPLE_R1_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R1");
   }
 
+  add_TH2(tpcmon_PEDESTSUBADCSAMPLE_R1_u, tpcmon_PEDESTSUBADCSAMPLE_R1);
 
   if (!gROOT->FindObject("TPCPedestSubADCSample_R1"))
   {
@@ -2252,16 +2314,18 @@ int TpcMonDraw::DrawTPCPedestSubADCSample_R2(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *tpcmon_PEDESTSUBADCSAMPLE_R2[24] = {nullptr};
-
+  TH2 *tpcmon_PEDESTSUBADCSAMPLE_R2_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_PEDESTSUBADCSAMPLE_R2[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R2");
+    tpcmon_PEDESTSUBADCSAMPLE_R2_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R2");
   }
 
-
+  add_TH2(tpcmon_PEDESTSUBADCSAMPLE_R2_u, tpcmon_PEDESTSUBADCSAMPLE_R2);
+  
   if (!gROOT->FindObject("TPCPedestSubADCSample_R2"))
   {
     MakeCanvas("TPCPedestSubADCSample_R2");
@@ -2313,16 +2377,18 @@ int TpcMonDraw::DrawTPCPedestSubADCSample_R3(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH2 *tpcmon_PEDESTSUBADCSAMPLE_R3[24] = {nullptr};
-
+  TH2 *tpcmon_PEDESTSUBADCSAMPLE_R3_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_PEDESTSUBADCSAMPLE_R3[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R3");
+    tpcmon_PEDESTSUBADCSAMPLE_R3_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"PEDEST_SUB_ADC_vs_SAMPLE_R3");
   }
 
-
+  add_TH2(tpcmon_PEDESTSUBADCSAMPLE_R3_u, tpcmon_PEDESTSUBADCSAMPLE_R3);
+  
   if (!gROOT->FindObject("TPCPedestSubADCSample_R3"))
   {
     MakeCanvas("TPCPedestSubADCSample_R3");
@@ -2376,6 +2442,9 @@ int TpcMonDraw::DrawTPCXYlaserclusters(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_laser_clusXY[24][3] = {nullptr};
   TH2 *tpcmon_SSTPC_laser_clusXY[24][3] = {nullptr};
 
+  TH2 *tpcmon_NSTPC_laser_clusXY_u[48][3] = {nullptr};
+  TH2 *tpcmon_SSTPC_laser_clusXY_u[48][3] = {nullptr};
+  
   dummy_his1_laser_XY = new TH2F("dummy_his1_laser_XY", "(ADC-Pedestal) > (5#sigma||20ADC) North Side, WEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
   dummy_his2_laser_XY = new TH2F("dummy_his2_laser_XY", "(ADC-Pedestal) > (5#sigma||20ADC) South Side, WEIGHTED", 400, -800, 800, 400, -800, 800);
 
@@ -2410,19 +2479,22 @@ int TpcMonDraw::DrawTPCXYlaserclusters(const std::string & /* what */)
   //__________________
 
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NSTPC_laser_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_LASER");
-    tpcmon_NSTPC_laser_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_LASER");
-    tpcmon_NSTPC_laser_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_LASER");
+    tpcmon_NSTPC_laser_clusXY_u[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_LASER");
+    tpcmon_NSTPC_laser_clusXY_u[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_LASER");
+    tpcmon_NSTPC_laser_clusXY_u[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_LASER");
 
-    tpcmon_SSTPC_laser_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_LASER");
-    tpcmon_SSTPC_laser_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_LASER");
-    tpcmon_SSTPC_laser_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_LASER");
+    tpcmon_SSTPC_laser_clusXY_u[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_LASER");
+    tpcmon_SSTPC_laser_clusXY_u[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_LASER");
+    tpcmon_SSTPC_laser_clusXY_u[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_LASER");
   }
 
+  add_TH2_modules( tpcmon_NSTPC_laser_clusXY_u,  tpcmon_NSTPC_laser_clusXY);
+  add_TH2_modules( tpcmon_SSTPC_laser_clusXY_u,  tpcmon_SSTPC_laser_clusXY);
+  
   if (!gROOT->FindObject("TPCClusterXY_laser"))
   {
     MakeCanvas("TPCClusterXY_laser");
@@ -2546,16 +2618,19 @@ int TpcMonDraw::DrawTPCStuckChannels(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
   
   TH1 *tpcmon_stuckchannels[24] = {nullptr};
-
+  TH1 *tpcmon_stuckchannels_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_stuckchannels[i] = (TH1*) cl->getHisto(TPCMON_STR,"Stuck_Channels");
+    tpcmon_stuckchannels_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Stuck_Channels");
     //if( !tpcmon_stuckchannels[i] ){std::cout<<"Not able to get stuck channel histo # "<<i<<std::endl;}
   }
 
+  add_TH1(tpcmon_stuckchannels_u, tpcmon_stuckchannels);
+  
   if (!gROOT->FindObject("TPCStuckChannels"))
   {
     MakeCanvas("TPCStuckChannels");
@@ -2646,6 +2721,9 @@ int TpcMonDraw::DrawTPCXYclusters5event(const std::string & /* what */)
   TH2 *tpcmon_NSTPC_5e_clusXY[24][3] = {nullptr};
   TH2 *tpcmon_SSTPC_5e_clusXY[24][3] = {nullptr};
 
+  TH2 *tpcmon_NSTPC_5e_clusXY_u[48][3] = {nullptr};
+  TH2 *tpcmon_SSTPC_5e_clusXY_u[48][3] = {nullptr}; 
+  
   dummy_his1_u5_XY = new TH2F("dummy_his1_u5_XY", "(ADC-Pedestal) > (5#sigma||20ADC) North Side, <= 5 E , UNWEIGHTED", 400, -800, 800, 400, -800, 800); //dummy histos for titles
   dummy_his2_u5_XY = new TH2F("dummy_his2_u5_XY", "(ADC-Pedestal) > (5#sigma||20ADC) South Side, <= 5 E , UNWEIGHTED", 400, -800, 800, 400, -800, 800);
 
@@ -2680,19 +2758,22 @@ int TpcMonDraw::DrawTPCXYclusters5event(const std::string & /* what */)
   //__________________
 
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);                             
-    tpcmon_NSTPC_5e_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_u5");
-    tpcmon_NSTPC_5e_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_u5");
-    tpcmon_NSTPC_5e_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_u5");
+    tpcmon_NSTPC_5e_clusXY_u[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R1_u5");
+    tpcmon_NSTPC_5e_clusXY_u[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R2_u5");
+    tpcmon_NSTPC_5e_clusXY_u[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"NorthSideADC_clusterXY_R3_u5");
 
-    tpcmon_SSTPC_5e_clusXY[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_u5");
-    tpcmon_SSTPC_5e_clusXY[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_u5");
-    tpcmon_SSTPC_5e_clusXY[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_u5");
+    tpcmon_SSTPC_5e_clusXY_u[i][0] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R1_u5");
+    tpcmon_SSTPC_5e_clusXY_u[i][1] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R2_u5");
+    tpcmon_SSTPC_5e_clusXY_u[i][2] = (TH2*) cl->getHisto(TPCMON_STR,"SouthSideADC_clusterXY_R3_u5");
   }
 
+  add_TH2_modules( tpcmon_NSTPC_5e_clusXY_u,  tpcmon_NSTPC_5e_clusXY);  
+  add_TH2_modules( tpcmon_SSTPC_5e_clusXY_u,  tpcmon_SSTPC_5e_clusXY);
+  
   if (!gROOT->FindObject("TPCClusterXY_u5"))
   {
     MakeCanvas("TPCClusterXY_u5");
@@ -2815,18 +2896,32 @@ int TpcMonDraw::DrawTPCChansinPacketNS(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_chanpacketNS[12] = {nullptr};
-  TH1 *tpcmon_chanpacketalwaysNS[12] = {nullptr};
+  TH1 *tpcmon_chanpacketNS[24] = {nullptr};
+  TH1 *tpcmon_chanpacketalwaysNS[24] = {nullptr};
 
+  TH1 *tpcmon_chanpacketNS_u[48] = {nullptr};
+  TH1 *tpcmon_chanpacketalwaysNS_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
   for( int i=0; i<12; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_chanpacketNS[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
-    tpcmon_chanpacketalwaysNS[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_Always");
+    tpcmon_chanpacketNS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    tpcmon_chanpacketalwaysNS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_Always");
   }
 
+  for( int i=24; i<36; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_chanpacketNS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    tpcmon_chanpacketalwaysNS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_Always");
+  }
+
+  add_TH1(tpcmon_chanpacketNS_u, tpcmon_chanpacketNS);
+  add_TH1(tpcmon_chanpacketalwaysNS_u, tpcmon_chanpacketalwaysNS);
+  
   if (!gROOT->FindObject("TPCChan_in_Packets_NS"))
   {
     MakeCanvas("TPCChan_in_Packets_NS");
@@ -2915,17 +3010,31 @@ int TpcMonDraw::DrawTPCChansinPacketSS(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_chanpacketSS[12] = {nullptr};
-  TH1 *tpcmon_chanpacketalwaysSS[12] = {nullptr};
+  TH1 *tpcmon_chanpacketSS[24] = {nullptr};
+  TH1 *tpcmon_chanpacketalwaysSS[24] = {nullptr};
 
+  TH1 *tpcmon_chanpacketSS_u[48] = {nullptr};
+  TH1 *tpcmon_chanpacketalwaysSS_u[48] = {nullptr};  
+  
   char TPCMON_STR[100];
   for( int i=12; i<24; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_chanpacketSS[i-12] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
-    tpcmon_chanpacketalwaysSS[i-12] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_Always");
+    tpcmon_chanpacketSS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    tpcmon_chanpacketalwaysSS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_Always");
   }
+
+  for( int i=36; i<48; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_chanpacketSS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    tpcmon_chanpacketalwaysSS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_Always");
+  }
+
+  add_TH1(tpcmon_chanpacketSS_u, tpcmon_chanpacketSS);
+  add_TH1(tpcmon_chanpacketalwaysSS_u, tpcmon_chanpacketalwaysSS);
 
   if (!gROOT->FindObject("TPCChan_in_Packets_SS"))
   {
@@ -3013,15 +3122,18 @@ int TpcMonDraw::DrawTPCNonZSChannels(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_nonZSchannels[24] = {nullptr};
-
+  TH2 *tpcmon_nonZSchannels_u[48] = {nullptr};
+  TH2 *tpcmon_nonZSchannels[24] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_nonZSchannels[i] = (TH1*) cl->getHisto(TPCMON_STR,"Num_non_ZS_channels_vs_SAMPA");
+    tpcmon_nonZSchannels_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"Num_non_ZS_channels_vs_SAMPA");
   }
+
+  add_TH2(tpcmon_nonZSchannels_u, tpcmon_nonZSchannels);
 
   if (!gROOT->FindObject("TPCNonZSChannels"))
   {
@@ -3103,15 +3215,18 @@ int TpcMonDraw::DrawTPCZSTriggerADCSample(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_ZSTriggerADCSampledist[24] = {nullptr};
+  TH2 *tpcmon_ZSTriggerADCSampledist[24] = {nullptr};
+  TH2 *tpcmon_ZSTriggerADCSampledist_u[48] = {nullptr};
 
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_ZSTriggerADCSampledist[i] = (TH1*) cl->getHisto(TPCMON_STR,"ZS_Trigger_ADC_vs_Sample");
+    tpcmon_ZSTriggerADCSampledist_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"ZS_Trigger_ADC_vs_Sample");
   }
+
+  add_TH2( tpcmon_ZSTriggerADCSampledist_u,  tpcmon_ZSTriggerADCSampledist);
 
   if (!gROOT->FindObject("TPCNonZSTriggerADCvsSample"))
   {
@@ -3166,16 +3281,19 @@ int TpcMonDraw::DrawTPCFirstnonZSADCFirstnonZSSample(const std::string & /* what
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_FirstNZSADCvsFirstNZSSample[24] = {nullptr};
-
+  TH2 *tpcmon_FirstNZSADCvsFirstNZSSample[24] = {nullptr};
+  TH2 *tpcmon_FirstNZSADCvsFirstNZSSample_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_FirstNZSADCvsFirstNZSSample[i] = (TH1*) cl->getHisto(TPCMON_STR,"First_ADC_vs_First_Time_Bin");
+    tpcmon_FirstNZSADCvsFirstNZSSample_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"First_ADC_vs_First_Time_Bin");
   }
 
+  add_TH2(tpcmon_FirstNZSADCvsFirstNZSSample_u, tpcmon_FirstNZSADCvsFirstNZSSample);
+  
   if (!gROOT->FindObject("TPCFirstADCvsFirstSample"))
   {
     MakeCanvas("TPCFirstADCvsFirstSample");
@@ -3229,19 +3347,22 @@ int TpcMonDraw::DrawTPCDriftWindow(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmon_DriftWindow[24][3] = {nullptr};
-
+  TH1 *tpcmon_DriftWindow_u[48][3] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     for( int j=0; j<3; j++ )
     {
       //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
       sprintf(TPCMON_STR,"TPCMON_%i",i);
-      tpcmon_DriftWindow[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");//tpcmon_DriftWindow[i][0]->GetXaxis()->SetRangeUser(0,500);
-      tpcmon_DriftWindow[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");//tpcmon_DriftWindow[i][1]->GetXaxis()->SetRangeUser(0,500);
-      tpcmon_DriftWindow[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");//tpcmon_DriftWindow[i][2]->GetXaxis()->SetRangeUser(0,500);
+      tpcmon_DriftWindow_u[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");//tpcmon_DriftWindow[i][0]->GetXaxis()->SetRangeUser(0,500);
+      tpcmon_DriftWindow_u[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");//tpcmon_DriftWindow[i][1]->GetXaxis()->SetRangeUser(0,500);
+      tpcmon_DriftWindow_u[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");//tpcmon_DriftWindow[i][2]->GetXaxis()->SetRangeUser(0,500);
     }
   }
+
+  add_TH1_modules( tpcmon_DriftWindow_u, tpcmon_DriftWindow);
 
   if (!gROOT->FindObject("TPCDriftWindow"))
   {
@@ -3339,22 +3460,28 @@ int TpcMonDraw::DrawTPCNStreaksvsEventNo(const std::string & /* what */)
   TH1 *tpcmon_NStreak_vsEventNo[24] = {nullptr};
   TH1 *tpcmoneventsebdc[24] = {nullptr};
 
+  TH1 *tpcmon_NStreak_vsEventNo_u[48] = {nullptr};
+  TH1 *tpcmoneventsebdc_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
 
-  for( int i=0; i<24; i++) //get the streakers vs event nos from each event histo 
+  for( int i=0; i<48; i++) //get the streakers vs event nos from each event histo 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_NStreak_vsEventNo[i] = (TH1*) cl->getHisto(TPCMON_STR,"NStreaks_vs_EventNo");
+    tpcmon_NStreak_vsEventNo_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"NStreaks_vs_EventNo");
   }
 
-  for( int i=0; i<24; i++) //get the num of events from each event histo 
+  for( int i=0; i<48; i++) //get the num of events from each event histo 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmoneventsebdc[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
+    tpcmoneventsebdc_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
   }
 
+  add_TH1( tpcmon_NStreak_vsEventNo_u,  tpcmon_NStreak_vsEventNo);
+  add_TH1( tpcmoneventsebdc_u,  tpcmoneventsebdc  );
+  
   if (!gROOT->FindObject("TPCNStreakersvsEventNo"))
   {
     MakeCanvas("TPCNStreakersvsEventNo");
@@ -3489,17 +3616,20 @@ int TpcMonDraw::DrawTPCPacketTypes(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmon_PacketType[24][3] = {nullptr};
-
+  TH1 *tpcmon_PacketType_u[48][3] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_PacketType[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_HB");
-    tpcmon_PacketType[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_NORM");
-    tpcmon_PacketType[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_ELSE");
+    tpcmon_PacketType_u[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_HB");
+    tpcmon_PacketType_u[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_NORM");
+    tpcmon_PacketType_u[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"Packet_Type_Fraction_ELSE");
   }
 
+  add_TH1_modules(tpcmon_PacketType_u, tpcmon_PacketType);
+  
   if (!gROOT->FindObject("TPCPacketType"))
   {
     MakeCanvas("TPCPacketType");
@@ -3581,18 +3711,32 @@ int TpcMonDraw::DrawTPCChansperLVL1_NS(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_chanlvl1NS[12] = {nullptr};
-  TH1 *lvl1_per_EBDC[12] = {nullptr};
+  TH1 *tpcmon_chanlvl1NS[24] = {nullptr};
+  TH1 *lvl1_per_EBDC[24] = {nullptr};
 
+  TH1 *tpcmon_chanlvl1NS_u[48] = {nullptr};
+  TH1 *lvl1_per_EBDC_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
   for( int i=0; i<12; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_chanlvl1NS[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
-    lvl1_per_EBDC[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+    tpcmon_chanlvl1NS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    lvl1_per_EBDC_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
   }
 
+  for( int i=24; i<36; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_chanlvl1NS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    lvl1_per_EBDC_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+  }  
+
+  add_TH1(tpcmon_chanlvl1NS_u, tpcmon_chanlvl1NS);
+  add_TH1(lvl1_per_EBDC_u, lvl1_per_EBDC);
+  
   if (!gROOT->FindObject("TPCChan_per_LVL1_NS"))
   {
     MakeCanvas("TPCChan_per_LVL1_NS");
@@ -3680,17 +3824,31 @@ int TpcMonDraw::DrawTPCChansperLVL1_SS(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_chanlvl1SS[12] = {nullptr};
-  TH1 *lvl1_per_EBDC[12] = {nullptr};
+  TH1 *tpcmon_chanlvl1SS[24] = {nullptr};
+  TH1 *lvl1_per_EBDC[24] = {nullptr};
+
+  TH1 *tpcmon_chanlvl1SS_u[48] = {nullptr};
+  TH1 *lvl1_per_EBDC_u[48] = {nullptr};
 
   char TPCMON_STR[100];
   for( int i=12; i<24; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_chanlvl1SS[i-12] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
-    lvl1_per_EBDC[i-12] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+    tpcmon_chanlvl1SS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    lvl1_per_EBDC_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
   }
+
+  for( int i=36; i<48; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_chanlvl1SS_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Channels_in_Packet");
+    lvl1_per_EBDC_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+  }  
+
+  add_TH1(tpcmon_chanlvl1SS_u, tpcmon_chanlvl1SS);
+  add_TH1(lvl1_per_EBDC_u, lvl1_per_EBDC);
 
   if (!gROOT->FindObject("TPCChan_per_LVL1_SS"))
   {
@@ -3783,15 +3941,21 @@ int TpcMonDraw::DrawTPCParity(const std::string & /* what */)
   TH1 *tpcmon_parityerror[24] = {nullptr};
   TH1 *tpcmon_parities[24] = {nullptr};
 
+  TH1 *tpcmon_parityerror_u[48] = {nullptr};
+  TH1 *tpcmon_parities_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_parityerror[i] = (TH1*) cl->getHisto(TPCMON_STR,"Parity_Error");
-    tpcmon_parities[i] = (TH1*) cl->getHisto(TPCMON_STR,"Check_Sums");
+    tpcmon_parityerror_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Parity_Error");
+    tpcmon_parities_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Check_Sums");
   }
 
+  add_TH1(tpcmon_parityerror_u, tpcmon_parityerror);
+  add_TH1(tpcmon_parities_u, tpcmon_parities);
+  
   if (!gROOT->FindObject("TPCParityError"))
   {
     MakeCanvas("TPCParityError");
@@ -3877,19 +4041,22 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *tpcmon_DriftWindow_shifter[24][3] = {nullptr};
-
+  TH1 *tpcmon_DriftWindow_shifter_u[48][3] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     for( int j=0; j<3; j++ )
     {
       //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
       sprintf(TPCMON_STR,"TPCMON_%i",i);
-      tpcmon_DriftWindow_shifter[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");
-      tpcmon_DriftWindow_shifter[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");
-      tpcmon_DriftWindow_shifter[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");
+      tpcmon_DriftWindow_shifter_u[i][0] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");
+      tpcmon_DriftWindow_shifter_u[i][1] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");
+      tpcmon_DriftWindow_shifter_u[i][2] = (TH1*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");
     }
   }
+
+  add_TH1_modules( tpcmon_DriftWindow_shifter_u, tpcmon_DriftWindow_shifter);
 
   // also get # of events that made it into each OnlMon Server
   TH1 *tpcmoneventsebdc[24] = {nullptr}; 
@@ -4073,15 +4240,21 @@ int TpcMonDraw::DrawTPCNoiseChannelPlots(const std::string & /* what */)
   TH1 *tpcmon_noise_channel_plots[24] = {nullptr};
   TH1 *tpcmon_lvl1_per_EBDC[24] = {nullptr};
 
+  TH1 *tpcmon_noise_channel_plots_u[48] = {nullptr};
+  TH1 *tpcmon_lvl1_per_EBDC_u[48] = {nullptr};
+  
   char TPCMON_STR[100];
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_noise_channel_plots[i] = (TH1*) cl->getHisto(TPCMON_STR,"Noise_Channel_Plots");
-    tpcmon_lvl1_per_EBDC[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
+    tpcmon_noise_channel_plots_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"Noise_Channel_Plots");
+    tpcmon_lvl1_per_EBDC_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"LVL_1_TAGGER_per_EBDC");
   }
 
+  add_TH1(tpcmon_noise_channel_plots_u, tpcmon_noise_channel_plots);
+  add_TH1(tpcmon_lvl1_per_EBDC_u, tpcmon_lvl1_per_EBDC);
+  
   if (!gROOT->FindObject("TPCNoiseChannelsPlots"))
   {
     MakeCanvas("TPCNoiseChannelsPlots");
@@ -4169,7 +4342,8 @@ int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
   //TH1F *tpcmon_back[24][3] = {nullptr};
   // TH1F *tpcmon_drift[24][3] = {nullptr};
 
-  TH1F *tpcmon_Drift[24][3] = {nullptr};
+  TH1 *tpcmon_Drift[24][3] = {nullptr};
+  TH1 *tpcmon_Drift_u[48][3] = {nullptr};
   //TH1 *tpcmoneventsebdc[24] = {nullptr};
 
   TH1F *PERCENT = new TH1F("PERCENT","TPC PERCENT TRANSMISSION; % Transmission; Counts",75,-1.5,151.5);
@@ -4178,16 +4352,16 @@ int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
 
   char TPCMON_STR[100];
  
-  for( int i=0; i<24; i++ ) 
+  for( int i=0; i<48; i++ ) 
   {
     sprintf(TPCMON_STR,"TPCMON_%i",i);
     //tpcmoneventsebdc[i] = (TH1*) cl->getHisto(TPCMON_STR,"NEvents_vs_EBDC");
     for( int j=0; j<3; j++ )
     {
 
-      tpcmon_Drift[i][0] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");
-      tpcmon_Drift[i][1] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");
-      tpcmon_Drift[i][2] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");
+      tpcmon_Drift_u[i][0] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R1");
+      tpcmon_Drift_u[i][1] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R2");
+      tpcmon_Drift_u[i][2] = (TH1F*) cl->getHisto(TPCMON_STR,"COUNTS_vs_SAMPLE_1D_R3");
 
       /*
       sprintf(DRIFT_CLONE_STR,"drift_sec_%i_R%i",i,j+1);
@@ -4198,6 +4372,7 @@ int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
     }
   }
 
+  add_TH1_modules(tpcmon_Drift_u, tpcmon_Drift);
 
   if (!gROOT->FindObject("ShifterTPCTransmissionDist"))
   {
@@ -4446,4 +4621,68 @@ int TpcMonDraw::DrawServerStats()
   MyTC->SetEditable(false);
 
   return 0;
+}
+
+void TpcMonDraw::add_TH1(TH1* hist[48], TH1* histadd[24]) {
+    for (int i = 0; i < 24; ++i) {
+      // Clone hist[i] to preserve binning, axis labels, etc.
+      //char name_str[256];
+      //sprintf(name_str,"%s",hist[i]->GetName());
+      if(!hist[i] && !hist[i+24]){continue;}
+      if(hist[i] && !hist[i+24]){histadd[i] = (TH1*)hist[i]->Clone(Form("histadd_%d",i));}
+      if(!hist[i] && hist[i+24]){histadd[i] = (TH1*)hist[i+24]->Clone(Form("histadd_%d",i));}
+      if(hist[i] && hist[i+24]){
+	histadd[i] = (TH1*)hist[i]->Clone(Form("histadd_%d",i));
+        histadd[i]->Add(hist[i+24]);
+      }
+    }
+}
+
+void TpcMonDraw::add_TH2(TH2* hist[48], TH2* histadd[24]) {
+    for (int i = 0; i < 24; ++i) {
+      // Clone hist[i] to preserve binning, axis labels, etc.
+      //char name_str[256];
+      //sprintf(name_str,"%s",hist[i]->GetName());
+      if(!hist[i] && !hist[i+24]){continue;}
+      if(hist[i] && !hist[i+24]){histadd[i] = (TH2*)hist[i]->Clone(Form("histadd_%d",i));}
+      if(!hist[i] && hist[i+24]){histadd[i] = (TH2*)hist[i+24]->Clone(Form("histadd_%d",i));}
+      if(hist[i] && hist[i+24]){
+	histadd[i] = (TH2*)hist[i]->Clone(Form("histadd_%d",i));
+        histadd[i]->Add(hist[i+24]);
+      }
+    }
+}
+
+void TpcMonDraw::add_TH1_modules(TH1* hist[48][3], TH1* histadd[24][3]) {
+    for (int i = 0; i < 24; ++i) {
+      for (int j = 0; j < 3; ++j) {
+        // Clone hist[i] to preserve binning, axis labels, etc.
+        //char name_str[256];
+        //sprintf(name_str,"%s",hist[i]->GetName());
+        if(!hist[i][j] && !hist[i+24][j]){continue;}
+        if(hist[i][j] && !hist[i+24][j]){histadd[i][j] = (TH1*)hist[i][j]->Clone(Form("histadd_%d_%d",i,j));}
+        if(!hist[i][j] && hist[i+24][j]){histadd[i][j] = (TH1*)hist[i+24][j]->Clone(Form("histadd_%d_%d",i,j));}
+        if(hist[i][j] && hist[i+24][j]){
+   	  histadd[i][j] = (TH1*)hist[i][j]->Clone(Form("histadd_%d_%d",i,j));
+          histadd[i][j]->Add(hist[i+24][j]);
+        }
+      }	
+    }
+}
+
+void TpcMonDraw::add_TH2_modules(TH2* hist[48][3], TH2* histadd[24][3]) {
+    for (int i = 0; i < 24; ++i) {
+      for (int j = 0; j < 3; ++j) {
+        // Clone hist[i] to preserve binning, axis labels, etc.
+        //char name_str[256];
+        //sprintf(name_str,"%s",hist[i]->GetName());
+        if(!hist[i][j] && !hist[i+24][j]){continue;}
+        if(hist[i][j] && !hist[i+24][j]){histadd[i][j] = (TH2*)hist[i][j]->Clone(Form("histadd_%d_%d",i,j));}
+        if(!hist[i][j] && hist[i+24][j]){histadd[i][j] = (TH2*)hist[i+24][j]->Clone(Form("histadd_%d_%d",i,j));}
+        if(hist[i][j] && hist[i+24][j]){
+   	  histadd[i][j] = (TH2*)hist[i][j]->Clone(Form("histadd_%d_%d",i,j));
+          histadd[i][j]->Add(hist[i+24][j]);
+        }
+      }	
+    }
 }
