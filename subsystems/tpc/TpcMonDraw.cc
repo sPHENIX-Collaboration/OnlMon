@@ -4575,13 +4575,30 @@ int TpcMonDraw::DrawServerStats()
   PrintRun.SetTextColor(1);
   PrintRun.DrawText(0.5, 0.99, "Server Statistics");
 
+  PrintRun.SetTextAlign(13);  // center/top alignment
   PrintRun.SetTextSize(0.02);
-  double vdist = 0.05;
+  double vdist = 0.03;
   double vstart = 0.9;
   double vpos = vstart;
-  double hpos = 0.25;
+  double hpos = 0.01;
   int i = 0;
+  int numservers = m_ServerSet.size();
+  std::vector<std::string> ServerVector;
   for (const auto &server : m_ServerSet)
+    {
+      if (server.size() <= 8)
+	{
+	  ServerVector.push_back(server);
+	}
+    }
+  for (const auto &server : m_ServerSet)
+    {
+      if (server.size() > 8)
+	{
+	  ServerVector.push_back(server);
+	}
+    }
+  for (const auto &server : ServerVector)
   {
     std::ostringstream txt;
     auto servermapiter = cl->GetServerMap(server);
@@ -4606,9 +4623,9 @@ int TpcMonDraw::DrawServerStats()
         PrintRun.SetTextColor(kRed);
       }
     }
-    if (i > 12)
+    if (i >= numservers/2)
       {
-	hpos = 0.75;
+	hpos = 0.5;
 	vpos = vstart;
 	i = 0;
       }
