@@ -3061,7 +3061,7 @@ int TpcMonDraw::DrawTPCChansinPacketSS(const std::string & /* what */)
   {
     if( tpcmon_chanpacketSS[i] && tpcmon_chanpacketalwaysSS[i] )
     {
-      MyTC->cd(i+3);
+      MyTC->cd(i-12+3);
       gStyle->SetPadLeftMargin(0.05);
       gStyle->SetPadRightMargin(0.02);
       tpcmon_chanpacketSS[i]->Divide(tpcmon_chanpacketalwaysSS[i]);
@@ -3875,10 +3875,10 @@ int TpcMonDraw::DrawTPCChansperLVL1_SS(const std::string & /* what */)
   {
     if( tpcmon_chanlvl1SS[i] && lvl1_per_EBDC[i] )
     {
-      MyTC->cd(i+3);
+      MyTC->cd(i-12+3);
       gStyle->SetPadLeftMargin(0.05);
       gStyle->SetPadRightMargin(0.02);
-      tpcmon_chanlvl1SS[i]->Scale(1/(lvl1_per_EBDC[i]->GetBinContent(i+13)),"width");
+      tpcmon_chanlvl1SS[i]->Scale(1/(lvl1_per_EBDC[i]->GetBinContent(i-12+13)),"width");
       double Yrange_upper = 1.32*tpcmon_chanlvl1SS[i]->GetMaximum();
       tpcmon_chanlvl1SS[i]->GetYaxis()->SetRangeUser(0, Yrange_upper);
 
