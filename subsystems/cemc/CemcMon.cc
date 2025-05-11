@@ -365,7 +365,7 @@ int CemcMon::process_event(Event *e /* evt */)
           {
             h1_cemc_trig->Fill(i);
           }
-          triggervec = (triggervec >> 1U) & 0xffffffffU;
+          triggervec = (triggervec >> 1U);
         }
         delete p;
       }
