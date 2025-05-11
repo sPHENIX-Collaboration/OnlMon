@@ -420,7 +420,7 @@ int HcalMon::process_event(Event* e /* evt */)
           {
             h_hcal_trig->Fill(i);
           }
-          triggervec = (triggervec >> 1U) & 0xffffffffU;
+          triggervec = (triggervec >> 1U);
         }
 
         delete p;
