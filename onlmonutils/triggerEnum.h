@@ -4,14 +4,18 @@
 #include <map>
 #include <string>
 
+// ! updated : 2025-05-12
+
 namespace TriggerEnum {
 
 enum BitCodes
 {
     CLOCK = 0,
-    ZDC_S = 1,
-    ZDC_N = 2,
-    ZDC_NS = 3, // zdc north+south
+    ZDC_NS = 1,
+    DONUT = 2,
+    TPC_LASER = 5,
+    ZDC_S = 6,
+    ZDC_N = 7,
     MBD_S2 = 8, // mbd south >= 2
     MBD_N2 = 9, // mbd north >= 2
     MBD_NS2 = 10, // mbd north+south >= 2
@@ -52,33 +56,14 @@ const char * MBTriggerNames[] = {
 };
 
 const int nMBTriggers = sizeof(MBTriggers) / sizeof(TriggerEnum::BitCodes);
-// 0 Clock
-// 1 ZDC South
-// 2 ZDC North
-// 3 ZDC Coincidence
-// 4 Random
-// 8 MBD S >= 2
-// 9 MBD N >= 2
-// 10 MBD N&S >= 2
-// 11 MBD N&S >= 1
-// 12 MBD N&S >= 2, vtx < 10 cm
-// 13 MBD N&S >= 2, vtx < 30 cm
-// 14 MBD N&S >= 2, vtx < 150 cm
-// 15 MBD N&S >= 1, vtx < 10 cm
-// 16 Photon 6 GeV + MBD NS >= 2
-// 17 Photon 8 GeV + MBD NS >= 2
-// 18 Photon 10 GeV + MBD NS >= 2
-// 19 Photon 12 GeV + MBD NS >= 2
-// 24 HCAL Singles
-// 25 HCAL Narrow Vertical Coincidence
-// 26 HCAL Wide Vertical Coincidence
-// 27 HCAL Narrow Horizontal Coincidence
-// 28 HCAL Wide Horizontal Coincidence
-// 40 MBD Laser
+
 
 const std::map< TriggerEnum::BitCodes, std::string> TriggerNames = 
 {
    { TriggerEnum::BitCodes::CLOCK, "Clock"},
+   { TriggerEnum::BitCodes::DONUT, "Donut"},
+   { TriggerEnum::BitCodes::TPC_LASER, "TPC Laser"},
+   { TriggerEnum::BitCodes::MBD_LASER, "MBD Laser"},
    { TriggerEnum::BitCodes::ZDC_S, "ZDC South"},
    { TriggerEnum::BitCodes::ZDC_N, "ZDC North"},
    { TriggerEnum::BitCodes::ZDC_NS, "ZDC Coincidence"},
