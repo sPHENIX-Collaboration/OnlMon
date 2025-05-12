@@ -379,10 +379,10 @@ int CemcMonDraw::Draw(const std::string &what)
 // DO NOT ADD ANY OTHER METHOD AFTER THIS which gets called by "ALL"
   if (what == "ALL")
   {
-    iret += DrawSeventh("SEVENTH");
-    idraw++;
-    // iret += DrawSeventh("ALLTRIGZS");
-    // idraw++;
+//    iret += DrawSeventh("SEVENTH");
+//    idraw++;
+     iret += DrawSeventh("ALLTRIGZS");
+     idraw++;
   }
   if(what == "SEVENTH" || what == "ALLTRIGZS")
   {
