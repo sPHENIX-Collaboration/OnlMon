@@ -12,7 +12,6 @@ enum BitCodes
     ZDC_S = 1,
     ZDC_N = 2,
     ZDC_NS = 3, // zdc north+south
-    RANDOM = 4,
     MBD_S2 = 8, // mbd south >= 2
     MBD_N2 = 9, // mbd north >= 2
     MBD_NS2 = 10, // mbd north+south >= 2
@@ -31,6 +30,7 @@ enum BitCodes
     HCAL_NARROW_HORZ = 27, // hcal narrow horizontal coincidence
     HCAL_WIDE_HORZ = 28, // hcal wide horizontal coincidence
     MBD_LASER = 40,
+    RANDOM = 41,
 };
 
 const TriggerEnum::BitCodes MBTriggers[] = {
