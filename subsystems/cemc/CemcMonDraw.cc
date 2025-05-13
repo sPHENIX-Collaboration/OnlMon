@@ -1831,7 +1831,12 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
     if ( n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON6_MBD_NS2 || 
         n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON8_MBD_NS2 ||
         n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON10_MBD_NS2 ||
-        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON12_MBD_NS2 )
+        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON12_MBD_NS2 
+	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_SINGLES
+	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_VERT
+	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_VERT
+	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_HORZ
+	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_HORZ)
     {
       if (n_entries[itrig].first > 0. && priority_triggers.size() < 4)
       {
