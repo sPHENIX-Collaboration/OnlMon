@@ -45,6 +45,7 @@ void StartPoms()
   subsys->AddAction("cemcDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("cemcDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("cemcDraw(\"BADCHI2\")", "Bad Chi2 Towers [Expert]");
+  subsys->AddAction("cemcDraw(\"NOISERMS\")", "tower prepost RMS");
   subsys->AddAction("cemcDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);

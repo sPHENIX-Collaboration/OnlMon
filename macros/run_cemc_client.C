@@ -45,6 +45,7 @@ void cemcDrawInit(const int online = 0)
       cl->registerHisto("h1_packet_length",servername.c_str());
       cl->registerHisto("h1_packet_chans",servername.c_str());
       cl->registerHisto("h1_cemc_adc",servername.c_str());
+      cl->registerHisto("p2_pre_post",servername.c_str());
     }
   CreateSubsysHostlist("cemc_hosts.list", online);
   //  get my histos from server, the second parameter = 1

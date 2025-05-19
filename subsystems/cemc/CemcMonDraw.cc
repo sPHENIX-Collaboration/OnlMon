@@ -116,7 +116,7 @@ int CemcMonDraw::Init()
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
 
-  MakeZSPalette();
+  //MakeZSPalette();
 
   return 0;
 }
@@ -316,6 +316,30 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     transparent[8]->Draw();
     TC[8]->SetEditable(false);
   }
+  else if (name == "CemcNoiseRMS")
+  {
+
+    // xpos (-1) negative: do not draw menu bar
+    TC[9] = new TCanvas(name.c_str(), "CemcMon Noise RMS per tower", -1, ysize, xsize / 3, ysize);
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+    Pad[22] = new TPad("cemcpad22", "rms map", 0., 0.15, 1., 0.95);
+    Pad[22]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[9] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[9]->SetFillStyle(4000);
+    transparent[9]->Draw();
+
+    // warning
+    warning[3] = new TPad("warning6", "hot tower warnings", 0, 0, 1, 0.15);
+    warning[3]->SetFillStyle(4000);
+    warning[3]->Draw();
+    TC[9]->SetEditable(false);
+
+  }
 
   return 0;
 }
@@ -374,15 +398,22 @@ int CemcMonDraw::Draw(const std::string &what)
     idraw++;
   }
 
+  if (what == "ALL" || what == "NOISERMS")
+  {
+    iret += DrawNoiseRMS(what);
+    idraw++;
+  }
+
+
 
 // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
 // DO NOT ADD ANY OTHER METHOD AFTER THIS which gets called by "ALL"
   if (what == "ALL")
   {
-//    iret += DrawSeventh("SEVENTH");
-//    idraw++;
-     iret += DrawSeventh("ALLTRIGZS");
-     idraw++;
+    //iret += DrawSeventh("SEVENTH");
+    //idraw++;
+    iret += DrawSeventh("ALLTRIGZS");
+    idraw++;
   }
   if(what == "SEVENTH" || what == "ALLTRIGZS")
   {
@@ -904,6 +935,180 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
   if (save)
   {
     TC[6]->SaveAs("plots/towerHits.pdf");
+  }
+  return 0;
+}
+
+int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
+{
+  // 9 22 3
+  OnlMonClient *cl = OnlMonClient::instance();
+  // watch the absolute insanity as we merge all these
+  // histograms from across seven different machines
+  if (!h2_noiserms)
+  {
+    h2_noiserms = new TH2D("h2_noiserms", "", 96, 0, 96, 256, 0, 256);
+  }
+  else
+  {
+    h2_noiserms->Reset();
+  }
+  if(!p2_noiserms)
+  {
+    p2_noiserms = new TProfile2D("p2_noiserms", "", 96, 0, 96, 256, 0, 256, "S");
+  }
+  else
+  {
+    p2_noiserms->Reset();
+  }
+  TProfile2D *htmp2d;
+  int deadservercount = 0;
+  int Nservers = 0;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {
+    Nservers++;
+    htmp2d = (TProfile2D *) cl->getHisto(*server, "p2_pre_post");
+
+    if (htmp2d)
+    {
+      p2_noiserms->Add(htmp2d);
+    }
+    else
+    {
+      deadservercount++;
+    }
+  }
+
+ 
+
+ 
+  if (!gROOT->FindObject("CemcNoiseRMS"))
+  {
+    MakeCanvas("CemcNoiseRMS");
+  }
+
+  if (deadservercount == Nservers)
+  {
+    DrawDeadServer(transparent[9]);
+    TC[9]->SetEditable(false);
+    return -1;
+  }
+
+
+   // loop over p2_noiserms and set the error to h2_cemc_noiserms
+  for (int i = 1; i <= p2_noiserms->GetNbinsX(); i++)
+  {
+    for (int j = 1; j <= p2_noiserms->GetNbinsY(); j++)
+    {
+      double error = p2_noiserms->GetBinError(i, j);
+      h2_noiserms->SetBinContent(i, j, error);
+    }
+  }
+
+  
+
+  TC[9]->SetEditable(true);
+  TC[9]->Clear("D");
+  Pad[22]->cd();
+
+  h2_noiserms->GetXaxis()->SetTitle("eta index");
+  h2_noiserms->GetYaxis()->SetTitle("phi index");
+  h2_noiserms->GetZaxis()->SetTitle("Tower Noise RMS with all trig");
+  h2_noiserms->GetXaxis()->CenterTitle();
+  h2_noiserms->GetYaxis()->CenterTitle();
+  h2_noiserms->GetZaxis()->CenterTitle();
+  h2_noiserms->GetXaxis()->SetNdivisions(12, kFALSE);
+  h2_noiserms->GetYaxis()->SetNdivisions(32, kFALSE);
+
+  float tsize = 0.03;
+  h2_noiserms->GetXaxis()->SetLabelSize(tsize);
+  h2_noiserms->GetYaxis()->SetLabelSize(tsize);
+  h2_noiserms->GetYaxis()->SetTitleOffset(1.4);
+  h2_noiserms->GetZaxis()->SetLabelSize(tsize);
+  h2_noiserms->GetXaxis()->SetTitleSize(tsize);
+  h2_noiserms->GetYaxis()->SetTitleSize(tsize);
+  h2_noiserms->GetXaxis()->SetTickLength(0.02);
+  h2_noiserms->GetZaxis()->SetTitleOffset(1.6);
+
+ 
+
+  gPad->SetTopMargin(0.08);
+  gPad->SetBottomMargin(0.07);
+  gPad->SetLeftMargin(0.08);
+  gPad->SetRightMargin(0.2);
+
+  
+
+  gStyle->SetPalette(57);
+  h2_noiserms->GetZaxis()->SetRangeUser(0, 100);
+
+  gStyle->SetOptStat(0);
+  h2_noiserms->DrawCopy("colz");
+  TLine line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = TLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+    line_sector[i_line].SetLineColor(1);
+    line_sector[i_line].SetLineWidth(1);
+    line_sector[i_line].SetLineStyle(1);
+  }
+
+  const int numVertDiv = 12;
+  int dEI = 96 / numVertDiv;
+  TLine l_board[numVertDiv - 1];
+  for (int il = 1; il < numVertDiv; il++)
+  {
+    l_board[il - 1] = TLine(dEI * il, 0, dEI * il, 256);
+    l_board[il - 1].SetLineColor(1);
+    l_board[il - 1].SetLineWidth(1);
+    l_board[il - 1].SetLineStyle(1);
+    if (il == 6)
+    {
+      l_board[il - 1].SetLineWidth(2);
+    }
+  }
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line].DrawLine(0, (i_line + 1) * 8, 96, (i_line + 1) * 8);
+  }
+
+  for (int il = 1; il < numVertDiv; il++)
+  {
+    l_board[il - 1].DrawLine(dEI * il, 0, dEI * il, 256);
+  }
+
+ // FindHotTower(warning[3], h_cemc_datahits, true);
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::ostringstream runnostream2;
+  std::ostringstream runnostream3;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << ": tower negative post - pre RMS all trig";
+  runnostream2 << "Run " << cl->RunNumber();
+  runnostream3 << "Time: " << ctime(&evttime.first);
+  
+  transparent[9]->cd();
+  runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  runstring = runnostream2.str();
+  PrintRun.DrawText(0.5, 0.96, runstring.c_str());
+  runstring = runnostream3.str();
+  PrintRun.DrawText(0.5, 0.93, runstring.c_str());
+
+  TC[9]->Update();
+  TC[9]->Show();
+  TC[9]->SetEditable(false);
+  if (save)
+  {
+    TC[9]->SaveAs("plots/towerNoiseRMS.pdf");
   }
   return 0;
 }
@@ -2536,8 +2741,8 @@ int CemcMonDraw::DrawSeventh(const std::string &  what)
   gPad->SetLeftMargin(0.12);
   gPad->SetRightMargin(0.12);
   gStyle->SetTitleFontSize(0.06);
-  //gStyle->SetPalette(57);
-  gStyle->SetPalette(255, ZSPalette);
+  gStyle->SetPalette(57);
+  //gStyle->SetPalette(255, ZSPalette);
   gStyle->SetNumberContours(255);
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
   p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
