@@ -88,7 +88,7 @@ class CemcMon : public OnlMon
   std::string runtypestr = "Unknown";
 
   eventReceiverClient* erc = {nullptr};
-  bool anaGL1 = false;
+  bool anaGL1 = true;
   bool usembdtrig = true;
 
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
