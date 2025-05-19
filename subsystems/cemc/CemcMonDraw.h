@@ -17,6 +17,7 @@ class TH1;
 class TH2;
 class TPad;
 class TProfile;
+class TProfile2D;
 class TStyle;
 
 class CemcMonDraw : public OnlMonDraw
@@ -45,6 +46,7 @@ class CemcMonDraw : public OnlMonDraw
   int DrawSeventh(const std::string &what = "ALL");
   int DrawHistory(const std::string &what = "ALL");
   int DrawBadChi2(const std::string &what = "ALL");
+  int DrawNoiseRMS(const std::string &what = "ALL");
   int DrawServerStats();
 
   int FindHotTower(TPad *warn, TH2 *, bool usetemplate = true);
@@ -71,6 +73,8 @@ class CemcMonDraw : public OnlMonDraw
   TH2 *h2_template_hit{nullptr};
   TH2 *h_cemc_datahits{nullptr};
   TH2 *h2_template_hit_alltrig{nullptr};
+  TH2 *h2_noiserms{nullptr};
+  TProfile2D *p2_noiserms{nullptr};
   TStyle *cemcStyle{nullptr};
 
   TH1 *h1_zs {nullptr};

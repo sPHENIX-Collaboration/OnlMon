@@ -135,6 +135,8 @@ int CemcMon::Init()
   h1_packet_chans = new TH1F("h1_packet_chans", "", 128, 6000.5, 6128.5);
 
   p2_bad_chi2 = new TProfile2D("p2_bad_chi2", "", 96, 0, 96, 256, 0, 256);
+  //s option to track rms
+  p2_pre_post = new TProfile2D("p2_pre_post", "", 96, 0, 96, 256, 0, 256, "S");
 
   // make the per-packet running mean objects
   // 32 packets and 48 channels for hcal detectors
@@ -167,6 +169,7 @@ int CemcMon::Init()
   se->registerHisto(this, h2_cemc_rm);
   se->registerHisto(this, h2_cemc_rmhits);
   se->registerHisto(this, h2_cemc_rmhits_alltrig);
+  se->registerHisto(this, p2_pre_post);
   se->registerHisto(this, h2_cemc_mean);
   se->registerHisto(this, h1_event);
 
@@ -341,7 +344,6 @@ int CemcMon::process_event(Event *e /* evt */)
   trig_bools.resize(64);
   long long int gl1_clock = 0;
   bool have_gl1 = false;
-  
   if (anaGL1)
   {
     int evtnr = e->getEvtSequence();
@@ -454,6 +456,7 @@ int CemcMon::process_event(Event *e /* evt */)
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
         int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
+        float prepost = p->iValue(c, "PRE") - p->iValue(c, "POST");
         //________________________________for this part we only want to deal with the MBD>=1 trigger
         if (fillhist)
         {
@@ -528,6 +531,12 @@ int CemcMon::process_event(Event *e /* evt */)
         {
           rm_vector_twrhits_alltrig[towerNumber - 1]->Add(&zero);
         }
+        if(prepost > 0)
+        {
+          p2_pre_post->Fill(eta_bin, phi_bin, prepost);
+          p2_pre_post->Fill(eta_bin, phi_bin, -prepost);
+        }
+        
         h2_cemc_rmhits_alltrig->SetBinContent(bin, rm_vector_twrhits_alltrig[towerNumber - 1]->getMean(0));
 
         if (signalFast > chi2_check_threshold)

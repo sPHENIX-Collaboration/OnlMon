@@ -79,6 +79,7 @@ class CemcMon : public OnlMon
   TH1* h1_event{nullptr};
   TH1* h1_rm_sectorAvg[100] = {nullptr};
   TProfile2D* p2_bad_chi2{nullptr};
+  TProfile2D* p2_pre_post{nullptr};
   // TProfile*** h2_waveform= {nullptr};
   std::vector<runningMean*> rm_vector_twr;
   std::vector<runningMean*> rm_vector_twrhits;
@@ -87,7 +88,7 @@ class CemcMon : public OnlMon
   std::string runtypestr = "Unknown";
 
   eventReceiverClient* erc = {nullptr};
-  bool anaGL1 = true;
+  bool anaGL1 = false;
   bool usembdtrig = true;
 
   CaloWaveformFitting* WaveformProcessingFast = nullptr;
