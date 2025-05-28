@@ -164,7 +164,7 @@ int HcalMon::Init()
   h_caloPack_gl1_clock_diff = new TH2F("h_caloPack_gl1_clock_diff", "", 8, packetlow - 0.5, packethigh + 0.5, 65536, 0, 65536);
   h_evtRec = new TProfile("h_evtRec", "", 1, 0, 1);
 
-  p2_pre_post = new TProfile2D("p2_pre_post", "", 24, 0, 24 64, 0, 64, "S");
+  p2_pre_post = new TProfile2D("p2_pre_post", "", 24, 0, 24, 64, 0, 64, "S");
 
   for (int ih = 0; ih < Nsector; ih++)
   {

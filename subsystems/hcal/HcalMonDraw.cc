@@ -11,6 +11,7 @@
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile2D.h>
 #include <TLegend.h>
 #include <TLine.h>
 #include <TPad.h>
@@ -968,10 +969,7 @@ int HcalMonDraw::DrawNoiseRMS(const std::string& /* what */)
   TC[11]->Update();
   TC[11]->Show();
   TC[11]->SetEditable(false);
-  if (save)
-  {
-    TC[11]->SaveAs("plots/towerNoiseRMS.pdf");
-  }
+
   return 0;
 }
 
@@ -1772,7 +1770,8 @@ int HcalMonDraw::FindGainMode(TPad* warningpad, TH2* hhit)
 {
   float avgrms = 0;
   float totaltowers = 0;
-
+  int nTowersEta = hhit->GetNbinsX();
+  int nTowersPhi = hhit->GetNbinsY();
   for (int ieta = 0; ieta < nTowersEta; ieta++)
   {
     for (int iphi = 0; iphi < nTowersPhi; iphi++)
