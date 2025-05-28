@@ -68,6 +68,7 @@ void StartPoms()
   subsys->AddAction("ihcalDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("ihcalDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("ihcalDraw(\"SERVERSTATS\")", "Server Stats");
+  subsys->AddAction("ihcalDraw(\"NOISERMS\")", "tower prepost RMS");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
@@ -82,6 +83,7 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"SEVENTH\")", "Zero-suppression info");
   subsys->AddAction("ohcalDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
+  subsys->AddAction("ohcalDraw(\"NOISERMS\")", "tower prepost RMS");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
