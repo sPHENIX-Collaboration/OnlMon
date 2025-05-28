@@ -50,6 +50,7 @@ class CemcMonDraw : public OnlMonDraw
   int DrawServerStats();
 
   int FindHotTower(TPad *warn, TH2 *, bool usetemplate = true);
+  int FindGainMode(TPad *warn, TH2 *);
   std::vector<int> getBadPackets(TH1 *hist, int what, float cutoff);
 
   const int nTowersEta{96};

@@ -1077,7 +1077,7 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
   {
     l_board[il - 1].DrawLine(dEI * il, 0, dEI * il, 256);
   }
-
+FindGainMode(warning[3], h_cemc_datahits);
  // FindHotTower(warning[3], h_cemc_datahits, true);
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -2206,6 +2206,53 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 
   return 0;
 }
+int CemcMonDraw::FindGainMode(TPad *warningpad, TH2 *hhit)
+{
+  float avgrms = 0;
+  float totaltowers = 0;
+
+
+    for (int ieta = 0; ieta < nTowersEta; ieta++)
+    {
+      for (int iphi = 0; iphi < nTowersPhi; iphi++)
+      {
+        if (hhit->GetBinContent(ieta + 1, iphi + 1) == 0)
+        {
+          continue;
+        }
+        double rms = hhit->GetBinContent(ieta + 1, iphi + 1);
+        avgrms += rms;
+        totaltowers += 1;
+      }
+    }
+  avgrms /= totaltowers;
+
+  bool hg = false;
+  if(avgrms > 100)
+  {
+    hg = true;
+  }
+  
+  warningpad->cd();
+  std::string gainmode = "Gain mode: LOW";
+  if (hg)
+  {
+    gainmode = "Gain mode: HIGH";
+  }
+
+  TText warn;
+  warn.SetTextFont(62);
+  warn.SetTextSize(0.3);
+  warn.SetTextColor(kRed);
+  warn.SetNDC();
+  warn.SetTextAlign(23);
+  warn.DrawText(0.5, 0.5, gainmode.c_str());
+
+
+  warningpad->Update();
+  return 0;
+}
+
 
 int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit, bool usetemplate)
 {
