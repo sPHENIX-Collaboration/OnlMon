@@ -297,6 +297,28 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
 
     TC[10]->SetEditable(false);
   }
+  else if (name == "HcalNoiseRMS")
+  {
+    // xpos (-1) negative: do not draw menu bar
+    TC[11] = new TCanvas(name.c_str(), "HcalMon Noise RMS per tower", -1, ysize, xsize / 3, ysize);
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+    Pad[27] = new TPad("hcalpad22", "rms map", 0., 0.15, 1., 0.95);
+    Pad[27]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[11] = new TPad("transparent6", "this does not show", 0, 0, 1, 1);
+    transparent[11]->SetFillStyle(4000);
+    transparent[11]->Draw();
+
+    // warning
+    warning[3] = new TPad("warning6", "hot tower warnings", 0, 0, 1, 0.15);
+    warning[3]->SetFillStyle(4000);
+    warning[3]->Draw();
+    TC[11]->SetEditable(false);
+  }
   return 0;
 }
 
@@ -403,6 +425,11 @@ int HcalMonDraw::Draw(const std::string& what)
     {
       isuccess++;
     }
+    idraw++;
+  }
+  if (what == "ALL" || what == "NOISERMS")
+  {
+    iret += DrawNoiseRMS(what);
     idraw++;
   }
  
@@ -779,6 +806,182 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
 
   TC[10]->SetEditable(false);
 
+  return 0;
+}
+int HcalMonDraw::DrawNoiseRMS(const std::string & /* what */)
+{
+  // 11 27 3
+  OnlMonClient *cl = OnlMonClient::instance();
+  // watch the absolute insanity as we merge all these
+  // histograms from across seven different machines
+
+
+  if (!h2_noiserms)
+  {
+    h2_noiserms = new TH2D("h2_noiserms", "", 24, 0, 24, 64, 0, 64);
+  }
+  else
+  {
+    h2_noiserms->Reset();
+  }
+  if (!p2_noiserms)
+  {
+    p2_noiserms = new TProfile2D("p2_noiserms", "", 24, 0, 24, 64, 0, 64, "S");
+  }
+  else
+  {
+    p2_noiserms->Reset();
+  }
+
+  TProfile2D* hist1 = (TProfile2D*) cl->getHisto(hcalmon[0], "p2_pre_post");
+  TProfile2D* hist1_1 = (TProfile2D*) cl->getHisto(hcalmon[1], "p2_pre_post");
+
+
+
+
+  if (!gROOT->FindObject("HcalNoiseRMS"))
+  {
+    MakeCanvas("HcalNoiseRMS");
+  }
+
+  if (!hist1 || !hist1_1)
+  {
+    // if we do not have the histograms, we cannot draw anything
+    // so we just draw a dead server message
+    DrawDeadServer(transparent[11]);
+    TC[11]->SetEditable(false);
+    return -1;
+  }
+  p2_noiserms->Add(hist1);
+  p2_noiserms->Add(hist1_1);
+
+  // loop over p2_noiserms and set the error to h2_cemc_noiserms
+  for (int i = 1; i <= p2_noiserms->GetNbinsX(); i++)
+  {
+    for (int j = 1; j <= p2_noiserms->GetNbinsY(); j++)
+    {
+      double error = p2_noiserms->GetBinError(i, j);
+      h2_noiserms->SetBinContent(i, j, error);
+    }
+  }
+
+  TC[11]->SetEditable(true);
+  TC[11]->Clear("D");
+  Pad[27]->cd();
+
+  h2_noiserms->GetXaxis()->SetTitle("eta index");
+  h2_noiserms->GetYaxis()->SetTitle("phi index");
+  h2_noiserms->GetZaxis()->SetTitle("Tower Noise RMS with all trig");
+  h2_noiserms->GetXaxis()->CenterTitle();
+  h2_noiserms->GetYaxis()->CenterTitle();
+  h2_noiserms->GetZaxis()->CenterTitle();
+  h2_noiserms->GetXaxis()->SetNdivisions(12, kFALSE);
+  h2_noiserms->GetYaxis()->SetNdivisions(32, kFALSE);
+
+  float tsize = 0.03;
+  h2_noiserms->GetXaxis()->SetLabelSize(tsize);
+  h2_noiserms->GetYaxis()->SetLabelSize(tsize);
+  h2_noiserms->GetYaxis()->SetTitleOffset(1.4);
+  h2_noiserms->GetZaxis()->SetLabelSize(tsize);
+  h2_noiserms->GetXaxis()->SetTitleSize(tsize);
+  h2_noiserms->GetYaxis()->SetTitleSize(tsize);
+  h2_noiserms->GetXaxis()->SetTickLength(0.02);
+  h2_noiserms->GetZaxis()->SetTitleOffset(1.6);
+
+  gPad->SetTopMargin(0.08);
+  gPad->SetBottomMargin(0.07);
+  gPad->SetLeftMargin(0.08);
+  gPad->SetRightMargin(0.2);
+
+  gStyle->SetPalette(57);
+  h2_noiserms->GetZaxis()->SetRangeUser(0, 100);
+
+  gStyle->SetOptStat(0);
+  h2_noiserms->DrawCopy("colz");
+    TLine line_sector[32];
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line] = TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+    line_sector[i_line].SetLineColor(1);
+    line_sector[i_line].SetLineWidth(4);
+    line_sector[i_line].SetLineStyle(1);
+  }
+  TLine line_board1(8, 0, 8, 64);
+  line_board1.SetLineColor(1);
+  line_board1.SetLineWidth(4);
+  line_board1.SetLineStyle(1);
+  TLine line_board2(16, 0, 16, 64);
+  line_board2.SetLineColor(1);
+  line_board2.SetLineWidth(4);
+  line_board2.SetLineStyle(1);
+
+  TLine line_iphi[64];
+  for (int i_line = 0; i_line < 64; i_line++)
+  {
+    line_iphi[i_line] = TLine(0, (i_line + 1), 24, (i_line + 1));
+    line_iphi[i_line].SetLineColor(1);
+    line_iphi[i_line].SetLineWidth(1);
+    line_iphi[i_line].SetLineStyle(1);
+  }
+  TLine line_ieta[24];
+  for (int i_line = 0; i_line < 24; i_line++)
+  {
+    line_ieta[i_line] = TLine((i_line + 1), 0, (i_line + 1), 64);
+    line_ieta[i_line].SetLineColor(1);
+    line_ieta[i_line].SetLineWidth(1);
+    line_ieta[i_line].SetLineStyle(1);
+  }
+
+
+  for (int i_line = 0; i_line < 32; i_line++)
+  {
+    line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
+  }
+
+  line_board1.DrawLine(8, 0, 8, 64);
+  line_board2.DrawLine(16, 0, 16, 64);
+
+  for (int i_line = 0; i_line < 64; i_line++)
+  {
+    line_iphi[i_line].DrawLine(0, (i_line + 1), 24, (i_line + 1));
+  }
+  for (int i_line = 0; i_line < 24; i_line++)
+  {
+    line_ieta[i_line].DrawLine((i_line + 1), 0, (i_line + 1), 64);
+  }
+  FindGainMode(warning[3], h2_noiserms);
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.03);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::ostringstream runnostream2;
+  std::ostringstream runnostream3;
+  std::string runstring;
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << ": tower negative post - pre RMS all trig";
+  runnostream2 << "Run " << cl->RunNumber();
+  runnostream3 << "Time: " << ctime(&evttime.first);
+
+  transparent[11]->cd();
+  runstring = runnostream.str();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.99, runstring.c_str());
+  runstring = runnostream2.str();
+  PrintRun.DrawText(0.5, 0.96, runstring.c_str());
+  runstring = runnostream3.str();
+  PrintRun.DrawText(0.5, 0.93, runstring.c_str());
+
+  TC[11]->Update();
+  TC[11]->Show();
+  TC[11]->SetEditable(false);
+  if (save)
+  {
+    TC[11]->SaveAs("plots/towerNoiseRMS.pdf");
+  }
   return 0;
 }
 
@@ -1575,7 +1778,50 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   // if (save) TC[5]->SaveAs("plots/packets.pdf");
   return 0;
 }
+int HcalMonDraw::FindGainMode(TPad *warningpad, TH2 *hhit)
+{
+  float avgrms = 0;
+  float totaltowers = 0;
 
+  for (int ieta = 0; ieta < nTowersEta; ieta++)
+  {
+    for (int iphi = 0; iphi < nTowersPhi; iphi++)
+    {
+      if (hhit->GetBinContent(ieta + 1, iphi + 1) == 0)
+      {
+        continue;
+      }
+      double rms = hhit->GetBinContent(ieta + 1, iphi + 1);
+      avgrms += rms;
+      totaltowers += 1;
+    }
+  }
+  avgrms /= totaltowers;
+
+  bool hg = false;
+  if (avgrms > 100)
+  {
+    hg = true;
+  }
+
+  warningpad->cd();
+  std::string gainmode = "Gain mode: LOW";
+  if (hg)
+  {
+    gainmode = "Gain mode: HIGH";
+  }
+
+  TText warn;
+  warn.SetTextFont(62);
+  warn.SetTextSize(0.3);
+  warn.SetTextColor(kRed);
+  warn.SetNDC();
+  warn.SetTextAlign(23);
+  warn.DrawText(0.5, 0.5, gainmode.c_str());
+
+  warningpad->Update();
+  return 0;
+}
 int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
 {
   float nhott = 0;

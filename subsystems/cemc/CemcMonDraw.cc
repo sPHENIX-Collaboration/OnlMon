@@ -1054,7 +1054,7 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
   {
     l_board[il - 1].DrawLine(dEI * il, 0, dEI * il, 256);
   }
-  FindGainMode(warning[3], h_cemc_datahits);
+  FindGainMode(warning[3], h2_noiserms);
   // FindHotTower(warning[3], h_cemc_datahits, true);
   TText PrintRun;
   PrintRun.SetTextFont(62);

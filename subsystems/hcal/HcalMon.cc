@@ -164,6 +164,8 @@ int HcalMon::Init()
   h_caloPack_gl1_clock_diff = new TH2F("h_caloPack_gl1_clock_diff", "", 8, packetlow - 0.5, packethigh + 0.5, 65536, 0, 65536);
   h_evtRec = new TProfile("h_evtRec", "", 1, 0, 1);
 
+  p2_pre_post = new TProfile2D("p2_pre_post", "", 24, 0, 24 64, 0, 64, "S");
+
   for (int ih = 0; ih < Nsector; ih++)
   {
     h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength * historyScaleDown);
@@ -224,6 +226,7 @@ int HcalMon::Init()
   se->registerHisto(this, h1_packet_chans);
   se->registerHisto(this, h1_packet_event);
   se->registerHisto(this, h2_hcal_correlation);
+  se->registerHisto(this, p2_pre_post);
 
   for (auto& ih : h_rm_sectorAvg)
   {
@@ -498,6 +501,7 @@ int HcalMon::process_event(Event* e /* evt */)
         float time = result.at(1);
         float pedestal = result.at(2);
         float suppressed = result.at(result.size() - 1);
+        float prepost = p->iValue(c, "PRE") - p->iValue(c, "POST");
         if (signal > 15 && signal < 15000)
         {
           energy1 += signal;
@@ -602,6 +606,11 @@ int HcalMon::process_event(Event* e /* evt */)
         else
         {
           rm_vector_twrhit_alltrig[towerNumber - 1]->Add(zero);
+        }
+        if(prepost > 0)
+        {
+          p2_pre_post->Fill(eta_bin, phi_bin, prepost);
+          p2_pre_post->Fill(eta_bin, phi_bin, -prepost);
         }
         h2_hcal_rm_alltrig->SetBinContent(bin, rm_vector_twrhit_alltrig[towerNumber - 1]->getMean(0));      
 

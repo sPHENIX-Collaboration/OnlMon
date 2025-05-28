@@ -14,6 +14,8 @@ class TH1;
 class TH2;
 class TPad;
 class TStyle;
+class TProfile;
+class TProfile2D;
 
 class HcalMonDraw : public OnlMonDraw
 {
@@ -38,8 +40,10 @@ class HcalMonDraw : public OnlMonDraw
   int DrawFifth(const std::string& what = "ALL");
   int DrawSixth(const std::string& what = "ALL");
   int DrawSeventh(const std::string& what = "ALL");
+  int DrawNoiseRMS(const std::string &what = "ALL");
   int DrawServerStats();
   int FindHotTower(TPad* warn, TH2*, bool usetemplate = true);
+  int FindGainMode(TPad *warn, TH2 *);
   void DrawTowerAvg();
   void DrawHitMap();
   void DrawAvgTime();
@@ -69,9 +73,12 @@ class HcalMonDraw : public OnlMonDraw
   TPad* warning[28] {nullptr};
   TH2* h2_mean_template {nullptr};
   TH2* h2_mean_template_cosmic {nullptr};
+  TH2 *h2_noiserms{nullptr};
+  TProfile2D *p2_noiserms{nullptr};
   TH1* h1_zs {nullptr};
   TH1* h1_zs_low {nullptr};
   TH1* h1_zs_high {nullptr};
+  
   Int_t ZSPalette[255] {0};
 
   //  TGraphErrors* gr[2] {nullptr};

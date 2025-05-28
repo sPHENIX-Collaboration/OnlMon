@@ -75,6 +75,7 @@ class HcalMon : public OnlMon
   TH1* h_hcal_trig {nullptr};
   TH2* h_caloPack_gl1_clock_diff {nullptr};
   TProfile* h_evtRec {nullptr};
+  TProfile2D* p2_pre_post{nullptr};
   CaloWaveformFitting* WaveformProcessing {nullptr};
   eventReceiverClient* erc {nullptr};
 
