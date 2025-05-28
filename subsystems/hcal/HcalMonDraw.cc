@@ -46,7 +46,7 @@ HcalMonDraw::HcalMonDraw(const std::string& name)
     std::cout << "HcalMonDraw::HcalMonDraw() ERROR: name does not start with O or I " << ThisName << std::endl;
     exit(1);
   }
-  for (int i=0; i<2; i++)
+  for (int i = 0; i < 2; i++)
   {
     hcalmon[i] = prefix + "_" + std::to_string(i);
   }
@@ -55,7 +55,7 @@ HcalMonDraw::HcalMonDraw(const std::string& name)
 
 int HcalMonDraw::Init()
 {
-  delete hcalStyle; // make cppcheck happy - deleting a nullptr here
+  delete hcalStyle;  // make cppcheck happy - deleting a nullptr here
   hcalStyle = new TStyle("hcalStyle", "hcalStyle");
 
   Int_t font = 42;  // Helvetica
@@ -103,12 +103,11 @@ int HcalMonDraw::Init()
     exit(1);
   }
 
-
   h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
 
-//  MakeZSPalette();
+  //  MakeZSPalette();
   return 0;
 }
 
@@ -141,7 +140,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
 
     TC[0]->SetEditable(false);
   }
- 
+
   else if (name == "HcalMon2")
   {
     // xpos negative: do not draw menu bar
@@ -225,7 +224,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if (name == "HcalMon6")
   {
-    TC[7] = new TCanvas(name.c_str(), "Expert: Tower Information", -1, ysize, xsize*0.9, ysize);
+    TC[7] = new TCanvas(name.c_str(), "Expert: Tower Information", -1, ysize, xsize * 0.9, ysize);
     gSystem->ProcessEvents();
     Pad[21] = new TPad("hcalpad21", "", 0.0, 0.5, 0.5, 0.95, 0);
     Pad[22] = new TPad("hcalpad22", "", 0.5, 0.5, 1.0, 0.95, 0);
@@ -400,7 +399,7 @@ int HcalMonDraw::Draw(const std::string& what)
       isuccess++;
     }
   }
-  if(what == "SEVENTH" || what == "ALLTRIGZS")
+  if (what == "SEVENTH" || what == "ALLTRIGZS")
   {
     int retcode = DrawSeventh(what);
     if (!retcode)
@@ -418,7 +417,7 @@ int HcalMonDraw::Draw(const std::string& what)
     }
     idraw++;
   }
-  if(what == "ALL" || what == "ALLTRIGHITS")
+  if (what == "ALL" || what == "ALLTRIGHITS")
   {
     int retcode = DrawAllTrigHits(what);
     if (!retcode)
@@ -432,7 +431,7 @@ int HcalMonDraw::Draw(const std::string& what)
     iret += DrawNoiseRMS(what);
     idraw++;
   }
- 
+
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -453,12 +452,12 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   OnlMonClient* cl = OnlMonClient::instance();
 
   TH2* hist1 = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_rm");
-  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+  TH1* h_event = cl->getHisto(hcalmon[0], "h_event");
 
   TH2* hist1_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_rm");
-  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
+  TH1* h_event_1 = cl->getHisto(hcalmon[1], "h_event");
 
-  TH1* h_hcal_trig =  cl->getHisto(hcalmon[0], "h_hcal_trig");
+  TH1* h_hcal_trig = cl->getHisto(hcalmon[0], "h_hcal_trig");
 
   if (!gROOT->FindObject("HcalMon1"))
   {
@@ -488,20 +487,20 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   for (auto bit : hcal_cosmic_bits)
   {
-    if (h_hcal_trig->GetBinContent(bit+1) > 0)
+    if (h_hcal_trig->GetBinContent(bit + 1) > 0)
     {
       iscosmic = true;
       break;
     }
   }
 
-  if(iscosmic)
+  if (iscosmic)
   {
     hist1->Divide(h2_mean_template_cosmic);
   }
   else
   {
-  hist1->Divide(h2_mean_template);
+    hist1->Divide(h2_mean_template);
   }
   int avgevents = h_event->GetEntries() + h_event_1->GetEntries();
   avgevents /= 2;
@@ -572,7 +571,6 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
     line_ieta[i_line].SetLineStyle(1);
   }
 
-
   for (int i_line = 0; i_line < 32; i_line++)
   {
     line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
@@ -608,17 +606,17 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   std::ostringstream runnostream2;
   std::ostringstream runnostream3;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   float threshold = 30;
-  if(iscosmic)
+  if (iscosmic)
   {
     threshold = 1000;
   }
   // fill run number and event time into string
   runnostream << ThisName << ": tower occupancy running mean/template";
-  runnostream2 << " threshold: "<<threshold <<"ADC, Run " << cl->RunNumber()<<", Event: " << avgevents;
+  runnostream2 << " threshold: " << threshold << "ADC, Run " << cl->RunNumber() << ", Event: " << avgevents;
   runnostream3 << "Time: " << ctime(&evttime.first);
-  
+
   transparent[0]->cd();
   runstring = runnostream.str();
   PrintRun.SetTextColor(evttime.second);
@@ -661,17 +659,16 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   OnlMonClient* cl = OnlMonClient::instance();
 
   TH2* hist1 = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_rm_alltrig");
-  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+  TH1* h_event = cl->getHisto(hcalmon[0], "h_event");
 
   TH2* hist1_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_rm_alltrig");
-  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
-
+  TH1* h_event_1 = cl->getHisto(hcalmon[1], "h_event");
 
   if (!gROOT->FindObject("HcalAllTrigHits"))
   {
     MakeCanvas("HcalAllTrigHits");
   }
-  if (!hist1 || !hist1_1 || !h_event || !h_event_1 )
+  if (!hist1 || !hist1_1 || !h_event || !h_event_1)
   {
     DrawDeadServer(transparent[10]);
     TC[10]->SetEditable(false);
@@ -684,7 +681,7 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   }
 
   hist1->Add(hist1_1);
- 
+
   int avgevents = h_event->GetEntries() + h_event_1->GetEntries();
   avgevents /= 2;
   // h_event->Add(h_event_1);
@@ -755,7 +752,6 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
     line_ieta[i_line].SetLineStyle(1);
   }
 
-
   for (int i_line = 0; i_line < 32; i_line++)
   {
     line_sector[i_line].DrawLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
@@ -773,7 +769,6 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
     line_ieta[i_line].DrawLine((i_line + 1), 0, (i_line + 1), 64);
   }
 
-  
   FindHotTower(warning[2], hist1, false);
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -784,13 +779,13 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   std::ostringstream runnostream2;
   std::ostringstream runnostream3;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   float threshold = 30;
   // fill run number and event time into string
   runnostream << ThisName << ": tower occupancy running mean with all trigger";
-  runnostream2 << " threshold: "<<threshold <<"ADC, Run " << cl->RunNumber();
+  runnostream2 << " threshold: " << threshold << "ADC, Run " << cl->RunNumber();
   runnostream3 << "Time: " << ctime(&evttime.first);
-  
+
   transparent[10]->cd();
   runstring = runnostream.str();
   PrintRun.SetTextColor(evttime.second);
@@ -808,13 +803,12 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
 
   return 0;
 }
-int HcalMonDraw::DrawNoiseRMS(const std::string & /* what */)
+int HcalMonDraw::DrawNoiseRMS(const std::string& /* what */)
 {
   // 11 27 3
-  OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonClient* cl = OnlMonClient::instance();
   // watch the absolute insanity as we merge all these
   // histograms from across seven different machines
-
 
   if (!h2_noiserms)
   {
@@ -835,9 +829,6 @@ int HcalMonDraw::DrawNoiseRMS(const std::string & /* what */)
 
   TProfile2D* hist1 = (TProfile2D*) cl->getHisto(hcalmon[0], "p2_pre_post");
   TProfile2D* hist1_1 = (TProfile2D*) cl->getHisto(hcalmon[1], "p2_pre_post");
-
-
-
 
   if (!gROOT->FindObject("HcalNoiseRMS"))
   {
@@ -898,7 +889,7 @@ int HcalMonDraw::DrawNoiseRMS(const std::string & /* what */)
 
   gStyle->SetOptStat(0);
   h2_noiserms->DrawCopy("colz");
-    TLine line_sector[32];
+  TLine line_sector[32];
   for (int i_line = 0; i_line < 32; i_line++)
   {
     line_sector[i_line] = TLine(0, (i_line + 1) * 2, 24, (i_line + 1) * 2);
@@ -931,7 +922,6 @@ int HcalMonDraw::DrawNoiseRMS(const std::string & /* what */)
     line_ieta[i_line].SetLineWidth(1);
     line_ieta[i_line].SetLineStyle(1);
   }
-
 
   for (int i_line = 0; i_line < 32; i_line++)
   {
@@ -990,16 +980,16 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   const int Nsector = 32;
   OnlMonClient* cl = OnlMonClient::instance();
 
-  TH1* h_sectorAvg_total =  cl->getHisto(hcalmon[0], "h_sectorAvg_total");
-  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
-  TH1* h_sectorAvg_total_1 =  cl->getHisto(hcalmon[1], "h_sectorAvg_total");
-  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
+  TH1* h_sectorAvg_total = cl->getHisto(hcalmon[0], "h_sectorAvg_total");
+  TH1* h_event = cl->getHisto(hcalmon[0], "h_event");
+  TH1* h_sectorAvg_total_1 = cl->getHisto(hcalmon[1], "h_sectorAvg_total");
+  TH1* h_event_1 = cl->getHisto(hcalmon[1], "h_event");
   TH1* h_rm_sectorAvg[Nsector];
   TH1* h_rm_sectorAvg_1[Nsector];
   for (int ih = 0; ih < Nsector; ih++)
   {
-    h_rm_sectorAvg[ih] =  cl->getHisto(hcalmon[0], Form("h_rm_sectorAvg_s%d", ih));
-    h_rm_sectorAvg_1[ih] =  cl->getHisto(hcalmon[1], Form("h_rm_sectorAvg_s%d", ih));
+    h_rm_sectorAvg[ih] = cl->getHisto(hcalmon[0], Form("h_rm_sectorAvg_s%d", ih));
+    h_rm_sectorAvg_1[ih] = cl->getHisto(hcalmon[1], Form("h_rm_sectorAvg_s%d", ih));
     h_rm_sectorAvg[ih]->Add(h_rm_sectorAvg_1[ih]);
   }
 
@@ -1073,7 +1063,7 @@ int HcalMonDraw::DrawSecond(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_running mean, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
@@ -1092,12 +1082,12 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   OnlMonClient* cl = OnlMonClient::instance();
 
   // TH1* h_waveform_twrAvg =  cl->getHisto(hcalmon0, "h_waveform_twrAvg");
-  TH1* h_waveform_time =  cl->getHisto(hcalmon[0], "h_waveform_time");
-  TH1* h_waveform_pedestal =  cl->getHisto(hcalmon[0], "h_waveform_pedestal");
+  TH1* h_waveform_time = cl->getHisto(hcalmon[0], "h_waveform_time");
+  TH1* h_waveform_pedestal = cl->getHisto(hcalmon[0], "h_waveform_pedestal");
   TH2* h2_hcal_waveform = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_waveform");
   // TH1* hwaveform_twrAvg_1 =  cl->getHisto(hcalmon[1], "h_waveform_twrAvg");
-  TH1* hwaveform_time_1 =  cl->getHisto(hcalmon[1], "h_waveform_time");
-  TH1* hwaveform_pedestal_1 =  cl->getHisto(hcalmon[1], "h_waveform_pedestal");
+  TH1* hwaveform_time_1 = cl->getHisto(hcalmon[1], "h_waveform_time");
+  TH1* hwaveform_pedestal_1 = cl->getHisto(hcalmon[1], "h_waveform_pedestal");
   TH2* h2_hcal_waveform_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_waveform");
 
   if (!gROOT->FindObject("HcalMon3"))
@@ -1223,7 +1213,7 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   std::ostringstream runnostream2;
   std::string runstring;
   std::string runstring2;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber();
   runnostream2 << ", Time: " << ctime(&evttime.first);
@@ -1336,19 +1326,19 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
 
-  TH1* h1_packet_number =  cl->getHisto(hcalmon[0], "h1_packet_number");
-  TH1* h1_packet_length =  cl->getHisto(hcalmon[0], "h1_packet_length");
-  TH1* h1_packet_chans =  cl->getHisto(hcalmon[0], "h1_packet_chans");
-  TH1* h1_packet_event =  cl->getHisto(hcalmon[0], "h1_packet_event");
-  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+  TH1* h1_packet_number = cl->getHisto(hcalmon[0], "h1_packet_number");
+  TH1* h1_packet_length = cl->getHisto(hcalmon[0], "h1_packet_length");
+  TH1* h1_packet_chans = cl->getHisto(hcalmon[0], "h1_packet_chans");
+  TH1* h1_packet_event = cl->getHisto(hcalmon[0], "h1_packet_event");
+  TH1* h_event = cl->getHisto(hcalmon[0], "h_event");
   TH2* h2_hcal_correlation = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_correlation");
 
-  TH1* h1_packet_number_1 =  cl->getHisto(hcalmon[1], "h1_packet_number");
-  TH1* h1_packet_length_1 =  cl->getHisto(hcalmon[1], "h1_packet_length");
-  TH1* h1_packet_chans_1 =  cl->getHisto(hcalmon[1], "h1_packet_chans");
-  TH1* h1_packet_event_1 =  cl->getHisto(hcalmon[1], "h1_packet_event");
+  TH1* h1_packet_number_1 = cl->getHisto(hcalmon[1], "h1_packet_number");
+  TH1* h1_packet_length_1 = cl->getHisto(hcalmon[1], "h1_packet_length");
+  TH1* h1_packet_chans_1 = cl->getHisto(hcalmon[1], "h1_packet_chans");
+  TH1* h1_packet_event_1 = cl->getHisto(hcalmon[1], "h1_packet_event");
   TH2* h2_hcal_correlation_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_correlation");
-  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
+  TH1* h_event_1 = cl->getHisto(hcalmon[1], "h_event");
 
   if (!gROOT->FindObject("HcalMon4"))
   {
@@ -1759,7 +1749,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   std::ostringstream runnostream2;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
 
   runnostream << "Packet Information";
@@ -1778,7 +1768,7 @@ int HcalMonDraw::DrawFourth(const std::string& /* what */)
   // if (save) TC[5]->SaveAs("plots/packets.pdf");
   return 0;
 }
-int HcalMonDraw::FindGainMode(TPad *warningpad, TH2 *hhit)
+int HcalMonDraw::FindGainMode(TPad* warningpad, TH2* hhit)
 {
   float avgrms = 0;
   float totaltowers = 0;
@@ -1834,9 +1824,9 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
   float hot_threshold = 1.5;
   float dead_threshold = 0.01;
   float cold_threshold = 0.5;
-  if(!usetemplate)
+  if (!usetemplate)
   {
-    //loop over histogram to find mean and rms
+    // loop over histogram to find mean and rms
     double mean = 0;
     double rms = 0;
     double n = 0;
@@ -1857,7 +1847,7 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
     rms = sqrt(rms / n - mean * mean);
     hot_threshold = mean + 10 * rms;
     cold_threshold = mean - 3 * rms;
-    dead_threshold = 0.01*mean;
+    dead_threshold = 0.01 * mean;
   }
   for (int ieta = 0; ieta < 24; ieta++)
   {
@@ -1893,7 +1883,7 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
     }
   }
 
-   if (nhott > displaylimit)
+  if (nhott > displaylimit)
   {
     hottowerlist << "... " << nhott << " total";
   }
@@ -1937,7 +1927,7 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
   Warn.SetTextColor(4);
   Warn.SetTextAlign(23);
   Warn.DrawText(0.5, 0.7, "Cold towers (ieta,iphi):");
-  Warn.DrawText(0.5, 0.6, coldtowerlist.str().c_str());  
+  Warn.DrawText(0.5, 0.6, coldtowerlist.str().c_str());
 
   warningpad->Update();
   return 0;
@@ -2342,8 +2332,8 @@ void HcalMonDraw::HandleEvent(int event, int x, int y, TObject* selected)
 
     OnlMonClient* cl = OnlMonClient::instance();
 
-    TH1* h_rm_tower =  cl->getHisto(hcalmon[0], Form("h_rm_tower_%d_%d", binx, biny));
-    TH1* h_rm_tower_1 =  cl->getHisto(hcalmon[1], Form("h_rm_tower_%d_%d", binx, biny));
+    TH1* h_rm_tower = cl->getHisto(hcalmon[0], Form("h_rm_tower_%d_%d", binx, biny));
+    TH1* h_rm_tower_1 = cl->getHisto(hcalmon[1], Form("h_rm_tower_%d_%d", binx, biny));
     if (!gROOT->FindObject("HcalPopUp"))
     {
       MakeCanvas("HcalPopUp");
@@ -2399,17 +2389,14 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
     h2_hcal_hist_trig[itrig]->Add(h2_hcal_hist_trig_1[itrig]);
   }
 
-
   TH2* h2_hcal_hits = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_hits");
   TH2* h_evtRec = (TH2*) cl->getHisto(hcalmon[0], "h_evtRec");
-  TH1* h_hcal_trig =  cl->getHisto(hcalmon[0], "h_hcal_trig");
-
-
+  TH1* h_hcal_trig = cl->getHisto(hcalmon[0], "h_hcal_trig");
 
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[16]->cd();
-  if ( !h2_hcal_hits || !h_hcal_trig || !h_evtRec )
+  if (!h2_hcal_hits || !h_hcal_trig || !h_evtRec)
   {
     DrawDeadServer(transparent[6]);
     TC[6]->SetEditable(false);
@@ -2420,7 +2407,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
     }
     return -1;
   }
-
 
   // vector of pairs (Number of entries, Trigger bit)
   std::vector<std::pair<float, int>> n_entries;
@@ -2437,7 +2423,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
 
   // Get the 4 priority trigger bits to be displayed
   std::vector<int> priority_triggers;
-
 
   // these are jet triggers which aren't available in 2025 -- tanner
   // for (int itrig = 0; itrig < 64; itrig++)
@@ -2457,7 +2442,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   {
     for (int itrig = 0; itrig < 64; itrig++)
     {
-      if (priority_triggers.size() < 4 && n_entries[itrig].second < TriggerEnum::BitCodes::MBD_NS1_ZVRTX10) // < 15 ( last non-photon trigger)
+      if (priority_triggers.size() < 4 && n_entries[itrig].second < TriggerEnum::BitCodes::MBD_NS1_ZVRTX10)  // < 15 ( last non-photon trigger)
       {
         priority_triggers.push_back(n_entries[itrig].second);
       }
@@ -2495,7 +2480,7 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Pulse fitting, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
@@ -2561,8 +2546,6 @@ int HcalMonDraw::DrawFifth(const std::string& /* what */)
   h2_hcal_hist_trig[priority_triggers[3]]->GetYaxis()->SetTitleSize(tsize2);
   h2_hcal_hist_trig[priority_triggers[3]]->GetXaxis()->SetTitleOffset(1.0);
   h2_hcal_hist_trig[priority_triggers[3]]->GetYaxis()->SetTitleOffset(0.85);
- 
-
 
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -2607,11 +2590,11 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   OnlMonClient* cl = OnlMonClient::instance();
 
   TH2* h2_hcal_mean = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_mean");
-  TH1* h_event =  cl->getHisto(hcalmon[0], "h_event");
+  TH1* h_event = cl->getHisto(hcalmon[0], "h_event");
   TH2* h2_hcal_hits = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_hits");
   TH2* h2_hcal_time = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_time");
   TH2* h2_hcal_mean_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_mean");
-  TH1* h_event_1 =  cl->getHisto(hcalmon[1], "h_event");
+  TH1* h_event_1 = cl->getHisto(hcalmon[1], "h_event");
   TH2* h2_hcal_hits_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_hits");
   TH2* h2_hcal_time_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_time");
 
@@ -2804,7 +2787,7 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Tower status, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
@@ -2820,16 +2803,18 @@ int HcalMonDraw::DrawSixth(const std::string& /* what */)
   return 0;
 }
 
-int HcalMonDraw::DrawSeventh(const std::string&  what)
+int HcalMonDraw::DrawSeventh(const std::string& what)
 {
   OnlMonClient* cl = OnlMonClient::instance();
   TH2* pr_zsFrac_etaphi = nullptr;
   TH2* pr_zsFrac_etaphi_1 = nullptr;
-  if(what == "SEVENTH"){
+  if (what == "SEVENTH")
+  {
     pr_zsFrac_etaphi = (TH2*) cl->getHisto(hcalmon[0], "pr_zsFrac_etaphi");
     pr_zsFrac_etaphi_1 = (TH2*) cl->getHisto(hcalmon[1], "pr_zsFrac_etaphi");
   }
-  else{
+  else
+  {
     pr_zsFrac_etaphi = (TH2*) cl->getHisto(hcalmon[0], "pr_zsFrac_etaphi_all");
     pr_zsFrac_etaphi_1 = (TH2*) cl->getHisto(hcalmon[1], "pr_zsFrac_etaphi_all");
   }
@@ -2857,10 +2842,12 @@ int HcalMonDraw::DrawSeventh(const std::string&  what)
   TC[9]->SetEditable(true);
   TC[9]->Clear("D");
 
-  if(what == "SEVENTH"){
+  if (what == "SEVENTH")
+  {
     TC[9]->SetTitle("Unsuppressed Rate");
   }
-  else{
+  else
+  {
     TC[9]->SetTitle("Unsuppressed Rate All triggers");
   }
 
@@ -2981,7 +2968,7 @@ int HcalMonDraw::DrawSeventh(const std::string&  what)
   std::ostringstream runnostream2;
   std::string runstring;
   std::string runstring2;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber();
   runnostream2 << ", Time: " << ctime(&evttime.first);
@@ -3032,15 +3019,15 @@ int HcalMonDraw::DrawServerStats()
     }
     else
     {
-      int gl1counts = std::get<4>(servermapiter->second)/2;
+      int gl1counts = std::get<4>(servermapiter->second) / 2;
       txt << "Server " << server
           << ", run number " << std::get<1>(servermapiter->second)
           << ", event count: " << std::get<2>(servermapiter->second);
       if (gl1counts >= 0)
-	{
-          txt << ", gl1 count: " << gl1counts;
-	}
-        txt  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      {
+        txt << ", gl1 count: " << gl1counts;
+      }
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
         PrintRun.SetTextColor(kGray + 2);
