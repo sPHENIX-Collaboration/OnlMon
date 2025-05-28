@@ -72,12 +72,12 @@ int CemcMonDraw::Init()
     // std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_100ADC_hits.root";
     // std::string Templatefilename=std::string(CEMCcalib)+"/"+"Template_40929_50ADC_hits.root";
     // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_40929_30ADC_hits.root";
-    //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_43451_100ADC_hits.root";
-    //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_46915_100ADC_hits.root";
-    //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_52876_100ADC_hits.root";    
-    //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_54117_100ADC_hits.root";    
-    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_54373_100ADC_hits.root";    
-    
+    // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_43451_100ADC_hits.root";
+    // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_46915_100ADC_hits.root";
+    // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_52876_100ADC_hits.root";
+    // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_54117_100ADC_hits.root";
+    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_54373_100ADC_hits.root";
+
     inputTemplate = new TFile(Templatefilename.c_str(), "READ");
     if (!inputTemplate->IsOpen())
     {
@@ -93,7 +93,7 @@ int CemcMonDraw::Init()
         h2_template_hit = new TH2D("templateHit", "", 96, 0, 96, 256, 0, 256);
       }
     }
-    //std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_49435_100ADC_alltrig.root";
+    // std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_49435_100ADC_alltrig.root";
     std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_54117_100ADC_alltrig.root";
     inputTemplate_alltrig = new TFile(Templatefilename_alltrig.c_str(), "READ");
     if (!inputTemplate_alltrig->IsOpen())
@@ -116,7 +116,7 @@ int CemcMonDraw::Init()
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
 
-  //MakeZSPalette();
+  // MakeZSPalette();
 
   return 0;
 }
@@ -151,7 +151,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "Expert: CemcMon2 Packet Information",  -1, ysize, xsize / 3, ysize);
+    TC[1] = new TCanvas(name.c_str(), "Expert: CemcMon2 Packet Information", -1, ysize, xsize / 3, ysize);
     gSystem->ProcessEvents();
     Pad[1] = new TPad("cemcpad1", "packet event check", 0.0, 0.6, 1.0 / 2, 0.95, 0);
     Pad[2] = new TPad("cemcpad2", "packet size", 0.0, 0.3, 1.0 / 2, 0.6, 0);
@@ -318,7 +318,6 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "CemcNoiseRMS")
   {
-
     // xpos (-1) negative: do not draw menu bar
     TC[9] = new TCanvas(name.c_str(), "CemcMon Noise RMS per tower", -1, ysize, xsize / 3, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
@@ -338,7 +337,6 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     warning[3]->SetFillStyle(4000);
     warning[3]->Draw();
     TC[9]->SetEditable(false);
-
   }
 
   return 0;
@@ -353,7 +351,7 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawFirst(what);
     idraw++;
   }
-  
+
   if (what == "ALL" || what == "SECOND")
   {
     iret += DrawSecond(what);
@@ -369,19 +367,19 @@ int CemcMonDraw::Draw(const std::string &what)
     iret += DrawFourth(what);
     idraw++;
   }
-  
+
   if (what == "ALL" || what == "FIFTH")
   {
     iret += DrawFifth(what);
     idraw++;
   }
-  
+
   // if (what == "ALL" || what == "SIXTH")
   //{
   //   iret += DrawSixth(what);
   //   idraw++;
   // }
-  
+
   if (what == "ALL" || what == "SERVERSTATS")
   {
     iret += DrawServerStats();
@@ -404,23 +402,21 @@ int CemcMonDraw::Draw(const std::string &what)
     idraw++;
   }
 
-
-
-// DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
-// DO NOT ADD ANY OTHER METHOD AFTER THIS which gets called by "ALL"
+  // DO NOT CHANGE THE ORDER, DrawSeventh crashes DrawServerStats with an X11 error in the virtual framebuffer in the html
+  // DO NOT ADD ANY OTHER METHOD AFTER THIS which gets called by "ALL"
   if (what == "ALL")
   {
-    //iret += DrawSeventh("SEVENTH");
-    //idraw++;
+    // iret += DrawSeventh("SEVENTH");
+    // idraw++;
     iret += DrawSeventh("ALLTRIGZS");
     idraw++;
   }
-  if(what == "SEVENTH" || what == "ALLTRIGZS")
+  if (what == "SEVENTH" || what == "ALLTRIGZS")
   {
     iret += DrawSeventh(what);
     idraw++;
   }
-  
+
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -467,8 +463,8 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   int neventhist = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    TH1* h_eventSource  = cl->getHisto(*server, "h1_event");
-    if (h_eventSource )
+    TH1 *h_eventSource = cl->getHisto(*server, "h1_event");
+    if (h_eventSource)
     {
       avgevents += h_eventSource->GetEntries();
       neventhist++;
@@ -478,7 +474,6 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   {
     avgevents /= neventhist;
   }
-  
 
   // TH2 *hist1[m_ServerSet.size()];
   // const int nHists = 4;
@@ -672,8 +667,6 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   h_cemc_datahits->GetYaxis()->SetTitleSize(tsize);
   h_cemc_datahits->GetXaxis()->SetTickLength(0.02);
 
- 
-
   gPad->SetTopMargin(0.08);
   gPad->SetBottomMargin(0.07);
   gPad->SetLeftMargin(0.08);
@@ -737,12 +730,12 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   std::ostringstream runnostream2;
   std::ostringstream runnostream3;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": tower occupancy running mean/template";
-  runnostream2 << " threshold: 100ADC, Run " << cl->RunNumber()<<", Event: " << avgevents;
+  runnostream2 << " threshold: 100ADC, Run " << cl->RunNumber() << ", Event: " << avgevents;
   runnostream3 << "Time: " << ctime(&evttime.first);
-  
+
   transparent[0]->cd();
   runstring = runnostream.str();
   PrintRun.SetTextColor(evttime.second);
@@ -782,7 +775,7 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
   {
     Nservers++;
     htmp2d = (TH2 *) cl->getHisto(*server, "h2_cemc_rmhits_alltrig");
-  
+
     if (htmp2d)
     {
       h_cemc_datahits->Add(htmp2d);
@@ -796,8 +789,8 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
   int neventhist = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    TH1* h_eventSource  = cl->getHisto(*server, "h1_event");
-    if (h_eventSource )
+    TH1 *h_eventSource = cl->getHisto(*server, "h1_event");
+    if (h_eventSource)
     {
       avgevents += h_eventSource->GetEntries();
       neventhist++;
@@ -807,9 +800,7 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
   {
     avgevents /= neventhist;
   }
-  
 
- 
   if (!gROOT->FindObject("CemcAllTrigHits"))
   {
     MakeCanvas("CemcAllTrigHits");
@@ -822,14 +813,12 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
     return -1;
   }
 
-  
-
   TC[6]->SetEditable(true);
   TC[6]->Clear("D");
   Pad[15]->cd();
 
   h_cemc_datahits->Divide(h2_template_hit_alltrig);
-  
+
   h_cemc_datahits->GetXaxis()->SetTitle("eta index");
   h_cemc_datahits->GetYaxis()->SetTitle("phi index");
   h_cemc_datahits->GetZaxis()->SetTitle("Tower Running Mean with all trig");
@@ -849,15 +838,13 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
   h_cemc_datahits->GetXaxis()->SetTickLength(0.02);
   h_cemc_datahits->GetZaxis()->SetTitleOffset(1.6);
 
- 
-
   gPad->SetTopMargin(0.08);
   gPad->SetBottomMargin(0.07);
   gPad->SetLeftMargin(0.08);
   gPad->SetRightMargin(0.2);
 
   // modify palette to black, green, and red
-  
+
   Int_t palette[4] = {kBlack, kBlue, 8, 2};
   cemcStyle->SetPalette(4, palette);
   gROOT->SetStyle("cemcStyle");
@@ -914,12 +901,12 @@ int CemcMonDraw::DrawAllTrigHits(const std::string & /* what */)
   std::ostringstream runnostream2;
   std::ostringstream runnostream3;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": tower occupancy/template running mean with all trig";
   runnostream2 << " threshold: 100ADC, Run " << cl->RunNumber();
   runnostream3 << "Time: " << ctime(&evttime.first);
-  
+
   transparent[6]->cd();
   runstring = runnostream.str();
   PrintRun.SetTextColor(evttime.second);
@@ -953,7 +940,7 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
   {
     h2_noiserms->Reset();
   }
-  if(!p2_noiserms)
+  if (!p2_noiserms)
   {
     p2_noiserms = new TProfile2D("p2_noiserms", "", 96, 0, 96, 256, 0, 256, "S");
   }
@@ -979,9 +966,6 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
     }
   }
 
- 
-
- 
   if (!gROOT->FindObject("CemcNoiseRMS"))
   {
     MakeCanvas("CemcNoiseRMS");
@@ -994,8 +978,7 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
     return -1;
   }
 
-
-   // loop over p2_noiserms and set the error to h2_cemc_noiserms
+  // loop over p2_noiserms and set the error to h2_cemc_noiserms
   for (int i = 1; i <= p2_noiserms->GetNbinsX(); i++)
   {
     for (int j = 1; j <= p2_noiserms->GetNbinsY(); j++)
@@ -1004,8 +987,6 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
       h2_noiserms->SetBinContent(i, j, error);
     }
   }
-
-  
 
   TC[9]->SetEditable(true);
   TC[9]->Clear("D");
@@ -1030,14 +1011,10 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
   h2_noiserms->GetXaxis()->SetTickLength(0.02);
   h2_noiserms->GetZaxis()->SetTitleOffset(1.6);
 
- 
-
   gPad->SetTopMargin(0.08);
   gPad->SetBottomMargin(0.07);
   gPad->SetLeftMargin(0.08);
   gPad->SetRightMargin(0.2);
-
-  
 
   gStyle->SetPalette(57);
   h2_noiserms->GetZaxis()->SetRangeUser(0, 100);
@@ -1077,8 +1054,8 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
   {
     l_board[il - 1].DrawLine(dEI * il, 0, dEI * il, 256);
   }
-
- // FindHotTower(warning[3], h_cemc_datahits, true);
+  FindGainMode(warning[3], h2_noiserms);
+  // FindHotTower(warning[3], h_cemc_datahits, true);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -1088,12 +1065,12 @@ int CemcMonDraw::DrawNoiseRMS(const std::string & /* what */)
   std::ostringstream runnostream2;
   std::ostringstream runnostream3;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": tower negative post - pre RMS all trig";
   runnostream2 << "Run " << cl->RunNumber();
   runnostream3 << "Time: " << ctime(&evttime.first);
-  
+
   transparent[9]->cd();
   runstring = runnostream.str();
   PrintRun.SetTextColor(evttime.second);
@@ -1132,7 +1109,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     }
     if (start[0] > -1 && h_eventSource[i])
     {
-      h_event[i] =  (TH1 *) h_eventSource[i]->Clone();
+      h_event[i] = (TH1 *) h_eventSource[i]->Clone();
       h_event[i]->SetName(Form("h1_event_%d", i));
       if (/*i != start[0] &&*/ h_event[i]->GetEntries() > maxEvent)
       {
@@ -1190,7 +1167,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h1_packet_chans[i] =  cl->getHisto(*server, "h1_packet_chans");
+    h1_packet_chans[i] = cl->getHisto(*server, "h1_packet_chans");
     if (h1_packet_chans[i] && start[3] == -1)
     {
       start[3] = i;
@@ -1415,7 +1392,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   std::ostringstream runnostream2;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
 
   runnostream << "Packet Information";
@@ -1466,7 +1443,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h1_waveform_time[i] =  cl->getHisto(*server, "h1_waveform_time");
+    h1_waveform_time[i] = cl->getHisto(*server, "h1_waveform_time");
     if (h1_waveform_time[i] && start[1] == -1)
     {
       start[1] = i;
@@ -1484,7 +1461,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h1_waveform_pedestal[i] =  cl->getHisto(*server, "h1_waveform_pedestal");
+    h1_waveform_pedestal[i] = cl->getHisto(*server, "h1_waveform_pedestal");
 
     if (h1_waveform_pedestal[i] && start[2] == -1)
     {
@@ -1577,7 +1554,6 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   // float ymaxp = 5000;
   h2_waveform_twrAvg[start[0]]->GetYaxis()->SetRangeUser(0, ymaxp);
 
-  
   gStyle->SetOptStat(0);
   gPad->SetBottomMargin(0.16);
   gPad->SetLeftMargin(0.16);
@@ -1614,7 +1590,7 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Pulse fitting";
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
@@ -1656,7 +1632,6 @@ int CemcMonDraw::DrawThird(const std::string & /* what */)
     h1_waveform_time[start[1]]->Scale(1. / h1_waveform_time[start[1]]->GetEntries());
   }
   h1_waveform_time[start[1]]->GetYaxis()->SetRangeUser(0, 1.);
-
 
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -1748,7 +1723,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   int i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_waveform_sigDiff[i] =  cl->getHisto(*server, "h1_fitting_sigDiff");
+    h_waveform_sigDiff[i] = cl->getHisto(*server, "h1_fitting_sigDiff");
     if (h_waveform_sigDiff[i] && start[0] == -1)
     {
       start[0] = i;
@@ -1766,7 +1741,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_waveform_pedDiff[i] =  cl->getHisto(*server, "h1_fitting_pedDiff");
+    h_waveform_pedDiff[i] = cl->getHisto(*server, "h1_fitting_pedDiff");
     if (h_waveform_pedDiff[i] && start[1] == -1)
     {
       start[1] = i;
@@ -1784,7 +1759,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   i = 0;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    h_waveform_timeDiff[i] =  cl->getHisto(*server, "h1_fitting_timeDiff");
+    h_waveform_timeDiff[i] = cl->getHisto(*server, "h1_fitting_timeDiff");
     if (h_waveform_timeDiff[i] && start[2] == -1)
     {
       start[2] = i;
@@ -1821,7 +1796,7 @@ int CemcMonDraw::DrawFourth(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "Waveform Template vs. Fast Fitting";
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
@@ -1988,7 +1963,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
       break;
     }
   }
-  
+
   if (!gROOT->FindObject("CemcMon5"))
   {
     MakeCanvas("CemcMon5");
@@ -2033,15 +2008,10 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   {
     // Priority to the bits between 24 and 31 (draw photon trig first)
     // if (n_entries[itrig].second >= 24 && n_entries[itrig].second <= 31)
-    if ( n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON6_MBD_NS2 || 
+    if (n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON6_MBD_NS2 ||
         n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON8_MBD_NS2 ||
         n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON10_MBD_NS2 ||
-        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON12_MBD_NS2 
-	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_SINGLES
-	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_VERT
-	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_VERT
-	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_HORZ
-	|| n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_HORZ)
+        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON12_MBD_NS2 || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_SINGLES || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_VERT || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_VERT || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_HORZ || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_HORZ)
     {
       if (n_entries[itrig].first > 0. && priority_triggers.size() < 4)
       {
@@ -2055,7 +2025,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   {
     for (int itrig = 0; itrig < 64; itrig++)
     {
-      if (priority_triggers.size() < 4 && n_entries[itrig].second < TriggerEnum::BitCodes::PHOTON12_MBD_NS2 )
+      if (priority_triggers.size() < 4 && n_entries[itrig].second < TriggerEnum::BitCodes::PHOTON12_MBD_NS2)
       {
         priority_triggers.push_back(n_entries[itrig].second);
       }
@@ -2069,7 +2039,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Trigger Info, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
@@ -2206,6 +2176,50 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
 
   return 0;
 }
+int CemcMonDraw::FindGainMode(TPad *warningpad, TH2 *hhit)
+{
+  float avgrms = 0;
+  float totaltowers = 0;
+
+  for (int ieta = 0; ieta < nTowersEta; ieta++)
+  {
+    for (int iphi = 0; iphi < nTowersPhi; iphi++)
+    {
+      if (hhit->GetBinContent(ieta + 1, iphi + 1) == 0)
+      {
+        continue;
+      }
+      double rms = hhit->GetBinContent(ieta + 1, iphi + 1);
+      avgrms += rms;
+      totaltowers += 1;
+    }
+  }
+  avgrms /= totaltowers;
+
+  bool hg = false;
+  if (avgrms > 100)
+  {
+    hg = true;
+  }
+
+  warningpad->cd();
+  std::string gainmode = "Gain mode: LOW";
+  if (hg)
+  {
+    gainmode = "Gain mode: HIGH";
+  }
+
+  TText warn;
+  warn.SetTextFont(62);
+  warn.SetTextSize(0.3);
+  warn.SetTextColor(kRed);
+  warn.SetNDC();
+  warn.SetTextAlign(23);
+  warn.DrawText(0.5, 0.5, gainmode.c_str());
+
+  warningpad->Update();
+  return 0;
+}
 
 int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit, bool usetemplate)
 {
@@ -2219,7 +2233,8 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit, bool usetemplate)
   float hot_threshold = 2.0;
   float dead_threshold = 0.01;
   float cold_threshold = 0.5;
-  if(!usetemplate){
+  if (!usetemplate)
+  {
     float mean = 0;
     float rms = 0;
     int ntower = 0;
@@ -2249,9 +2264,8 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit, bool usetemplate)
     rms = sqrt(rms / ntower - mean * mean);
     hot_threshold = mean + 10 * rms;
     cold_threshold = mean - 3 * rms;
-    dead_threshold = 0.01*mean;
+    dead_threshold = 0.01 * mean;
   }
-
 
   // float nTowerTotal = 24576. - 384.;  // to account for the non-functioning towers at the edge of the south
   for (int ieta = 0; ieta < nTowersEta; ieta++)
@@ -2362,7 +2376,7 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit, bool usetemplate)
   warn.SetTextColor(4);
   warn.SetTextAlign(23);
   warn.DrawText(0.5, 0.6, "Cold towers (ieta,iphi):");
-  warn.DrawText(0.5, 0.5, coldtowerlist.str().c_str());  
+  warn.DrawText(0.5, 0.5, coldtowerlist.str().c_str());
 
   warningpad->Update();
   return 0;
@@ -2503,10 +2517,10 @@ int CemcMonDraw::DrawServerStats()
           << ", run number " << std::get<1>(servermapiter->second)
           << ", event count: " << std::get<2>(servermapiter->second);
       if (gl1counts >= 0)
-	{
-          txt << ", gl1 count: " << std::get<4>(servermapiter->second);
-	}
-        txt  << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      {
+        txt << ", gl1 count: " << std::get<4>(servermapiter->second);
+      }
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
         PrintRun.SetTextColor(kGray + 2);
@@ -2528,7 +2542,7 @@ int CemcMonDraw::DrawServerStats()
 
 int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
 {
-   OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonClient *cl = OnlMonClient::instance();
   if (!gROOT->FindObject("CemcBadChi2"))
   {
     MakeCanvas("CemcBadChi2");
@@ -2545,7 +2559,7 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
   std::ostringstream runnostream;
   std::ostringstream runnostream2;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "Tower with bad chi2";
   runnostream2 << "Run " << cl->RunNumber() << ", Time: " << ctime(&evttime.first);
@@ -2574,9 +2588,9 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
       }
     }
   }
-  Pad[21] -> cd();
+  Pad[21]->cd();
   std::vector<std::pair<int, int>> badchi2;
-  //loop over TProfile to find bad chi2
+  // loop over TProfile to find bad chi2
   for (int i = 1; i <= p2_bad_chi2->GetNbinsX(); i++)
   {
     for (int j = 1; j <= p2_bad_chi2->GetNbinsY(); j++)
@@ -2584,14 +2598,14 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
       float bad_chi2_prob = p2_bad_chi2->GetBinContent(i, j);
       if (bad_chi2_prob > 0.5)
       {
-        //do stuff here find the sector and IB and display the text
-        badchi2.push_back(std::make_pair(i-1, j-1));
+        // do stuff here find the sector and IB and display the text
+        badchi2.push_back(std::make_pair(i - 1, j - 1));
       }
     }
   }
-  //text display
-  double vdist = 0.04; // Vertical distance between lines
-  double vpos = 0.92;  // Starting vertical position
+  // text display
+  double vdist = 0.04;  // Vertical distance between lines
+  double vpos = 0.92;   // Starting vertical position
   int displayedTowers = 0;
   TText printChi2;
   printChi2.SetTextFont(62);
@@ -2599,10 +2613,10 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
   printChi2.SetTextAlign(23);  // Center/top alignment
   printChi2.SetTextSize(0.04);
   printChi2.SetTextColor(1);
-  for (const auto& [x, y] : badchi2)
+  for (const auto &[x, y] : badchi2)
   {
     bool ifknownbad = false;
-    for (const auto& [i, j] : hotChannels)
+    for (const auto &[i, j] : hotChannels)
     {
       if (i == x && j == y)
       {
@@ -2610,7 +2624,7 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
         break;
       }
     }
-    float badChi2Rate = p2_bad_chi2->GetBinContent(x + 1, y + 1); // Adjusting for ROOT's 1-based indexing
+    float badChi2Rate = p2_bad_chi2->GetBinContent(x + 1, y + 1);  // Adjusting for ROOT's 1-based indexing
     std::ostringstream txt;
     txt << "Tower(" << x << "," << y << "): bad chi2 rate=" << badChi2Rate;
     // If the tower is known to be bad, draw it in red
@@ -2622,12 +2636,12 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
     {
       printChi2.SetTextColor(kBlack);
     }
-    
+
     printChi2.DrawText(0.5, vpos, txt.str().c_str());
 
-    vpos -= vdist; // Move to the next line
+    vpos -= vdist;  // Move to the next line
     displayedTowers++;
-    if (vpos < 0.1) break; // Prevent drawing outside the canvas
+    if (vpos < 0.1) break;  // Prevent drawing outside the canvas
   }
 
   int remainingTowers = badchi2.size() - displayedTowers;
@@ -2636,18 +2650,17 @@ int CemcMonDraw::DrawBadChi2(const std::string & /* what */)
     // Use TText to draw a message indicating how many more towers there are
     std::ostringstream moreTxt;
     moreTxt << "And " << remainingTowers << " more...";
-    printChi2.DrawText(0.5, 0.05, moreTxt.str().c_str()); // Draw at the bottom
+    printChi2.DrawText(0.5, 0.05, moreTxt.str().c_str());  // Draw at the bottom
   }
 
   TC[8]->Update();
   TC[8]->Show();
   TC[8]->SetEditable(false);
- 
-  return 0;
 
+  return 0;
 }
 
-int CemcMonDraw::DrawSeventh(const std::string &  what)
+int CemcMonDraw::DrawSeventh(const std::string &what)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // watch the absolute insanity as we merge all these
@@ -2657,7 +2670,7 @@ int CemcMonDraw::DrawSeventh(const std::string &  what)
   TProfile2D *proftmp;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
   {
-    if(what=="SEVENTH")
+    if (what == "SEVENTH")
     {
       proftmp = (TProfile2D *) cl->getHisto(*server, "p2_zsFrac_etaphi");
     }
@@ -2684,7 +2697,7 @@ int CemcMonDraw::DrawSeventh(const std::string &  what)
   }
   TC[7]->SetEditable(true);
   TC[7]->Clear("D");
-  if(what == "SEVENTH")
+  if (what == "SEVENTH")
   {
     TC[7]->SetTitle("Channel unsuppressed event fraction");
   }
@@ -2704,7 +2717,7 @@ int CemcMonDraw::DrawSeventh(const std::string &  what)
   double sum = 0;
   int count = 0;
 
-  //reset
+  // reset
   h1_zs->Reset();
   h1_zs_low->Reset();
   h1_zs_high->Reset();
@@ -2730,7 +2743,7 @@ int CemcMonDraw::DrawSeventh(const std::string &  what)
       count++;
     }
   }
-  
+
   double maxx = (sum / count) * 5 > 1.1 ? 1.1 : (sum / count) * 5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
 
@@ -2742,7 +2755,7 @@ int CemcMonDraw::DrawSeventh(const std::string &  what)
   gPad->SetRightMargin(0.12);
   gStyle->SetTitleFontSize(0.06);
   gStyle->SetPalette(57);
-  //gStyle->SetPalette(255, ZSPalette);
+  // gStyle->SetPalette(255, ZSPalette);
   gStyle->SetNumberContours(255);
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
   p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
@@ -2791,7 +2804,7 @@ int CemcMonDraw::DrawSeventh(const std::string &  what)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << ": Unsuppressed event fraction, Run" << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);

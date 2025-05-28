@@ -34,6 +34,7 @@ void ohcalDrawInit(const int online = 0)
     cl->registerHisto("h1_packet_number", servername);
     cl->registerHisto("h1_packet_event", servername);
     cl->registerHisto("h_evtRec", servername);
+    cl->registerHisto("p2_pre_post",servername);
     for (int itrig = 0; itrig < 64; itrig++)
     {
       cl->registerHisto(Form("h2_hcal_hits_trig_%d", itrig), servername);
