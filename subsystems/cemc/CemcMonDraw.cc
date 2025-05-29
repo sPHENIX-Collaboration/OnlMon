@@ -2217,6 +2217,14 @@ int CemcMonDraw::FindGainMode(TPad *warningpad, TH2 *hhit)
   warn.SetTextAlign(23);
   warn.DrawText(0.5, 0.5, gainmode.c_str());
 
+  Warn.SetTextFont(62);
+  Warn.SetTextSize(0.06);
+  Warn.SetTextColor(1);
+  Warn.SetNDC();
+  Warn.SetTextAlign(23);
+  Warn.DrawText(0.5, 0.9, "Average RMS of pedestal:");
+  Warn.DrawText(0.5, 0.8, Form("%.2f", avgrms));
+
   warningpad->Update();
   return 0;
 }
