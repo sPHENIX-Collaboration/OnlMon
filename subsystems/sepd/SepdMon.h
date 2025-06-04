@@ -11,6 +11,8 @@ class Event;
 class TH1;
 class TH2;
 class Packet;
+class TProfile;
+class TProfile2D;
 class runningMean;
 
 class SepdMon : public OnlMon
@@ -65,6 +67,7 @@ class SepdMon : public OnlMon
   TH1 *h1_packet_number = nullptr;
   TH1 *h1_packet_event = nullptr;
 
+  TProfile *p_noiserms_all_channel{nullptr};
   TH1 *h_hits_all_channel = nullptr;
   TH1 *h_ADC_all_channel = nullptr;
   TH1 *h_ADC_channel[768] = {nullptr};
