@@ -1049,7 +1049,6 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
                                  16, 0.15, 3.5);
 
   // --- fill polar
-  std::cout << "ok got here..." << std::endl;
   for ( int i = 0; i < 768; ++i )
     {
       int adc_channel = i;
@@ -1059,7 +1058,6 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
       //int ring = returnRing(adc_channel);
       int sector = returnSector(adc_channel);
       int arm = returnArm(adc_channel);
-      std::cout << " channel " << adc_channel << " noiserms " << noiserms << std::endl;
       if ( arm == 0 )
         {
           if ( tile == 0 ) polar_histS01_rms->SetBinContent(sector+1,1,noiserms);
