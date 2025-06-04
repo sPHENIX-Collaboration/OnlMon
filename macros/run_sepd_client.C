@@ -33,9 +33,10 @@ void sepdDrawInit(const int online = 0)
   cl->registerHisto("h1_packet_event", servername);
 
   for ( int i = 0; i < 768; ++i )
-    {
+  {
       cl->registerHisto(Form("h_ADC_channel_%d",i), servername);
-    }
+  }
+  cl->registerHisto("p_noiserms_all_channel", servername);
 
   // for local host, just call ohcalDrawInit(2)
   CreateSubsysHostlist("sepd_hosts.list", online);

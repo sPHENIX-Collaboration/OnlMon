@@ -150,9 +150,24 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     warning[1]->Draw();
     TC[canvasindex]->SetEditable(0);
   }
-  else if (name == "SepdServerStats")
+  else if (name == "SepdMon5")
   {
     int canvasindex = 5;
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 6 - Noise RMS", -1, 0, 1200, 850);
+    gSystem->ProcessEvents();
+    Pad[14] = new TPad("sepdpad14", "Left", 0., 0., 0.5, 1);
+    Pad[15] = new TPad("sepdpad15", "Right", 0.5, 0., 1, 1);
+    Pad[14]->Draw();
+    Pad[15]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[canvasindex] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(false);
+  }
+  else if (name == "SepdServerStats")
+  {
+    int canvasindex = 6;
     TC[canvasindex] = new TCanvas(name.c_str(), "SepdMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
@@ -192,6 +207,11 @@ int SepdMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "FIFTH")
   {
     iret += DrawFifth(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SIXTH")
+  {
+    iret += DrawSixth(what);
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -372,7 +392,6 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
   TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
   int nevt = h_event->GetEntries();
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-
 
   TC[canvasindex]->SetEditable(true);
   TC[canvasindex]->Clear("D");
@@ -993,6 +1012,129 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   // if (save) TC[canvasindex]->SaveAs("plots/packets.pdf");
   return 0;
 }
+
+int SepdMonDraw::DrawSixth(const std::string & /* what */)
+{
+  int canvasindex = 5;
+  if (!gROOT->FindObject("SepdMon5"))
+  {
+    MakeCanvas("SepdMon5");
+  }
+  OnlMonClient *cl = OnlMonClient::instance();
+  TProfile *profile_rms = (TProfile*) cl->getHisto("SEPDMON_0", "p_noiserms_all_channel");
+  TC[canvasindex]->SetEditable(true);
+  TC[canvasindex]->Clear("D");
+  if (!profile_rms)
+  {
+    std::cout << "p_noiserms_all_channel not found" << std::endl;
+    DrawDeadServer(transparent[canvasindex]);
+    TC[canvasindex]->SetEditable(false);
+    return -1;
+  }
+  
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
+
+  TH2* polar_histS_rms = new TH2F("polar_histS_rms","polar_hist_rms",
+                               24, 0, 2*M_PI,
+                               16, 0.15, 3.5);
+  TH2* polar_histN_rms = new TH2F("polar_histN_rms","polar_hist_rms",
+                               24, 0, 2*M_PI,
+                               16, 0.15, 3.5);
+  
+  TH2* polar_histS01_rms = new TH2F("polar_histS01_rms","polar_hist_rms",
+                                 12, 0, 2*M_PI,
+                                 16, 0.15, 3.5);
+  TH2* polar_histN01_rms = new TH2F("polar_histN01_rms","polar_hist_rms",
+                                 12, 0, 2*M_PI,
+                                 16, 0.15, 3.5);
+
+  // --- fill polar
+  for ( int i = 0; i < 768; ++i )
+    {
+      int adc_channel = i;
+      float noiserms = profile_rms->GetBinError(i+1);
+      int tile = returnTile(i);
+      int odd = (tile+1)%2;
+      //int ring = returnRing(adc_channel);
+      int sector = returnSector(adc_channel);
+      int arm = returnArm(adc_channel);
+      if ( arm == 0 )
+        {
+          if ( tile == 0 ) polar_histS01_rms->SetBinContent(sector+1,1,noiserms);
+          else polar_histS_rms->SetBinContent(sector*2+1+odd,(tile+1)/2+1,noiserms);
+        }
+      if ( arm == 1 )
+        {
+          if ( tile == 0 ) polar_histN01_rms->SetBinContent(sector+1,1,noiserms);
+          else polar_histN_rms->SetBinContent(sector*2+1+odd,(tile+1)/2+1,noiserms);
+        }
+    }
+
+  // -------------------------
+  // --- end Rosi (mostly) ---
+  // -------------------------
+
+  // --- may need to update these depending on whether there are "hot" tiles
+  double zmin = 0.0;
+  //double zmax = 0.1;
+  double zmax = 100.0;
+  //double zmax = 300;
+  //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
+
+  TText tarm;
+  tarm.SetNDC();
+  tarm.SetTextFont(42);
+  tarm.SetTextSize(0.05);
+
+  gStyle->SetOptStat(0);
+  // ---
+  Pad[14]->cd();
+  polar_histS_rms->GetZaxis()->SetRangeUser(zmin,zmax);
+  polar_histS01_rms->GetZaxis()->SetRangeUser(zmin,zmax);
+  // gPad->SetLeftMargin(0.2);
+  // gPad->SetRightMargin(0.0);
+  gPad->SetTicks(1,1);
+  gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
+  polar_histS_rms->Draw("same col pol AH");
+  polar_histS01_rms->Draw("same col pol AH");
+  tarm.DrawText(0.45,0.91,"South");
+  gStyle->SetPalette(57);
+  // ---
+  Pad[15]->cd();
+  polar_histN_rms->GetZaxis()->SetRangeUser(zmin,zmax);
+  polar_histN01_rms->GetZaxis()->SetRangeUser(zmin,zmax);
+  gPad->SetLeftMargin(0.05);
+  gPad->SetRightMargin(0.15);
+  gPad->SetTicks(1,1);
+  gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
+  polar_histN_rms->Draw("same colz pol AH");
+  polar_histN01_rms->Draw("same col pol AH");
+  tarm.DrawText(0.40,0.91,"North");
+  //tarm.DrawText(0.35,0.91,"North");
+  //tarm.DrawText(0.45,0.91,"North");
+  gStyle->SetPalette(57);
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  //runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
+  runnostream << ThisName << "_1 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  transparent[canvasindex]->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(false);
+  return 0;
+}
+
 
 
 
@@ -2630,7 +2772,7 @@ int SepdMonDraw::returnTile(int ch){
 
 int SepdMonDraw::DrawServerStats()
 {
-  int canvasindex=5;
+  int canvasindex=6;
   OnlMonClient* cl = OnlMonClient::instance();
   if (!gROOT->FindObject("SepdServerStats"))
   {

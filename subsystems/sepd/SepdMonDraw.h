@@ -4,6 +4,7 @@
 #include <onlmon/OnlMonDraw.h>
 
 #include <TH2.h>
+#include <TProfile.h>
 #include <TStyle.h>
 
 #include <string>  // for allocator, string
@@ -11,6 +12,7 @@
 class TCanvas;
 class TGraphErrors;
 class TPad;
+class TProfile;
 
 class SepdMonDraw : public OnlMonDraw
 {
@@ -31,6 +33,7 @@ class SepdMonDraw : public OnlMonDraw
   int DrawThird(const std::string &what = "ALL");
   int DrawFourth(const std::string &what = "ALL");
   int DrawFifth(const std::string &what = "ALL");
+  int DrawSixth(const std::string &what = "ALL");
   int DrawServerStats();
   int returnSector(int ch);
   int returnTile(int ch);

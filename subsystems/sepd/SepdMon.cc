@@ -20,6 +20,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile.h>
 #include <TRandom.h>
 
 #include <cmath>
@@ -85,6 +86,8 @@ int SepdMon::Init()
   h_ADC_all_channel = new TH1D("h_ADC_all_channel",";;",768,-0.5,767.5);
   h_hits_all_channel = new TH1D("h_hits_all_channel",";;",768,-0.5,767.5);
 
+  p_noiserms_all_channel = new TProfile("p_noiserms_all_channel","",768,0,768,"S");
+
   int nADCcorr = 500;
   double ADCcorrmax = 5e4;
   int nhitscorr = 500;
@@ -145,6 +148,7 @@ int SepdMon::Init()
     h_ADC_channel[ichannel] = new TH1D(Form("h_ADC_channel_%d", ichannel), ";ADC;Counts", 1000, 0, 1000);
     se->registerHisto(this, h_ADC_channel[ichannel]);
   }
+  se->registerHisto(this, p_noiserms_all_channel);
 
   // initialize waveform extraction tool
   WaveformProcessingFast = new CaloWaveformFitting();
@@ -304,17 +308,22 @@ int SepdMon::process_event(Event *e /* evt */)
         int ch = ChannelNumber-1;
 
         // -- bit flipped ADC channels
-        bool reject_this_channel = false;
-        if ( ( packet == 9001 || packet == 9002 || packet == 9006 ) && c == 30 )
-          reject_this_channel = true;
+        //bool reject_this_channel = false;
+        //if ( ( packet == 9001 || packet == 9002 || packet == 9006 ) && c == 30 )
+        //  reject_this_channel = true;
 
-        if ( reject_this_channel ) continue;
+        //if ( reject_this_channel ) continue;
 
         // std::vector result =  getSignal(p,c); // simple peak extraction
         std::vector<float> resultFast = anaWaveformFast(p, c);  // fast waveform fitting
         float signalFast = resultFast.at(0);
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
+        float postpre = p->iValue(c, "POST") - p->iValue(c, "PRE");
+        if(postpre<0){
+            p_noiserms_all_channel->Fill(ch,postpre);
+            p_noiserms_all_channel->Fill(ch,-postpre);
+        }
 
         bool is_good_hit = ( signalFast > 50 && signalFast < 3000 );
 
