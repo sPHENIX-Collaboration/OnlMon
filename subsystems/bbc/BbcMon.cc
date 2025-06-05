@@ -651,8 +651,14 @@ int BbcMon::BeginRun(const int runno)
 int BbcMon::GetFillNumber()
 {
   TString retval = gSystem->GetFromPipe( "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -g ringSpec.blue fillNumberM | awk 'NR==1 {print $3}'" );
-  int fill = retval.Atoi();
-  return fill;
+  if ( retval.IsDec() )
+  {
+    int fill = retval.Atoi();
+    return fill;
+  }
+
+  std::cerr << PHWHERE << "GetFromPipe() failed with retval " << retval << std::endl;
+  return 0; // default if we get back a junk value
 }
 
 uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
