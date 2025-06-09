@@ -680,7 +680,11 @@ uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
       return mb_bit;
     }
   }
-  // maybe here we could fall back to a coincidence with an MBD trigger?
+  // no MBD only trigger, look for ZDC trigger
+  if ( (zdcns&trigs_enabled) == zdcns )
+  {
+    return zdcns;
+  }
 
   // no match, use any trigger
   return std::numeric_limits<uint64_t>::max();
@@ -877,8 +881,8 @@ int BbcMon::process_event(Event *evt)
             trigscaled = static_cast<uint64_t>( p_gl1->lValue(0,"ScaledVector") );
 
             triggervec = trigscaled;
-            if((triggervec&mbdns)==0){
-                // if the mbdns bit is not set, then we use the live vector
+            if( ((triggervec&mbdns)==0) && ((triggervec&zdcns)==0) ){
+                // if the mbdns or zdcns bit is not set, then we use the live vector
                 // to determine if this is a valid event
                 triggervec = triglive;
                 std::cout << "I am using the live vector for this event" << std::endl;
@@ -1056,8 +1060,8 @@ int BbcMon::process_event(Event *evt)
   //with all triggers
   bbc_zvertex_alltrigger->Fill(zvtx);
 
-  // only process for primary mbd trigger
-  if ( ((triggervec&mbdtrig) == 0) && (gl1badflag==0) )
+  // only process for primary mbd or zdcns trigger
+  if ( ((triggervec&mbdtrig) == 0) && ((triggervec&zdcns)==0) && (gl1badflag==0) )
   {
       return 0;
   }
