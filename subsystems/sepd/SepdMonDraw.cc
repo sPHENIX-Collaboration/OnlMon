@@ -153,7 +153,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   else if (name == "SepdMon5")
   {
     int canvasindex = 5;
-    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 6 - Noise RMS", -1, 0, 1200, 850);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 6 - Noise RMS", -1, 0, 1200, 600);
     gSystem->ProcessEvents();
     Pad[14] = new TPad("sepdpad14", "Left", 0., 0., 0.5, 1);
     Pad[15] = new TPad("sepdpad15", "Right", 0.5, 0., 1, 1);
