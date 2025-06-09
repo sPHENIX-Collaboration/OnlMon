@@ -379,9 +379,10 @@ int CemcMon::process_event(Event *e /* evt */)
       h_evtRec->Fill(0.0, 0.0);
     }
     
-    //this is for only process event with the MBD>=1 trigger
+    //this is for only process event with the MBD>=2 trigger
+    //use MBD>=2 for AuAu
     if(usembdtrig){
-      if(trig_bools.at(TriggerEnum::BitCodes::MBD_NS1) == 0){
+      if(trig_bools.at(TriggerEnum::BitCodes::MBD_NS2) == 0){
         fillhist = false;
       }
     }
