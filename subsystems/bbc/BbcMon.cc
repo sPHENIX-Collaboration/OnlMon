@@ -877,6 +877,11 @@ int BbcMon::process_event(Event *evt)
             trigscaled = static_cast<uint64_t>( p_gl1->lValue(0,"ScaledVector") );
 
             triggervec = trigscaled;
+            if((triggervec&mbdns)==0){
+                // if the mbdns bit is not set, then we use the live vector
+                // to determine if this is a valid event
+                triggervec = triglive;
+            }
 
             /*
                std::cout << "TRIGS" << std::hex << std::endl;
@@ -974,7 +979,31 @@ int BbcMon::process_event(Event *evt)
       {
           bbc_zvertex_60_chk->Fill(zvtx);
       }
-  }
+  } 
+  // else if ( (triglive&mbdns)!=0 ) 
+  // {
+  //     bbc_nevent_counter->Fill(5);  // num BBCNS triggers
+
+  //     bbc_zvertex->Fill(zvtx);
+  //     bbc_zvertex_short->Fill(zvtx);
+  //     bbc_zvertex_ns->Fill(zvtx);
+  //     bbc_south_nhit->Fill( south_nhits );
+  //     bbc_north_nhit->Fill( north_nhits );
+
+  //     if ( triginput&mbdnsvtx10 )
+  //     {
+  //         bbc_zvertex_10_chk->Fill(zvtx);
+  //     }
+  //     if ( triginput&mbdnsvtx30 )
+  //     {
+  //         bbc_zvertex_30_chk->Fill(zvtx);
+  //     }
+  //     if ( triginput&mbdnsvtx150 )
+  //     {
+  //         bbc_zvertex_60_chk->Fill(zvtx);
+  //     }
+
+  // }
 
   if ( triggervec&mbdnsvtx10 )
   {
