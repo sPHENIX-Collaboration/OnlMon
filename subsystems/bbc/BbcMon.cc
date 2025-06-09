@@ -1142,9 +1142,17 @@ int BbcMon::process_event(Event *evt)
       Int_t n = gwave->GetN();
       Double_t *x = gwave->GetX();
       Double_t *y = gwave->GetY();
-      for (int isamp = 0; isamp < n; isamp++)
+      // make a threshold cut 
+      for (int jsamp = 0; jsamp < n; jsamp++)
       {
-          bbc_time_wave->Fill(x[isamp], ipmt, y[isamp]);
+          if ( y[jsamp]>20 )
+          {
+              for (int isamp = 0; isamp < n; isamp++)
+              {
+                  bbc_time_wave->Fill(x[isamp], ipmt, y[isamp]);
+              }
+              break;
+          }
       }
 
       int qch = tch + 8;
