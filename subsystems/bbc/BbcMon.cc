@@ -881,6 +881,7 @@ int BbcMon::process_event(Event *evt)
                 // if the mbdns bit is not set, then we use the live vector
                 // to determine if this is a valid event
                 triggervec = triglive;
+                std::cout "I am using the live vector for this event" << std::endl;
             }
 
             /*
