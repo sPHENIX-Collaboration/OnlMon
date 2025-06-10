@@ -2764,7 +2764,6 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
   gStyle->SetTitleFontSize(0.06);
   gStyle->SetPalette(57);
   // gStyle->SetPalette(255, ZSPalette);
-  gStyle->SetNumberContours(255);
   p2_zsFrac_etaphiCombined->GetXaxis()->SetTitle("eta index");
   p2_zsFrac_etaphiCombined->GetYaxis()->SetTitle("phi index");
   p2_zsFrac_etaphiCombined->SetTitle(Form("Average unsuppressed rate: %.3f%%", averagezs));
