@@ -1542,19 +1542,20 @@ int OnlMonClient::CanvasToPng(TCanvas *canvas, std::string const &pngfilename)
               << canvas->GetName() << std::endl;
     return -1;
   }
-  uuid_t uu;
-  uuid_generate(uu);
-  char uuid[50];
-  uuid_unparse(uu, uuid);
-  std::string tmpname = "/tmp/TC" + std::string(uuid);
-  canvas->Print(tmpname.c_str(), "gif");  // write gif format
-  TImage *img = TImage::Open(tmpname.c_str());
-  img->WriteImage(pngfilename.c_str());
-  delete img;
-  if (remove(tmpname.c_str()))
-  {
-    std::cout << "Error removing " << tmpname << std::endl;
-  }
+  // uuid_t uu;
+  // uuid_generate(uu);
+  // char uuid[50];
+  // uuid_unparse(uu, uuid);
+  // std::string tmpname = "/tmp/TC" + std::string(uuid);
+  // canvas->Print(tmpname.c_str(), "gif");  // write gif format
+  // TImage *img = TImage::Open(tmpname.c_str());
+  // img->WriteImage(pngfilename.c_str());
+  // delete img;
+  // if (remove(tmpname.c_str()))
+  // {
+  //   std::cout << "Error removing " << tmpname << std::endl;
+  // }
+  canvas->SaveAs(pngfilename.c_str());
   return 0;
 }
 
