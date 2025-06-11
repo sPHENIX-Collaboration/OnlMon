@@ -7,8 +7,8 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlzdcmon_server.so)
 
-
-void run_zdc_server(const std::string &name = "ZDCMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/ZDC/beam/beam_seb20-00040783-0000.prdf")
+//void run_zdc_server(const std::string &name = "ZDCMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/ZDC/beam/beam_seb20-00040783-0000.prdf")
+void run_zdc_server(const std::string &name = "ZDCMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/physics/ZDC/physics/physics_seb20-00066522-0000.prdf")
 {
 
   OnlMon *m = new ZdcMon(name);                     // create subsystem Monitor object
