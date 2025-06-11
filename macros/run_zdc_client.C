@@ -7,6 +7,8 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlzdcmon_client.so)
 
+std::string DrawerName="ZDCMONDRAW";
+
 void zdcDrawInit(const int online = 0)
 {
 
@@ -102,8 +104,14 @@ void zdcDrawInit(const int online = 0)
 void zdcDraw(const char *what="ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("ZDCMON_0",1);      // update histos
-  cl->Draw("ZDCMONDRAW",what);                      // Draw Histos of registered Drawers
+  //cl->requestHistoBySubSystem("ZDCMON_0",1);      // update histos
+  //cl->Draw("ZDCMONDRAW",what);                      // Draw Histos of registered Drawers
+  OnlMonDraw *zdcdraw = cl->GetDrawer(DrawerName);
+  for (auto iter = zdcdraw->ServerBegin(); iter != zdcdraw->ServerEnd(); ++iter)
+  {
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
+  cl->Draw("ZDCMONDRAW", what);                // Draw Histos of registered Drawers
 }
 
 void zdcSavePlot()
