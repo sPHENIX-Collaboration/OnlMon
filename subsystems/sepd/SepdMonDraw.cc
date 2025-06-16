@@ -540,7 +540,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[canvasindex]->cd();
@@ -664,10 +664,10 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(1.25);
   h_waveform_time->SetFillColorAlpha(kBlue, 0.1);
-  if (h_waveform_time->GetEntries())
-  {
-    h_waveform_time->Scale(1. / h_waveform_time->GetEntries());
-  }
+  if ( h_waveform_time->GetEntries() )
+    {
+      h_waveform_time->Scale(1.0/h_waveform_time->GetEntries());
+    }
   gPad->Update();
   // draw two black lines for the okay timing range
   TLine line3(4.5, 0, 4.5, gPad->GetFrame()->GetY2());
@@ -713,10 +713,10 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   h_waveform_pedestal->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_pedestal->GetYaxis()->SetTitleOffset(1.25);
   h_waveform_pedestal->SetFillColorAlpha(kBlue, 0.1);
-  if (h_waveform_pedestal->GetEntries())
-  {
-    h_waveform_pedestal->Scale(1. / h_waveform_pedestal->GetEntries());
-  }
+  if ( h_waveform_pedestal->GetEntries() )
+    {
+      h_waveform_pedestal->Scale(1.0/h_waveform_pedestal->GetEntries());
+    }
   gPad->Update();
   TLine line6(1000, 0, 1000, gPad->GetFrame()->GetY2());
   line6.SetLineColor(1);
