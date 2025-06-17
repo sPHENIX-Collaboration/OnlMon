@@ -101,7 +101,7 @@ int SepdMon::Init()
   p_noiserms_all_channel = new TProfile("p_noiserms_all_channel","",768,0,768,"S");
 
   int nADCcorr = 500;
-  double ADCcorrmax = 1e6;
+  double ADCcorrmax = 6e6;
   int nhitscorr = 500;
   double hitscorrmax = 1000;
   h_ADC_corr = new TH2F("h_ADC_corr", ";ADC sum (south); ADC sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
@@ -380,7 +380,10 @@ int SepdMon::process_event(Event *e /* evt */)
             p_noiserms_all_channel->Fill(ch,-postpre);
         }
 
-        bool is_good_hit = ( signalFast > 50 && signalFast < 3000 );
+        // --- Run24pp
+        //bool is_good_hit = ( signalFast > 50 && signalFast < 3000 );
+        // --- Run25AuAu
+        bool is_good_hit = ( signalFast > 50 && signalFast < 15000 );
 
         // std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
         // float signalTemp = resultTemp.at(0);
@@ -446,8 +449,7 @@ int SepdMon::process_event(Event *e /* evt */)
   // h1_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
   h1_waveform_twrAvg->Scale((float) 1 / ChannelNumber);
 
-  // --- need to rework these a bit (or possibly just not use them)
-  // --- need to make a trigger selection
+  // --- need to make a trigger selection?
   if ( is_trigger_okay )
     {
       h_ADC_corr->Fill(sumADC_s, sumADC_n);

@@ -503,8 +503,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[4]->cd();
   h_ADC_corr->GetYaxis()->SetNdivisions(505);
   h_ADC_corr->GetXaxis()->SetNdivisions(505);
-  h_ADC_corr->GetYaxis()->SetRangeUser(0,6e5);
-  h_ADC_corr->GetXaxis()->SetRangeUser(0,6e5);
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e6);
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6);
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
