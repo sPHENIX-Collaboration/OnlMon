@@ -329,7 +329,7 @@ std::vector<float> HcalMon::anaWaveform(Packet* p, const int channel)
 
 int HcalMon::BeginRun(const int /* runno */)
 {
-  //reset the thresholds
+  // reset the thresholds
   hit_threshold = 30;
   waveform_hit_threshold = 100;
 
@@ -371,7 +371,7 @@ int HcalMon::BeginRun(const int /* runno */)
   }
   if (anaGL1)
   {
-    OnlMonServer *se = OnlMonServer::instance();
+    OnlMonServer* se = OnlMonServer::instance();
     se->UseGl1();
   }
   return 0;
@@ -393,7 +393,6 @@ int HcalMon::process_event(Event* e /* evt */)
   float energy1 = 0;
   float energy2 = 0;
 
- 
   bool fillhist = true;
   std::vector<bool> trig_bools;
   trig_bools.resize(64);
@@ -405,7 +404,7 @@ int HcalMon::process_event(Event* e /* evt */)
     Event* gl1Event = erc->getEvent(evtnr);
     if (gl1Event)
     {
-      OnlMonServer *se = OnlMonServer::instance();
+      OnlMonServer* se = OnlMonServer::instance();
       se->IncrementGl1FoundCounter();
       have_gl1 = true;
       Packet* p = gl1Event->getPacket(14001);
@@ -439,24 +438,17 @@ int HcalMon::process_event(Event* e /* evt */)
     if (usetrig4_10)
     {
       // commenting out until we have a better way to handle cosmic bits -- tanner
-      // if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS1) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0)
-      // {
-        // fillhist = false;
-      // }
-      //if we have hcal single cosmic trigger we are in cosmic running mode and need to adjust thresholds accordingly
-      if( trig_bools.at(TriggerEnum::BitCodes::RANDOM)
-	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES)
-	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_VERT)
-	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_VERT)
-	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_HORZ)
-	  || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_HORZ)
-	  )
-	{
-	  hit_threshold = 1000;
-	  waveform_hit_threshold = 1000;
-	}
+      if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX10) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0)
+      {
+        fillhist = false;
+      }
+      // if we have hcal single cosmic trigger we are in cosmic running mode and need to adjust thresholds accordingly
+      if (trig_bools.at(TriggerEnum::BitCodes::RANDOM) || trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_VERT) || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_VERT) || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_HORZ) || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_HORZ))
+      {
+        hit_threshold = 1000;
+        waveform_hit_threshold = 1000;
+      }
     }
-    
   }
 
   for (int packet = packetlow; packet <= packethigh; packet++)
@@ -540,7 +532,6 @@ int HcalMon::process_event(Event* e /* evt */)
 
           rm_vector_twr[towerNumber - 1]->Add(&signal);
 
-          
           h2_hcal_mean->SetBinContent(bin, h2_hcal_mean->GetBinContent(bin) + signal);
           h2_hcal_rm->SetBinContent(bin, rm_vector_twrhit[towerNumber - 1]->getMean(0));
           h2_hcal_time->SetBinContent(bin, rm_vector_twrTime[towerNumber - 1]->getMean(0));
@@ -568,14 +559,14 @@ int HcalMon::process_event(Event* e /* evt */)
           }
         }
         //_______________________________________________________end of MBD trigger requirement
-          if (suppressed == 1)
-          {
-            pr_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 0);
-          }
-          else
-          {
-            pr_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 1);
-          }
+        if (suppressed == 1)
+        {
+          pr_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 0);
+        }
+        else
+        {
+          pr_zsFrac_etaphi_all->Fill(eta_bin, phi_bin, 1);
+        }
         // record waveform
         for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
         {
@@ -589,7 +580,6 @@ int HcalMon::process_event(Event* e /* evt */)
         {
           h_waveform_time->Fill(time);
         }
-
 
         if (signal > hit_threshold)
         {
@@ -607,12 +597,12 @@ int HcalMon::process_event(Event* e /* evt */)
         {
           rm_vector_twrhit_alltrig[towerNumber - 1]->Add(zero);
         }
-        if(prepost > 0)
+        if (prepost > 0)
         {
           p2_pre_post->Fill(eta_bin, phi_bin, prepost);
           p2_pre_post->Fill(eta_bin, phi_bin, -prepost);
         }
-        h2_hcal_rm_alltrig->SetBinContent(bin, rm_vector_twrhit_alltrig[towerNumber - 1]->getMean(0));      
+        h2_hcal_rm_alltrig->SetBinContent(bin, rm_vector_twrhit_alltrig[towerNumber - 1]->getMean(0));
 
       }  // channel loop
 
