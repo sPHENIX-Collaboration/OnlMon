@@ -14,6 +14,7 @@ class Packet;
 class TProfile;
 class TProfile2D;
 class runningMean;
+class eventReceiverClient;
 
 class SepdMon : public OnlMon
 {
@@ -32,6 +33,13 @@ class SepdMon : public OnlMon
   std::vector<float> anaWaveformTemp(Packet *p, const int channel);
   int evtcnt = 0;
   int idummy = 0;
+
+  // --- copied straight from the MBD
+  uint64_t mbdtrig{0};        // main mbd trigger
+  uint64_t mbdns{0};          // mbdns n>=1 or 2 bit
+  uint64_t mbdnsvtx10{0};     // mbdns vtx<10 bit
+  uint64_t mbdnsvtx30{0};     // mbdns vtx<30 bit
+  uint64_t mbdnsvtx150{0};     // mbdns vtx<150 bit
 
   const int Nsector = 24;
   const int Nchannel = 192 * 4;
@@ -78,6 +86,7 @@ class SepdMon : public OnlMon
 
   CaloWaveformFitting *WaveformProcessingFast = nullptr;
   CaloWaveformFitting *WaveformProcessingTemp = nullptr;
+  eventReceiverClient *erc = nullptr;
 
   std::vector<runningMean *> rm_packet_number;
   std::vector<runningMean *> rm_packet_length;

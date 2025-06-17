@@ -9,13 +9,13 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 #include <onlmon/pseudoRunningMean.h>
+#include <onlmon/triggerEnum.h> // for trigger selection
 
-#include <Event/msg_profile.h>
 #include <calobase/TowerInfoDefs.h>
 #include <caloreco/CaloWaveformFitting.h>
 
 #include <Event/Event.h>
-#include <Event/EventTypes.h>
+#include <Event/eventReceiverClient.h>
 #include <Event/msg_profile.h>
 
 #include <TH1.h>
@@ -60,6 +60,10 @@ SepdMon::~SepdMon()
   {
     delete iter;
   }
+  if (erc)
+  {
+    delete erc;
+  }
   return;
 }
 
@@ -83,6 +87,14 @@ int SepdMon::Init()
   // system (all couts are redirected)
   printf("doing the Init\n");
 
+  // --- copied straight from the MBD code
+  mbdns = (0x1UL << TriggerEnum::MBD_NS2) | (0x1UL << TriggerEnum::MBD_NS1); // mbd wide triggers
+  mbdnsvtx10 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX10) | (0x1UL << TriggerEnum::MBD_NS1_ZVRTX10);
+  mbdnsvtx30 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX30);
+  mbdnsvtx150 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX150);
+  mbdtrig = mbdns | mbdnsvtx10 | mbdnsvtx30 | mbdnsvtx150;
+
+
   h_ADC_all_channel = new TH1D("h_ADC_all_channel",";;",768,-0.5,767.5);
   h_hits_all_channel = new TH1D("h_hits_all_channel",";;",768,-0.5,767.5);
 
@@ -100,7 +112,9 @@ int SepdMon::Init()
   // waveform processing
   h1_waveform_twrAvg = new TH1D("h1_waveform_twrAvg", "", n_samples_show, 0.5, n_samples_show + 0.5);
   h1_waveform_time = new TH1D("h1_waveform_time", "", n_samples_show, 0.5, n_samples_show + 0.5);
-  h1_waveform_pedestal = new TH1D("h1_waveform_pedestal", "", 42, 1.0e3, 2.0e3);
+  //h1_waveform_pedestal = new TH1D("h1_waveform_pedestal", "", 42, 1.0e3, 2.0e3);
+  // --- wider range and more bins, copied from HCal
+  h1_waveform_pedestal = new TH1F("h1_waveform_pedestal", "", 5e3, 0, 5e3);
   h2_sepd_waveform = new TH2F("h2_sepd_waveform", "", n_samples_show, 0.5, n_samples_show + 0.5, 1000, 0, 15000);
 
   // waveform processing, template vs. fast interpolation
@@ -168,6 +182,13 @@ int SepdMon::Init()
   // WaveformProcessingTemp->initialize_processing(sepdtemplate);
 
   Reset();
+
+  // if (anaGL1)
+  // {
+  //erc = new eventReceiverClient("localhost"); // local testing
+  erc = new eventReceiverClient("gl1daq"); // 1008 deployment
+  // }
+
   return 0;
 }
 
@@ -188,6 +209,11 @@ int SepdMon::BeginRun(const int /* runno */)
   {
     (*rm_it)->Reset();
   }
+  // if (anaGL1)
+  // {
+  OnlMonServer *se = OnlMonServer::instance();
+  se->UseGl1();
+  // }
   return 0;
 }
 
@@ -271,6 +297,35 @@ int SepdMon::process_event(Event *e /* evt */)
   int sumhit_n = 0;
   long double sumADC_s = 0;
   long double sumADC_n = 0;
+
+  // --- get the trigger info...
+  bool is_trigger_okay = false;
+  int evtnr = e->getEvtSequence();
+  Event* gl1Event = erc->getEvent(evtnr);
+  // --- only do this insanity for diagnostic purposes and a small number of events
+  // std::cout << "event number evtnr is " << evtnr << std::endl;
+  // std::cout << "gl1Event pointer is " << gl1Event << std::endl;
+  if ( gl1Event )
+    {
+      OnlMonServer *se = OnlMonServer::instance();
+      se->IncrementGl1FoundCounter();
+      Packet* pgl1 = gl1Event->getPacket(14001);
+      // --- only do this insanity for diagnostic purposes and a small number of events
+      // std::cout << "gl1 packet 14001 pointer is " << pgl1 << std::endl;
+      if ( pgl1 )
+        {
+          uint64_t triggervec = pgl1->lValue(0, "ScaledVector");
+          is_trigger_okay = triggervec & mbdtrig;
+          // --- only do this insanity for diagnostic purposes and a small number of events
+          // std::cout << "triggervec is " << triggervec << std::endl;
+          // std::cout << "mbdtrig is " << mbdtrig << std::endl;
+          // std::cout << "trigger decision is " << is_trigger_okay << std::endl;
+          delete pgl1;
+        }
+      delete gl1Event;
+    }
+
+
   // loop over packets which contain a single sector
   for (int packet = packetlow; packet <= packethigh; packet++)
   {
@@ -392,8 +447,12 @@ int SepdMon::process_event(Event *e /* evt */)
   h1_waveform_twrAvg->Scale((float) 1 / ChannelNumber);
 
   // --- need to rework these a bit (or possibly just not use them)
-  h_ADC_corr->Fill(sumADC_s, sumADC_n);
-  h_hits_corr->Fill(sumhit_s, sumhit_n);
+  // --- need to make a trigger selection
+  if ( is_trigger_okay )
+    {
+      h_ADC_corr->Fill(sumADC_s, sumADC_n);
+      h_hits_corr->Fill(sumhit_s, sumhit_n);
+    }
 
   return 0;
 
@@ -407,4 +466,3 @@ int SepdMon::Reset()
 
   return 0;
 }
-
