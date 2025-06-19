@@ -4,6 +4,7 @@
 
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
+#include <TFrame.h>
 #include <TGraphErrors.h>
 #include <TH1.h>
 #include <TLegend.h>
@@ -494,7 +495,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
     return -1;
   }
   // --- rebin histograms
-  h_ADC_corr->Rebin2D(5,5);
+  //h_ADC_corr->Rebin2D(5,5);
   //h_hits_corr->Rebin2D(5,5);
   // ---
   TC[canvasindex]->SetEditable(true);
@@ -502,8 +503,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[4]->cd();
   h_ADC_corr->GetYaxis()->SetNdivisions(505);
   h_ADC_corr->GetXaxis()->SetNdivisions(505);
-  h_ADC_corr->GetYaxis()->SetRangeUser(0,40000);
-  h_ADC_corr->GetXaxis()->SetRangeUser(0,40000);
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e6);
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6);
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -539,7 +540,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
+  runnostream << ThisName << "_3 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[canvasindex]->cd();
@@ -565,8 +566,8 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   TH1 *h_waveform_pedestal = cl->getHisto("SEPDMON_0", "h1_waveform_pedestal");
   TH2 *h2_sepd_waveform = (TH2 *) cl->getHisto("SEPDMON_0", "h2_sepd_waveform");
 
-  TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
-  int nevt = h_event->GetEntries();
+  //TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
+  //int nevt = h_event->GetEntries();
 
 
   TC[canvasindex]->SetEditable(1);
@@ -597,8 +598,8 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   tp1f_sepd_waveform->Draw("same");
   // --- draw vertical lines where the waveform should be
   // x1 y1 x2 y2
-  TLine* lineleft = new TLine(5.0,0,5.0,ymaxdraw);
-  TLine* lineright = new TLine(7.0,0,7.0,ymaxdraw);
+  TLine* lineleft = new TLine(4.5,0,4.5,ymaxdraw);
+  TLine* lineright = new TLine(7.5,0,7.5,ymaxdraw);
   lineleft->SetLineColor(kBlack);
   lineleft->SetLineWidth(2);
   lineleft->SetLineStyle(2);
@@ -649,34 +650,43 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   h_waveform_time->GetXaxis()->SetRangeUser(0,11);
-  h_waveform_time->Scale(1.0/nevt);
+  //h_waveform_time->Scale(1.0/nevt);
   h_waveform_time->Draw("hist");
   // ---
   //h_waveform_time->GetXaxis()->SetNdivisions(510, kTRUE);
   h_waveform_time->GetXaxis()->SetNdivisions(12);
   h_waveform_time->GetXaxis()->SetTitle("Sample #");
-  h_waveform_time->GetYaxis()->SetTitle("Counts/Event");
+  h_waveform_time->GetYaxis()->SetTitle("Normalized Counts");
   h_waveform_time->GetXaxis()->SetLabelSize(tsize);
   h_waveform_time->GetYaxis()->SetLabelSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleSize(tsize);
   h_waveform_time->GetYaxis()->SetTitleSize(tsize);
   h_waveform_time->GetXaxis()->SetTitleOffset(1.0);
   h_waveform_time->GetYaxis()->SetTitleOffset(1.25);
-  // ---
-  // --- draw vertical lines where the waveform should be
-  float min = h_waveform_time->GetMinimum();
-  float max = h_waveform_time->GetMaximum();
-  // x1 y1 x2 y2
-  TLine* lineleft2 = new TLine(5.0,min,5.0,max);
-  TLine* lineright2 = new TLine(7.0,min,7.0,max);
-  lineleft2->SetLineColor(kBlack);
-  lineleft2->SetLineWidth(2);
-  lineleft2->SetLineStyle(2);
-  lineleft2->Draw();
-  lineright2->SetLineColor(kBlack);
-  lineright2->SetLineWidth(2);
-  lineright2->SetLineStyle(2);
-  lineright2->Draw();
+  h_waveform_time->SetFillColorAlpha(kBlue, 0.1);
+  if ( h_waveform_time->GetEntries() )
+    {
+      h_waveform_time->Scale(1.0/h_waveform_time->GetEntries());
+    }
+  gPad->Update();
+  // draw two black lines for the okay timing range
+  TLine line3(4.5, 0, 4.5, gPad->GetFrame()->GetY2());
+  line3.SetLineColor(1);
+  line3.SetLineWidth(3);
+  line3.SetLineStyle(1);
+  line3.DrawLine(4.5, 0, 4.5, gPad->GetFrame()->GetY2());
+  // high line
+  TLine line4(7.5, 0, 7.5, gPad->GetFrame()->GetY2());
+  line4.SetLineColor(1);
+  line4.SetLineWidth(3);
+  line4.SetLineStyle(1);
+  line4.DrawLine(7.5, 0, 7.5, gPad->GetFrame()->GetY2());
+  // Draw a red line at mean x
+  TLine line5(h_waveform_time->GetMean(), 0, h_waveform_time->GetMean(), gPad->GetFrame()->GetY2());
+  line5.SetLineColor(2);
+  line5.SetLineWidth(3);
+  line5.SetLineStyle(1);
+  line5.DrawLine(h_waveform_time->GetMean(), 0, h_waveform_time->GetMean(), gPad->GetFrame()->GetY2());
   // ---
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
@@ -691,21 +701,38 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.06);
 
   // x-axis range is set in SepdMon.cc, need to change there if want a wider range
-  h_waveform_pedestal->Scale(1.0/nevt);
+  //h_waveform_pedestal->Scale(1.0/nevt);
   h_waveform_pedestal->Draw("hist");
   h_waveform_pedestal->GetXaxis()->SetNdivisions(505);
   h_waveform_pedestal->GetXaxis()->SetTitle("ADC Pedestal");
-  h_waveform_pedestal->GetYaxis()->SetTitle("Counts/Event");
+  h_waveform_pedestal->GetYaxis()->SetTitle("Normalized Counts");
   h_waveform_pedestal->GetXaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetYaxis()->SetLabelSize(tsize);
   h_waveform_pedestal->GetXaxis()->SetTitleSize(tsize);
   h_waveform_pedestal->GetYaxis()->SetTitleSize(tsize);
   h_waveform_pedestal->GetXaxis()->SetTitleOffset(0.9);
   h_waveform_pedestal->GetYaxis()->SetTitleOffset(1.25);
+  h_waveform_pedestal->SetFillColorAlpha(kBlue, 0.1);
+  if ( h_waveform_pedestal->GetEntries() )
+    {
+      h_waveform_pedestal->Scale(1.0/h_waveform_pedestal->GetEntries());
+    }
+  gPad->Update();
+  TLine line6(1000, 0, 1000, gPad->GetFrame()->GetY2());
+  line6.SetLineColor(1);
+  line6.SetLineWidth(3);
+  line6.SetLineStyle(1);
+  line6.DrawLine(1000, 0, 1000, gPad->GetFrame()->GetY2());
+  TLine line7(2000, 0, 2000, gPad->GetFrame()->GetY2());
+  line7.SetLineColor(1);
+  line7.SetLineWidth(3);
+  line7.SetLineStyle(1);
+  line7.DrawLine(2000, 0, 2000, gPad->GetFrame()->GetY2());
   gPad->SetTopMargin(0.06);
   gPad->SetBottomMargin(0.18);
   gPad->SetRightMargin(0.05);
   gPad->SetLeftMargin(0.2);
+  gPad->SetLogy();
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
@@ -1123,7 +1150,7 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   //runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
-  runnostream << ThisName << "_1 Run " << cl->RunNumber()
+  runnostream << ThisName << "_6 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[canvasindex]->cd();

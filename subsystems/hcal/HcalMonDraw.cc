@@ -594,7 +594,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
   gStyle->SetPalette(4, palette);
-  double_t levels[5] = {0, 0.01, 0.5, 1.5, 4};
+  double_t levels[5] = {0, 0.01, 0.75, 1.5, 4};
   hist1->SetContour(5, levels);
 
   FindHotTower(warning[0], hist1, true);
