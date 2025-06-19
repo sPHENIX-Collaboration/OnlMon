@@ -2071,8 +2071,8 @@ int BbcMonDraw::Draw(const std::string &what)
         rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
       }
 
-      rangemin = -5;
-      rangemax = 5;
+      rangemin = -3;
+      rangemax = 3;
       FitSouthHitTime->SetRange(rangemin, rangemax);
       SouthHitTime->Fit("FitSouthHitTime", "QRL");
       FitSouthHitTime->Draw("same");
@@ -2082,8 +2082,8 @@ int BbcMonDraw::Draw(const std::string &what)
       aline.SetLineStyle(7);
       aline.SetLineColor(kRed);
       aline.SetLineWidth(4);
-      aline.DrawLine(-5.0, gPad->GetFrame()->GetY1(), -5.0, gPad->GetFrame()->GetY2());
-      aline.DrawLine(+5.0, gPad->GetFrame()->GetY1(), +5.0, gPad->GetFrame()->GetY2());
+      aline.DrawLine(-3.0, gPad->GetFrame()->GetY1(), -3.0, gPad->GetFrame()->GetY2());
+      aline.DrawLine(+3.0, gPad->GetFrame()->GetY1(), +3.0, gPad->GetFrame()->GetY2());
 
       /*
       // Lines to indicate good mean
