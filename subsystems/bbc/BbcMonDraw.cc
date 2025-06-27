@@ -1325,6 +1325,7 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_zvertex_ns = cl->getHisto("BBCMON_0", "bbc_zvertex_ns");
   ifdelete(Zvtx_ns);
   Zvtx_ns = static_cast<TH1 *>(bbc_zvertex_ns->Clone());
+  Zvtx_ns->Rebin(2);
 
   TH1 *bbc_zvertex_10 = cl->getHisto("BBCMON_0", "bbc_zvertex_10");
   ifdelete(Zvtx_10);
@@ -1575,10 +1576,12 @@ int BbcMonDraw::Draw(const std::string &what)
     double nevt = Trigs->GetBinContent(11); // trig 10 is MBDNS>=1, +1 for bin
     double prescale = Prescale_hist->GetBinContent(11);
     std::cout << "TRIG 10 " << nevt << "\t" << prescale << std::endl;
+    /*
     if ( prescale!= -1.0 )
     {
       Zvtx_ns->Scale( prescale+1 );
     }
+    */
 
     Zvtx_10->SetLineColor(2);
     Zvtx_10->SetFillColor(2);
@@ -1607,8 +1610,9 @@ int BbcMonDraw::Draw(const std::string &what)
     // Fit No-Vertex Distribution
     FitZvtx->SetRange(-75, 75);
     FitZvtx->SetLineColor(1);
+
     // Zvtx->Fit("FitZvtx", "LRQ");
-    Zvtx->Fit("FitZvtx", "R");
+    Zvtx_ns->Fit("FitZvtx", "R");
 
     // here we get the relative scaling right to put all on the same plot
     // the binning might be different, so we first find the bins corresponding to
@@ -1643,11 +1647,13 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // just in case the bbcll1 with vtx cut histo is empty
     // draw the novertex cut (happens during setup)
-    if (Zvtx->GetEntries() > 0)
+    if (Zvtx_ns->GetEntries() > 0)
     {
-      Zvtx->Draw("hist");
+      Zvtx_ns->Draw("hist");
+      //Zvtx->Draw("histsame");
       FitZvtx->Draw("same");
     }
+
     // trigger rate between BBCLL1 and Zvertex within +- BBC_ZVERTEX_CUT_FOR_TRIG_RATE
     // bbll1, zdc, bbll1_novtx
 
@@ -1766,11 +1772,14 @@ int BbcMonDraw::Draw(const std::string &what)
 
     PadZVertex->cd();
 
-    if (Zvtx_ns->GetEntries() > 0)
+    if (Zvtx->GetEntries() > 0)
     {
-      Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
-      Zvtx_ns->Draw("hist");
-      Zvtx_10->Draw("histsame");
+      Zvtx->SetLineColor(2);
+      Zvtx->SetFillColor(2);
+      Zvtx->Draw("hist");
+      Zvtx->GetXaxis()->SetRangeUser(-60, 60);
+      Zvtx->Draw("hist");
+      //Zvtx_10->Draw("histsame");
     }
 
     // Status of sending vertex
@@ -2133,8 +2142,8 @@ int BbcMonDraw::Draw(const std::string &what)
         rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
       }
 
-      rangemin = -5;
-      rangemax = 5;
+      rangemin = -3;
+      rangemax = 3;
       FitNorthHitTime->SetRange(rangemin, rangemax);
       NorthHitTime->Fit("FitNorthHitTime", "QRL");
       FitNorthHitTime->Draw("same");
@@ -2144,8 +2153,8 @@ int BbcMonDraw::Draw(const std::string &what)
       aline.SetLineStyle(7);
       aline.SetLineColor(kRed);
       aline.SetLineWidth(4);
-      aline.DrawLine(-5.0 ,gPad->GetFrame()->GetY1(),-5.0,gPad->GetFrame()->GetY2());
-      aline.DrawLine(+5.0,gPad->GetFrame()->GetY1(),+5.0,gPad->GetFrame()->GetY2());
+      aline.DrawLine(-3.0 ,gPad->GetFrame()->GetY1(),-3.0,gPad->GetFrame()->GetY2());
+      aline.DrawLine(+3.0,gPad->GetFrame()->GetY1(),+3.0,gPad->GetFrame()->GetY2());
 
       /*
       // Lines to indicate good mean
@@ -2369,7 +2378,7 @@ int BbcMonDraw::Draw(const std::string &what)
         max.push_back( Zvtx_zdcns->GetBinContent( Zvtx_zdcns->GetMaximumBin() ) );
         double maximum = *std::max_element(max.begin(), max.end());
 
-        Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
+        //Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
         Zvtx_ns->SetMaximum(maximum*1.1);
         Zvtx_ns->Draw("hist");
 

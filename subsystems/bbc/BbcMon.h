@@ -50,6 +50,8 @@ class BbcMon : public OnlMon
   //uint64_t gl1_bco{0};
   uint64_t trigmask{0};       // accepted triggers
   uint64_t mbdtrig{0};        // main mbd trigger
+  uint64_t mbdwidebest{0};    // best of mbdns n>=1or2, or |z|<150, or zdcns
+  uint64_t mbdbest{0};        // best mbd trigger
   uint64_t mbdns{0};          // mbdns n>=1 or 2 bit
   uint64_t mbdnsvtx10{0};     // mbdns vtx<10 bit
   uint64_t mbdnsvtx30{0};     // mbdns vtx<30 bit
@@ -66,6 +68,7 @@ class BbcMon : public OnlMon
   RunDBodbc *rdb{nullptr};
 
   uint64_t GetMinBiasTrigBit(uint64_t trigs_enabled);
+  uint64_t GetMinBiasWideTrigBit(uint64_t trigs_enabled);
 
   int evtcnt{0};
   // OnlMonDB *dbvars = nullptr;
