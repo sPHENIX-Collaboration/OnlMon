@@ -39,6 +39,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 
 /*
@@ -210,7 +211,7 @@ int BbcMon::Init()
 
   // Vertex Distributions --------------------------------------------------------
 
-  bbc_zvertex = new TH1F("bbc_zvertex", "MBD ZVertex, main trigger", 128, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
+  bbc_zvertex = new TH1F("bbc_zvertex", "MBD ZVertex, main trigger", BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
   bbc_zvertex->Sumw2();
   bbc_zvertex->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex->GetYaxis()->SetTitle("Number of Event");
@@ -222,7 +223,7 @@ int BbcMon::Init()
   bbc_zvertex->GetXaxis()->SetTickSize(0.1);
 
   bbc_zvertex_alltrigger = new TH1F("bbc_zvertex_alltrigger", "MBD ZVertex, all triggers",
-                                    128, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
+                                    BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
   bbc_zvertex_alltrigger->Sumw2();
   bbc_zvertex_alltrigger->GetXaxis()->SetTitle("ZVertex [cm]");
   bbc_zvertex_alltrigger->GetYaxis()->SetTitle("Number of Event");
@@ -640,9 +641,10 @@ int BbcMon::BeginRun(const int runno)
   }
   std::cout << "trigs_enabled 0x" << std::hex << trigs_enabled << std::dec << std::endl;
 
-  mbdns = GetMinBiasTrigBit( trigs_enabled );
+  mbdbest = GetMinBiasTrigBit( trigs_enabled );
+  mbdwidebest = GetMinBiasWideTrigBit( trigs_enabled );
 
-  if ( mbdns == std::numeric_limits<uint64_t>::max() )
+  if ( mbdbest == std::numeric_limits<uint64_t>::max() )
   {
     std::cout << "Oddball run without a proper MB trigger, using all triggers instead" << std::endl;
     trigmask = std::numeric_limits<uint64_t>::max();
@@ -671,18 +673,76 @@ int BbcMon::GetFillNumber()
 
 uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
 {
-  // look for MB triggers, in order (bits 10-14)
-  for (int ibit=10; ibit<=14; ibit++)
+  // look for MB triggers, and select lowest prescale
+  std::vector<int> widebits = {
+    TriggerEnum::MBD_NS2_ZVRTX10,
+    TriggerEnum::MBD_NS1_ZVRTX10,
+    TriggerEnum::MBD_NS2_ZVRTX30,
+    TriggerEnum::MBD_NS1,
+    TriggerEnum::MBD_NS2,
+    TriggerEnum::MBD_NS2_ZVRTX150,
+  };
+  
+  int best_scaledown = 999999999;
+  int best_trig = -1;
+  for ( int itrig : widebits )
   {
-    uint64_t mb_bit = 0x1UL<<ibit;
-    if ( (mb_bit&trigs_enabled) == mb_bit )
+    int scaledown = bbc_prescale_hist->GetBinContent( itrig + 1 );
+    std::cout << "BEST_TRIG " << itrig << "\t" << scaledown << std::endl;
+    if ( scaledown>=0 && scaledown<best_scaledown )
     {
-      return mb_bit;
+      best_scaledown = scaledown;
+      best_trig = itrig;
     }
   }
+
+  if ( best_trig>=0 )
+  {
+    std::cout << "BEST MBDTRIG IS " << best_trig << std::endl;
+    return ( 0x1UL << best_trig );
+  }
+
   // no MBD only trigger, look for ZDC trigger
   if ( (zdcns&trigs_enabled) == zdcns )
   {
+    return zdcns;
+  }
+
+  // no match, use any trigger
+  return std::numeric_limits<uint64_t>::max();
+}
+
+uint64_t BbcMon::GetMinBiasWideTrigBit(uint64_t trigs_enabled)
+{
+  // look for MB triggers, and select lowest prescale
+  std::vector<int> widebits = {
+    TriggerEnum::MBD_NS1,
+    TriggerEnum::MBD_NS2,
+    TriggerEnum::MBD_NS2_ZVRTX150
+  };
+  
+  int best_scaledown = 99999999;
+  int best_trig = -1;
+  for ( int itrig : widebits )
+  {
+    int scaledown = bbc_prescale_hist->GetBinContent( itrig + 1 );
+    if ( scaledown>=0 && scaledown<best_scaledown )
+    {
+      best_scaledown = scaledown;
+      best_trig = itrig;
+    }
+  }
+
+  if ( best_trig>=0 )
+  {
+    std::cout << "BEST WIDE MBDTRIG IS " << best_trig << std::endl;
+    return ( 0x1UL << best_trig );
+  }
+
+  // no MBD only trigger, look for ZDC trigger
+  if ( (zdcns&trigs_enabled) == zdcns )
+  {
+    std::cout << "BEST WIDE MBDTRIG IS ZDCNS" << std::endl;
     return zdcns;
   }
 
@@ -881,8 +941,8 @@ int BbcMon::process_event(Event *evt)
             trigscaled = static_cast<uint64_t>( p_gl1->lValue(0,"ScaledVector") );
 
             triggervec = trigscaled;
-            if( ((triggervec&mbdns)==0) && ((triggervec&zdcns)==0) ){
-                // if the mbdns or zdcns bit is not set, then we use the live vector
+            if( ((triggervec&mbdtrig)==0) && ((triggervec&zdcns)==0) ){
+                // if no mbd or zdcns bit is set, then we use the live vector
                 // to determine if this is a valid event
                 triggervec = triglive;
                 std::cout << "I am using the live vector for this event" << std::endl;
@@ -962,13 +1022,11 @@ int BbcMon::process_event(Event *evt)
 
   // vertex and t0
   //std::cout << "mbdns " << std::hex << mbdns << std::dec << std::endl;
-  if ( (triggervec&mbdns)!=0 )
+  if ( (triggervec&mbdbest)!=0 )
   {
       bbc_nevent_counter->Fill(5);  // num BBCNS triggers
 
       bbc_zvertex->Fill(zvtx);
-      bbc_zvertex_short->Fill(zvtx);
-      bbc_zvertex_ns->Fill(zvtx);
       bbc_south_nhit->Fill( south_nhits );
       bbc_north_nhit->Fill( north_nhits );
 
@@ -985,6 +1043,11 @@ int BbcMon::process_event(Event *evt)
           bbc_zvertex_60_chk->Fill(zvtx);
       }
   } 
+  if ( (triggervec&mbdwidebest)!=0 )
+  {
+      bbc_zvertex_ns->Fill(zvtx);
+      bbc_zvertex_short->Fill(zvtx);
+  }
   // else if ( (triglive&mbdns)!=0 ) 
   // {
   //     bbc_nevent_counter->Fill(5);  // num BBCNS triggers

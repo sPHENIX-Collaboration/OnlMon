@@ -154,7 +154,8 @@ class BbcMonDraw : public OnlMonDraw
   TH1 *Zvtx_hcal{nullptr};
   TH1 *Zvtx_emcalmbd{nullptr};
   TH1 *Zvtx_hcalmbd{nullptr};
-  TF1 *FitZvtx = nullptr;
+  TF1 *FitZvtx{nullptr};
+  TF1 *FitZDCvtx{nullptr};
   TLine *LineZvtx[2] = {};
   TArrow *ArrowZvtx = nullptr;
   TText *TextZvtx = nullptr;
@@ -226,7 +227,7 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextZVertex_scale[5] = {};  // RUN11 pp
   TText *TextZVertex_mean[5] = {};   // RUN11 pp
 
-  TLatex *TextZvtxStatus[3] = {};
+  TLatex *TextZvtxStatus[5] = {};
 
   TH2 *TzeroZvtx = nullptr;
 
