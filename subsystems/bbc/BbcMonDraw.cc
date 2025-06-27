@@ -1568,7 +1568,7 @@ int BbcMonDraw::Draw(const std::string &what)
     Zvtx->SetLineColor(4);
     Zvtx->SetFillColor(7);
 
-    Zvtx_ns->SetTitle("MBD zvertex");
+    Zvtx_ns->SetTitle("MBD Wide Zvertex");
     Zvtx_ns->SetLineColor(4);
     Zvtx_ns->SetFillColor(7);
     Zvtx_ns->SetMinimum(0); // start plots at zero
@@ -1755,7 +1755,8 @@ int BbcMonDraw::Draw(const std::string &what)
 
     text = otext.str();
     // TextZvtxStatus[0]->SetText(0.0, 0.85, text.c_str());
-    TextZvtxStatus[0]->SetText(-230., maxEntries * 0.8, text.c_str());
+    Double_t ymax = Zvtx_ns->GetMaximum();
+    TextZvtxStatus[0]->SetText(-230., ymax * 0.8, text.c_str());
     TextZvtxStatus[0]->SetTextSize(0.10);
     TextZvtxStatus[0]->Draw();
 
@@ -1764,7 +1765,7 @@ int BbcMonDraw::Draw(const std::string &what)
     	  << " #pm " << ((float)int(FitZvtx->GetParError(2)*10))/10.0
           << " cm";
     text = otext.str();
-    TextZvtxStatus[1]->SetText(100., maxEntries * 0.8, text.c_str());
+    TextZvtxStatus[1]->SetText(100., ymax * 0.8, text.c_str());
     TextZvtxStatus[1]->SetTextSize(0.10);
     TextZvtxStatus[1]->Draw();
 
