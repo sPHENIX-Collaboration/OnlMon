@@ -941,12 +941,14 @@ int BbcMon::process_event(Event *evt)
             trigscaled = static_cast<uint64_t>( p_gl1->lValue(0,"ScaledVector") );
 
             triggervec = trigscaled;
+            /*
             if( ((triggervec&mbdtrig)==0) && ((triggervec&zdcns)==0) ){
                 // if no mbd or zdcns bit is set, then we use the live vector
                 // to determine if this is a valid event
                 triggervec = triglive;
                 std::cout << "I am using the live vector for this event" << std::endl;
             }
+            */
 
             /*
                std::cout << "TRIGS" << std::hex << std::endl;
