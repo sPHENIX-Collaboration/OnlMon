@@ -382,7 +382,7 @@ int CemcMon::process_event(Event *e /* evt */)
     //this is for only process event with the MBD>=2 trigger
     //use MBD>=2 for AuAu
     if(usembdtrig){
-      if(trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX10) == 0){
+      if(trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX10) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX30) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX150) == 0){
         fillhist = false;
       }
     }
