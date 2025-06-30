@@ -2755,6 +2755,9 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
 
   double maxx = (sum / count) * 5 > 1.1 ? 1.1 : (sum / count) * 5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
+  //max y is the max among h1_zs, h1_zs_low, h1_zs_high
+  double maxy = std::max({h1_zs->GetMaximum(), h1_zs_low->GetMaximum(), h1_zs_high->GetMaximum()});
+  h1_zs->SetMaximum(maxy * 1.2);
 
   double averagezs = sum / count * 100;
 
