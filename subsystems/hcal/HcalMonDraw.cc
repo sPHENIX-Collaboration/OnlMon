@@ -2893,6 +2893,8 @@ int HcalMonDraw::DrawSeventh(const std::string& what)
   double maxx = (sum / count) * 5 > 1.1 ? 1.1 : (sum / count) * 5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
   double averagezs = sum / count * 100;
+  double maxy = std::max({h1_zs->GetMaximum(), h1_zs_low->GetMaximum(), h1_zs_high->GetMaximum()});
+  h1_zs->SetMaximum(maxy * 1.2);
 
   pr_zsFrac_etaphi->GetXaxis()->SetNdivisions(510, kTRUE);
   pr_zsFrac_etaphi->GetXaxis()->SetTitle("eta index");
