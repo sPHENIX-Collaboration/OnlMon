@@ -77,6 +77,7 @@ class BbcMonDraw : public OnlMonDraw
   TPad *PadTop[nCANVAS] = {};
   TPaveText *PaveTop = nullptr;
   TText *TextTop = nullptr;
+  TPad *PadAutoUpdate[nCANVAS] = {};
 
   TPaveText *PaveWarning[BbcMonDefs::MAX_WARNING] = {};
   TArc *ArcWarning[BbcMonDefs::MAX_WARNING] = {};
@@ -216,6 +217,8 @@ class BbcMonDraw : public OnlMonDraw
   TPad *PadnHitStatus = nullptr;
   TText *TextnHitStatus = nullptr;
   TH1 *FramenHit[nSIDE] = {};
+
+  TH1 * ZvrtxAuto[TriggerEnum::NUM_MBD_TRIGGERS] {nullptr};
 
 
   //  TText * TextZVertex[3] = {};

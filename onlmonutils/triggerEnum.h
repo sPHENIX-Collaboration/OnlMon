@@ -37,13 +37,15 @@ enum BitCodes
     RANDOM = 41,
 };
 
+const int NUM_MBD_TRIGGERS = 7;
 const TriggerEnum::BitCodes MBTriggers[] = {
     TriggerEnum::MBD_NS2, // 10
     TriggerEnum::MBD_NS1, // 11
     TriggerEnum::MBD_NS2_ZVRTX10,
     TriggerEnum::MBD_NS2_ZVRTX30,
     TriggerEnum::MBD_NS2_ZVRTX150,
-    TriggerEnum::MBD_NS1_ZVRTX10
+    TriggerEnum::MBD_NS1_ZVRTX10,
+    TriggerEnum::ZDC_NS, // 1
 };
 
 const char * MBTriggerNames[] = {
@@ -52,7 +54,8 @@ const char * MBTriggerNames[] = {
     "MBDNS>=2 |z|<10",
     "MBDNS>=2 |z|<30",
     "MBDNS>=2 |z|<150",
-    "MBDNS>=1 |z|<10"
+    "MBDNS>=1 |z|<10",
+    "ZDCNS",
 };
 
 const int nMBTriggers = sizeof(MBTriggers) / sizeof(TriggerEnum::BitCodes);
