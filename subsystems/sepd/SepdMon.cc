@@ -339,15 +339,16 @@ int SepdMon::process_event(Event *e /* evt */)
   for (int packet = packetlow; packet <= packethigh; packet++)
   {
     Packet *p = e->getPacket(packet);
+    int packet_index = packet - packetlow;
     int packet_bin = packet - packetlow + 1;
     if (p)
     {
       int one[1] = {1};
-      rm_packet_number[packet - packetlow]->Add(one);
+      rm_packet_number[packet_index]->Add(one);
       int packet_length[1] = {p->getLength()};
-      rm_packet_length[packet - packetlow]->Add(packet_length);
+      rm_packet_length[packet_index]->Add(packet_length);
 
-      h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
+      h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet_index]->getMean(0));
 
       // ---
       long long p_clock = p->lValue(0,"CLOCK");
@@ -446,16 +447,16 @@ int SepdMon::process_event(Event *e /* evt */)
         }
 
       }  // channel loop end
-    rm_packet_chans[packet - packetlow]->Add(&channel_counter);
-    h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
+    rm_packet_chans[packet_index]->Add(&channel_counter);
+    h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet_index]->getMean(0));
     }    //  if packet good
     else
     {
       ChannelNumber += 128;
       int zero[1] = {0};
-      rm_packet_number[packet - packetlow]->Add(zero);
+      rm_packet_number[packet_index]->Add(zero);
     }
-    h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet - packetlow]->getMean(0));
+    h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet_index]->getMean(0));
     delete p;
 
   }  // packet id loop end
