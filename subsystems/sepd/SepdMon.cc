@@ -355,6 +355,8 @@ int SepdMon::process_event(Event *e /* evt */)
       long long clock_diff = p_clock-zdc_clock;
       // std::cout << "Packet clock is " << p_clock << " and clock diff is " << clock_diff << std::endl;
       // --- trying to improve clock diff...
+      // --- currently we overwrite the histogram with the difference from the latest event
+      // --- not sure if we want to do that or running mean, which is done for the number, length, channels
       // h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
       h1_packet_event->SetBinContent(packet_bin, clock_diff);
       int nPacketChannels = p->iValue(0, "CHANNELS");
