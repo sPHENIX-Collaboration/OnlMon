@@ -325,22 +325,40 @@ int SepdMon::process_event(Event *e /* evt */)
       delete gl1Event;
     }
 
+  long long zdc_clock = 0;
+  Packet* pzdc = e->getPacket(12001);
+  if ( pzdc )
+    {
+      zdc_clock = pzdc->lValue(0,"CLOCK");
+      // std::cout << "ZDC clock is " << zdc_clock << std::endl;
+      delete pzdc;
+    }
+  // else std::cout << "Why no ZDC packet..." << std::endl;
 
   // loop over packets which contain a single sector
   for (int packet = packetlow; packet <= packethigh; packet++)
   {
     Packet *p = e->getPacket(packet);
+    int packet_index = packet - packetlow;
     int packet_bin = packet - packetlow + 1;
     if (p)
     {
       int one[1] = {1};
-      rm_packet_number[packet - packetlow]->Add(one);
+      rm_packet_number[packet_index]->Add(one);
       int packet_length[1] = {p->getLength()};
-      rm_packet_length[packet - packetlow]->Add(packet_length);
+      rm_packet_length[packet_index]->Add(packet_length);
 
-      h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
+      h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet_index]->getMean(0));
 
-      h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
+      // ---
+      long long p_clock = p->lValue(0,"CLOCK");
+      long long clock_diff = p_clock-zdc_clock;
+      // std::cout << "Packet clock is " << p_clock << " and clock diff is " << clock_diff << std::endl;
+      // --- trying to improve clock diff...
+      // --- currently we overwrite the histogram with the difference from the latest event
+      // --- not sure if we want to do that or running mean, which is done for the number, length, channels
+      // h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
+      h1_packet_event->SetBinContent(packet_bin, clock_diff);
       int nPacketChannels = p->iValue(0, "CHANNELS");
       if (nPacketChannels > m_nChannels)
       {
@@ -431,16 +449,16 @@ int SepdMon::process_event(Event *e /* evt */)
         }
 
       }  // channel loop end
-    rm_packet_chans[packet - packetlow]->Add(&channel_counter);
-    h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
+    rm_packet_chans[packet_index]->Add(&channel_counter);
+    h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet_index]->getMean(0));
     }    //  if packet good
     else
     {
       ChannelNumber += 128;
       int zero[1] = {0};
-      rm_packet_number[packet - packetlow]->Add(zero);
+      rm_packet_number[packet_index]->Add(zero);
     }
-    h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet - packetlow]->getMean(0));
+    h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet_index]->getMean(0));
     delete p;
 
   }  // packet id loop end
