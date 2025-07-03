@@ -325,6 +325,15 @@ int SepdMon::process_event(Event *e /* evt */)
       delete gl1Event;
     }
 
+  long long zdc_clock = 0;
+  Packet* pzdc = e->getPacket(12001);
+  if ( pzdc )
+    {
+      zdc_clock = pzdc->lValue(0,"CLOCK");
+      // std::cout << "ZDC clock is " << zdc_clock << std::endl;
+      delete pzdc;
+    }
+  // else std::cout << "Why no ZDC packet..." << std::endl;
 
   // loop over packets which contain a single sector
   for (int packet = packetlow; packet <= packethigh; packet++)
@@ -340,7 +349,13 @@ int SepdMon::process_event(Event *e /* evt */)
 
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
 
-      h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
+      // ---
+      long long p_clock = p->lValue(0,"CLOCK");
+      long long clock_diff = p_clock-zdc_clock;
+      // std::cout << "Packet clock is " << p_clock << " and clock diff is " << clock_diff << std::endl;
+      // --- trying to improve clock diff...
+      // h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
+      h1_packet_event->SetBinContent(packet_bin, clock_diff);
       int nPacketChannels = p->iValue(0, "CHANNELS");
       if (nPacketChannels > m_nChannels)
       {

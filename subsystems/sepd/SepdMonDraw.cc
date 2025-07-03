@@ -898,7 +898,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   gPad->SetTickx();
 
   Pad[13]->cd();
-  //  h1_packet_event->Draw("hist");
+  h1_packet_event->Draw("hist");
   // h1_packet_event->SetLineColor(kWhite);;
   // h1_packet_event->Draw("AH");
   double ymax = h1_packet_event->GetMaximum();
@@ -907,17 +907,17 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   // --- this one seems okay
   h1_packet_event->GetXaxis()->SetNdivisions(6);
   h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3 * (ymax - ymin + 30), ymax + 0.3 * (ymax - ymin + 30));
-  // h1_packet_event->GetXaxis()->SetTitle("Packet #");
-  // h1_packet_event->GetYaxis()->SetTitle("clock offset");
-  h1_packet_event->GetXaxis()->SetLabelSize(tsize/1.2);
-  h1_packet_event->GetYaxis()->SetLabelSize(tsize/1.2);
-  h1_packet_event->GetXaxis()->SetTitleSize(tsize/1.2);
-  h1_packet_event->GetYaxis()->SetTitleSize(tsize/1.2);
+  h1_packet_event->GetXaxis()->SetTitle("Packet #");
+  h1_packet_event->GetYaxis()->SetTitle("Clock offset");
+  h1_packet_event->GetXaxis()->SetLabelSize(tsize/1.15);
+  h1_packet_event->GetYaxis()->SetLabelSize(tsize/1.15);
+  h1_packet_event->GetXaxis()->SetTitleSize(tsize/1.15);
+  h1_packet_event->GetYaxis()->SetTitleSize(tsize/1.15);
   h1_packet_event->GetXaxis()->SetTitleOffset(0.8);
-  h1_packet_event->GetYaxis()->SetTitleOffset(1.2);
+  h1_packet_event->GetYaxis()->SetTitleOffset(0.8);
   gPad->SetBottomMargin(0.16);
   gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.2);
+  gPad->SetLeftMargin(0.15);
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
