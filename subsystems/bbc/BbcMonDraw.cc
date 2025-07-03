@@ -1454,13 +1454,13 @@ int BbcMonDraw::Draw(const std::string &what)
   NorthHitMap = static_cast<TH2 *>(bbc_north_hitmap->Clone());
 
 
-  TH1 *bbc_zvertex_auto[TriggerEnum::MBTriggers] = {nullptr};
-  for (int i = 0; i < TriggerEnum::MBTriggers; i++)
+  TH1 *bbc_zvertex_auto[TriggerEnum::NUM_MBD_TRIGGERS] = {nullptr};
+  for (int i = 0; i < static_cast<int>(TriggerEnum::NUM_MBD_TRIGGERS); i++)
   {
-    std::string name = Form("bbc_zvertex_autoupdate_%i", i);
-    bbc_zvertex_auto = static_cast<TH1 *>(cl->getHisto("BBCMON_0", name.c_str()));
+    // std::string name = Form("bbc_zvertex_autoupdate_%i", i);
+    bbc_zvertex_auto[i] = static_cast<TH1 *>(cl->getHisto("BBCMON_0", Form("bbc_zvertex_autoupdate_%i", i)));
     ifdelete(ZvrtxAuto[i]);
-    ZvrtxAuto[i] = static_cast<TH1 *>(bbc_zvertex_auto->Clone());
+    ZvrtxAuto[i] = static_cast<TH1F *>(bbc_zvertex_auto[i]->Clone());
   }
   PRINT_DEBUG("Start Creating graphs");
 
@@ -2794,14 +2794,14 @@ int BbcMonDraw::Draw(const std::string &what)
   if(TC[8])
   {
     TC[8]->cd();
-    for (int i = 0; i < TriggerEnum::MBTriggers; i++)
+    for (int i = 0; i < static_cast<int>(TriggerEnum::NUM_MBD_TRIGGERS); i++)
     {
-      PadTrigger[i]->cd();
+      PadAutoUpdate[i]->cd();
       if (ZvrtxAuto[i])
       {
         ZvrtxAuto[i]->Draw();
-        ZvrtxAuto[i]->SetTitle(TriggerEnum::TriggerName[i].c_str());
-        ZvrtxAuto[i]->GetXaxis()->SetTitle(Form("MBD ZVertex Trigger %s", TriggerEnum::MBTriggerNames[i]).c_str());
+        ZvrtxAuto[i]->SetTitle(TriggerEnum::MBTriggerNames[i]);
+        ZvrtxAuto[i]->GetXaxis()->SetTitle(Form("MBD ZVertex Trigger %s", TriggerEnum::MBTriggerNames[i]));
         ZvrtxAuto[i]->GetYaxis()->SetTitle("Number of Event");
         ZvrtxAuto[i]->GetXaxis()->SetTitleOffset(0.70);
         ZvrtxAuto[i]->GetYaxis()->SetTitleOffset(1.75);
@@ -2810,7 +2810,7 @@ int BbcMonDraw::Draw(const std::string &what)
         ZvrtxAuto[i]->GetYaxis()->SetTitleOffset(1.75);
         ZvrtxAuto[i]->GetYaxis()->SetTitleSize(0.05);
       }
-      PadTrigger[i]->Update();
+      PadAutoUpdate[i]->Update();
       
     }
 

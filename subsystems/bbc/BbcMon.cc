@@ -1044,7 +1044,7 @@ int BbcMon::process_event(Event *evt)
     if ( (triggervec&TriggerEnum::MBTriggers[i]) != 0 )
     {
       bbc_last_update_ticker[i]++;
-      if ( bbc_last_update_ticker[i] > BbcMonDefs::zvtx_autoupdate_ticker ){
+      if ( bbc_last_update_ticker[i] > zvtx_autoupdate_ticker ){
         for ( int ix = 0; ix < BbcMonDefs::zvtnbin; ix++ )
         {
           bbc_zvertex_autoupdate[i]->SetBinContent( ix+1, 0 ); // zero out the histogram

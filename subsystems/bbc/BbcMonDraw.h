@@ -4,6 +4,7 @@
 #include "BbcMonDefs.h"
 
 #include <onlmon/OnlMonDraw.h>
+#include <onlmon/triggerEnum.h>
 
 #include <string>
 #include <fstream>

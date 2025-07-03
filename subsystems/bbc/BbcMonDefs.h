@@ -1,6 +1,9 @@
 #ifndef __BBCMONDEFS_H__
 #define __BBCMONDEFS_H__
 #include <cstdint>
+
+#include <mbd/MbdEvent.h>
+
 //#include <gsl/gsl_const_cgsm.h>
 
 #define AUAU  // PROTONPROTON //PAU //DAU
@@ -23,13 +26,13 @@ namespace BbcMonDefs
 
 
   // auto-update zvertex timer
-  static  unsigned int zvtx_autoupdate_ticker = 1000;
+  // static  unsigned int zvtx_autoupdate_ticker = 1000;
 
 
 #define nPMT_1SIDE_BBC 64
 #define nPMT_BBC (nPMT_1SIDE_BBC * 2)
 
-#define nCANVAS 8
+#define nCANVAS 9
 
 #define nSIDE 2
 #define nTRIGGER 2

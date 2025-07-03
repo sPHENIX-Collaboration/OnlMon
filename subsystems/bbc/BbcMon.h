@@ -145,6 +145,7 @@ class BbcMon : public OnlMon
 
   TH2Poly *bbc_south_hitmap{nullptr};  // hitmap
   TH2Poly *bbc_north_hitmap{nullptr};  // hitmap
+  const unsigned int zvtx_autoupdate_ticker = 1000;
 
 };
 
