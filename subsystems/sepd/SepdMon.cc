@@ -325,7 +325,7 @@ int SepdMon::process_event(Event *e /* evt */)
       delete gl1Event;
     }
 
-  long long zdc_clock = 0;
+  uint64_t zdc_clock = 0;
   Packet* pzdc = e->getPacket(12001);
   if ( pzdc )
     {
@@ -351,7 +351,7 @@ int SepdMon::process_event(Event *e /* evt */)
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet_index]->getMean(0));
 
       // ---
-      long long p_clock = p->lValue(0,"CLOCK");
+      uint64_t p_clock = p->lValue(0,"CLOCK");
       long long clock_diff = p_clock-zdc_clock;
       // std::cout << "Packet clock is " << p_clock << " and clock diff is " << clock_diff << std::endl;
       // --- trying to improve clock diff...
