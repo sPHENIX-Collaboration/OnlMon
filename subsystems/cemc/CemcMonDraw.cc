@@ -2736,7 +2736,7 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
     for (int j = 1; j <= p2_zsFrac_etaphiCombined->GetNbinsY(); j++)
     {
       float rate = p2_zsFrac_etaphiCombined->GetBinContent(i + 1, j + 1);
-      if (rate <= 0.2)
+      if (rate <= 0.1)
       {
         h1_zs_low->Fill(rate);
       }
@@ -2744,10 +2744,9 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
       {
         h1_zs_high->Fill(rate);
       }
-      else
-      {
-        h1_zs->Fill(rate);
-      }
+
+      h1_zs->Fill(rate);
+      
       sum += rate;
       count++;
     }
@@ -2756,8 +2755,8 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
   double maxx = (sum / count) * 5 > 1.1 ? 1.1 : (sum / count) * 5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
   //max y is the max among h1_zs, h1_zs_low, h1_zs_high
-  double maxy = std::max({h1_zs->GetMaximum(), h1_zs_low->GetMaximum(), h1_zs_high->GetMaximum()});
-  h1_zs->SetMaximum(maxy * 1.2);
+  //double maxy = std::max({h1_zs->GetMaximum(), h1_zs_low->GetMaximum(), h1_zs_high->GetMaximum()});
+  //h1_zs->SetMaximum(maxy * 1.2);
 
   double averagezs = sum / count * 100;
 
