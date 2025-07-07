@@ -1227,10 +1227,9 @@ int BbcMonDraw::Draw(const std::string &what)
     return 0;
   }
   
-  if (!gROOT->FindObject("BbcAutoUpdate"))
+  if (what == "BbcAutoUpdate" )
   {
-    TC[8] = nullptr;
-    if (what == "BbcAutoUpdate" )
+    if (!gROOT->FindObject("BbcAutoUpdate"))
     {
       canvasindex = 8;
       MakeCanvas("BbcAutoUpdate");
