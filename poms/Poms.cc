@@ -33,6 +33,7 @@
 #include <TGString.h>  // for TGHotString
 #include <TList.h>     // for TList
 #include <TROOT.h>
+#include <TSystem.h>
 #include <TSeqCollection.h>      // for TSeqCollection
 #include <TString.h>             // for TString
 #include <WidgetMessageTypes.h>  // for GET_MSG, GET_SUBMSG, kCM_BUTTON
