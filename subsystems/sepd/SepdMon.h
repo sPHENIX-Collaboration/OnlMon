@@ -91,6 +91,7 @@ class SepdMon : public OnlMon
   std::vector<runningMean *> rm_packet_number;
   std::vector<runningMean *> rm_packet_length;
   std::vector<runningMean *> rm_packet_chans;
+  std::vector<runningMean *> rm_packet_event;
 };
 
 #endif /* SEPD_SEPDMON_H */
