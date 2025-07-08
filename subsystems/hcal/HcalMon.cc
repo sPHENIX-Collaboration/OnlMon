@@ -446,7 +446,7 @@ int HcalMon::process_event(Event* e /* evt */)
       if (trig_bools.at(TriggerEnum::BitCodes::RANDOM) || trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_VERT) || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_VERT) || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_HORZ) || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_HORZ))
       {
         hit_threshold = 1000;
-        waveform_hit_threshold = 1000;
+        waveform_hit_threshold = 1500;
       }
     }
   }
