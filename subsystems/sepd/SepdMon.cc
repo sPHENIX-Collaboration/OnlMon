@@ -411,10 +411,11 @@ int SepdMon::process_event(Event *e /* evt */)
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
         float prepost = p->iValue(c, "PRE") - p->iValue(c, "POST");
-        if(prepost<0){
+        if ( prepost > 0 )
+          {
             p_noiserms_all_channel->Fill(ch,prepost);
             p_noiserms_all_channel->Fill(ch,-prepost);
-        }
+          }
 
         // --- Run24pp
         //bool is_good_hit = ( signalFast > 50 && signalFast < 3000 );
