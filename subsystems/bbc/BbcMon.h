@@ -3,7 +3,6 @@
 
 #include <onlmon/OnlMon.h>
 #include "BbcMonDefs.h"
-#include <onlmon/triggerEnum.h>
 
 #include <string>
 #include <ctime>
@@ -105,9 +104,6 @@ class BbcMon : public OnlMon
   TH1 *bbc_nhit_emcalmbd[2]{nullptr,nullptr};
   TH1 *bbc_nhit_hcalmbd[2]{nullptr,nullptr};
 
-  TH1 * bbc_zvertex_autoupdate[TriggerEnum::NUM_MBD_TRIGGERS]{nullptr};  // BBCMON_NTRIGS = 16, for all triggers
-  unsigned int bbc_last_update_ticker[TriggerEnum::NUM_MBD_TRIGGERS]{0};  // last update ticker for zvtx autoupdate
-
   TH2 *bbc_tdc_armhittime{nullptr};
   TH1 *bbc_nevent_counter{nullptr};
 
@@ -145,8 +141,6 @@ class BbcMon : public OnlMon
 
   TH2Poly *bbc_south_hitmap{nullptr};  // hitmap
   TH2Poly *bbc_north_hitmap{nullptr};  // hitmap
-  const unsigned int zvtx_autoupdate_ticker = 1000;
-
 };
 
 #endif /* BBC_BBCMON_H */

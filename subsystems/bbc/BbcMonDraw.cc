@@ -358,7 +358,6 @@ int BbcMonDraw::Init()
   memset(ArcWarning, 0, sizeof(ArcWarning));
   memset(PadWarning, 0, sizeof(PadWarning));
   memset(nPadWarning, 0, sizeof(nPadWarning));
-  memset(PadAutoUpdate, 0, sizeof(PadAutoUpdate));
   // ------------------------------------------------------
   // Graph for visualization
 
@@ -1003,32 +1002,6 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     transparent[6]->SetFillStyle(4000);
     transparent[6]->Draw();
   }
-  else if (name == "BbcAutoUpdate")
-  {
-    
-    TC[8] = new TCanvas(name.c_str(), "Bbc Autoupdating", -1, 0, 2 * xsize / 3, ysize * 0.9);
-    gSystem->ProcessEvents();
-    TC[8]->cd();
-    // this one is used to plot the run number on the canvas
-    transparent[8] = new TPad("transparent8", "this does not show", 0, 0, 1, 1);
-    transparent[8]->SetFillColor(kGray);
-    transparent[8]->Draw();
-    TC[8]->SetEditable(false);
-
-    // create 4x2 grid of pads
-    for (int i = 0; i < nCANVAS; i++)
-    {
-      std::string padname = "PadAutoUpdate" + std::to_string(i);
-      PadAutoUpdate[i] = new TPad(padname.c_str(), padname.c_str(), (i % 4) * 0.25, (i / 4) * 0.5, (i % 4 + 1) * 0.25, (i / 4 + 1) * 0.5, 0, 0, 0);
-      PadAutoUpdate[i]->SetFillColor(kWhite);
-      PadAutoUpdate[i]->Draw();
-    }
-  }
-  else
-  {
-    std::cout << "Unknown canvas name: " << name << std::endl;
-    return -1;
-  }
   //
 
   /*
@@ -1105,7 +1078,6 @@ int BbcMonDraw::Draw(const std::string &what)
       MakeCanvas("BbcMon5");
     }
   }
-  
 
   //
   if ( what == "MBD2MCR" )
@@ -1169,71 +1141,62 @@ int BbcMonDraw::Draw(const std::string &what)
   }
   if ( what == "BbcMonServerStats" )
   {
-    OnlMonClient *cl = OnlMonClient::instance();
-      if (!gROOT->FindObject("BbcMonServerStats"))
-    {
-      MakeCanvas("BbcMonServerStats");
-    }
-      TC[5]->Clear("D");
-      TC[5]->SetEditable(true);
-      transparent[5]->cd();
+  OnlMonClient *cl = OnlMonClient::instance();
+    if (!gROOT->FindObject("BbcMonServerStats"))
+	{
+	  MakeCanvas("BbcMonServerStats");
+	}
+    TC[5]->Clear("D");
+    TC[5]->SetEditable(true);
+    transparent[5]->cd();
 
-      TText PrintRun;
-    PrintRun.SetTextFont(62);
-    PrintRun.SetNDC();          // set to normalized coordinates
-    PrintRun.SetTextAlign(23);  // center/top alignment
-    PrintRun.SetTextSize(0.04);
-    PrintRun.SetTextColor(1);
-    PrintRun.DrawText(0.5, 0.99, "Server Statistics");
-    PrintRun.SetTextSize(0.02);
-    double vdist = 0.05;
-    double vpos = 0.9;
-    for (const auto &server : m_ServerSet)
+    TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  for (const auto &server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
     {
-      std::ostringstream txt;
-      auto servermapiter = cl->GetServerMap(server);
-      if (servermapiter == cl->GetServerMapEnd())
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(kRed);
+    }
+    else
+    {
+      int gl1counts = std::get<4>(servermapiter->second);
+      txt << "Server " << server
+          << ", run number " << std::get<1>(servermapiter->second)
+          << ", event count: " << std::get<2>(servermapiter->second);
+      if (gl1counts >= 0)
+	{
+          txt << ", gl1 count: " << std::get<4>(servermapiter->second);
+	}
+      txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+      if (std::get<0>(servermapiter->second))
       {
-        txt << "Server " << server
-            << " is dead ";
-        PrintRun.SetTextColor(kRed);
+        PrintRun.SetTextColor(kGray + 2);
       }
       else
       {
-        int gl1counts = std::get<4>(servermapiter->second);
-        txt << "Server " << server
-            << ", run number " << std::get<1>(servermapiter->second)
-            << ", event count: " << std::get<2>(servermapiter->second);
-        if (gl1counts >= 0)
-    {
-            txt << ", gl1 count: " << std::get<4>(servermapiter->second);
-    }
-        txt << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
-        if (std::get<0>(servermapiter->second))
-        {
-          PrintRun.SetTextColor(kGray + 2);
-        }
-        else
-        {
-          PrintRun.SetTextColor(kRed);
-        }
+        PrintRun.SetTextColor(kRed);
       }
-      PrintRun.DrawText(0.5, vpos, txt.str().c_str());
-      vpos -= vdist;
     }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
     TC[5]->Update();
     TC[5]->Show();
     TC[5]->SetEditable(false);
     return 0;
-  }
-  
-  if (what == "BbcAutoUpdate" )
-  {
-    if (!gROOT->FindObject("BbcAutoUpdate"))
-    {
-      canvasindex = 8;
-      MakeCanvas("BbcAutoUpdate");
-    }
   }
 
   ClearWarning();
@@ -1452,15 +1415,6 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(NorthHitMap);
   NorthHitMap = static_cast<TH2 *>(bbc_north_hitmap->Clone());
 
-
-  TH1 *bbc_zvertex_auto[TriggerEnum::NUM_MBD_TRIGGERS] = {nullptr};
-  for (int i = 0; i < static_cast<int>(TriggerEnum::NUM_MBD_TRIGGERS); i++)
-  {
-    // std::string name = Form("bbc_zvertex_autoupdate_%i", i);
-    bbc_zvertex_auto[i] = static_cast<TH1 *>(cl->getHisto("BBCMON_0", Form("bbc_zvertex_autoupdate_%i", i)));
-    ifdelete(ZvrtxAuto[i]);
-    ZvrtxAuto[i] = static_cast<TH1F *>(bbc_zvertex_auto[i]->Clone());
-  }
   PRINT_DEBUG("Start Creating graphs");
 
   // Create HitTime projection ------------------------------------------
@@ -2789,32 +2743,6 @@ int BbcMonDraw::Draw(const std::string &what)
     TextnHitStatus->Draw();
   }
 
-
-  if(TC[8])
-  {
-    TC[8]->cd();
-    for (int i = 0; i < static_cast<int>(TriggerEnum::NUM_MBD_TRIGGERS); i++)
-    {
-      PadAutoUpdate[i]->cd();
-      if (ZvrtxAuto[i])
-      {
-        ZvrtxAuto[i]->Draw();
-        ZvrtxAuto[i]->SetTitle(TriggerEnum::MBTriggerNames[i]);
-        ZvrtxAuto[i]->GetXaxis()->SetTitle(Form("MBD ZVertex Trigger %s", TriggerEnum::MBTriggerNames[i]));
-        ZvrtxAuto[i]->GetYaxis()->SetTitle("Number of Event");
-        ZvrtxAuto[i]->GetXaxis()->SetTitleOffset(0.70);
-        ZvrtxAuto[i]->GetYaxis()->SetTitleOffset(1.75);
-        ZvrtxAuto[i]->GetXaxis()->SetLabelSize(0.07);
-        ZvrtxAuto[i]->GetXaxis()->SetTickSize(0.1);
-        ZvrtxAuto[i]->GetYaxis()->SetTitleOffset(1.75);
-        ZvrtxAuto[i]->GetYaxis()->SetTitleSize(0.05);
-      }
-      PadAutoUpdate[i]->Update();
-      
-    }
-
-  }
-
   //  std::cout << "Got Histgram Got-Pad 0" << std::endl;
 
   if (TC[0])
@@ -2833,11 +2761,6 @@ int BbcMonDraw::Draw(const std::string &what)
   {
     TC[3]->Update();
   }
-  if (TC[8])
-  {
-    TC[8]->Update();
-  }
-
 
   // std::cout << "Got Histgram Got-Pad 1" << std::endl;
 
