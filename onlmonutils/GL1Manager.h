@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <deque>
-#include <cstdint>
+
 
 enum GL1ManagerReturnCodes
 {
