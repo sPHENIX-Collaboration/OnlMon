@@ -153,6 +153,7 @@ int BbcMon::Init()
   if ( useGL1 )
   {
     bbc_trigs = new TH1F("bbc_trigs", "Trigger Counts", 64, -0.5, 63.5);
+  }
     // initialize auto-update trigger histograms
     for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
       std::string name = Form("bbc_zvertex_autoupdate_%i", i);
@@ -169,7 +170,7 @@ int BbcMon::Init()
       bbc_zvertex_autoupdate[i]->GetXaxis()->SetLabelSize(0.07);
       bbc_zvertex_autoupdate[i]->GetXaxis()->SetTickSize(0.1);
     }
-  }
+  // }
 
   // Nhit Distributions
   bbc_south_nhit = new TH1F("bbc_south_nhit","MBD.S Nhits",64,-0.5,63.5);
