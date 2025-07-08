@@ -6,7 +6,7 @@
 
 #include <onlmon/OnlMonClient.h>
 
-#include <onlmonutils/triggerEnum.h>
+#include <onlmon/triggerEnum.h>
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlbbcmon_client.so)
