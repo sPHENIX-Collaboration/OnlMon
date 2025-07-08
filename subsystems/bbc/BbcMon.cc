@@ -153,6 +153,22 @@ int BbcMon::Init()
   if ( useGL1 )
   {
     bbc_trigs = new TH1F("bbc_trigs", "Trigger Counts", 64, -0.5, 63.5);
+    // initialize auto-update trigger histograms
+    for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
+      std::string name = Form("bbc_zvertex_autoupdate_%i", i);
+      bbc_zvertex_autoupdate[i] = new TH1F(name.c_str(), 
+        Form("MBD ZVertex Trigger %s", TriggerEnum::MBTriggerNames[i]),
+        BbcMonDefs::zvtnbin, BbcMonDefs::min_zvertex, BbcMonDefs::max_zvertex);
+      bbc_zvertex_autoupdate[i]->Sumw2();
+      bbc_zvertex_autoupdate[i]->GetXaxis()->SetTitle("ZVertex [cm]");
+      bbc_zvertex_autoupdate[i]->GetYaxis()->SetTitle("Number of Event");
+      bbc_zvertex_autoupdate[i]->GetXaxis()->SetTitleSize(0.05);
+      bbc_zvertex_autoupdate[i]->GetYaxis()->SetTitleSize(0.05);
+      bbc_zvertex_autoupdate[i]->GetXaxis()->SetTitleOffset(0.70);
+      bbc_zvertex_autoupdate[i]->GetYaxis()->SetTitleOffset(1.75);
+      bbc_zvertex_autoupdate[i]->GetXaxis()->SetLabelSize(0.07);
+      bbc_zvertex_autoupdate[i]->GetXaxis()->SetTickSize(0.1);
+    }
   }
 
   // Nhit Distributions
@@ -515,6 +531,9 @@ int BbcMon::Init()
   if ( useGL1 )
   {
     se->registerHisto(this, bbc_trigs);
+    for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
+      se->registerHisto(this, bbc_zvertex_autoupdate[i]);
+    }
   }
   se->registerHisto(this, bbc_south_nhit);
   se->registerHisto(this, bbc_north_nhit);
@@ -1005,7 +1024,6 @@ int BbcMon::process_event(Event *evt)
   bevt->Calculate(m_mbdpmts, m_mbdout);
 
   bbc_nevent_counter->Fill(1);
-
   double zvtx = m_mbdout->get_zvtx();
   double t0 = m_mbdout->get_t0();
   double qsum[2] = {0, 0};
@@ -1021,6 +1039,21 @@ int BbcMon::process_event(Event *evt)
       std::cout << "zt\t" << f_evt << "\t" << zvtx << "\t" << t0 << std::endl;
       counter++;
   }
+
+  for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
+    if ( (triggervec&TriggerEnum::MBTriggers[i]) != 0 )
+    {
+      bbc_last_update_ticker[i]++;
+      if ( bbc_last_update_ticker[i] > zvtx_autoupdate_ticker ){
+        for ( int ix = 0; ix < BbcMonDefs::zvtnbin; ix++ )
+        {
+          bbc_zvertex_autoupdate[i]->SetBinContent( ix+1, 0 ); // zero out the histogram
+        }
+        bbc_last_update_ticker[i] = 0;
+      }
+      bbc_zvertex_autoupdate[i]->Fill(zvtx);
+    } // end of trigger check
+  } // end of loop over triggers
 
   // vertex and t0
   //std::cout << "mbdns " << std::hex << mbdns << std::dec << std::endl;
@@ -1297,6 +1330,10 @@ int BbcMon::Reset()
     bbc_prescale_hist->Reset();
     bbc_time_wave->Reset();
     bbc_charge_wave->Reset();
+    for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
+      bbc_zvertex_autoupdate[i]->Reset();
+      bbc_last_update_ticker[i] = 0;
+    } 
 
     return 0;
 }
