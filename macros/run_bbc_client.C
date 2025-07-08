@@ -1,8 +1,12 @@
+#define ONLINE
+
 #include "CommonFuncs.C"
 
 #include <onlmon/bbc/BbcMonDraw.h>
 
 #include <onlmon/OnlMonClient.h>
+
+#include <onlmon/triggerEnum.h>
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlbbcmon_client.so)
@@ -61,9 +65,13 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_zvertex_hcal", servername);
   cl->registerHisto("bbc_zvertex_emcalmbd", servername);
   cl->registerHisto("bbc_zvertex_hcalmbd", servername);
+  for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
+      std::string name = Form("bbc_zvertex_autoupdate_%i", i);
+      cl->registerHisto(name, servername);
+  }
 
   // for local host, just call bbcDrawInit(2)
-  //cl->AddServerHost("localhost");  // check local host first
+  // cl->AddServerHost("localhost");  // check local host first uncomment when needed for testing 
   CreateSubsysHostlist("bbc_hosts.list", online);
 
   // says I know they are all on the same node
