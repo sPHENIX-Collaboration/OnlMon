@@ -777,15 +777,16 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   }
 
   // int maxbin = h1_packet_event->GetMaximumBin();
-  int maxy = h1_packet_event->GetMaximum();
+  // int maxy = h1_packet_event->GetMaximum();
   // substract all none zero bin by maxy
-  for (int i = 1; i <= h1_packet_event->GetNbinsX(); i++)
-  {
-    if (h1_packet_event->GetBinContent(i) != 0)
-    {
-      h1_packet_event->SetBinContent(i, h1_packet_event->GetBinContent(i) - maxy);
-    }
-  }
+  // yeah maybe don't do that
+  // for (int i = 1; i <= h1_packet_event->GetNbinsX(); i++)
+  // {
+  //   if (h1_packet_event->GetBinContent(i) != 0)
+  //   {
+  //     h1_packet_event->SetBinContent(i, h1_packet_event->GetBinContent(i) - maxy);
+  //   }
+  // }
 
   // find the x range for h1_packet_number
   double xmin = h1_packet_number->GetXaxis()->GetXmin();
