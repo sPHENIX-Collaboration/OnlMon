@@ -31,7 +31,7 @@ void StartPoms()
   subsys->AddAction("bbcDraw(\"THIRD\")", "MBD Triggered Monitor");
   subsys->AddAction("bbcDraw(\"BbcMon5\")", "Vertex for All Triggers");
   subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
-  subsys->AddAction("bbcDraw(\"BbcAutoUpdate\")", "MBD VTX Auto Update");
+  //  subsys->AddAction("bbcDraw(\"BbcAutoUpdate\")", "MBD VTX Auto Update");
   //  subsys->AddAction("bbcDraw(\"BADGL1\")", "MBD TOGGLE IGNORE GL1 MISS");
   subsys->AddAction("bbcDraw(\"BbcMonServerStats\")", "MBD Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
