@@ -78,7 +78,7 @@ class BbcMonDraw : public OnlMonDraw
   TPad *PadTop[nCANVAS] = {};
   TPaveText *PaveTop = nullptr;
   TText *TextTop = nullptr;
-  TPad *PadAutoUpdate[nCANVAS] = {};
+  TPad *PadAutoUpdate[nCANVAS] = {nullptr};
 
   TPaveText *PaveWarning[BbcMonDefs::MAX_WARNING] = {};
   TArc *ArcWarning[BbcMonDefs::MAX_WARNING] = {};

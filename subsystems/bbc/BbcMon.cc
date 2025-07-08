@@ -528,13 +528,13 @@ int BbcMon::Init()
   // register histograms with server otherwise client won't get them
   OnlMonServer *se = OnlMonServer::instance();
 
-  if ( useGL1 )
-  {
+  // if ( useGL1 )
+  // {
     se->registerHisto(this, bbc_trigs);
     for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
       se->registerHisto(this, bbc_zvertex_autoupdate[i]);
     }
-  }
+  // }
   se->registerHisto(this, bbc_south_nhit);
   se->registerHisto(this, bbc_north_nhit);
   for (int iarm=0; iarm<2; iarm++)

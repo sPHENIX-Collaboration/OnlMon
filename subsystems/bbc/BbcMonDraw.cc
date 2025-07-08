@@ -398,6 +398,8 @@ int BbcMonDraw::Init()
   memset(TextZVertex_scale, 0, sizeof(TextZVertex_scale));
   memset(TextZVertex_mean, 0, sizeof(TextZVertex_mean));
 
+  // memset(Pad, 0, sizeof(Pad));
+
   FitZvtx = new TF1("FitZvtx", "gaus", -60, 60);
   TextZvtxStatus[0] = new TLatex;
   TextZvtxStatus[1] = new TLatex;
@@ -2808,6 +2810,19 @@ int BbcMonDraw::Draw(const std::string &what)
         ZvrtxAuto[i]->GetXaxis()->SetTickSize(0.1);
         ZvrtxAuto[i]->GetYaxis()->SetTitleOffset(1.75);
         ZvrtxAuto[i]->GetYaxis()->SetTitleSize(0.05);
+      } else
+      {
+        TH1 *dummy = new TH1F(Form("DummyZvrtxAuto_%d", i), "No Data", 100, -60, 60);
+        dummy->GetXaxis()->SetTitle(Form("MBD ZVertex Trigger %s",
+                                        TriggerEnum::MBTriggerNames[i]));
+        dummy->GetYaxis()->SetTitle("Number of Event");   
+        dummy->GetXaxis()->SetTitleOffset(0.70);
+        dummy->GetYaxis()->SetTitleOffset(1.75);
+        dummy->GetXaxis()->SetLabelSize(0.07);
+        dummy->GetXaxis()->SetTickSize(0.1);
+        dummy->GetYaxis()->SetTitleOffset(1.75);
+        dummy->GetYaxis()->SetTitleSize(0.05);
+        dummy->Draw();
       }
       PadAutoUpdate[i]->Update();
       
