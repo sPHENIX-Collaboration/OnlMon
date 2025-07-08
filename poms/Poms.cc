@@ -179,7 +179,10 @@ void PomsMainFrame::CloseWindow()
   TGMainFrame::CloseWindow();
   std::cout << "\n\n"
        << std::endl;  // Prevent prompt from displaying at end of output
-  gROOT->ProcessLine(".q");
+  OnlMonClient *cl = OnlMonClient::instance();
+  delete cl;
+  gSystem->Exit(0);
+  //  gROOT->ProcessLine(".q");
 }
 
 Bool_t PomsMainFrame::ProcessMessage(Long_t msg, Long_t parm1, Long_t /* parm2 */)
