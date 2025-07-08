@@ -71,7 +71,7 @@ void bbcDrawInit(const int online = 0)
   }
 
   // for local host, just call bbcDrawInit(2)
-  cl->AddServerHost("localhost");  // check local host first
+  // cl->AddServerHost("localhost");  // check local host first uncomment when needed for testing 
   CreateSubsysHostlist("bbc_hosts.list", online);
 
   // says I know they are all on the same node
