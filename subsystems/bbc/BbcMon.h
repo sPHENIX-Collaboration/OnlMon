@@ -85,7 +85,14 @@ class BbcMon : public OnlMon
   int GetFillNumber();
   int GetSendFlag();
   int UpdateSendFlag(const int flag);
-  time_t prev_send_time{0};
+  std::time_t prev_send_time{0};
+  std::time_t tstart{0};
+
+  // vtx reset variables
+  int zresetflag{0};      // 0 = don't reset, 1 = reset
+  std::string zresetflagfname;
+  int GetZResetFlag();
+  int UpdateZResetFlag(const int flag);
 
   // kludge to work around situations when gl1 events are being received
   int gl1badflag{0};   // 0 = normal, 1 = gl1 bad, accept all events
@@ -113,11 +120,13 @@ class BbcMon : public OnlMon
 
   TH1 *bbc_zvertex{nullptr};        // whatever primary trigger is
   TH1 *bbc_zvertex_alltrigger{nullptr};  // all triggers
-  TH1 *bbc_zvertex_short{nullptr};  // Used for short time scales
+  TH1 *bbc_zvertex_short{nullptr};  // Used for short time scales, exclusively wide trigs
+  TH1 *bbc_zvertex_prime_short{nullptr};  // Used for short time scales, primary trig
   TH1 *bbc_zvertex_ns{nullptr};     // no vtx cut
   TH1 *bbc_zvertex_10{nullptr};     // 10 cm cut
   TH1 *bbc_zvertex_30{nullptr};
   TH1 *bbc_zvertex_60{nullptr};
+  TH1 *bbc_zvertex_ns_chk{nullptr};     // for checking the vertex cut only
   TH1 *bbc_zvertex_10_chk{nullptr};     // for checking the vertex cut only
   TH1 *bbc_zvertex_30_chk{nullptr};
   TH1 *bbc_zvertex_60_chk{nullptr};
@@ -137,6 +146,10 @@ class BbcMon : public OnlMon
   TH1 *bbc_south_chargesum{nullptr};
   TH1 *bbc_north_chargesum{nullptr};
   TH1 *bbc_prescale_hist{nullptr};
+
+  TH1 *bbc_runvtx{nullptr};       // vtx, running vertex measurement
+  TH1 *bbc_runvtxerr{nullptr};    // vtxerr, running vertex measurement
+  TH1 *bbc_runvtxtime{nullptr};   // time, running vertex measurement
 
   // TH2 *bbc_tmax[2] = {};  // [0 == time ch, 1 == chg ch], max sample in evt vs ch
   TH2 *bbc_time_wave{nullptr};    // raw waveforms, time ch
