@@ -184,6 +184,10 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(TextZvtxStatus[1]);
   ifdelete(TextZvtxStatus[2]);
 
+  ifdelete(RunVtx);
+  ifdelete(RunVtxErr);
+  ifdelete(RunVtxTime);
+
   ifdelete(ArmHit);
   ifdelete(TextArmHit);
   ifdelete(ArcArmHit);
@@ -205,6 +209,7 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(Zvtx_10);
   ifdelete(Zvtx_30);
   ifdelete(Zvtx_60);
+  ifdelete(Zvtx_ns_chk);
   ifdelete(Zvtx_10_chk);
   ifdelete(Zvtx_30_chk);
   ifdelete(Zvtx_60_chk);
@@ -248,6 +253,8 @@ BbcMonDraw::~BbcMonDraw()
 
   ifdelete(Prescale_hist);
   ifdelete(tspec);
+  ifdelete(gRunVtx);
+  ifdelete(gRunAvgVtx);
 
   return;
 }
@@ -284,6 +291,40 @@ int BbcMonDraw::GetSendFlag()
   sendflagfile.close();
 
   return sendflag;
+}
+
+int BbcMonDraw::UpdateZResetFlag(const int flag)
+{
+  zresetflag = flag;
+  std::ofstream zresetflagfile( zresetflagfname );
+  if ( zresetflagfile.is_open() )
+  {
+    zresetflagfile << zresetflag << std::endl;
+  }
+  else
+  {
+    std::cout << "UpdatezresetFlag, unable to open file " << zresetflagfname << std::endl;
+    return 0;
+  }
+  zresetflagfile.close();
+  return 1;
+}
+
+int BbcMonDraw::GetZResetFlag()
+{
+  std::ifstream zresetflagfile( zresetflagfname );
+  if ( zresetflagfile.is_open() )
+  {
+    zresetflagfile >> zresetflag;
+  }
+  else
+  {
+    std::cout << "GetZResetFlag, unable to open file " << zresetflagfname << std::endl;
+    zresetflag = 0;
+  }
+  zresetflagfile.close();
+
+  return zresetflag;
 }
 
 int BbcMonDraw::UpdateGL1BadFlag(const int flag)
@@ -343,10 +384,17 @@ int BbcMonDraw::Init()
   */
   
   // prep the vtx to MCR info
-  sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.seb18";
-  //sendflagfname += getenv("HOSTNAME");
-  //sendflagfname += "seb18";
+  char hname[1024];
+  gethostname(hname,sizeof(hname)-1);
+
+  sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.";
+  sendflagfname += hname;
+  std::cout << "sendflagfname " << sendflagfname << "\t" << hname << std::endl;
   GetSendFlag();
+
+  // prep z-reset
+  zresetflagfname = "/home/phnxrc/operations/mbd/mbdzreset.";
+  zresetflagfname += hname;
 
   // ------------------------------------------------------
   // Canvas and Histogram
@@ -406,6 +454,37 @@ int BbcMonDraw::Init()
   TextZvtxStatus[2] = new TLatex;
 
   tspec = new TSpectrum(5);  // 5 peaks is enough - we have 4
+
+  gRunVtx = new TGraphErrors();
+  gRunVtx->SetName("gRunAvgVtx");
+  gRunVtx->SetTitle("Zvertex vs. Time");
+  gRunVtx->GetHistogram()->SetXTitle("time [s]");
+  gRunVtx->GetHistogram()->SetYTitle("Z_{MBD} [cm]");
+  gRunVtx->GetHistogram()->GetXaxis()->SetTitleSize(0.08);
+  gRunVtx->GetHistogram()->GetXaxis()->SetTitleOffset(0.5);
+  gRunVtx->GetHistogram()->GetXaxis()->SetLabelSize(0.05);
+  gRunVtx->GetHistogram()->GetXaxis()->SetTickSize(0.1);
+  gRunVtx->GetHistogram()->GetYaxis()->SetTitleSize(0.08);
+  gRunVtx->GetHistogram()->GetYaxis()->SetTitleOffset(0.25);
+  gRunVtx->GetHistogram()->GetXaxis()->SetLabelSize(0.07);
+  //gRunVtx->GetHistogram()->GetYaxis()->SetTickSize(0.05);
+
+  gRunAvgVtx = new TGraph();
+  gRunAvgVtx->SetName("gRunAvgVtx");
+  gRunAvgVtx->SetLineWidth(2);
+
+  // Create Empty Histogram for Running Vtx Plot when plot is blank
+  EmptyHist = new TH1F("EmptyHist","",1,0,1);
+  EmptyHist->SetTitle("Zvertex vs. Time");
+  EmptyHist->SetXTitle("time [s]");
+  EmptyHist->SetYTitle("Z_{MBD} [cm]");
+  EmptyHist->GetXaxis()->SetTitleSize(0.08);
+  EmptyHist->GetXaxis()->SetTitleOffset(0.5);
+  EmptyHist->GetXaxis()->SetLabelSize(0.05);
+  EmptyHist->GetXaxis()->SetTickSize(0.1);
+  EmptyHist->GetYaxis()->SetTitleSize(0.08);
+  EmptyHist->GetYaxis()->SetTitleOffset(0.25);
+  EmptyHist->GetXaxis()->SetLabelSize(0.07);
 
   return 0;
 }
@@ -527,13 +606,14 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
-    // grow and grow but will not show a definitely lost memory leak
+    // grow and grow but will not show a defninitely lost memory leak
     gSystem->ProcessEvents();
 
     TC[0]->cd();
     PadTop[0] = new TPad("PadTop0", "PadTop0", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
-    PadZVertex = new TPad("PadZVertex", "PadZVertex", 0.00, 0.60, 1.00, 0.90, 0, 0, 0);
-    PadZVertexSummary = new TPad("PadZVertexSummary", "PadZVertexSummary", 0.00, 0.40, 1.00, 0.60, 0, 0, 0);
+    PadZVertex = new TPad("PadZVertex", "PadZVertex", 0.00, 0.70, 1.00, 0.90, 0, 0, 0);
+    PadZVertexSummary = new TPad("PadZVertexSummary", "PadZVertexSummary", 0.00, 0.55, 1.00, 0.70, 0, 0, 0);
+    PadRunZVertex = new TPad("PadRunZVertex", "PadRunZVertex", 0.00, 0.40, 1.00, 0.55, 0, 0, 0);
     PadSouthHitMap = new TPad("PadSouthHitMap", "PadSouthHitMap", 0.00, 0.00, 0.495, 0.40, 0, 0, 0);
     PadNorthHitMap = new TPad("PadNorthHitMap", "PadNorthHitMap", 0.505, 0.00, 1.0, 0.40, 0, 0, 0);
     // PadTzeroZVertex = new TPad("PadTzeroZVertex", "PadTzeroZVertex", 0.00, 0.00, 1.00, 0.40, 0, 0, 0);
@@ -541,6 +621,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     PadTop[0]->Draw();
     // PadZVertex->SetLogy();
     PadZVertex->Draw();
+    PadRunZVertex->Draw();
     // PadTzeroZVertex->Draw();
     PadSouthHitMap->Draw();
     PadNorthHitMap->Draw();
@@ -967,8 +1048,9 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
 
     TC[6]->cd();
     PadTop[4] = new TPad("PadTop0", "PadTop0", 0.00, 0.90, 1.00, 1.00, 0, 0, 0);
-    PadZVertex = new TPad("PadZVertex", "PadZVertex", 0.00, 0.60, 1.00, 0.90, 0, 0, 0);
-    PadZVertexSummary = new TPad("PadZVertexSummary", "PadZVertexSummary", 0.00, 0.40, 1.00, 0.60, 0, 0, 0);
+    PadZVertex = new TPad("PadZVertex", "PadZVertex", 0.00, 0.70, 1.00, 0.90, 0, 0, 0);
+    PadZVertexSummary = new TPad("PadZVertexSummary", "PadZVertexSummary", 0.00, 0.55, 1.00, 0.70, 0, 0, 0);
+    PadRunZVertex = new TPad("PadRunZVertex", "PadRunZVertex", 0.00, 0.40, 1.00, 0.55, 0, 0, 0);
     PadSouthHitMap = new TPad("PadSouthHitMap", "PadSouthHitMap", 0.00, 0.00, 0.495, 0.40, 0, 0, 0);
     PadNorthHitMap = new TPad("PadNorthHitMap", "PadNorthHitMap", 0.505, 0.00, 1.0, 0.40, 0, 0, 0);
     // PadTzeroZVertex = new TPad("PadTzeroZVertex", "PadTzeroZVertex", 0.00, 0.00, 1.00, 0.40, 0, 0, 0);
@@ -976,6 +1058,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     PadTop[4]->Draw();
     // PadZVertex->SetLogy();
     PadZVertex->Draw();
+    PadRunZVertex->Draw();
     // PadTzeroZVertex->Draw();
     PadSouthHitMap->Draw();
     PadNorthHitMap->Draw();
@@ -1152,6 +1235,13 @@ int BbcMonDraw::Draw(const std::string &what)
     return 0;
   }
 
+  //
+  if ( what == "MBDZRESET" )
+  {
+    UpdateZResetFlag( 1 );
+    return 0;
+  }
+
   if ( what == "BADGL1" )
   {
     GetGL1BadFlag();
@@ -1169,6 +1259,7 @@ int BbcMonDraw::Draw(const std::string &what)
     }
     return 0;
   }
+
   if ( what == "BbcMonServerStats" )
   {
     OnlMonClient *cl = OnlMonClient::instance();
@@ -1378,6 +1469,10 @@ int BbcMonDraw::Draw(const std::string &what)
   ifdelete(Zvtx_60);
   Zvtx_60 = static_cast<TH1 *>(bbc_zvertex_60->Clone());
 
+  TH1 *bbc_zvertex_ns_chk = cl->getHisto("BBCMON_0", "bbc_zvertex_ns_chk");
+  ifdelete(Zvtx_ns_chk);
+  Zvtx_ns_chk = static_cast<TH1 *>(bbc_zvertex_ns_chk->Clone());
+
   TH1 *bbc_zvertex_10_chk = cl->getHisto("BBCMON_0", "bbc_zvertex_10_chk");
   ifdelete(Zvtx_10_chk);
   Zvtx_10_chk = static_cast<TH1 *>(bbc_zvertex_10_chk->Clone());
@@ -1437,6 +1532,18 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_prescale_hist = cl->getHisto("BBCMON_0", "bbc_prescale_hist");
   ifdelete(Prescale_hist);
   Prescale_hist = static_cast<TH1 *>(bbc_prescale_hist->Clone());
+
+  TH1 *bbc_runvtx = cl->getHisto("BBCMON_0", "bbc_runvtx");
+  ifdelete(RunVtx);
+  RunVtx = static_cast<TH1 *>(bbc_runvtx->Clone());
+
+  TH1 *bbc_runvtxerr = cl->getHisto("BBCMON_0", "bbc_runvtxerr");
+  ifdelete(RunVtxErr);
+  RunVtxErr = static_cast<TH1 *>(bbc_runvtxerr->Clone());
+
+  TH1 *bbc_runvtxtime = cl->getHisto("BBCMON_0", "bbc_runvtxtime");
+  ifdelete(RunVtxTime);
+  RunVtxTime = static_cast<TH1 *>(bbc_runvtxtime->Clone());
 
   TH2 *bbc_time_wave = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_time_wave"));
   ifdelete(TimeWave);
@@ -1842,9 +1949,9 @@ int BbcMonDraw::Draw(const std::string &what)
       text = "NOT Sending Vertex to MCR";
     }
 
-    TextZvtxStatus[2]->SetText(-55., Zvtx_ns->GetMaximum()*0.95, text.c_str());
+    //TextZvtxStatus[2]->SetText(-55., Zvtx_ns->GetMaximum()*0.95, text.c_str());
     TextZvtxStatus[2]->SetTextSize(0.05);
-    TextZvtxStatus[2]->Draw();
+    TextZvtxStatus[2]->DrawLatexNDC(0.15,0.8,text.c_str());
 
     /*
     // replaced with hitmap
@@ -1861,6 +1968,72 @@ int BbcMonDraw::Draw(const std::string &what)
     TextTzeroZvtx->SetText(10, 4, "Good region");
     TextTzeroZvtx->Draw();
     */
+
+    PadRunZVertex->cd();
+
+    TLine aline;
+    gRunVtx->Set(0);
+    gRunAvgVtx->Set(0);
+    const double navg = 10; // num points in moving avg
+    double runavg = 0.;     // moving avg
+
+    int n = RunVtx->GetEntries();
+    std::cout << "XXXX " << n << std::endl;
+    if ( n>0 )
+    {
+        for (int ibin=1; ibin<=n; ibin++)
+        {
+            Float_t zvtxmean = RunVtx->GetBinContent(ibin);
+            Float_t zvtxmeanerr = RunVtxErr->GetBinContent(ibin);
+            Float_t zvtxtime = RunVtxTime->GetBinContent(ibin);
+            // drop outliers
+            if ( zvtxmeanerr>4 || zvtxmeanerr<1e-2 )
+            {
+                continue;
+            }
+            gRunVtx->AddPoint(zvtxtime,zvtxmean);
+            gRunVtx->SetPointError(ibin-1,0,zvtxmeanerr);
+
+            // calculate moving average (navg data points)
+            if ( gRunVtx->GetN() == 1 )
+            {
+                runavg = zvtxmean;
+            }
+            else
+            {
+                if ( gRunVtx->GetN()>navg )
+                {
+                    runavg = (runavg*(navg-1) + zvtxmean)/navg;
+                }
+                else
+                {
+                    int nvtx = gRunVtx->GetN();
+                    runavg = (runavg*(nvtx-1) + zvtxmean)/nvtx;
+                }
+            }
+
+            gRunAvgVtx->AddPoint(zvtxtime,runavg);
+        }
+        gRunVtx->SetMarkerStyle(20);
+        gRunVtx->SetMarkerColor(4);
+        gRunVtx->SetLineColor(4);
+        std::cout << "DRAWING GRUNVTX" << std::endl;
+        gRunVtx->Draw("ap");
+        gRunAvgVtx->Draw("c");
+
+        PadRunZVertex->Update();
+        aline.SetLineStyle(7);
+        aline.SetLineColor(kRed);
+        aline.SetLineWidth(2);
+        aline.DrawLine(gPad->GetFrame()->GetX1(),0,gPad->GetFrame()->GetX2(),0);
+    }
+    else
+    {
+        // Draw an empty histogram
+        EmptyHist->Draw();
+    }
+
+    //NorthHitMap->Draw("colz");
 
     double nevents = bbc_nevent_counter->GetBinContent(2);
     PadSouthHitMap->cd();
@@ -1967,18 +2140,18 @@ int BbcMonDraw::Draw(const std::string &what)
 
     text = otext.str();
     // TextZvtxStatus[0]->SetText(0.0, 0.85, text.c_str());
-    TextZvtxStatus[0]->SetText(-230., maxEntries * 0.8, text.c_str());
+    //TextZvtxStatus[0]->SetText(-230., maxEntries * 0.8, text.c_str());
     TextZvtxStatus[0]->SetTextSize(0.10);
-    TextZvtxStatus[0]->Draw();
+    TextZvtxStatus[0]->DrawLatexNDC(0.3,0.75,text.c_str());
 
     otext.str("");
     otext << "#sigma = " << int(FitZvtx->GetParameter(2))
     	  << " #pm " << ((float)int(FitZvtx->GetParError(2)*10))/10.0
           << " cm";
     text = otext.str();
-    TextZvtxStatus[1]->SetText(100., maxEntries * 0.8, text.c_str());
+    //TextZvtxStatus[1]->SetText(100., maxEntries * 0.8, text.c_str());
     TextZvtxStatus[1]->SetTextSize(0.10);
-    TextZvtxStatus[1]->Draw();
+    TextZvtxStatus[1]->DrawLatexNDC(0.7,0.75,text.c_str());
 
     // chiu TextBbcSummaryTrigRate->Draw();
 
@@ -2002,11 +2175,9 @@ int BbcMonDraw::Draw(const std::string &what)
       text = "NOT Sending Vertex to MCR";
     }
 
-    TextZvtxStatus[2]->SetText(-55., Zvtx_alltrigger->GetMaximum()*0.95, text.c_str());
+    //TextZvtxStatus[2]->SetText(-55., Zvtx_alltrigger->GetMaximum()*0.95, text.c_str());
     TextZvtxStatus[2]->SetTextSize(0.05);
-    TextZvtxStatus[2]->Draw();
-
-  
+    TextZvtxStatus[2]->DrawLatexNDC(0.15,0.8,text.c_str());
 
     // double nevents = bbc_nevent_counter->GetBinContent(2);
     // PadSouthHitMap->cd();
@@ -2410,26 +2581,28 @@ int BbcMonDraw::Draw(const std::string &what)
       PadZvtx->cd();
 
 
-      if (Zvtx_ns->GetEntries() > 0)
+      if (Zvtx_ns_chk->GetEntries() > 0)
       {
-        Zvtx_ns->SetMinimum(0); // start plots at zero
+        Zvtx_ns_chk->SetMinimum(0); // start plots at zero
 
+        /*
         double prescale = Prescale_hist->GetBinContent(11);
         Zvtx_10_chk->Scale( prescale+1.0 );
         Zvtx_30_chk->Scale( prescale+1.0 );
         Zvtx_60_chk->Scale( prescale+1.0 );
+        */
 
         std::vector<double> max;
-        max.push_back( Zvtx_ns->GetBinContent( Zvtx_ns->GetMaximumBin() ) );
+        max.push_back( Zvtx_ns_chk->GetBinContent( Zvtx_ns_chk->GetMaximumBin() ) );
         max.push_back( Zvtx_60_chk->GetBinContent( Zvtx_60_chk->GetMaximumBin() ) );
         max.push_back( Zvtx_30_chk->GetBinContent( Zvtx_30_chk->GetMaximumBin() ) );
         max.push_back( Zvtx_10_chk->GetBinContent( Zvtx_10_chk->GetMaximumBin() ) );
         max.push_back( Zvtx_zdcns->GetBinContent( Zvtx_zdcns->GetMaximumBin() ) );
         double maximum = *std::max_element(max.begin(), max.end());
 
-        //Zvtx_ns->GetXaxis()->SetRangeUser(-60, 60);
-        Zvtx_ns->SetMaximum(maximum*1.1);
-        Zvtx_ns->Draw("hist");
+        //Zvtx_ns_chk->GetXaxis()->SetRangeUser(-60, 60);
+        Zvtx_ns_chk->SetMaximum(maximum*1.1);
+        Zvtx_ns_chk->Draw("hist");
 
         Zvtx_60_chk->SetLineColor(40);
         Zvtx_60_chk->SetFillColor(6);
