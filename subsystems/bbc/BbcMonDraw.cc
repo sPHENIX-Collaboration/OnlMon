@@ -462,11 +462,11 @@ int BbcMonDraw::Init()
   gRunVtx->GetHistogram()->SetYTitle("Z_{MBD} [cm]");
   gRunVtx->GetHistogram()->GetXaxis()->SetTitleSize(0.08);
   gRunVtx->GetHistogram()->GetXaxis()->SetTitleOffset(0.5);
-  gRunVtx->GetHistogram()->GetXaxis()->SetLabelSize(0.05);
+  gRunVtx->GetHistogram()->GetXaxis()->SetLabelSize(0.1);
   gRunVtx->GetHistogram()->GetXaxis()->SetTickSize(0.1);
   gRunVtx->GetHistogram()->GetYaxis()->SetTitleSize(0.08);
-  gRunVtx->GetHistogram()->GetYaxis()->SetTitleOffset(0.25);
-  gRunVtx->GetHistogram()->GetXaxis()->SetLabelSize(0.07);
+  gRunVtx->GetHistogram()->GetYaxis()->SetTitleOffset(0.35);
+  gRunVtx->GetHistogram()->GetYaxis()->SetLabelSize(0.1);
   //gRunVtx->GetHistogram()->GetYaxis()->SetTickSize(0.05);
 
   gRunAvgVtx = new TGraph();
@@ -480,11 +480,11 @@ int BbcMonDraw::Init()
   EmptyHist->SetYTitle("Z_{MBD} [cm]");
   EmptyHist->GetXaxis()->SetTitleSize(0.08);
   EmptyHist->GetXaxis()->SetTitleOffset(0.5);
-  EmptyHist->GetXaxis()->SetLabelSize(0.05);
+  EmptyHist->GetXaxis()->SetLabelSize(0.1);
   EmptyHist->GetXaxis()->SetTickSize(0.1);
   EmptyHist->GetYaxis()->SetTitleSize(0.08);
-  EmptyHist->GetYaxis()->SetTitleOffset(0.25);
-  EmptyHist->GetXaxis()->SetLabelSize(0.07);
+  EmptyHist->GetYaxis()->SetTitleOffset(0.35);
+  EmptyHist->GetYaxis()->SetLabelSize(0.1);
 
   return 0;
 }
