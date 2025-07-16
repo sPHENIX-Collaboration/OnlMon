@@ -1974,8 +1974,8 @@ int BbcMonDraw::Draw(const std::string &what)
     TLine aline;
     gRunVtx->Set(0);
     gRunAvgVtx->Set(0);
-    const double navg = 10; // num points in moving avg
-    double runavg = 0.;     // moving avg
+    const Double_t navg = 10; // num points in moving avg
+    Double_t runavg = 0.;     // moving avg
 
     int n = RunVtx->GetEntries();
     std::cout << "XXXX " << n << std::endl;
@@ -1983,9 +1983,9 @@ int BbcMonDraw::Draw(const std::string &what)
     {
         for (int ibin=1; ibin<=n; ibin++)
         {
-            Float_t zvtxmean = RunVtx->GetBinContent(ibin);
-            Float_t zvtxmeanerr = RunVtxErr->GetBinContent(ibin);
-            Float_t zvtxtime = RunVtxTime->GetBinContent(ibin);
+            Double_t zvtxmean = RunVtx->GetBinContent(ibin);
+            Double_t zvtxmeanerr = RunVtxErr->GetBinContent(ibin);
+            Double_t zvtxtime = RunVtxTime->GetBinContent(ibin);
             // drop outliers
             if ( zvtxmeanerr>4 || zvtxmeanerr<1e-2 )
             {
