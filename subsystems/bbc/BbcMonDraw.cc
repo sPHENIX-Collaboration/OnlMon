@@ -384,17 +384,12 @@ int BbcMonDraw::Init()
   */
   
   // prep the vtx to MCR info
-  char hname[1024];
-  gethostname(hname,sizeof(hname)-1);
-
-  sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.";
-  sendflagfname += hname;
-  std::cout << "sendflagfname " << sendflagfname << "\t" << hname << std::endl;
+  sendflagfname = "/home/phnxrc/operations/mbd/mbd2mcr.seb18";
+  std::cout << "sendflagfname " << sendflagfname << std::endl;
   GetSendFlag();
 
   // prep z-reset
-  zresetflagfname = "/home/phnxrc/operations/mbd/mbdzreset.";
-  zresetflagfname += hname;
+  zresetflagfname = "/home/phnxrc/operations/mbd/mbdzreset.seb18";
 
   // ------------------------------------------------------
   // Canvas and Histogram
