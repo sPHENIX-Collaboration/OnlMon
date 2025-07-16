@@ -1991,8 +1991,9 @@ int BbcMonDraw::Draw(const std::string &what)
             {
                 continue;
             }
-            gRunVtx->AddPoint(zvtxtime,zvtxmean);
-            gRunVtx->SetPointError(ibin-1,0,zvtxmeanerr);
+            int npts = gRunVtx->GetN();
+            gRunVtx->SetPoint(npts,zvtxtime,zvtxmean);
+            gRunVtx->SetPointError(npts,0,zvtxmeanerr);
 
             // calculate moving average (navg data points)
             if ( gRunVtx->GetN() == 1 )
@@ -2012,7 +2013,7 @@ int BbcMonDraw::Draw(const std::string &what)
                 }
             }
 
-            gRunAvgVtx->AddPoint(zvtxtime,runavg);
+            gRunAvgVtx->SetPoint(npts,zvtxtime,runavg);
         }
         gRunVtx->SetMarkerStyle(20);
         gRunVtx->SetMarkerColor(4);
