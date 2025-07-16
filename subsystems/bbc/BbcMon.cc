@@ -629,10 +629,13 @@ int BbcMon::Init()
   sendflagfname += hname;
   std::cout << "sendflagfname " << sendflagfname << "\t" << hname << std::endl;
   fillnumber = 0;
+  /*
+  // as of 7/16/25, we just use whatever the last setting was (always send unless toggled)
   if ( useGL1==1 )
   {
     UpdateSendFlag( 1 );
   }
+  */
 
   // prep the reset vtx info
   zresetflagfname = "/home/phnxrc/operations/mbd/mbdzreset.";
