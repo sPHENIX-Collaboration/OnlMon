@@ -631,7 +631,7 @@ int BbcMon::Init()
   fillnumber = 0;
   if ( useGL1==1 )
   {
-    UpdateSendFlag( 0 );
+    UpdateSendFlag( 1 );
   }
 
   // prep the reset vtx info
@@ -659,17 +659,19 @@ int BbcMon::BeginRun(const int runno)
   }
   bevt->InitRun();
 
-  // stop sending vtx on a new fill
+  // new behavior as of 7/16/25: keep vtx setting between fills
   int prev_fill = fillnumber;
   int current_fill = GetFillNumber();
   if ( prev_fill==0 || current_fill!=prev_fill )
   {
     std::cout << "MBD: Found new fill " << current_fill << std::endl;
     fillnumber = current_fill;
+    /*
     if ( useGL1==1 )
     {
-      UpdateSendFlag( 0 );
+      UpdateSendFlag( 1 );
     }
+    */
   }
 
   // Always start with no z-reset
