@@ -1284,7 +1284,7 @@ int BbcMon::process_event(Event *evt)
       f_zvtx->SetRange(-75., 75.);
       f_zvtx->SetParameters(250, 0., 10);
       {
-        bbc_zvertex_short->Fit(f_zvtx, "RNQ");
+        bbc_zvertex_short->Fit(f_zvtx, "RNQL");
 
         // Report z-vertex mean and width
         Double_t mean = f_zvtx->GetParameter(1);
@@ -1293,10 +1293,19 @@ int BbcMon::process_event(Event *evt)
         Double_t meanerr = f_zvtx->GetParError(1);
         Double_t rmserr = f_zvtx->GetParError(2);
 
+        /*
+        // For debugging
+        bbc_zvertex_short->Print("ALL");
+        double m = bbc_zvertex_short->GetMean();
+        double me = bbc_zvertex_short->GetMeanError();
+        double ent = bbc_zvertex_short->GetEntries();
+        std::cout << "ZZZZ " << m << "\t" << me << "\t" << ent << std::endl;
+        */
+
         std::ostringstream msg;
         msg << "MBD zvertex mean/width: " << mean << " " << rms << " " << meanerr << " " << rmserr;
         se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_INFORMATIONAL, msg.str(), 1);
-        std::cout << "MBD zvtx mean/width: " << mean << " " << rms << std::endl;
+        std::cout << "MBD zvtx mean/width: " << mean << " " << rms << " " << meanerr << " " << rmserr << std::endl;
 
         if ( useGL1==1 && GetSendFlag() == 1 )
         {
