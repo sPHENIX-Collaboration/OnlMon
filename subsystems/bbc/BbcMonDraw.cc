@@ -451,7 +451,7 @@ int BbcMonDraw::Init()
   tspec = new TSpectrum(5);  // 5 peaks is enough - we have 4
 
   gRunVtx = new TGraphErrors();
-  gRunVtx->SetName("gRunAvgVtx");
+  gRunVtx->SetName("gRunVtx");
   gRunVtx->SetTitle("Zvertex vs. Time");
   gRunVtx->GetHistogram()->SetXTitle("time [s]");
   gRunVtx->GetHistogram()->SetYTitle("Z_{MBD} [cm]");
@@ -1389,7 +1389,7 @@ int BbcMonDraw::Draw(const std::string &what)
   TH1 *bbc_nevent_counter = cl->getHisto("BBCMON_0", "bbc_nevent_counter");
 
   TH2 *bbc_tdc = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_tdc"));
-  std::cout << "BBCTDC2 " << (uint64_t)bbc_tdc << std::endl;
+  //std::cout << "BBCTDC2 " << (uint64_t)bbc_tdc << std::endl;
 
   /*
   name << "bbc_tdc_overflow" ;
@@ -1762,7 +1762,7 @@ int BbcMonDraw::Draw(const std::string &what)
     FitZvtx->SetLineColor(1);
 
     // Zvtx->Fit("FitZvtx", "LRQ");
-    Zvtx_ns->Fit("FitZvtx", "R");
+    Zvtx_ns->Fit("FitZvtx", "LRNQ");
 
     // here we get the relative scaling right to put all on the same plot
     // the binning might be different, so we first find the bins corresponding to
@@ -1969,11 +1969,9 @@ int BbcMonDraw::Draw(const std::string &what)
     TLine aline;
     gRunVtx->Set(0);
     gRunAvgVtx->Set(0);
-    const Double_t navg = 10; // num points in moving avg
-    Double_t runavg = 0.;     // moving avg
 
     int n = RunVtx->GetEntries();
-    std::cout << "XXXX " << n << std::endl;
+    //std::cout << "XXXX " << n << std::endl;
     if ( n>0 )
     {
         for (int ibin=1; ibin<=n; ibin++)
@@ -1982,46 +1980,66 @@ int BbcMonDraw::Draw(const std::string &what)
             Double_t zvtxmeanerr = RunVtxErr->GetBinContent(ibin);
             Double_t zvtxtime = RunVtxTime->GetBinContent(ibin);
             // drop outliers
-            if ( zvtxmeanerr>4 || zvtxmeanerr<1e-2 )
+            if ( zvtxmeanerr>5 || zvtxmeanerr<1e-2 )
             {
                 continue;
             }
             int npts = gRunVtx->GetN();
             gRunVtx->SetPoint(npts,zvtxtime,zvtxmean);
             gRunVtx->SetPointError(npts,0,zvtxmeanerr);
-
-            // calculate moving average (navg data points)
-            if ( gRunVtx->GetN() == 1 )
-            {
-                runavg = zvtxmean;
-            }
-            else
-            {
-                if ( gRunVtx->GetN()>navg )
-                {
-                    runavg = (runavg*(navg-1) + zvtxmean)/navg;
-                }
-                else
-                {
-                    int nvtx = gRunVtx->GetN();
-                    runavg = (runavg*(nvtx-1) + zvtxmean)/nvtx;
-                }
-            }
-
-            gRunAvgVtx->SetPoint(npts,zvtxtime,runavg);
         }
+
+        int nvtx = gRunVtx->GetN();
+        Double_t *xtime = gRunVtx->GetX();
+        Double_t *yzvtx = gRunVtx->GetY();
+
+        // calculate moving average (navg data points)
+        for (int ix=0; ix<nvtx; ix++)
+        {
+            int imin = ix-4;
+            if (imin<0)
+            {
+                imin=0;
+            }
+            int imax = ix+4;
+            if (imax>nvtx-1)
+            {
+                imax=nvtx-1;
+            }
+            double nsum = 0.;
+            double sum = 0.;
+            for (int isum=imin; isum<=imax; isum++)
+            {
+                sum += yzvtx[isum];
+                nsum += 1.0;
+            }
+
+            double runavg = sum/nsum;
+
+            gRunAvgVtx->SetPoint(ix,xtime[ix],runavg);
+        }
+
         gRunVtx->SetMarkerStyle(20);
         gRunVtx->SetMarkerColor(4);
         gRunVtx->SetLineColor(4);
-        std::cout << "DRAWING GRUNVTX" << std::endl;
-        gRunVtx->Draw("ap");
-        gRunAvgVtx->Draw("c");
 
-        PadRunZVertex->Update();
-        aline.SetLineStyle(7);
-        aline.SetLineColor(kRed);
-        aline.SetLineWidth(2);
-        aline.DrawLine(gPad->GetFrame()->GetX1(),0,gPad->GetFrame()->GetX2(),0);
+        //std::cout << "DRAWING GRUNVTX" << std::endl;
+        if ( nvtx>0 )
+        {
+            gRunVtx->Draw("ap");
+            gRunAvgVtx->Draw("c");
+
+            PadRunZVertex->Update();
+            aline.SetLineStyle(7);
+            aline.SetLineColor(kRed);
+            aline.SetLineWidth(2);
+            aline.DrawLine(gPad->GetFrame()->GetX1(),0,gPad->GetFrame()->GetX2(),0);
+        }
+        else
+        {
+            // Draw an empty histogram
+            EmptyHist->Draw();
+        }
     }
     else
     {
@@ -2078,7 +2096,7 @@ int BbcMonDraw::Draw(const std::string &what)
     FitZvtx->SetRange(-75, 75);
     FitZvtx->SetLineColor(1);
     // Zvtx->Fit("FitZvtx", "LRQ");
-    Zvtx_alltrigger->Fit("FitZvtx", "R");
+    Zvtx_alltrigger->Fit("FitZvtx", "LRQ");
 
     // here we get the relative scaling right to put all on the same plot
     // the binning might be different, so we first find the bins corresponding to
