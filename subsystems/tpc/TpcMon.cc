@@ -12,6 +12,10 @@
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
 #include <Event/oncsSubConstants.h>
+//#include </sphenix/user/chhughes/Takao_Decoder/online_distribution/newbasic/oncsEvent.h>
+//#include </sphenix/user/chhughes/Takao_Decoder/online_distribution/newbasic/msg_profile.h>
+//#include </sphenix/user/chhughes/Takao_Decoder/online_distribution/newbasic/oncsSubConstants.h>
+//#include </sphenix/user/chhughes/Takao_Decoder/online_distribution/newbasic/oncsSub_idtpcfeev5.h>
 
 #include <tpc/TpcMap.h> 
 
@@ -46,7 +50,9 @@ TpcMon::TpcMon(const std::string &name)
   serverid = 0; //default case - initializing in constructor
   //BCO initialization in TPCMon
   starting_BCO = -1;
+  starting_BCO_DC = -1;
   rollover_value = 0;
+  rollover_value_DC = 0x000000;
   current_BCOBIN = 0;
   //Evgeny Map
   M.setMapNames("AutoPad-R1-RevA.sch.ChannelMapping.csv", "AutoPad-R2-RevA-Pads.sch.ChannelMapping.csv", "AutoPad-R3-RevA.sch.ChannelMapping.csv");
@@ -714,6 +720,8 @@ int TpcMon::Init()
   Packet_Type_Fraction_ELSE -> GetYaxis() -> SetTitleSize(0.08);
   Packet_Type_Fraction_ELSE -> GetYaxis() -> SetTitleOffset(0.6);
 
+  //Noise Channel Plots for Takao
+  
   char Noise_Channel_Plots_title_str[256];
   sprintf(Noise_Channel_Plots_title_str,"Counts of ADC-Ped. > 300, t < 360 ,Sector # %i",ebdc_from_serverid( MonitorServerId() ));
   Noise_Channel_Plots = new TH1F("Noise_Channel_Plots","",6656,-0.5,6655.5);
@@ -725,7 +733,38 @@ int TpcMon::Init()
 
   Noise_Channel_Plots->SetXTitle("(FEE # * 256) + chan. #");
   Noise_Channel_Plots->SetYTitle("Counts/Event");
-  Noise_Channel_Plots->SetStats(0); 
+  Noise_Channel_Plots->SetStats(0);
+
+  // DC vs SAMPA
+  char DC_channels_title_str[100];
+  sprintf(DC_channels_title_str,"DIGITAL CURRENT vs SAMPA ID: SECTOR %i",ebdc_from_serverid( MonitorServerId() ));  
+  //DC_vs_SAMPA = new TH2F("DC_vs_SAMPA",DC_channels_title_str,208,-0.5,207.5,5924,-9000.5,50239.5);
+  DC_vs_SAMPA = new TH2F("DC_vs_SAMPA",DC_channels_title_str,208,-0.5,207.5,741,-9000.5,50239.5);
+  DC_vs_SAMPA->SetXTitle("SAMPA ID: SAMPA # + (feeID * 8)");
+  DC_vs_SAMPA->SetYTitle("DC = #Sigma ADC - 60*BIN_SUM");
+
+  DC_vs_SAMPA -> GetXaxis() -> SetLabelSize(0.05);
+  DC_vs_SAMPA -> GetXaxis() -> SetTitleSize(0.05);
+  DC_vs_SAMPA -> SetLabelSize(0.05);
+  DC_vs_SAMPA -> GetYaxis() -> SetTitleSize(0.05);
+  DC_vs_SAMPA -> GetYaxis() -> SetTitleOffset(1.0);
+
+
+    // SAMPA vs Time (weighted by DC)
+  char SAMPA_vs_Time_DC_title_str[100];
+  sprintf(SAMPA_vs_Time_DC_title_str,"SAMPA ID vs TIME (WTD. by DC = #Sigma ADC - 60*BIN_SUM): SECTOR %i",ebdc_from_serverid( MonitorServerId() ));  
+  //DC_SAMPA_vs_TIME = new TH2F("DC_SAMPA_vs_TIME",SAMPA_vs_Time_DC_title_str,6000,-660000,2000000,208,-0.5,207.5); //rollover
+  //DC_SAMPA_vs_TIME = new TH2F("DC_SAMPA_vs_TIME",SAMPA_vs_Time_DC_title_str,10050,-49500000,150000000,208,-0.5,207.5); // no rollover
+  DC_SAMPA_vs_TIME = new TH2F("DC_SAMPA_vs_TIME",SAMPA_vs_Time_DC_title_str,1256,-49500000,150000000,208,-0.5,207.5); // no rollover
+  DC_SAMPA_vs_TIME->SetXTitle("BCO");
+  DC_SAMPA_vs_TIME->SetYTitle("SAMPA ID: SAMPA # + (feeID *8)");
+
+  DC_SAMPA_vs_TIME -> GetXaxis() -> SetLabelSize(0.05);
+  DC_SAMPA_vs_TIME -> GetXaxis() -> SetTitleSize(0.05);
+  DC_SAMPA_vs_TIME -> SetLabelSize(0.05);
+  DC_SAMPA_vs_TIME -> GetYaxis() -> SetTitleSize(0.05);
+  DC_SAMPA_vs_TIME -> GetYaxis() -> SetTitleOffset(1.0);
+  
 
   OnlMonServer *se = OnlMonServer::instance();
   // register histograms with server otherwise client won't get them
@@ -808,6 +847,8 @@ int TpcMon::Init()
   se->registerHisto(this, Packet_Type_Fraction_ELSE);
 
   se->registerHisto(this, Noise_Channel_Plots);
+  se->registerHisto(this,  DC_vs_SAMPA);
+  se->registerHisto(this, DC_SAMPA_vs_TIME);
 
   Reset();
   return 0;
@@ -889,6 +930,52 @@ int TpcMon::process_event(Event *evt/* evt */)
       //std::cout << "____________________________________" << std::endl;
       //std::cout << "Packet # " << packet << std::endl;
       int nr_of_waveforms = p->iValue(0, "NR_WF");
+
+      //________________________________________________________________________________	
+     
+	//digital current loop
+        //std::cout<<"NR_DC = "<<p->iValue(0,"NR_DC")<<std::endl;
+        if (p->iValue(0,"NR_DC") != 0) // && evtcnt > 9000)
+	{
+	  //std::cout<<"NR_DC = "<<p->iValue(0,"NR_DC")<<std::endl;
+	  for(int i = 0; i< p->iValue(0,"NR_DC"); i++ )
+	  {
+	    //std::cout<<"_____________________________"<<std::endl;
+	    //std::cout<<"TYPE_DC = "<<p->iValue(i,"TYPE_DC")<<std::endl;
+	    //std::cout<<"CRC ERROR = "<<p->iValue(i,"CHECKSUMERROR_DC")<<std::endl;
+	    //std::cout<<"rollover BCO = "<<rollover_value_DC<<std::endl;
+	    //std::cout<<"Starting BCO = "<<starting_BCO_DC<<std::endl;
+	    //std::cout<<"RAW BCO = " <<p->iValue(i,"BCO_DC")<<std::endl;
+
+	    int current_BCO_DC = p->iValue(i,"BCO_DC") + rollover_value_DC;
+	    if ( starting_BCO_DC < 0){starting_BCO_DC = p->iValue(i,"BCO_DC");}
+	    int conv_starting_BCO_DC = starting_BCO_DC; //no rollover
+	    if( current_BCO_DC < conv_starting_BCO_DC ) //no rollover
+	      //if(current_BCO_DC < starting_BCO_DC ) //rollover
+	    {
+	      //std::cout<<"you had a rollover"<<std::endl;
+              rollover_value_DC += 0x100000;
+	      current_BCO_DC = p->iValue(i,"BCO_DC") + rollover_value_DC;
+	      starting_BCO_DC =  p->iValue(i,"BCO_DC") + rollover_value_DC;
+	    }
+	    starting_BCO_DC =  p->iValue(i,"BCO_DC") + rollover_value_DC; //no rollover
+            //std::cout<<"Corrected BCO = "<<current_BCO_DC<<std::endl;
+	    
+	    for(int j = 0; j< 8; j++)
+	    {
+	      if((p->iValue(i,j+1040) != 0 && p->iValue(i,"CHECKSUMERROR_DC") == 0))
+	      {
+		//std::cout<<"FEE = "<<p->iValue(i,"FEE_DC")<<", SAMPA = "<<j<<", DC = "<<p->iValue(i,j+1030) - 60*p->iValue(i,j+1040)<<", BIN_SUM = "<<p->iValue(i,j+1040)<<std::endl;
+                DC_vs_SAMPA->Fill(j + (8*FEE_transform[p->iValue(i,"FEE_DC")]),p->iValue(i,j+1030) - 60*p->iValue(i,j+1040));
+		DC_SAMPA_vs_TIME->Fill(current_BCO_DC,j + (8*FEE_transform[p->iValue(i,"FEE_DC")]),p->iValue(i,j+1030) - 60*p->iValue(i,j+1040));
+	      }
+	    }
+	    //std::cout<<"_____________________________"<<std::endl;
+	  }
+	} // end DC loop
+
+      //________________________________________________________________________________	
+
       //std::cout << "Hello Waveforms ! - There are " << nr_of_waveforms << " of you !" << std::endl;
 
       bool is_channel_stuck = 0;
@@ -911,9 +998,9 @@ int TpcMon::process_event(Event *evt/* evt */)
           starting_BCO = current_BCO;
           current_BCOBIN++;
         }
-
+	
 	int type = p->iValue(wf,"TYPE");
-        switch(type)
+	switch(type)
 	{
 	case 0:
 	  Packet_Type_Fraction_HB->Fill(0.5); //HEARTBEAT_T 0b000
@@ -1059,7 +1146,7 @@ int TpcMon::process_event(Event *evt/* evt */)
               if(first_non_ZS_sample == 1){First_ADC_vs_First_Time_Bin->Fill(si,(p->iValue(wf,si)));first_non_ZS_sample = 0;} //this is the first sample, its all we want
             } 
             if( (p->iValue(wf,si)) > 64500 && prev_sample < 1025){ tr_samp = 0; start_flag = 0; prev_sample =  (p->iValue(wf,si)); }  // end condition to record
-            if( start_flag == 1){ ZS_Trigger_ADC_vs_Sample->Fill(tr_samp, p->iValue(wf,si)); tr_samp++; prev_sample = p->iValue(wf,si);} // record the ZS trigger histo if you should
+            if( start_flag == 1){ZS_Trigger_ADC_vs_Sample->Fill(tr_samp, p->iValue(wf,si)); tr_samp++; prev_sample = p->iValue(wf,si);} // record the ZS trigger histo if you should
             
 	    if( (p->iValue(wf,si)) > 64500 && si > 1023){ break; } //for new firmware/ZS mode - we don't entries w/ ADC > 65 K after 1023 (50 us window), that's nonsense - per Jin's suggestion once you see this, BREAK out of loop
             if( (p->iValue(wf,si)) > 64500 ){ continue; }  //only use reasonable values to calculate median
