@@ -62,6 +62,8 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCNoiseChannelPlots(const std::string &what = "ALL");
   int DrawShifterTPCDriftWindow(const std::string &what = "ALL");
   int DrawShifterTransmissionDist(const std::string &what = "ALL");
+  int DrawDCvsSAMPA(const std::string &what = "ALL");
+  int DrawDCSAMPAvsTIME(const std::string &what = "ALL");
   int DrawServerStats();
   void add_TH1(TH1* hist[48], TH1* histadd[24]);
   void add_TH2(TH2* hist[48], TH2* histadd[24]);  
@@ -69,8 +71,8 @@ class TpcMonDraw : public OnlMonDraw
   void add_TH2_modules(TH2* hist[48][3], TH2* histadd[24][3]);
   time_t getTime();
   
-  TCanvas *TC[37] = {nullptr};
-  TPad *transparent[37] = {nullptr};
+  TCanvas *TC[39] = {nullptr};
+  TPad *transparent[39] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
   //TPC Module

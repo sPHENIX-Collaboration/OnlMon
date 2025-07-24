@@ -105,6 +105,9 @@ void tpcDrawInit(const int online = 0)
     cl->registerHisto("Packet_Type_Fraction_ELSE",servername);
 
     cl->registerHisto("Noise_Channel_Plots",servername);
+
+    cl->registerHisto("DC_vs_SAMPA",servername);
+    cl->registerHisto("DC_SAMPA_vs_TIME",servername);
   } //
 
 
