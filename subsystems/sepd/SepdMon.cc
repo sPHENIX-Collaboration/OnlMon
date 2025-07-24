@@ -60,6 +60,10 @@ SepdMon::~SepdMon()
   {
     delete iter;
   }
+  for (auto iter : rm_packet_event)
+  {
+    delete iter;
+  }
   if (erc)
   {
     delete erc;
@@ -133,6 +137,7 @@ int SepdMon::Init()
     rm_packet_number.push_back(new pseudoRunningMean(1, packet_depth));
     rm_packet_length.push_back(new pseudoRunningMean(1, packet_depth));
     rm_packet_chans.push_back(new pseudoRunningMean(1, packet_depth));
+    rm_packet_event.push_back(new pseudoRunningMean(1, packet_depth));
   }
 
   OnlMonServer *se = OnlMonServer::instance();
@@ -206,6 +211,10 @@ int SepdMon::BeginRun(const int /* runno */)
     (*rm_it)->Reset();
   }
   for (rm_it = rm_packet_chans.begin(); rm_it != rm_packet_chans.end(); ++rm_it)
+  {
+    (*rm_it)->Reset();
+  }
+  for (rm_it = rm_packet_event.begin(); rm_it != rm_packet_event.end(); ++rm_it)
   {
     (*rm_it)->Reset();
   }
@@ -287,7 +296,7 @@ std::vector<float> SepdMon::anaWaveformTemp(Packet *p, const int channel)
 int SepdMon::process_event(Event *e /* evt */)
 {
   evtcnt++;
-  h1_packet_event->Reset();
+  //h1_packet_event->Reset(); // not sure about this...
   unsigned int ChannelNumber = 0;
   //  float sectorAvg[Nsector] = {0};
   // int phi_in = 0;
@@ -325,22 +334,49 @@ int SepdMon::process_event(Event *e /* evt */)
       delete gl1Event;
     }
 
+  uint64_t zdc_clock = 0;
+  Packet* pzdc = e->getPacket(12001);
+  if ( pzdc )
+    {
+      zdc_clock = pzdc->lValue(0,"CLOCK");
+      // --- only do this insanity for diagnostic purposes and a small number of events
+      // std::cout << "ZDC clock is " << zdc_clock << std::endl;
+      delete pzdc;
+    }
+  // --- only do this insanity for diagnostic purposes and a small number of events
+  // else std::cout << "Why no ZDC packet..." << std::endl;
 
   // loop over packets which contain a single sector
   for (int packet = packetlow; packet <= packethigh; packet++)
   {
     Packet *p = e->getPacket(packet);
+    int packet_index = packet - packetlow;
     int packet_bin = packet - packetlow + 1;
     if (p)
     {
       int one[1] = {1};
-      rm_packet_number[packet - packetlow]->Add(one);
+      rm_packet_number[packet_index]->Add(one);
       int packet_length[1] = {p->getLength()};
-      rm_packet_length[packet - packetlow]->Add(packet_length);
+      rm_packet_length[packet_index]->Add(packet_length);
 
-      h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
+      h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet_index]->getMean(0));
 
-      h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
+      // ---
+      uint64_t p_clock = p->lValue(0,"CLOCK");
+      long long clock_diff = p_clock-zdc_clock;
+      double cd = (double)clock_diff;
+      // --- only do this insanity for diagnostic purposes and a small number of events
+      // std::cout << "Packet clock is " << p_clock << " and clock diff is " << clock_diff << " " << cd << std::endl;
+      // --- trying to improve clock diff...
+      // --- currently we overwrite the histogram with the difference from the latest event
+      // --- not sure if we want to do that or running mean, which is done for the number, length, channels
+      // h1_packet_event->SetBinContent(packet - packetlow + 1, p->lValue(0, "CLOCK"));
+      // h1_packet_event->SetBinContent(packet_bin, clock_diff);
+      // h1_packet_event->SetBinContent(packet_bin, cd);
+      rm_packet_event[packet_index]->Add(&cd);
+      h1_packet_event->SetBinContent(packet_bin, rm_packet_event[packet_index]->getMean(0));
+      // --- only do this insanity for diagnostic purposes and a small number of events
+      // std::cout << "Histogram bin " << packet_bin << " center " << h1_packet_event->GetBinCenter(packet_bin) << " bin content " << h1_packet_event->GetBinContent(packet_bin) << std::endl;
       int nPacketChannels = p->iValue(0, "CHANNELS");
       if (nPacketChannels > m_nChannels)
       {
@@ -374,11 +410,12 @@ int SepdMon::process_event(Event *e /* evt */)
         float signalFast = resultFast.at(0);
         float timeFast = resultFast.at(1);
         float pedestalFast = resultFast.at(2);
-        float postpre = p->iValue(c, "POST") - p->iValue(c, "PRE");
-        if(postpre<0){
-            p_noiserms_all_channel->Fill(ch,postpre);
-            p_noiserms_all_channel->Fill(ch,-postpre);
-        }
+        float prepost = p->iValue(c, "PRE") - p->iValue(c, "POST");
+        if ( prepost > 0 )
+          {
+            p_noiserms_all_channel->Fill(ch,prepost);
+            p_noiserms_all_channel->Fill(ch,-prepost);
+          }
 
         // --- Run24pp
         //bool is_good_hit = ( signalFast > 50 && signalFast < 3000 );
@@ -431,16 +468,16 @@ int SepdMon::process_event(Event *e /* evt */)
         }
 
       }  // channel loop end
-    rm_packet_chans[packet - packetlow]->Add(&channel_counter);
-    h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet - packetlow]->getMean(0));
+    rm_packet_chans[packet_index]->Add(&channel_counter);
+    h1_packet_chans->SetBinContent(packet_bin, rm_packet_chans[packet_index]->getMean(0));
     }    //  if packet good
     else
     {
       ChannelNumber += 128;
       int zero[1] = {0};
-      rm_packet_number[packet - packetlow]->Add(zero);
+      rm_packet_number[packet_index]->Add(zero);
     }
-    h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet - packetlow]->getMean(0));
+    h1_packet_number->SetBinContent(packet_bin, rm_packet_number[packet_index]->getMean(0));
     delete p;
 
   }  // packet id loop end

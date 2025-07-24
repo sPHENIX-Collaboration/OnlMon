@@ -1,3 +1,4 @@
+#define ONLINE
 #include "ServerFuncs.C"
 
 #include <onlmon/bbc/BbcMon.h>

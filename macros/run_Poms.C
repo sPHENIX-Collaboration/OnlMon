@@ -31,6 +31,8 @@ void StartPoms()
   subsys->AddAction("bbcDraw(\"THIRD\")", "MBD Triggered Monitor");
   subsys->AddAction("bbcDraw(\"BbcMon5\")", "Vertex for All Triggers");
   subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
+  subsys->AddAction("bbcDraw(\"MBDZRESET\")", "MBD RESET VTX");
+  //  subsys->AddAction("bbcDraw(\"BbcAutoUpdate\")", "MBD VTX Auto Update");
   //  subsys->AddAction("bbcDraw(\"BADGL1\")", "MBD TOGGLE IGNORE GL1 MISS");
   subsys->AddAction("bbcDraw(\"BbcMonServerStats\")", "MBD Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
@@ -123,7 +125,7 @@ void StartPoms()
   subsys->AddAction("sepdDraw(\"SECOND\")", "ADC distributions");
   subsys->AddAction("sepdDraw(\"THIRD\")", "North vs South Correlations");
   subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
-  subsys->AddAction("sepdDraw(\"FIFTH\")", "Packet Status");
+  subsys->AddAction("sepdDraw(\"FIFTH\")", "Packet Information");
   subsys->AddAction("sepdDraw(\"SIXTH\")", "Noise RMS");
   subsys->AddAction("sepdDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));

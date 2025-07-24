@@ -74,7 +74,7 @@ int HcalMonDraw::Init()
   char TEMPFILENAME[100];
   const char* hcalcalib = getenv("HCALCALIB");
 
-  sprintf(TEMPFILENAME, "%s/%s_67963.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_69238.root", hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
@@ -2874,7 +2874,7 @@ int HcalMonDraw::DrawSeventh(const std::string& what)
     for (int j = 0; j < pr_zsFrac_etaphi->GetNbinsY(); j++)
     {
       float rate = pr_zsFrac_etaphi->GetBinContent(i + 1, j + 1);
-      if (rate <= 0.2)
+      if (rate <= 0.1)
       {
         h1_zs_low->Fill(rate);
       }
@@ -2882,10 +2882,9 @@ int HcalMonDraw::DrawSeventh(const std::string& what)
       {
         h1_zs_high->Fill(rate);
       }
-      else
-      {
-        h1_zs->Fill(rate);
-      }
+
+      h1_zs->Fill(rate);
+      
       sum += pr_zsFrac_etaphi->GetBinContent(i + 1, j + 1);
       count++;
     }
@@ -2893,6 +2892,8 @@ int HcalMonDraw::DrawSeventh(const std::string& what)
   double maxx = (sum / count) * 5 > 1.1 ? 1.1 : (sum / count) * 5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
   double averagezs = sum / count * 100;
+  //double maxy = std::max({h1_zs->GetMaximum(), h1_zs_low->GetMaximum(), h1_zs_high->GetMaximum()});
+  //h1_zs->SetMaximum(maxy * 1.2);
 
   pr_zsFrac_etaphi->GetXaxis()->SetNdivisions(510, kTRUE);
   pr_zsFrac_etaphi->GetXaxis()->SetTitle("eta index");

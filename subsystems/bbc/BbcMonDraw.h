@@ -4,6 +4,7 @@
 #include "BbcMonDefs.h"
 
 #include <onlmon/OnlMonDraw.h>
+#include <onlmon/triggerEnum.h>
 
 #include <string>
 #include <fstream>
@@ -62,6 +63,12 @@ class BbcMonDraw : public OnlMonDraw
   int GetSendFlag();
   int UpdateSendFlag(const int flag);
 
+  // reset zvtx variables
+  int zresetflag{0};      // 0 = don't send, 1 = send
+  std::string zresetflagfname;
+  int GetZResetFlag();
+  int UpdateZResetFlag(const int flag);
+ 
   // bad gl1 variables
   int gl1badflag{0};      // 0 = normal, 1 = gl1bad
   std::string gl1badflagfname;
@@ -77,6 +84,7 @@ class BbcMonDraw : public OnlMonDraw
   TPad *PadTop[nCANVAS] = {};
   TPaveText *PaveTop = nullptr;
   TText *TextTop = nullptr;
+  TPad *PadAutoUpdate[nCANVAS] = {nullptr};
 
   TPaveText *PaveWarning[BbcMonDefs::MAX_WARNING] = {};
   TArc *ArcWarning[BbcMonDefs::MAX_WARNING] = {};
@@ -88,6 +96,7 @@ class BbcMonDraw : public OnlMonDraw
 
   // for the 1st Page
   TPad *PadZVertex = nullptr;
+  TPad *PadRunZVertex = nullptr;
   TPad *PadZVertexSummary = nullptr;
   TH2 *SouthHitMap = nullptr;
   TPad *PadSouthHitMap = nullptr;
@@ -146,6 +155,7 @@ class BbcMonDraw : public OnlMonDraw
   TH1 *Zvtx_10{nullptr};
   TH1 *Zvtx_30{nullptr};
   TH1 *Zvtx_60{nullptr};
+  TH1 *Zvtx_ns_chk{nullptr};
   TH1 *Zvtx_10_chk{nullptr};
   TH1 *Zvtx_30_chk{nullptr};
   TH1 *Zvtx_60_chk{nullptr};
@@ -154,7 +164,14 @@ class BbcMonDraw : public OnlMonDraw
   TH1 *Zvtx_hcal{nullptr};
   TH1 *Zvtx_emcalmbd{nullptr};
   TH1 *Zvtx_hcalmbd{nullptr};
-  TF1 *FitZvtx = nullptr;
+  TH1 *RunVtx{nullptr};
+  TH1 *RunVtxErr{nullptr};
+  TH1 *RunVtxTime{nullptr};
+  TH1 *EmptyHist{nullptr};
+  TGraphErrors *gRunVtx{nullptr};
+  TGraph *gRunAvgVtx{nullptr};
+  TF1 *FitZvtx{nullptr};
+  TF1 *FitZDCvtx{nullptr};
   TLine *LineZvtx[2] = {};
   TArrow *ArrowZvtx = nullptr;
   TText *TextZvtx = nullptr;
@@ -216,6 +233,9 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextnHitStatus = nullptr;
   TH1 *FramenHit[nSIDE] = {};
 
+  TH1 * ZvrtxAuto[TriggerEnum::NUM_MBD_TRIGGERS] {nullptr};
+
+  TGraphErrors *RunningZ{nullptr};
 
   //  TText * TextZVertex[3] = {};
   // TText * TextZVertex_scale[3] = {};
@@ -226,7 +246,7 @@ class BbcMonDraw : public OnlMonDraw
   TText *TextZVertex_scale[5] = {};  // RUN11 pp
   TText *TextZVertex_mean[5] = {};   // RUN11 pp
 
-  TLatex *TextZvtxStatus[3] = {};
+  TLatex *TextZvtxStatus[5] = {};
 
   TH2 *TzeroZvtx = nullptr;
 

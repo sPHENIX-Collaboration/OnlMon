@@ -347,8 +347,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   polar_histN->Draw("same colz pol AH");
   polar_histN01->Draw("same col pol AH");
   tarm.DrawText(0.40,0.91,"North");
-  //tarm.DrawText(0.35,0.91,"North");
-  //tarm.DrawText(0.45,0.91,"North");
   gStyle->SetPalette(57);
 
   TText PrintRun;
@@ -359,7 +357,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  //runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
   runnostream << ThisName << "_1 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
@@ -776,16 +773,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
     return -1;
   }
 
-  // int maxbin = h1_packet_event->GetMaximumBin();
-  int maxy = h1_packet_event->GetMaximum();
-  // substract all none zero bin by maxy
-  for (int i = 1; i <= h1_packet_event->GetNbinsX(); i++)
-  {
-    if (h1_packet_event->GetBinContent(i) != 0)
-    {
-      h1_packet_event->SetBinContent(i, h1_packet_event->GetBinContent(i) - maxy);
-    }
-  }
+
 
   // find the x range for h1_packet_number
   double xmin = h1_packet_number->GetXaxis()->GetXmin();
@@ -898,7 +886,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   gPad->SetTickx();
 
   Pad[13]->cd();
-  //  h1_packet_event->Draw("hist");
+  h1_packet_event->Draw("hist");
   // h1_packet_event->SetLineColor(kWhite);;
   // h1_packet_event->Draw("AH");
   double ymax = h1_packet_event->GetMaximum();
@@ -907,17 +895,17 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
   // --- this one seems okay
   h1_packet_event->GetXaxis()->SetNdivisions(6);
   h1_packet_event->GetYaxis()->SetRangeUser(ymin - 0.3 * (ymax - ymin + 30), ymax + 0.3 * (ymax - ymin + 30));
-  // h1_packet_event->GetXaxis()->SetTitle("Packet #");
-  // h1_packet_event->GetYaxis()->SetTitle("clock offset");
-  h1_packet_event->GetXaxis()->SetLabelSize(tsize/1.2);
-  h1_packet_event->GetYaxis()->SetLabelSize(tsize/1.2);
-  h1_packet_event->GetXaxis()->SetTitleSize(tsize/1.2);
-  h1_packet_event->GetYaxis()->SetTitleSize(tsize/1.2);
+  h1_packet_event->GetXaxis()->SetTitle("Packet #");
+  h1_packet_event->GetYaxis()->SetTitle("Clock offset");
+  h1_packet_event->GetXaxis()->SetLabelSize(tsize/1.15);
+  h1_packet_event->GetYaxis()->SetLabelSize(tsize/1.15);
+  h1_packet_event->GetXaxis()->SetTitleSize(tsize/1.15);
+  h1_packet_event->GetYaxis()->SetTitleSize(tsize/1.15);
   h1_packet_event->GetXaxis()->SetTitleOffset(0.8);
-  h1_packet_event->GetYaxis()->SetTitleOffset(1.2);
+  h1_packet_event->GetYaxis()->SetTitleOffset(0.8);
   gPad->SetBottomMargin(0.16);
   gPad->SetRightMargin(0.05);
-  gPad->SetLeftMargin(0.2);
+  gPad->SetLeftMargin(0.15);
   gStyle->SetOptStat(0);
   gPad->SetTicky();
   gPad->SetTickx();
@@ -946,6 +934,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
     {
       badnumber = true;
     }
+    // no such thing as a bad length when zero suppression is on
     // if (h1_packet_length->GetBinContent(i) < param * PACKET_SIZE)
     // {
     //   badlength = true;
@@ -1058,7 +1047,7 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
     TC[canvasindex]->SetEditable(false);
     return -1;
   }
-  
+
   std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
 
   TH2* polar_histS_rms = new TH2F("polar_histS_rms","polar_hist_rms",
@@ -1067,7 +1056,7 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
   TH2* polar_histN_rms = new TH2F("polar_histN_rms","polar_hist_rms",
                                24, 0, 2*M_PI,
                                16, 0.15, 3.5);
-  
+
   TH2* polar_histS01_rms = new TH2F("polar_histS01_rms","polar_hist_rms",
                                  12, 0, 2*M_PI,
                                  16, 0.15, 3.5);
@@ -1137,8 +1126,6 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
   polar_histN_rms->Draw("same colz pol AH");
   polar_histN01_rms->Draw("same col pol AH");
   tarm.DrawText(0.40,0.91,"North");
-  //tarm.DrawText(0.35,0.91,"North");
-  //tarm.DrawText(0.45,0.91,"North");
   gStyle->SetPalette(57);
 
   TText PrintRun;
@@ -1149,7 +1136,6 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  //runnostream << "UNDER CONSTRUCTION " << ThisName << "_1 Run " << cl->RunNumber()
   runnostream << ThisName << "_6 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
@@ -1212,22 +1198,6 @@ int SepdMonDraw::MakeHtml(const std::string &what)
     cl->CanvasToPng(canvas, pngfile);
   }
 
-  // Now register also EXPERTS html pages, under the EXPERTS subfolder.
-
-  // std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  // std::ofstream out(logfile.c_str());
-  // out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-  //     << "</TITLE></HEAD>" << std::endl;
-  // out << "<P>Some log file output would go here." << std::endl;
-  // out.close();
-
-  // std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  // std::ofstream out2(status.c_str());
-  // out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-  //      << "</TITLE></HEAD>" << std::endl;
-  // out2 << "<P>Some status output would go here." << std::endl;
-  // out2.close();
-  // cl->SaveLogFile(*this);
   return 0;
 }
 

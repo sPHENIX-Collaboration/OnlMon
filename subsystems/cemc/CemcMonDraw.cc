@@ -77,7 +77,8 @@ int CemcMonDraw::Init()
     // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_52876_100ADC_hits.root";
     // std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_54117_100ADC_hits.root";
     //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_54373_100ADC_hits.root";
-    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_67535_100ADC_hits.root";
+    //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_67535_100ADC_hits.root";
+    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_69238_100ADC_hits.root";
 
     inputTemplate = new TFile(Templatefilename.c_str(), "READ");
     if (!inputTemplate->IsOpen())
@@ -95,7 +96,7 @@ int CemcMonDraw::Init()
       }
     }
     // std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_49435_100ADC_alltrig.root";
-    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_66467_100ADC_alltrig.root";
+    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_69238_100ADC_alltrig.root";
     inputTemplate_alltrig = new TFile(Templatefilename_alltrig.c_str(), "READ");
     if (!inputTemplate_alltrig->IsOpen())
     {
@@ -2736,7 +2737,7 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
     for (int j = 1; j <= p2_zsFrac_etaphiCombined->GetNbinsY(); j++)
     {
       float rate = p2_zsFrac_etaphiCombined->GetBinContent(i + 1, j + 1);
-      if (rate <= 0.2)
+      if (rate <= 0.1)
       {
         h1_zs_low->Fill(rate);
       }
@@ -2744,10 +2745,9 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
       {
         h1_zs_high->Fill(rate);
       }
-      else
-      {
-        h1_zs->Fill(rate);
-      }
+
+      h1_zs->Fill(rate);
+      
       sum += rate;
       count++;
     }
@@ -2755,6 +2755,9 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
 
   double maxx = (sum / count) * 5 > 1.1 ? 1.1 : (sum / count) * 5;
   h1_zs->GetXaxis()->SetRangeUser(0, maxx);
+  //max y is the max among h1_zs, h1_zs_low, h1_zs_high
+  //double maxy = std::max({h1_zs->GetMaximum(), h1_zs_low->GetMaximum(), h1_zs_high->GetMaximum()});
+  //h1_zs->SetMaximum(maxy * 1.2);
 
   double averagezs = sum / count * 100;
 
