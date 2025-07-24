@@ -4661,32 +4661,32 @@ int TpcMonDraw::DrawDCSAMPAvsTIME(const std::string & /* what */)
       MyTC->Update();
 
       for (int j = 0; j < 25; j++) {
-        //t2->DrawLine( -659999, (j+1)*8, 2000000.5, (j+1)*8); //rollover
-        t2->DrawLine( -49499999, (j+1)*8, 150000000.5, (j+1)*8); //no rollover
+        t2->DrawLine( -659999, (j+1)*8, 1200000.5, (j+1)*8); //rollover
+        //t2->DrawLine( -49499999, (j+1)*8, 150000000.5, (j+1)*8); //no rollover
       }
       // FEE ID labels
       for (int k = 0; k < 26; k++) {
         sprintf(title, "%d", FEEid[k]);
-        //if(FEEid[k] >9){tt2->DrawText(-250000,k*8+2, title);} //rollover
- 	//else {tt2->DrawText(-250000,k*8 + 2,title);} //rollover
-        if(FEEid[k] >9){tt2->DrawText(-17040000,k*8+2, title);} //no rollover
-	else {tt2->DrawText(-17040000,k*8 + 2,title);} //no rollover
+        if(FEEid[k] >9){tt2->DrawText(-250000,k*8+2, title);} //rollover
+ 	else {tt2->DrawText(-250000,k*8 + 2,title);} //rollover
+        //if(FEEid[k] >9){tt2->DrawText(-17040000,k*8+2, title);} //no rollover
+	//else {tt2->DrawText(-17040000,k*8 + 2,title);} //no rollover
       }
       // Region labels
       tt1->SetTextSize(0.06);
-      //tt1->DrawText(-550000,25, "R1"); //rollover
-      //tt1->DrawText(-550000,77, "R2"); //rollover
-      //tt1->DrawText(-550000,163, "R3"); //rollover
-      tt1->DrawText(-41250000,25, "R1"); //no rollover
-      tt1->DrawText(-41250000,77, "R2"); //no rollover
-      tt1->DrawText(-41250000,163, "R3"); // no rollover
+      tt1->DrawText(-550000,25, "R1"); //rollover
+      tt1->DrawText(-550000,77, "R2"); //rollover
+      tt1->DrawText(-550000,163, "R3"); //rollover
+      //tt1->DrawText(-41250000,25, "R1"); //no rollover
+      //tt1->DrawText(-41250000,77, "R2"); //no rollover
+      //tt1->DrawText(-41250000,163, "R3"); // no rollover
       tt1->SetTextSize(0.05);
 
      // Solid region boundary lines
-      //t1->DrawLine(-659999,48,2000000.5,48); //rollover
-      //t1->DrawLine(-659999,112,2000000.5,112); //rollover
-      t1->DrawLine( -49499999,48,150000000.5,48); // no rollover
-      t1->DrawLine( -49499999,112,150000000.5,112); // no rollover
+      t1->DrawLine(-659999,48,1200000.5,48); //rollover
+      t1->DrawLine(-659999,112,1200000.5,112); //rollover
+      //t1->DrawLine( -49499999,48,150000000.5,48); // no rollover
+      //t1->DrawLine( -49499999,112,150000000.5,112); // no rollover
 
     }
   }

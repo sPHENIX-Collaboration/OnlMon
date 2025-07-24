@@ -753,9 +753,9 @@ int TpcMon::Init()
     // SAMPA vs Time (weighted by DC)
   char SAMPA_vs_Time_DC_title_str[100];
   sprintf(SAMPA_vs_Time_DC_title_str,"SAMPA ID vs TIME (WTD. by DC = #Sigma ADC - 60*BIN_SUM): SECTOR %i",ebdc_from_serverid( MonitorServerId() ));  
-  //DC_SAMPA_vs_TIME = new TH2F("DC_SAMPA_vs_TIME",SAMPA_vs_Time_DC_title_str,6000,-660000,2000000,208,-0.5,207.5); //rollover
+  DC_SAMPA_vs_TIME = new TH2F("DC_SAMPA_vs_TIME",SAMPA_vs_Time_DC_title_str,6000,-660000,1200000,208,-0.5,207.5); //rollover
   //DC_SAMPA_vs_TIME = new TH2F("DC_SAMPA_vs_TIME",SAMPA_vs_Time_DC_title_str,10050,-49500000,150000000,208,-0.5,207.5); // no rollover
-  DC_SAMPA_vs_TIME = new TH2F("DC_SAMPA_vs_TIME",SAMPA_vs_Time_DC_title_str,1256,-49500000,150000000,208,-0.5,207.5); // no rollover
+  //DC_SAMPA_vs_TIME = new TH2F("DC_SAMPA_vs_TIME",SAMPA_vs_Time_DC_title_str,1256,-49500000,150000000,208,-0.5,207.5); // no rollover
   DC_SAMPA_vs_TIME->SetXTitle("BCO");
   DC_SAMPA_vs_TIME->SetYTitle("SAMPA ID: SAMPA # + (feeID *8)");
 
@@ -949,16 +949,18 @@ int TpcMon::process_event(Event *evt/* evt */)
 
 	    int current_BCO_DC = p->iValue(i,"BCO_DC") + rollover_value_DC;
 	    if ( starting_BCO_DC < 0){starting_BCO_DC = p->iValue(i,"BCO_DC");}
-	    int conv_starting_BCO_DC = starting_BCO_DC; //no rollover
-	    if( current_BCO_DC < conv_starting_BCO_DC ) //no rollover
-	      //if(current_BCO_DC < starting_BCO_DC ) //rollover
+	    //int conv_starting_BCO_DC = starting_BCO_DC; //no rollover
+	    //if( current_BCO_DC < conv_starting_BCO_DC ) //no rollover
+            /*
+	    if(current_BCO_DC < starting_BCO_DC ) //rollover
 	    {
 	      //std::cout<<"you had a rollover"<<std::endl;
               rollover_value_DC += 0x100000;
 	      current_BCO_DC = p->iValue(i,"BCO_DC") + rollover_value_DC;
 	      starting_BCO_DC =  p->iValue(i,"BCO_DC") + rollover_value_DC;
 	    }
-	    starting_BCO_DC =  p->iValue(i,"BCO_DC") + rollover_value_DC; //no rollover
+	    */
+	    //starting_BCO_DC =  p->iValue(i,"BCO_DC") + rollover_value_DC; //no rollover
             //std::cout<<"Corrected BCO = "<<current_BCO_DC<<std::endl;
 	    
 	    for(int j = 0; j< 8; j++)
