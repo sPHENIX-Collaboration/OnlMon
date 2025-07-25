@@ -184,7 +184,7 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("TPC DIGITAL CURRENT", "tpc");
+  subsys = new SubSystem("TPC EXPERT DIGITAL CURRENT", "tpc");
   subsys->AddAction("tpcDraw(\"TPCDCVSSAMPA\")", "TPC DIGITAL CURRENT VS SAMPA");
   subsys->AddAction("tpcDraw(\"TPCDCSAMPAVSTIME\")", "TPC SAMPA VS TIME WTD. BY DC");
   subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
