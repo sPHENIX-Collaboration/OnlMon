@@ -1830,7 +1830,7 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
   std::ostringstream coldtowerlist;
   float hot_threshold = 1.5;
   float dead_threshold = 0.01;
-  float cold_threshold = 0.5;
+  float cold_threshold = 0.75;
   if (!usetemplate)
   {
     // loop over histogram to find mean and rms
