@@ -458,8 +458,9 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[36]->Draw();
     TC[36]->SetEditable(false);
   }
-  else if (name == "DC_vs_SAMPA")
+  else if (name == "DC_vs_SAMPA_CANVAS")
   {
+    std::cout << "creating TC[37]" << std::endl;
     TC[37] = new TCanvas(name.c_str(), "Digital Current vs SAMPA",-1, 0, xsize , ysize );
     gSystem->ProcessEvents();
     TC[37]->Divide(4,7);
@@ -468,7 +469,7 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[37]->Draw();
     TC[37]->SetEditable(false);
   }      
-  else if (name == "DC_SAMPA_vs_TIME")
+  else if (name == "DC_SAMPA_vs_TIME_CANVAS")
   {
     TC[38] = new TCanvas(name.c_str(), "SAMPA vs TIME wtd. by Digital Current",-1, 0, xsize , ysize );
     gSystem->ProcessEvents();
@@ -4523,9 +4524,9 @@ int TpcMonDraw::DrawDCvsSAMPA(const std::string & /* what */)
 
   add_TH1(tpcmon_dc_vs_sampa_plots_u, tpcmon_dc_vs_sampa_plots);
   
-  if (!gROOT->FindObject("DC_vs_SAMPA"))
+  if (!gROOT->FindObject("DC_vs_SAMPA_CANVAS"))
   {
-    MakeCanvas("DC_vs_SAMPA");
+    MakeCanvas("DC_vs_SAMPA_CANVAS");
   }
 
   TCanvas *MyTC = TC[37];
@@ -4623,9 +4624,9 @@ int TpcMonDraw::DrawDCSAMPAvsTIME(const std::string & /* what */)
 
   add_TH1(tpcmon_dc_sampa_vs_time_plots_u, tpcmon_dc_sampa_vs_time_plots);
   
-  if (!gROOT->FindObject("DC_SAMPA_vs_TIME"))
+  if (!gROOT->FindObject("DC_SAMPA_vs_TIME_CANVAS"))
   {
-    MakeCanvas("DC_SAMPA_vs_TIME");
+    MakeCanvas("DC_SAMPA_vs_TIME_CANVAS");
   }
 
   TCanvas *MyTC = TC[38];
