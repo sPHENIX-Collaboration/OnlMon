@@ -42,7 +42,7 @@ class HcalMonDraw : public OnlMonDraw
   int DrawSeventh(const std::string& what = "ALL");
   int DrawNoiseRMS(const std::string &what = "ALL");
   int DrawServerStats();
-  int FindHotTower(TPad* warn, TH2*, bool usetemplate = true);
+  int FindHotTower(TPad* warn, TH2*, bool usetemplate = true, float cold_threshold=0.75, float hot_threshold=1.5, float dead_threshold=0.01);
   int FindGainMode(TPad *warn, TH2 *);
   void DrawTowerAvg();
   void DrawHitMap();
