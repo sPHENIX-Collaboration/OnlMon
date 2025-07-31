@@ -537,7 +537,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   std::ostringstream runnostream;
   std::string runstring;
   // fill run number and event time into string
-  runnostream << ThisName << "_3 Run " << cl->RunNumber()
+  runnostream << "EXPERT ONLY " << ThisName << "_3 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[canvasindex]->cd();
