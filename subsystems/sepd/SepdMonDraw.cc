@@ -92,7 +92,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     int canvasindex = 2;
     // xpos negative: do not draw menu bar
-    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3 - North vs South Correlations", -1, 0, 1200, 600);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3 - EXPERT - North vs South Correlations", -1, 0, 1200, 600);
     gSystem->ProcessEvents();
     Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
     Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
