@@ -457,7 +457,28 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[36]->SetFillStyle(4000);
     transparent[36]->Draw();
     TC[36]->SetEditable(false);
-  }          
+  }
+  else if (name == "DC_vs_SAMPA_CANVAS")
+  {
+    std::cout << "creating TC[37]" << std::endl;
+    TC[37] = new TCanvas(name.c_str(), "Digital Current vs SAMPA",-1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[37]->Divide(4,7);
+    transparent[37] = new TPad("transparent37", "this does not show", 0, 0, 1, 1);
+    transparent[37]->SetFillStyle(4000);
+    transparent[37]->Draw();
+    TC[37]->SetEditable(false);
+  }      
+  else if (name == "DC_SAMPA_vs_TIME_CANVAS")
+  {
+    TC[38] = new TCanvas(name.c_str(), "SAMPA vs TIME wtd. by Digital Current",-1, 0, xsize , ysize );
+    gSystem->ProcessEvents();
+    TC[38]->Divide(4,7);
+    transparent[38] = new TPad("transparent38", "this does not show", 0, 0, 1, 1);
+    transparent[38]->SetFillStyle(4000);
+    transparent[38]->Draw();
+    TC[38]->SetEditable(false);
+  }   
   return 0;
 }
 
@@ -648,6 +669,16 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SHIFTER_TRANSMISSION_PLOT")
   {
     iret += DrawShifterTransmissionDist(what); 
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCDCVSSAMPA")
+  {
+    iret +=  DrawDCvsSAMPA(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCDCSAMPAVSTIME")
+  {
+    iret += DrawDCSAMPAvsTIME(what);
     idraw++;
   }
   if (!idraw)
@@ -4472,6 +4503,215 @@ int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
   MyTC->Show();
   MyTC->SetEditable(false);
   
+  return 0;
+}
+
+int TpcMonDraw::DrawDCvsSAMPA(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_dc_vs_sampa_plots[24] = {nullptr};
+  
+  TH1 *tpcmon_dc_vs_sampa_plots_u[48] = {nullptr};
+  
+  char TPCMON_STR[100];
+  for( int i=0; i<48; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_dc_vs_sampa_plots_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"DC_vs_SAMPA");
+  }
+
+  add_TH1(tpcmon_dc_vs_sampa_plots_u, tpcmon_dc_vs_sampa_plots);
+  
+  if (!gROOT->FindObject("DC_vs_SAMPA_CANVAS"))
+  {
+    MakeCanvas("DC_vs_SAMPA_CANVAS");
+  }
+
+  TCanvas *MyTC = TC[37];
+  TPad *TransparentTPad = transparent[37];
+
+  // Add lines and text annotations
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1 = new TText(); tt1->SetTextSize(0.05);
+
+  int FEEid[26] = {
+      2,4,3,13,17,16,        // R1
+      11,12,19,18,0,1,15,14, // R2
+      20,22,21,23,25,24,10,9,8,6,7,5 // R3
+  };
+  char title[32];
+
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+  for( int i=0; i<24; i++ ) 
+  {
+    if(  tpcmon_dc_vs_sampa_plots[i] )
+    {
+      MyTC->cd(i+5);
+      gPad->SetLogz();
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+
+      tpcmon_dc_vs_sampa_plots[i]->SetStats(kFALSE); 
+      tpcmon_dc_vs_sampa_plots[i]->DrawCopy("COLZ");      
+
+      MyTC->Update();
+
+      for(int j=0;j<25;j++)
+      {
+        t2->DrawLine((j + 1) * 8, -9000.01, (j + 1) * 8, 50240);
+      }
+      for (int k = 0; k < 26; k++) {
+        sprintf(title, "%d", FEEid[k]);
+        if (FEEid[k] > 9)
+            tt1->DrawText(k * 8, -4000, title);
+        else
+            tt1->DrawText(k * 8 + 2, -4000, title);
+      }
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(25, -8000, "R1");
+      tt1->DrawText(77, -8000, "R2");
+      tt1->DrawText(163, -8000, "R3");
+      tt1->SetTextSize(0.05);
+
+      t1->DrawLine(48, -9000.01, 48, 50240);
+      t1->DrawLine(112, -9000.01, 112, 50240);
+
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_DC_vs_SAMPA Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawDCSAMPAvsTIME(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH1 *tpcmon_dc_sampa_vs_time_plots[24] = {nullptr};
+  
+  TH1 *tpcmon_dc_sampa_vs_time_plots_u[48] = {nullptr};
+  
+  char TPCMON_STR[100];
+  for( int i=0; i<48; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_dc_sampa_vs_time_plots_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"DC_SAMPA_vs_TIME");
+  }
+
+  add_TH1(tpcmon_dc_sampa_vs_time_plots_u, tpcmon_dc_sampa_vs_time_plots);
+  
+  if (!gROOT->FindObject("DC_SAMPA_vs_TIME_CANVAS"))
+  {
+    MakeCanvas("DC_SAMPA_vs_TIME_CANVAS");
+  }
+
+  TCanvas *MyTC = TC[38];
+  TPad *TransparentTPad = transparent[38];
+
+  // Draw vertical lines and labels
+  TLine *t1 = new TLine(); t1->SetLineWidth(2);
+  TLine *t2 = new TLine(); t2->SetLineStyle(2);
+  TText *tt1 = new TText(); tt1->SetTextSize(0.05);
+  TText *tt2 = new TText(); tt2->SetTextSize(0.025); //fee labels
+
+  int FEEid[26] = {
+      2,4,3,13,17,16,        // R1
+      11,12,19,18,0,1,15,14, // R2
+      20,22,21,23,25,24,10,9,8,6,7,5 // R3
+  };
+  char title[32];
+
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+  for( int i=0; i<24; i++ ) 
+  {
+    if(  tpcmon_dc_sampa_vs_time_plots[i] )
+    {
+      MyTC->cd(i+5);
+      gPad->SetLogz();
+      gStyle->SetPadLeftMargin(0.05);
+      gStyle->SetPadRightMargin(0.02);
+
+      tpcmon_dc_sampa_vs_time_plots[i]->SetStats(kFALSE); 
+      tpcmon_dc_sampa_vs_time_plots[i]->DrawCopy("COLZ");      
+
+      MyTC->Update();
+
+      for (int j = 0; j < 25; j++) {
+        t2->DrawLine( -659999, (j+1)*8, 1200000.5, (j+1)*8); //rollover
+        //t2->DrawLine( -49499999, (j+1)*8, 150000000.5, (j+1)*8); //no rollover
+      }
+      // FEE ID labels
+      for (int k = 0; k < 26; k++) {
+        sprintf(title, "%d", FEEid[k]);
+        if(FEEid[k] >9){tt2->DrawText(-250000,k*8+2, title);} //rollover
+ 	else {tt2->DrawText(-250000,k*8 + 2,title);} //rollover
+        //if(FEEid[k] >9){tt2->DrawText(-17040000,k*8+2, title);} //no rollover
+	//else {tt2->DrawText(-17040000,k*8 + 2,title);} //no rollover
+      }
+      // Region labels
+      tt1->SetTextSize(0.06);
+      tt1->DrawText(-550000,25, "R1"); //rollover
+      tt1->DrawText(-550000,77, "R2"); //rollover
+      tt1->DrawText(-550000,163, "R3"); //rollover
+      //tt1->DrawText(-41250000,25, "R1"); //no rollover
+      //tt1->DrawText(-41250000,77, "R2"); //no rollover
+      //tt1->DrawText(-41250000,163, "R3"); // no rollover
+      tt1->SetTextSize(0.05);
+
+     // Solid region boundary lines
+      t1->DrawLine(-659999,48,1200000.5,48); //rollover
+      t1->DrawLine(-659999,112,1200000.5,112); //rollover
+      //t1->DrawLine( -49499999,48,150000000.5,48); // no rollover
+      //t1->DrawLine( -49499999,112,150000000.5,112); // no rollover
+
+    }
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_DC_SAMPA_vs_TIME Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
   return 0;
 }
 

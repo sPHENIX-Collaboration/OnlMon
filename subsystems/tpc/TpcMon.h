@@ -141,11 +141,15 @@ class TpcMon : public OnlMon
   TH1 *Packet_Type_Fraction_ELSE = nullptr;
 
   TH1 *Noise_Channel_Plots = nullptr;
-
+  TH2 *DC_vs_SAMPA = nullptr;
+  TH2 *DC_SAMPA_vs_TIME = nullptr;
+  
   TpcMap M; //declare Martin's map
 
   int starting_BCO;
+  int starting_BCO_DC;
   int rollover_value;
+  int rollover_value_DC;
   int current_BCOBIN;
 
   int serverid;

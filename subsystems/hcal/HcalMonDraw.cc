@@ -594,10 +594,14 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
   gStyle->SetPalette(4, palette);
-  double_t levels[5] = {0, 0.01, 0.75, 1.5, 4};
+  double cold_tower_thresh = 0.75;
+  double hot_tower_thresh = 1.5;
+  double dead_tower_thresh = 0.01;
+  if(iscosmic) cold_tower_thresh = 0.5;
+  double_t levels[5] = {0, dead_tower_thresh, cold_tower_thresh, hot_tower_thresh, 4};
   hist1->SetContour(5, levels);
 
-  FindHotTower(warning[0], hist1, true);
+  FindHotTower(warning[0], hist1, true, cold_tower_thresh, hot_tower_thresh, dead_tower_thresh);
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.03);
@@ -1819,7 +1823,7 @@ int HcalMonDraw::FindGainMode(TPad* warningpad, TH2* hhit)
   warningpad->Update();
   return 0;
 }
-int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
+int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate, float cold_threshold, float hot_threshold, float dead_threshold)
 {
   float nhott = 0;
   float ndeadt = 0;
@@ -1828,9 +1832,9 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate)
   std::ostringstream hottowerlist;
   std::ostringstream deadtowerlist;
   std::ostringstream coldtowerlist;
-  float hot_threshold = 1.5;
-  float dead_threshold = 0.01;
-  float cold_threshold = 0.5;
+  //float hot_threshold = hot_threshold;
+  //float dead_threshold = dead_threshold;
+  //float cold_threshold = cold_threshold;
   if (!usetemplate)
   {
     // loop over histogram to find mean and rms
