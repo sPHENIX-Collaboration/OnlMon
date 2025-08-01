@@ -2737,7 +2737,7 @@ int CemcMonDraw::DrawSeventh(const std::string &what)
     for (int j = 1; j <= p2_zsFrac_etaphiCombined->GetNbinsY(); j++)
     {
       float rate = p2_zsFrac_etaphiCombined->GetBinContent(i + 1, j + 1);
-      if (rate <= 0.1)
+      if (rate <= 0.05)
       {
         h1_zs_low->Fill(rate);
       }
