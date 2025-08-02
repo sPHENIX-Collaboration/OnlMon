@@ -764,6 +764,20 @@ int TpcMon::Init()
   DC_SAMPA_vs_TIME -> SetLabelSize(0.05);
   DC_SAMPA_vs_TIME -> GetYaxis() -> SetTitleSize(0.05);
   DC_SAMPA_vs_TIME -> GetYaxis() -> SetTitleOffset(1.0);
+
+  // Packet type vs SAMPLE plots wtd. by ADC for Jin
+  char Packet_type_vs_sample_ADC_title_str[256];
+  char Packet_type_vs_sample_ADC_xtitle_str[256];
+  sprintf(Packet_type_vs_sample_ADC_title_str,"Packet type vs sample, Sector # %i",ebdc_from_serverid( MonitorServerId() ));
+  Packet_Type_vs_sample_ADC = new TH2F("Packet_Type_vs_sample_ADC",Packet_type_vs_sample_ADC_title_str,501,-0.5,500.5,7,0,7);
+  for (int i=0; i!=7; ++i) { Packet_Type_vs_sample_ADC->GetYaxis()->SetBinLabel(i+1,label[i]);}
+  sprintf(Packet_type_vs_sample_ADC_xtitle_str,"Sector %i: Time bin [1/17.5MHz]",ebdc_from_serverid( MonitorServerId() ));
+  Packet_Type_vs_sample_ADC->SetXTitle(Packet_type_vs_sample_ADC_xtitle_str);
+
+  Packet_Type_vs_sample_ADC -> GetXaxis() -> SetLabelSize(0.08);
+  Packet_Type_vs_sample_ADC -> GetYaxis() -> SetLabelSize(0.08);
+  Packet_Type_vs_sample_ADC -> GetYaxis() -> SetTitleSize(0.08);
+  Packet_Type_vs_sample_ADC -> GetYaxis() -> SetTitleOffset(0.6);
   
 
   OnlMonServer *se = OnlMonServer::instance();
@@ -845,6 +859,7 @@ int TpcMon::Init()
   se->registerHisto(this, Packet_Type_Fraction_HB);
   se->registerHisto(this, Packet_Type_Fraction_NORM);
   se->registerHisto(this, Packet_Type_Fraction_ELSE);
+  se->registerHisto(this, Packet_Type_vs_sample_ADC);
 
   se->registerHisto(this, Noise_Channel_Plots);
   se->registerHisto(this,  DC_vs_SAMPA);
@@ -1245,6 +1260,7 @@ int TpcMon::process_event(Event *evt/* evt */)
 
           if( (checksumError == 0 && parityError == 0) && is_channel_stuck == 0)
           {
+	    Packet_Type_vs_sample_ADC->Fill(s,type,adc);
             ADC_vs_SAMPLE -> Fill(s, adc);
             PEDEST_SUB_ADC_vs_SAMPLE -> Fill(s, adc-pedestal);
             ADC_vs_SAMPLE_large -> Fill(s, adc);

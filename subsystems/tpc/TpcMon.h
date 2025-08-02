@@ -139,6 +139,7 @@ class TpcMon : public OnlMon
   TH1 *Packet_Type_Fraction_HB = nullptr;
   TH1 *Packet_Type_Fraction_NORM = nullptr;
   TH1 *Packet_Type_Fraction_ELSE = nullptr;
+  TH2 *Packet_Type_vs_sample_ADC = nullptr;
 
   TH1 *Noise_Channel_Plots = nullptr;
   TH2 *DC_vs_SAMPA = nullptr;
