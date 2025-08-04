@@ -106,7 +106,7 @@ HcalMon::~HcalMon()
   return;
 }
 
-const int depth = 50000;
+const int depth = 200000;
 const int packet_depth = 1000;
 const int historyLength = 100;
 const int historyScaleDown = 100;
