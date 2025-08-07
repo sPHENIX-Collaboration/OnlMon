@@ -478,7 +478,18 @@ int TpcMonDraw::MakeCanvas(const std::string &name)
     transparent[38]->SetFillStyle(4000);
     transparent[38]->Draw();
     TC[38]->SetEditable(false);
-  }   
+  }
+  else if (name == "TPCPACKETTYPE_vs_SAMPLE_ADC")
+  {
+    TC[39] = new TCanvas(name.c_str(), "",-1, 0, xsize , ysize);
+    gSystem->ProcessEvents();
+    //gStyle->SetPalette(57); //kBird CVD friendly
+    TC[39]->Divide(4,7);
+    transparent[39] = new TPad("transparent39", "this does not show", 0, 0, 1, 1);
+    transparent[39]->SetFillStyle(4000);
+    transparent[39]->Draw();
+    TC[39]->SetEditable(false);
+  }
   return 0;
 }
 
@@ -654,6 +665,11 @@ int TpcMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "TPCPACKETYPEFRACTION")
   {
     iret +=  DrawTPCPacketTypes(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "TPCPACKETTYPEVSSAMPLEADC")
+  {
+    iret +=  DrawTPCPACKETTYPEvsSAMPLEADC(what);
     idraw++;
   }
   if (what == "ALL" || what == "SHIFTER_DRIFT_PLOT")
@@ -3737,7 +3753,6 @@ int TpcMonDraw::DrawTPCPacketTypes(const std::string & /* what */)
   return 0;
 }
 
-
 int TpcMonDraw::DrawTPCChansperLVL1_NS(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -4510,19 +4525,19 @@ int TpcMonDraw::DrawDCvsSAMPA(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_dc_vs_sampa_plots[24] = {nullptr};
+  TH2 *tpcmon_dc_vs_sampa_plots[24] = {nullptr};
   
-  TH1 *tpcmon_dc_vs_sampa_plots_u[48] = {nullptr};
+  TH2 *tpcmon_dc_vs_sampa_plots_u[48] = {nullptr};
   
   char TPCMON_STR[100];
   for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_dc_vs_sampa_plots_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"DC_vs_SAMPA");
+    tpcmon_dc_vs_sampa_plots_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"DC_vs_SAMPA");
   }
 
-  add_TH1(tpcmon_dc_vs_sampa_plots_u, tpcmon_dc_vs_sampa_plots);
+  add_TH2(tpcmon_dc_vs_sampa_plots_u, tpcmon_dc_vs_sampa_plots);
   
   if (!gROOT->FindObject("DC_vs_SAMPA_CANVAS"))
   {
@@ -4610,19 +4625,19 @@ int TpcMonDraw::DrawDCSAMPAvsTIME(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1 *tpcmon_dc_sampa_vs_time_plots[24] = {nullptr};
-  
-  TH1 *tpcmon_dc_sampa_vs_time_plots_u[48] = {nullptr};
+  TH2 *tpcmon_dc_sampa_vs_time_plots[24] = {nullptr};
+ 
+  TH2 *tpcmon_dc_sampa_vs_time_plots_u[48] = {nullptr};
   
   char TPCMON_STR[100];
   for( int i=0; i<48; i++ ) 
   {
     //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
     sprintf(TPCMON_STR,"TPCMON_%i",i);
-    tpcmon_dc_sampa_vs_time_plots_u[i] = (TH1*) cl->getHisto(TPCMON_STR,"DC_SAMPA_vs_TIME");
+    tpcmon_dc_sampa_vs_time_plots_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"DC_SAMPA_vs_TIME");
   }
 
-  add_TH1(tpcmon_dc_sampa_vs_time_plots_u, tpcmon_dc_sampa_vs_time_plots);
+  add_TH2(tpcmon_dc_sampa_vs_time_plots_u, tpcmon_dc_sampa_vs_time_plots);
   
   if (!gROOT->FindObject("DC_SAMPA_vs_TIME_CANVAS"))
   {
@@ -4702,6 +4717,71 @@ int TpcMonDraw::DrawDCSAMPAvsTIME(const std::string & /* what */)
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << ThisName << "_DC_SAMPA_vs_TIME Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  TransparentTPad->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 0.91, runstring.c_str());
+
+  MyTC->Update();
+  MyTC->Show();
+  MyTC->SetEditable(false);
+
+  return 0;
+}
+
+int TpcMonDraw::DrawTPCPACKETTYPEvsSAMPLEADC(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *tpcmon_PacketType_vs_Sample_ADC[24] = {nullptr};
+  TH2 *tpcmon_PacketType_vs_Sample_ADC_u[48] = {nullptr};
+  
+  char TPCMON_STR[100];
+  for( int i=0; i<48; i++ ) 
+  {
+    //const TString TPCMON_STR( Form( "TPCMON_%i", i ) );
+    sprintf(TPCMON_STR,"TPCMON_%i",i);
+    tpcmon_PacketType_vs_Sample_ADC_u[i] = (TH2*) cl->getHisto(TPCMON_STR,"Packet_Type_vs_sample_ADC");
+  }
+
+  add_TH2(tpcmon_PacketType_vs_Sample_ADC_u, tpcmon_PacketType_vs_Sample_ADC);
+  
+  if (!gROOT->FindObject("TPCPACKETTYPE_vs_SAMPLE_ADC"))
+  {
+    MakeCanvas("TPCPACKETTYPE_vs_SAMPLE_ADC");
+  }
+
+  TCanvas *MyTC = TC[39];
+  TPad *TransparentTPad = transparent[39];
+  MyTC->SetEditable(true);
+  MyTC->Clear("D");
+
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57); //kBird CVD friendly
+
+
+  for( int i=0; i<24; i++ ) 
+  {
+    if(tpcmon_PacketType_vs_Sample_ADC[i] )
+    {
+      MyTC->cd(i+5);
+      tpcmon_PacketType_vs_Sample_ADC[i]->SetStats(0);
+      tpcmon_PacketType_vs_Sample_ADC[i]->DrawCopy("COLZ");
+    }
+    gPad->Update();
+  }
+
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << ThisName << "_PACKET TYPE vs SAMPLE wtd. by ADC Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   TransparentTPad->cd();
