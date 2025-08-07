@@ -459,6 +459,12 @@ int CemcMon::process_event(Event *e /* evt */)
         int bin = h2_cemc_mean->FindBin(eta_bin + 0.5, phi_bin + 0.5);
         float prepost = p->iValue(c, "PRE") - p->iValue(c, "POST");
         //________________________________for this part we only want to deal with the MBD>=1 trigger
+        
+        if (isHottower(packet, c)) 
+        {
+            continue;
+        }
+
         if (fillhist)
         {
           if (p->iValue(c, "SUPPRESSED"))
@@ -504,14 +510,11 @@ int CemcMon::process_event(Event *e /* evt */)
         if (signalFast > waveform_hit_threshold)
         {
           // check if hot tower and skip it
-          if (!isHottower(packet, c))
-          {
             for (int s = 0; s < p->iValue(0, "SAMPLES"); s++)
             {
-              h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
+                h2_waveform_twrAvg->Fill(s, p->iValue(s, c) - pedestalFast);
             }
             h1_waveform_time->Fill(timeFast);
-          }
         }
         if (signalFast > hit_threshold)
         {
