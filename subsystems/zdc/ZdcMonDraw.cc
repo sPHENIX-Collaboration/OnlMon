@@ -1422,12 +1422,14 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     return -1;
   }
     
-  TLine *t1 = new TLine(5,0.0,5,maxwf);
+
+  // --- widening window for ZDC from 5-9 to 4-10
+  TLine *t1 = new TLine(4,0.0,4,maxwf);
   t1->SetLineWidth(3);
   t1->SetLineStyle(1);
   t1->SetLineColor(kRed);
     
-  TLine *t2 = new TLine(9,0.0,9,maxwf);
+  TLine *t2 = new TLine(10,0.0,10,maxwf);
   t2->SetLineWidth(3);
   t2->SetLineStyle(1);
   t2->SetLineColor(kRed);
@@ -1479,12 +1481,13 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
      h_waveform_timez->Scale(1. / h_waveform_timez->GetEntries());
    }
        
-  TLine *t11 = new TLine(5,0.0,5,h_waveform_timez->GetMaximum() * 1.05);
+  // --- widening window for ZDC from 5-9 to 4-10
+  TLine *t11 = new TLine(4,0.0,4,h_waveform_timez->GetMaximum() * 1.05);
   t11->SetLineWidth(3);
   t11->SetLineStyle(1);
   t11->SetLineColor(kRed);
            
-  TLine *t22 = new TLine(9,0.0,9,h_waveform_timez->GetMaximum() * 1.05);
+  TLine *t22 = new TLine(10,0.0,10,h_waveform_timez->GetMaximum() * 1.05);
   t22->SetLineWidth(3);
   t22->SetLineStyle(1);
   t22->SetLineColor(kRed);
@@ -1492,7 +1495,8 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t22->Draw("same");
     
 
-    TLine *t3 = new TLine(9,0.0,9,  maxwf);
+  // --- widening window for SMD north from 9-14 to 7-14
+    TLine *t3 = new TLine(7,0.0,7,  maxwf);
     t3->SetLineWidth(3);
     t3->SetLineStyle(1);
     t3->SetLineColor(kRed);
@@ -1551,7 +1555,8 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
         h_waveform_timesn->Scale(1. / h_waveform_timesn->GetEntries());
      }
     
-    TLine *t33 = new TLine(9,0.0,9, h_waveform_timesn->GetMaximum() * 1.05);
+    // --- widening window for SMD north from 9-14 to 7-14
+    TLine *t33 = new TLine(7,0.0,7, h_waveform_timesn->GetMaximum() * 1.05);
     t33->SetLineWidth(3);
     t33->SetLineStyle(1);
     t33->SetLineColor(kRed);
@@ -1565,6 +1570,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     t44->Draw("same");   
    
     
+    // --- leaving window for SMD south as 6-12
   TLine *t5 = new TLine(6,0.0,6, maxwf);
   t5->SetLineWidth(3);
   t5->SetLineStyle(1);
@@ -1624,6 +1630,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
         h_waveform_timess->Scale(1. / h_waveform_timess->GetEntries());
      }
     
+    // --- leaving window for SMD south as 6-12
   TLine *t55 = new TLine(6,0.0,6,h_waveform_timess->GetMaximum() * 1.05);
   t55->SetLineWidth(3);
   t55->SetLineStyle(1);
@@ -1637,12 +1644,13 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t66->Draw("same");
       
 
-  TLine *t7 = new TLine(5,0.0,5, maxwf);
+  // --- widening window for VETO north from 5-9 to 4-10
+  TLine *t7 = new TLine(4,0.0,4, maxwf);
   t7->SetLineWidth(3);
   t7->SetLineStyle(1);
   t7->SetLineColor(kRed);
 
-  TLine *t8 = new TLine(9,0.0,9, maxwf);
+  TLine *t8 = new TLine(10,0.0,10, maxwf);
   t8->SetLineWidth(3);
   t8->SetLineStyle(1);
   t8->SetLineColor(kRed);
@@ -1697,12 +1705,13 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     
 
 
-  TLine *t77 = new TLine(5,0.0,5,h_waveform_timevn->GetMaximum() * 1.05);
+  // --- widening window for VETO north from 5-9 to 4-10
+  TLine *t77 = new TLine(4,0.0,4,h_waveform_timevn->GetMaximum() * 1.05);
   t77->SetLineWidth(3);
   t77->SetLineStyle(1);
   t77->SetLineColor(kRed);
 
-  TLine *t88 = new TLine(9,0.0,9,h_waveform_timevn->GetMaximum() * 1.05);
+  TLine *t88 = new TLine(10,0.0,10,h_waveform_timevn->GetMaximum() * 1.05);
   t88->SetLineWidth(3);
   t88->SetLineStyle(1);
   t88->SetLineColor(kRed);
@@ -1710,7 +1719,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t77->Draw("same");
   t88->Draw("same");
 
-
+  // --- leaving VETO south as 6-12
   TLine *t9 = new TLine(6,0.0,6,maxwf);
   t9->SetLineWidth(3);
   t9->SetLineStyle(1);
@@ -1769,6 +1778,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
      }
     
 
+  // --- leaving VETO south as 6-12
   TLine *t99 = new TLine(6,0.0,6,h_waveform_timevs->GetMaximum() * 1.05);
   t99->SetLineWidth(3);
   t99->SetLineStyle(1);
