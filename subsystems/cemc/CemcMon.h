@@ -97,9 +97,11 @@ class CemcMon : public OnlMon
   bool isHottower(int pid, int channelid)
   {
     if (pid == 6014 && channelid == 158) return true;
+    if (pid == 6021 && channelid == 1) return true;
     if (pid == 6030 && channelid == 158) return true;
     if (pid == 6076 && channelid == 92) return true;
     if (pid == 6127 && channelid == 28) return true;
+
     return false;
   }
 };
