@@ -40,6 +40,9 @@ class InttMonDraw : public OnlMonDraw
   int MakeHtml(std::string const& = "ALL") override;
   int SavePlot(std::string const& = "ALL", std::string const& = "png") override;
 
+  void set_cold_threshold ( double const& lower ) { m_lower = lower; }
+  void set_hot_threshold ( double const& upper ) { m_upper = upper; }
+
  private:
   static constexpr int NCHIPS = 26;
   static constexpr int NFEES = 14;
@@ -124,13 +127,13 @@ class InttMonDraw : public OnlMonDraw
   double constexpr static m_warn_text_size = 0.15;
   double constexpr static m_min_events = 50000;
 
-  // pp
-  // double constexpr static m_lower = 0.015;
-  // double constexpr static m_upper = 0.650;
+  // pp defaults
+  // double m_lower = 0.015;
+  // double m_upper = 0.650;
 
-  // AuAu
-  double constexpr static m_lower = 0.400;
-  double constexpr static m_upper = 2.500;
+  // AuAu defaults
+  double m_lower = 0.400;
+  double m_upper = 2.500;
 };
 
 #endif
