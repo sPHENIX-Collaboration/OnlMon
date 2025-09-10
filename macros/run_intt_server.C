@@ -1,6 +1,5 @@
 #include "ServerFuncs.C"
 
-#include <onlmon/intt/InttMonConstants.h>
 #include <onlmon/intt/InttMon.h>
 #include <onlmon/OnlMonServer.h>
 

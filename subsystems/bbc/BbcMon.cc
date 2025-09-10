@@ -1293,14 +1293,15 @@ int BbcMon::process_event(Event *evt)
         Double_t meanerr = f_zvtx->GetParError(1);
         Double_t rmserr = f_zvtx->GetParError(2);
 
-        /*
         // For debugging
-        bbc_zvertex_short->Print("ALL");
-        double m = bbc_zvertex_short->GetMean();
-        double me = bbc_zvertex_short->GetMeanError();
-        double ent = bbc_zvertex_short->GetEntries();
-        std::cout << "ZZZZ " << m << "\t" << me << "\t" << ent << std::endl;
-        */
+        if ( fabs(mean) > 20. )
+        {
+            double m = bbc_zvertex_short->GetMean();
+            double me = bbc_zvertex_short->GetMeanError();
+            double ent = bbc_zvertex_short->GetEntries();
+            std::cout << "ZZZZ " << m << "\t" << me << "\t" << ent << std::endl;
+            bbc_zvertex_short->Print("ALL");
+        }
 
         std::ostringstream msg;
         msg << "MBD zvertex mean/width: " << mean << " " << rms << " " << meanerr << " " << rmserr;

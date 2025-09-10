@@ -93,7 +93,7 @@ void StartPoms()
   subsys->AddAction("inttDraw(\"chip_hitmap\")", "Chip Hitmap");
   subsys->AddAction("inttDraw(\"bco_diff\")", "BCO Diff (Triggered)");
 //  subsys->AddAction("inttDraw(\"zoomed_fphx_bco\")", "Zoomed Fphx BCO (Streaming)");
-  subsys->AddAction("inttDraw(\"history\")", "Decoding Rate");
+//  subsys->AddAction("inttDraw(\"history\")", "Decoding Rate");
 //  subsys->AddAction("inttDraw(\"fphx_bco\")", "Fphx BCO (Streaming) [Expert]");
   subsys->AddAction("inttDraw(\"hitrates\")", "Hitrates [Expert]");
   subsys->AddAction("inttDraw(\"SERVERSTATS\")", "Server Stats");

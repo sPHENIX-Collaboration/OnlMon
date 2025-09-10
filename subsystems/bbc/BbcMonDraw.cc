@@ -1759,10 +1759,14 @@ int BbcMonDraw::Draw(const std::string &what)
 
     // Fit No-Vertex Distribution
     FitZvtx->SetRange(-75, 75);
+    FitZvtx->SetParameters(100, 0, 16);
     FitZvtx->SetLineColor(1);
 
     // Zvtx->Fit("FitZvtx", "LRQ");
-    Zvtx_ns->Fit("FitZvtx", "LRNQ");
+    if ( Zvtx_ns->GetEntries() > 0 )
+    {
+      Zvtx_ns->Fit("FitZvtx", "LRNQ");
+    }
 
     // here we get the relative scaling right to put all on the same plot
     // the binning might be different, so we first find the bins corresponding to
@@ -2094,6 +2098,7 @@ int BbcMonDraw::Draw(const std::string &what)
     
     // Fit No-Vertex Distribution
     FitZvtx->SetRange(-75, 75);
+    FitZvtx->SetParameters(100, 0, 15);
     FitZvtx->SetLineColor(1);
     // Zvtx->Fit("FitZvtx", "LRQ");
     Zvtx_alltrigger->Fit("FitZvtx", "LRQ");
@@ -2221,50 +2226,53 @@ int BbcMonDraw::Draw(const std::string &what)
       PadAvrHitTime->cd();
       AvrHitTime->Draw();
 
-      float rangemin;
-      float rangemax;
-      int npeak = tspec->Search(AvrHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
-      if (npeak < 3)                                     // no center peak
+      if ( AvrHitTime->GetEntries() > 0 )
       {
-        AvrHitTime->Fit("FitAvrHitTime", "QN0L");
-        rangemin = FitAvrHitTime->GetParameter(1) - FitAvrHitTime->GetParameter(2);
-        rangemax = FitAvrHitTime->GetParameter(1) + FitAvrHitTime->GetParameter(2);
+          float rangemin;
+          float rangemax;
+          int npeak = tspec->Search(AvrHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
+          if (npeak < 3 )                                     // no center peak
+          {
+              AvrHitTime->Fit("FitAvrHitTime", "QN0L");
+              rangemin = FitAvrHitTime->GetParameter(1) - FitAvrHitTime->GetParameter(2);
+              rangemax = FitAvrHitTime->GetParameter(1) + FitAvrHitTime->GetParameter(2);
+          }
+          else
+          {
+              double *peakpos = tspec->GetPositionX();
+              float centerpeak = peakpos[0];
+              float sidepeak[2];
+              if (peakpos[2] > peakpos[1])
+              {
+                  sidepeak[0] = peakpos[1];
+                  sidepeak[1] = peakpos[2];
+              }
+              else
+              {
+                  sidepeak[1] = peakpos[1];
+                  sidepeak[0] = peakpos[2];
+              }
+              rangemin = centerpeak - (centerpeak - sidepeak[0]) / 2.;
+              rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
+          }
+
+          FitAvrHitTime->SetRange(rangemin, rangemax);
+          AvrHitTime->Fit("FitAvrHitTime", "QRL");
+          FitAvrHitTime->Draw("same");
+
+          float height = AvrHitTime->GetMaximum();
+          FitAvrHitTime->Draw("same");
+
+          LineAvrHitTime[1]->SetY2(height);
+          LineAvrHitTime[0]->SetY2(height);
+          ArrowAvrHitTime->SetY1(height * 0.90);
+          ArrowAvrHitTime->SetY2(height * 0.90);
+          TextAvrHitTime->SetY(height * 0.88);
+          LineAvrHitTime[0]->Draw();
+          LineAvrHitTime[1]->Draw();
+          ArrowAvrHitTime->Draw();
+          TextAvrHitTime->Draw();
       }
-      else
-      {
-        double *peakpos = tspec->GetPositionX();
-        float centerpeak = peakpos[0];
-        float sidepeak[2];
-        if (peakpos[2] > peakpos[1])
-        {
-          sidepeak[0] = peakpos[1];
-          sidepeak[1] = peakpos[2];
-        }
-        else
-        {
-          sidepeak[1] = peakpos[1];
-          sidepeak[0] = peakpos[2];
-        }
-        rangemin = centerpeak - (centerpeak - sidepeak[0]) / 2.;
-        rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
-      }
-
-      FitAvrHitTime->SetRange(rangemin, rangemax);
-      AvrHitTime->Fit("FitAvrHitTime", "QRL");
-      FitAvrHitTime->Draw("same");
-
-      float height = AvrHitTime->GetMaximum();
-      FitAvrHitTime->Draw("same");
-
-      LineAvrHitTime[1]->SetY2(height);
-      LineAvrHitTime[0]->SetY2(height);
-      ArrowAvrHitTime->SetY1(height * 0.90);
-      ArrowAvrHitTime->SetY2(height * 0.90);
-      TextAvrHitTime->SetY(height * 0.88);
-      LineAvrHitTime[0]->Draw();
-      LineAvrHitTime[1]->Draw();
-      ArrowAvrHitTime->Draw();
-      TextAvrHitTime->Draw();
     }
 
     if (PadTimeWave)
@@ -2284,63 +2292,68 @@ int BbcMonDraw::Draw(const std::string &what)
     {
       PadSouthHitTime->cd();
       SouthHitTime->Draw();
-      float rangemin;
-      float rangemax;
-      int npeak = tspec->Search(SouthHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
 
-      //std::cout << "NPEAKS " << npeak << std::endl;
-      if (npeak < 3)                                       
+      if ( SouthHitTime->GetEntries() > 0 )
       {
-        SouthHitTime->Fit("FitSouthHitTime", "QN0L");
-        rangemin = FitSouthHitTime->GetParameter(1) - 1.0*FitSouthHitTime->GetParameter(2);
-        rangemax = FitSouthHitTime->GetParameter(1) + 1.0*FitSouthHitTime->GetParameter(2);
+          float rangemin;
+          float rangemax;
+          int npeak = tspec->Search(SouthHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
+
+          //std::cout << "NPEAKS " << npeak << std::endl;
+          if (npeak < 3)                                       
+          {
+              SouthHitTime->Fit("FitSouthHitTime", "QN0L");
+              rangemin = FitSouthHitTime->GetParameter(1) - 1.0*FitSouthHitTime->GetParameter(2);
+              rangemax = FitSouthHitTime->GetParameter(1) + 1.0*FitSouthHitTime->GetParameter(2);
+          }
+          else
+          {
+              double *peakpos = tspec->GetPositionX();
+              float centerpeak = peakpos[0];
+              float sidepeak[2];
+              if (peakpos[2] > peakpos[1])
+              {
+                  sidepeak[0] = peakpos[1];
+                  sidepeak[1] = peakpos[2];
+              }
+              else
+              {
+                  sidepeak[1] = peakpos[1];
+                  sidepeak[0] = peakpos[2];
+              }
+              rangemin = centerpeak - (centerpeak - sidepeak[0]) / 2.;
+              rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
+          }
+
+          rangemin = -3;
+          rangemax = 3;
+          FitSouthHitTime->SetRange(rangemin, rangemax);
+          SouthHitTime->Fit("FitSouthHitTime", "QRL");
+          FitSouthHitTime->Draw("same");
+
+          PadSouthHitTime->Update();
+          TLine aline;
+          aline.SetLineStyle(7);
+          aline.SetLineColor(kRed);
+          aline.SetLineWidth(4);
+          aline.DrawLine(-3.0, gPad->GetFrame()->GetY1(), -3.0, gPad->GetFrame()->GetY2());
+          aline.DrawLine(+3.0, gPad->GetFrame()->GetY1(), +3.0, gPad->GetFrame()->GetY2());
+
+          /*
+          // Lines to indicate good mean
+          float height = SouthHitTime->GetMaximum();
+          LineSouthHitTime[1]->SetY2(height);
+          LineSouthHitTime[0]->SetY2(height);
+          ArrowSouthHitTime->SetY1(height * 0.90);
+          ArrowSouthHitTime->SetY2(height * 0.90);
+          TextSouthHitTime->SetY(height * 0.88);
+          LineSouthHitTime[0]->Draw();
+          LineSouthHitTime[1]->Draw();
+          ArrowSouthHitTime->Draw();
+          TextSouthHitTime->Draw();
+          */
+
       }
-      else
-      {
-        double *peakpos = tspec->GetPositionX();
-        float centerpeak = peakpos[0];
-        float sidepeak[2];
-        if (peakpos[2] > peakpos[1])
-        {
-          sidepeak[0] = peakpos[1];
-          sidepeak[1] = peakpos[2];
-        }
-        else
-        {
-          sidepeak[1] = peakpos[1];
-          sidepeak[0] = peakpos[2];
-        }
-        rangemin = centerpeak - (centerpeak - sidepeak[0]) / 2.;
-        rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
-      }
-
-      rangemin = -3;
-      rangemax = 3;
-      FitSouthHitTime->SetRange(rangemin, rangemax);
-      SouthHitTime->Fit("FitSouthHitTime", "QRL");
-      FitSouthHitTime->Draw("same");
-
-      PadSouthHitTime->Update();
-      TLine aline;
-      aline.SetLineStyle(7);
-      aline.SetLineColor(kRed);
-      aline.SetLineWidth(4);
-      aline.DrawLine(-3.0, gPad->GetFrame()->GetY1(), -3.0, gPad->GetFrame()->GetY2());
-      aline.DrawLine(+3.0, gPad->GetFrame()->GetY1(), +3.0, gPad->GetFrame()->GetY2());
-
-      /*
-      // Lines to indicate good mean
-      float height = SouthHitTime->GetMaximum();
-      LineSouthHitTime[1]->SetY2(height);
-      LineSouthHitTime[0]->SetY2(height);
-      ArrowSouthHitTime->SetY1(height * 0.90);
-      ArrowSouthHitTime->SetY2(height * 0.90);
-      TextSouthHitTime->SetY(height * 0.88);
-      LineSouthHitTime[0]->Draw();
-      LineSouthHitTime[1]->Draw();
-      ArrowSouthHitTime->Draw();
-      TextSouthHitTime->Draw();
-      */
     }
 
     if (PadNorthHitTime)
@@ -2348,61 +2361,64 @@ int BbcMonDraw::Draw(const std::string &what)
       PadNorthHitTime->cd();
       NorthHitTime->Draw();
 
-      float rangemin;
-      float rangemax;
-      int npeak = tspec->Search(NorthHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
-      if (npeak < 3)                                       // no center peak
+      if ( NorthHitTime->GetEntries() > 0 )
       {
-        NorthHitTime->Fit("FitNorthHitTime", "QN0L");
-        rangemin = FitNorthHitTime->GetParameter(1) - 1.0*FitNorthHitTime->GetParameter(2);
-        rangemax = FitNorthHitTime->GetParameter(1) + 1.0*FitNorthHitTime->GetParameter(2);
+          float rangemin;
+          float rangemax;
+          int npeak = tspec->Search(NorthHitTime, 5, "goff",0.2);  // finds the highest peak, draws marker
+          if (npeak < 3)                                       // no center peak
+          {
+              NorthHitTime->Fit("FitNorthHitTime", "QN0L");
+              rangemin = FitNorthHitTime->GetParameter(1) - 1.0*FitNorthHitTime->GetParameter(2);
+              rangemax = FitNorthHitTime->GetParameter(1) + 1.0*FitNorthHitTime->GetParameter(2);
+          }
+          else
+          {
+              double *peakpos = tspec->GetPositionX();
+              float centerpeak = peakpos[0];
+              float sidepeak[2];
+              if (peakpos[2] > peakpos[1])
+              {
+                  sidepeak[0] = peakpos[1];
+                  sidepeak[1] = peakpos[2];
+              }
+              else
+              {
+                  sidepeak[1] = peakpos[1];
+                  sidepeak[0] = peakpos[2];
+              }
+              rangemin = centerpeak - (centerpeak - sidepeak[0]) / 2.;
+              rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
+          }
+
+          rangemin = -3;
+          rangemax = 3;
+          FitNorthHitTime->SetRange(rangemin, rangemax);
+          NorthHitTime->Fit("FitNorthHitTime", "QRL");
+          FitNorthHitTime->Draw("same");
+
+          PadNorthHitTime->Update();
+          TLine aline;
+          aline.SetLineStyle(7);
+          aline.SetLineColor(kRed);
+          aline.SetLineWidth(4);
+          aline.DrawLine(-3.0 ,gPad->GetFrame()->GetY1(),-3.0,gPad->GetFrame()->GetY2());
+          aline.DrawLine(+3.0,gPad->GetFrame()->GetY1(),+3.0,gPad->GetFrame()->GetY2());
+
+          /*
+          // Lines to indicate good mean
+          float height = NorthHitTime->GetMaximum();
+          LineNorthHitTime[1]->SetY2(height);
+          LineNorthHitTime[0]->SetY2(height);
+          ArrowNorthHitTime->SetY1(height * 0.90);
+          ArrowNorthHitTime->SetY2(height * 0.90);
+          TextNorthHitTime->SetY(height * 0.88);
+          LineNorthHitTime[0]->Draw();
+          LineNorthHitTime[1]->Draw();
+          ArrowNorthHitTime->Draw();
+          TextNorthHitTime->Draw();
+          */
       }
-      else
-      {
-        double *peakpos = tspec->GetPositionX();
-        float centerpeak = peakpos[0];
-        float sidepeak[2];
-        if (peakpos[2] > peakpos[1])
-        {
-          sidepeak[0] = peakpos[1];
-          sidepeak[1] = peakpos[2];
-        }
-        else
-        {
-          sidepeak[1] = peakpos[1];
-          sidepeak[0] = peakpos[2];
-        }
-        rangemin = centerpeak - (centerpeak - sidepeak[0]) / 2.;
-        rangemax = centerpeak + (sidepeak[1] - centerpeak) / 2.;
-      }
-
-      rangemin = -3;
-      rangemax = 3;
-      FitNorthHitTime->SetRange(rangemin, rangemax);
-      NorthHitTime->Fit("FitNorthHitTime", "QRL");
-      FitNorthHitTime->Draw("same");
-
-      PadNorthHitTime->Update();
-      TLine aline;
-      aline.SetLineStyle(7);
-      aline.SetLineColor(kRed);
-      aline.SetLineWidth(4);
-      aline.DrawLine(-3.0 ,gPad->GetFrame()->GetY1(),-3.0,gPad->GetFrame()->GetY2());
-      aline.DrawLine(+3.0,gPad->GetFrame()->GetY1(),+3.0,gPad->GetFrame()->GetY2());
-
-      /*
-      // Lines to indicate good mean
-      float height = NorthHitTime->GetMaximum();
-      LineNorthHitTime[1]->SetY2(height);
-      LineNorthHitTime[0]->SetY2(height);
-      ArrowNorthHitTime->SetY1(height * 0.90);
-      ArrowNorthHitTime->SetY2(height * 0.90);
-      TextNorthHitTime->SetY(height * 0.88);
-      LineNorthHitTime[0]->Draw();
-      LineNorthHitTime[1]->Draw();
-      ArrowNorthHitTime->Draw();
-      TextNorthHitTime->Draw();
-      */
     }
 
     /*
