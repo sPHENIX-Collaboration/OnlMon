@@ -1845,6 +1845,10 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate, flo
     {
       for (int iphi = 0; iphi < 64; iphi++)
       {
+        if (is_uninstrumented(ieta, iphi))
+        {
+          continue;
+        }
         double nhit = hhit->GetBinContent(ieta + 1, iphi + 1);
         if (hhit->GetBinContent(ieta + 1, iphi + 1) != 0)
         {
@@ -1864,6 +1868,10 @@ int HcalMonDraw::FindHotTower(TPad* warningpad, TH2* hhit, bool usetemplate, flo
   {
     for (int iphi = 0; iphi < 64; iphi++)
     {
+      if (is_uninstrumented(ieta, iphi))
+      {
+        continue;
+      }
       double nhit = hhit->GetBinContent(ieta + 1, iphi + 1);
 
       if (nhit > hot_threshold)
@@ -3057,4 +3065,29 @@ int HcalMonDraw::DrawServerStats()
   TC[8]->SetEditable(false);
 
   return 0;
+}
+
+
+bool HcalMonDraw::is_uninstrumented(int ieta, int iphi)
+{
+  if (prefix == "OHCALMON")
+  {
+    return false;
+  }
+  else if (prefix == "IHCALMON")
+  {
+    if(ieta<12 && ieta>=0 && iphi<44 && iphi>=40)
+    {
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  else
+  {
+    std::cout << "Unknown prefix: " << prefix << std::endl;
+    return false;
+  }
 }
