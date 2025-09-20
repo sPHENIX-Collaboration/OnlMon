@@ -2295,10 +2295,17 @@ int CemcMonDraw::FindHotTower(TPad *warningpad, TH2 *hhit, bool usetemplate)
       {
         continue;  // uninstrumented
       }
-      if (hhit->GetBinContent(ieta + 1, iphi + 1) == 0)
+      //if (hhit->GetBinContent(ieta + 1, iphi + 1) == 0)
+     // {
+      //  continue;
+      //}
+      
+      // Skip channels where template is 0
+      if (usetemplate && h2_template_hit && h2_template_hit->GetBinContent(ieta + 1, iphi + 1) == 0)
       {
         continue;
       }
+      
       double nhit = hhit->GetBinContent(ieta + 1, iphi + 1);
 
       if (nhit > hot_threshold)
