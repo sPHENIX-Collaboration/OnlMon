@@ -133,7 +133,8 @@ class InttMonDraw : public OnlMonDraw
 
   // AuAu defaults
   double m_lower = 0.400;
-  double m_upper = 2.500;
+  // double m_upper = 2.500; // For DAC0 = 30
+  double m_upper = 8.000; // For DAC0 = 25, some channels become hotter but it is not something the shift crew should worry about
 };
 
 #endif

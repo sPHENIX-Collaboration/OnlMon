@@ -47,6 +47,7 @@ class HcalMonDraw : public OnlMonDraw
   void DrawTowerAvg();
   void DrawHitMap();
   void DrawAvgTime();
+  bool is_uninstrumented(int ieta, int iphi);
   
   void MakeZSPalette()
   {
