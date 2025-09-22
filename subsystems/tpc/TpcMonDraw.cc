@@ -4172,20 +4172,20 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
     if( tpcmon_DriftWindow_shifter[i][1] ){  R2_max = tpcmon_DriftWindow_shifter[i][1]->GetBinCenter(tpcmon_DriftWindow_shifter[i][1]->GetMaximumBin());}
     if( tpcmon_DriftWindow_shifter[i][2] ){  R3_max = tpcmon_DriftWindow_shifter[i][2]->GetBinCenter(tpcmon_DriftWindow_shifter[i][2]->GetMaximumBin());}
 
-    //if( (R1_max>std::numeric_limits<int>::min() && (R1_max < 365)) || R1_max > 374 ){ R1_bad = 1;} // old peak - 416, new peak 403 50 ns clock, new peak 368 57.14 ns clock 
-    //if( (R2_max>std::numeric_limits<int>::min() && (R2_max < 365)) || R2_max > 374 ){ R2_bad = 1;} 
-    //if( (R3_max>std::numeric_limits<int>::min() && (R3_max < 365)) || R3_max > 374 ){ R3_bad = 1;}
+    if( (R1_max>std::numeric_limits<int>::min() && (R1_max < 365)) || R1_max > 374 ){ R1_bad = 1;} // old peak - 416, new peak 403 50 ns clock, new peak 368 57.14 ns clock 
+    if( (R2_max>std::numeric_limits<int>::min() && (R2_max < 365)) || R2_max > 374 ){ R2_bad = 1;} 
+    if( (R3_max>std::numeric_limits<int>::min() && (R3_max < 365)) || R3_max > 374 ){ R3_bad = 1;}
 
-    if( (R1_max>std::numeric_limits<int>::min() && (R1_max < 361)) || R1_max > 370 ){ R1_bad = 1;} // old peak - 416, new peak 403 50 ns clock, new peak 368 57.14 ns clock 
-    if( (R2_max>std::numeric_limits<int>::min() && (R2_max < 361)) || R2_max > 370 ){ R2_bad = 1;} 
-    if( (R3_max>std::numeric_limits<int>::min() && (R3_max < 361)) || R3_max > 370 ){ R3_bad = 1;}
+    //if( (R1_max>std::numeric_limits<int>::min() && (R1_max < 361)) || R1_max > 370 ){ R1_bad = 1;} // old peak - 416, new peak 403 50 ns clock, new peak 368 57.14 ns clock 
+    //if( (R2_max>std::numeric_limits<int>::min() && (R2_max < 361)) || R2_max > 370 ){ R2_bad = 1;} 
+    //if( (R3_max>std::numeric_limits<int>::min() && (R3_max < 361)) || R3_max > 370 ){ R3_bad = 1;}
     
     for( int l = 2; l>-1; l-- )
     {
       if( tpcmon_DriftWindow_shifter[i][l] )
       {
-        //tpcmon_DriftWindow_shifter[i][l]->GetXaxis()->SetRangeUser(346,396); // old peak - 416, new peak 403, new peak 368 57.14 ns clock
-        tpcmon_DriftWindow_shifter[i][l]->GetXaxis()->SetRangeUser(342,392); // old peak - 416, new peak 403, new peak 368 57.14 ns clock
+        tpcmon_DriftWindow_shifter[i][l]->GetXaxis()->SetRangeUser(346,396); // old peak - 416, new peak 403, new peak 368 57.14 ns clock
+        //tpcmon_DriftWindow_shifter[i][l]->GetXaxis()->SetRangeUser(342,392); // old peak - 416, new peak 403, new peak 368 57.14 ns clock
         if(l == 2)
         { 
           tpcmon_DriftWindow_shifter[i][l]->GetYaxis()->SetRangeUser(0.9*min,1.3*max);tpcmon_DriftWindow_shifter[i][l] -> DrawCopy("HIST");
@@ -4197,11 +4197,11 @@ int TpcMonDraw::DrawShifterTPCDriftWindow(const std::string & /* what */)
       }
     }
 
-    //t2->DrawLine(365,0.9*min,365,1.3*max);
-    //t2->DrawLine(375,0.9*min,375,1.3*max);
+    t2->DrawLine(365,0.9*min,365,1.3*max);
+    t2->DrawLine(375,0.9*min,375,1.3*max);
 
-    t2->DrawLine(361,0.9*min,361,1.3*max);
-    t2->DrawLine(371,0.9*min,371,1.3*max);
+    //t2->DrawLine(361,0.9*min,361,1.3*max);
+    //t2->DrawLine(371,0.9*min,371,1.3*max);
    
     gPad->Update();  
 
