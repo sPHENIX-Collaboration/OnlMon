@@ -79,6 +79,7 @@ class InttMonDraw : public OnlMonDraw
   // ...
 
   int Draw_History();
+  int Draw_TimingOkay();
 
   enum
   {
@@ -92,6 +93,8 @@ class InttMonDraw : public OnlMonDraw
     k_hitrates,
     k_peaks,
     k_history,
+    k_timing_okay,
+
     k_end
   };
 
@@ -108,6 +111,7 @@ class InttMonDraw : public OnlMonDraw
   TPad* m_right_hist_pad[k_end][8]{{nullptr}};
   TPad* m_transparent_pad[k_end][8]{{nullptr}};
   TPad* m_single_hist_pad[k_end]{nullptr};
+  TPad* m_timing_okay_pad[k_end]{nullptr};
   TPad* m_single_transparent_pad[k_end]{nullptr};
 
   TH1* m_hist_felixbcofphxbco[8][14]{{nullptr}};
