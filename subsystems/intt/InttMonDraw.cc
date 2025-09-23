@@ -3,6 +3,7 @@
 #include <TPolyLine.h>
 
 #include <limits>
+#include <map>
 
 namespace // anonymous
 {
@@ -11,8 +12,8 @@ namespace // anonymous
   {
     return !std::isfinite(t);
     // return std::isnan(t);
-	// return t != t
-	// return std::numeric_limits<T>::has_quiet_NaN(t) || std::numeric_limits<T>::has_signaling_NaN(t);
+    // return t != t
+    // return std::numeric_limits<T>::has_quiet_NaN(t) || std::numeric_limits<T>::has_signaling_NaN(t);
   }
 }
 
@@ -106,6 +107,12 @@ int InttMonDraw::Draw(const std::string& what)
   if (what == "ALL" || what == "history")
   {
     iret += Draw_History();
+    ++idraw;
+  }
+
+  if (what == "ALL" || what == "timing_okay")
+  {
+    iret += Draw_TimingOkay();
     ++idraw;
   }
 
@@ -259,6 +266,18 @@ int InttMonDraw::MakeCanvas(const std::string& name)
     TC[k_history]->SetTopMargin(0.05);
     TC[k_history]->SetBottomMargin(0.05);
   }
+  if (name == "InttTimingOkay")
+  {
+    TC[k_timing_okay] = new TCanvas(name.c_str(), "Intt Timing Okay?", m_cnvs_width, m_cnvs_height);
+    gSystem->ProcessEvents();
+    transparent[k_timing_okay] = new TPad(Form("transparent%d", k_timing_okay), "this does not show", 0, 0, 1, 1);
+    transparent[k_timing_okay]->SetFillStyle(4000);  // Transparent
+    transparent[k_timing_okay]->Draw();
+    MakeDispPad(k_timing_okay);
+    TC[k_timing_okay]->SetEditable(false);
+    TC[k_timing_okay]->SetTopMargin(0.05);
+    TC[k_timing_okay]->SetBottomMargin(0.05);
+  }
   return 0;
 }
 
@@ -320,6 +339,10 @@ int InttMonDraw::DrawServerStats()
 
 int InttMonDraw::MakeDispPad(int icnvs, double lgnd_frac)
 {
+  // For simplicity, set up every canvas to have all subpads for all options
+  // then in other methods, we only use those subpads we need
+  // It's SetFillStyle(4000) all the way down,
+  // so this is transparent to end users
   std::string name = Form("intt_disp_pad_%d", icnvs);
   m_disp_pad[icnvs] = new TPad(
       name.c_str(), name.c_str(),  //
@@ -411,6 +434,18 @@ int InttMonDraw::MakeDispPad(int icnvs, double lgnd_frac)
   m_single_hist_pad[icnvs]->SetFillStyle(4000);  // Transparent
   m_single_hist_pad[icnvs]->Range(0.0, 0.0, 1.0, 1.0);
   m_single_hist_pad[icnvs]->Draw();
+
+  name = Form("intt_timing_okay_%d", icnvs);
+  m_timing_okay_pad[icnvs] = new TPad(
+      name.c_str(), name.c_str(),        //
+      0.0,             0.0,              // Southwest x, y
+      1.0 - lgnd_frac, 1.0 - m_disp_frac // Southwest x, y
+
+  );
+  TC[icnvs]->cd();
+  m_timing_okay_pad[icnvs]->SetFillStyle(4000);  // Transparent
+  m_timing_okay_pad[icnvs]->Range(0.0, 0.0, 1.0, 1.0);
+  m_timing_okay_pad[icnvs]->Draw();
 
   name = Form("intt_single_transparent_pad_%d", icnvs);
   m_single_transparent_pad[icnvs] = new TPad(
@@ -757,9 +792,9 @@ int InttMonDraw::DrawHistPad_JustFphxBco(
       int bincont = bco_hist->GetBinContent(bco_hist->GetBin(2, fee * NBCOS + bco + 1));
 
       if(has_nan(bincont))
-	  {
+      {
         continue;
-	  }
+      }
 
       if (bincont > max)
       {
@@ -936,9 +971,9 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       int bincont = bco_hist->GetBinContent(bco_hist->GetBin(2, fee * NBCOS + bco + 1));
 
       if(has_nan(bincont))
-	  {
+      {
         continue;
-	  }
+      }
 
       if (bincont > max)
       {
@@ -952,9 +987,9 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       int bincont = bco_hist->GetBinContent(bco_hist->GetBin(2, fee * NBCOS + bco + 1));
 
       if(has_nan(bincont))
-	  {
+      {
         continue;
-	  }
+      }
 
       if (bincont > max)
       {
@@ -1263,12 +1298,12 @@ int InttMonDraw::DrawHistPad_HitRates(
       bincont /= evt_hist->GetBinContent(2); // Normalize by number of events
 
       if(has_nan(bincont))
-	  {
+      {
         continue;
-	  }
+      }
 
-	  ++hitrate_pdf[bincont];
-	  ++counts;
+      ++hitrate_pdf[bincont];
+      ++counts;
     }
   }
 
@@ -1277,12 +1312,12 @@ int InttMonDraw::DrawHistPad_HitRates(
   Long64_t integrated = 0;
   for (std::map<Float_t, Long64_t>::reverse_iterator itr = hitrate_pdf.rbegin(); itr != hitrate_pdf.rend(); ++itr)
   {
-	max_hitrate = itr->first;
+    max_hitrate = itr->first;
     integrated += itr->second;
-	if (1.0 * integrated / counts < 0.05) // reverse iterator, 0.05 really means .95
-	{
+    if (1.0 * integrated / counts < 0.05) // reverse iterator, 0.05 really means .95
+    {
       break;
-	}
+    }
   }
   max_hitrate *= 2.0;
 
@@ -1303,10 +1338,10 @@ int InttMonDraw::DrawHistPad_HitRates(
   {
     // using Fill(rate, count) directly causes ROOT to track and draw errors that don't make sense
     int bin = m_hist_hitrates[i]->FindBin(rate);
-	if (max_hitrate < rate)
-	{
+    if (max_hitrate < rate)
+    {
       bin = m_hist_hitrates[i]->GetNbinsX();
-	}
+    }
     m_hist_hitrates[i]->SetBinContent(bin, m_hist_hitrates[i]->GetBinContent(bin) + count);
   }
   m_hist_hitrates[i]->Draw("");
@@ -1372,34 +1407,34 @@ int InttMonDraw::Draw_History()
     int N = log_hist->GetNbinsX();
     double w = log_hist->GetXaxis()->GetBinWidth(0);
 
-	// Step through most recent 180 seconds of the histogram
-	// if the rate is identically 0, say it is dead
-	bool is_dead = true;
+    // Step through most recent 180 seconds of the histogram
+    // if the rate is identically 0, say it is dead
+    bool is_dead = true;
     int buff_index = log_hist->GetBinContent(N);
     for(double duration = 0; duration < 90; duration += w)
     {
       double rate = log_hist->GetBinContent(buff_index);
-	  if(0 < rate)
-	  {
+      if(0 < rate)
+      {
         is_dead = false;
         break;
-	  }
+      }
 
-	  // N + 1 bin stores how many times the data has been wrapped
-	  // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
-	  if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
-	  {
+      // N + 1 bin stores how many times the data has been wrapped
+      // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+      if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+      {
         is_dead = false;
         break;
-	  }
+      }
 
-	  buff_index = (buff_index + N - 1) % N;
+      buff_index = (buff_index + N - 1) % N;
     }
 
-	if(is_dead)
-	{
+    if(is_dead)
+    {
       ++num_dead;
-	}
+    }
 
     // Get the time frame of server relative to Unix Epoch
     // stored in bins 4 and 5 of EvtHist
@@ -1450,68 +1485,68 @@ int InttMonDraw::Draw_History()
     m_hist_history[i]->Draw("Same");
 
     // Fill
-	if(w * N < newest - oldest)
-	{
+    if(w * N < newest - oldest)
+    {
       // Draw it conventionally
-	  // Present/EOR is aligned on right edge
+      // Present/EOR is aligned on right edge
       int buff_index = log_hist->GetBinContent(N);
       for(int n = 0; n < N; ++n)
       {
         double rate = log_hist->GetBinContent(buff_index) / w;
-	    double time = (evt_hist->GetBinContent(5) - newest) + w * (N - n);
-	    int bin = m_hist_history[i]->FindBin(time);
+        double time = (evt_hist->GetBinContent(5) - newest) + w * (N - n);
+        int bin = m_hist_history[i]->FindBin(time);
 
         if(has_nan(rate))
-	    {
+        {
           continue;
-	    }
+        }
 
-	    m_hist_history[i]->SetBinContent(bin, rate);
+        m_hist_history[i]->SetBinContent(bin, rate);
         if(max < rate)
         {
           max = rate;
         }
 
-	    // N + 1 bin stores how many times the data has been wrapped
-	    // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
-	    if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
-	    {
+        // N + 1 bin stores how many times the data has been wrapped
+        // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+        if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+        {
           break;
-	    }
-	    buff_index = (buff_index + N - 1) % N;
+        }
+        buff_index = (buff_index + N - 1) % N;
       }
-	}
-	else
-	{
+    }
+    else
+    {
       // I don't know why people want this but here it is
-	  // SOR is aligned with left edge
-	  int buff_index = log_hist->GetBinContent(N);
+      // SOR is aligned with left edge
+      int buff_index = log_hist->GetBinContent(N);
       for(int n = 0; n < N; ++n)
       {
         double rate = log_hist->GetBinContent(buff_index % N) / w;
-	    double time = evt_hist->GetBinContent(5) - oldest - w * n;
-	    int bin = m_hist_history[i]->FindBin(time);
+        double time = evt_hist->GetBinContent(5) - oldest - w * n;
+        int bin = m_hist_history[i]->FindBin(time);
 
         if(has_nan(rate))
         {
           continue;
         }
 
-	    m_hist_history[i]->SetBinContent(bin, rate);
+        m_hist_history[i]->SetBinContent(bin, rate);
         if(max < rate)
         {
           max = rate;
         }
 
-	    // N + 1 bin stores how many times the data has been wrapped
-	    // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
-	    if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
-	    {
+        // N + 1 bin stores how many times the data has been wrapped
+        // if it's not wrapped and we're at bin 0, break b/c we don't have the duration of data yet
+        if(buff_index == 0 && (log_hist->GetBinContent(N + 1) == 0))
+        {
           break;
-	    }
-	    buff_index = (buff_index + N - 1) % N;
+        }
+        buff_index = (buff_index + N - 1) % N;
       }
-	}
+    }
   }
 
   m_single_transparent_pad[k_history]->Clear();
@@ -1593,4 +1628,105 @@ int InttMonDraw::Draw_History()
   return 0;
 }
 
+//====== Timing Okay ======//
 
+int InttMonDraw::Draw_TimingOkay()
+{
+  if (!gROOT->FindObject("InttTimingOkay"))
+  {
+    MakeCanvas("InttTimingOkay");
+  }
+
+  TC[k_timing_okay]->SetEditable(true);
+  m_style->cd();
+  if(DrawDispPad_Generic(k_timing_okay, TC[k_timing_okay]->GetTitle()) == -1)
+  {
+    return -1;
+  }
+
+  // for getting the modal peak position by felix server
+  // (this map has only one key if the servers are aligned)
+  std::map<int, int> server_peak_positions;
+  for (int i = 0; i < 8; ++i)
+  {
+    OnlMonClient* cl = OnlMonClient::instance();
+    TH1* bco_hist = cl->getHisto(Form("INTTMON_%d", i), "InttBcoHist");
+    if (!bco_hist)
+    {
+      // continue;
+      m_single_transparent_pad[k_timing_okay]->cd();
+      TText dead_text;
+      dead_text.SetTextColor(kBlue);
+      dead_text.SetTextAlign(22);
+      dead_text.SetTextSize(0.1);
+      dead_text.SetTextAngle(45);
+      dead_text.DrawText(0.5, 0.5, "Dead OnlMon Server");
+      return 1;
+    }
+
+    // for getting the modal peak position by felix channel
+    // (this map has only one key if the felix channels are aligned)
+    std::map<int, int> fee_peak_positions;
+
+    for (int fee = 0; fee < NFEES; ++fee)
+    {
+      // for each felix channel, get its peak
+      int max_count = -1;
+      int fee_peak = -1;
+      for (int bco = 0; bco < NBCOS; ++bco)
+      {
+        int bincont = bco_hist->GetBinContent(bco_hist->GetBin(1, fee * NBCOS + bco + 1));
+        if (bincont < max_count) continue;
+        max_count = bincont;
+        fee_peak = bco;
+      }
+
+      // increment the count of this position
+      fee_peak_positions[fee_peak]++;
+      // std::cout
+      //   << "  server: " << i
+      //   << "  fee: " << fee
+      //   << "  peak position: " << max_bin
+      //   << std::endl;
+    }
+
+    // go back through the map of [peak_position, count] for this server
+    // and figure out what the mode of the fee_peak_positions distribution is
+    int max_count = -1;
+    int server_peak = -1;
+    for (auto const& [peak_position, count] : fee_peak_positions)
+    {
+      if (count < max_count) continue;
+      max_count = count;
+      server_peak = peak_position;
+    }
+    // std::cout
+    //   << " server: " << i
+    //   << " peak position: " << server_peak
+    //   << std::endl;
+    server_peak_positions[server_peak]++;
+  }
+
+  // should only be 1 unique peak/key for all felix servers if their timing is aligned
+  // for (auto const& [peak_position, count] : server_peak_positions)
+  // {
+  //   std::cout
+  //     << " peak position: " << peak_position
+  //     << " number of servers with this peak: " << count
+  //     << std::endl;
+  // }
+  bool timing_okay = (server_peak_positions.size() == 1);
+
+  m_timing_okay_pad[k_timing_okay]->cd();
+  TText timing_text;
+  timing_text.SetTextColor(timing_okay ? kGreen : kRed);
+  timing_text.SetTextAlign(22);
+  timing_text.SetTextSize(0.1);
+  timing_text.DrawText(0.5, 0.5, timing_okay ? "Timing Okay" : "Timing NOT Okay");
+
+  TC[k_timing_okay]->Update();
+  TC[k_timing_okay]->Show();
+  TC[k_timing_okay]->SetEditable(false);
+
+  return 0;
+}
