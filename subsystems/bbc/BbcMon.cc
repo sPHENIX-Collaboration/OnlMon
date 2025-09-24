@@ -1283,6 +1283,8 @@ int BbcMon::process_event(Event *evt)
   {
       f_zvtx->SetRange(-75., 75.);
       f_zvtx->SetParameters(250, 0., 10);
+
+      if ( bbc_zvertex_short->GetEntries()>0 )
       {
         bbc_zvertex_short->Fit(f_zvtx, "RNQL");
 
@@ -1322,8 +1324,9 @@ int BbcMon::process_event(Event *evt)
         bbc_runvtx->SetBinContent( n+1, mean );
         bbc_runvtxerr->SetBinContent( n+1, meanerr );
         bbc_runvtxtime->SetBinContent( n+1, static_cast<Float_t>(currtime) );
+
+        bbc_zvertex_short->Reset();
       }
-      bbc_zvertex_short->Reset();
       prev_send_time = time(0);
   }
 
