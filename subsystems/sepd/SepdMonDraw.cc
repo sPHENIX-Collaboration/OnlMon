@@ -591,6 +591,10 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   // ---
   TH1* h_adc_south = h_ADC_corr->ProjectionX();
   TH1* h_adc_north = h_ADC_corr->ProjectionY();
+  h_adc_south->SetLineColor(kBlue);
+  h_adc_north->SetLineColor(kRed);
+  h_adc_south->SetLineWidth(2);
+  h_adc_north->SetLineWidth(2);
   // --- rebin histograms
   //h_ADC_corr->Rebin2D(5,5);
   //h_hits_corr->Rebin2D(5,5);
@@ -619,10 +623,17 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   // h_hits_corr->GetYaxis()->SetRangeUser(0,380);
   // h_hits_corr->GetXaxis()->SetRangeUser(0,380);
   // h_hits_corr->Draw("COLZ");
-  h_adc_south->GetYaxis()->SetTitle("Counts");
+  h_adc_south->GetXaxis()->SetNdivisions(505);
+  h_adc_south->GetXaxis()->SetRangeUser(0,1.5e6);
   h_adc_south->GetXaxis()->SetTitle("ADC sum");
+  h_adc_south->GetYaxis()->SetTitle("Counts");
   h_adc_south->Draw();
   h_adc_north->Draw("same");
+  TLegend* leg = new TLegend(0.68,0.68,0.88,0.88);
+  leg->AddEntry(h_adc_south,"South","l");
+  leg->AddEntry(h_adc_north,"North","l");
+  leg->SetFillStyle(0);
+  leg->Draw();
   // ---
   gPad->SetLogz();
   gPad->SetBottomMargin(0.16);
