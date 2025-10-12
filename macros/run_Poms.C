@@ -124,7 +124,8 @@ void StartPoms()
   subsys = new SubSystem("SEPD", "sepd");
   subsys->AddAction("sepdDraw(\"FIRST\")", "Average ADC vs Tile (Wheel Plot)");
   subsys->AddAction("sepdDraw(\"SECOND\")", "ADC distributions");
-  subsys->AddAction("sepdDraw(\"THIRD\")", "North vs South Correlations");
+  subsys->AddAction("sepdDraw(\"THIRD_EXP\")", "EXPERT North vs South Correlations");
+  subsys->AddAction("sepdDraw(\"THIRD\")", "SHIFT CREW North vs South Correlations");
   subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
   subsys->AddAction("sepdDraw(\"FIFTH\")", "Packet Information");
   subsys->AddAction("sepdDraw(\"SIXTH\")", "Noise RMS");

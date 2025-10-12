@@ -92,7 +92,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   {
     int canvasindex = 2;
     // xpos negative: do not draw menu bar
-    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3 - EXPERT - North vs South Correlations", -1, 0, 1200, 600);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3exp - EXPERT - North vs South Correlations", -1, 0, 1200, 600);
     gSystem->ProcessEvents();
     Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
     Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
@@ -106,9 +106,9 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "SepdMon2")
   {
-    int canvasindex = 2;
+    int canvasindex = 3;
     // xpos negative: do not draw menu bar
-    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3 - Under Development - North vs South Correlations", -1, 0, 1200, 600);
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3sc - Under Development - North vs South Correlations", -1, 0, 1200, 600);
     gSystem->ProcessEvents();
     Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
     Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
@@ -122,7 +122,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "SepdMon3")
   {
-    int canvasindex = 3;
+    int canvasindex = 4;
     //TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, xsize / 3, ysize);
     TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 4 - Waveform Info", -1, 0, 650, 850);
     gSystem->ProcessEvents();
@@ -140,7 +140,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "SepdMon4")
   {
-    int canvasindex = 4;
+    int canvasindex = 5;
     // xpos negative: do not draw menu bar
     //TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, 0, xsize / 3, ysize);
     //TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 5 - Packet Information", -1, 0, 1200, 850);
@@ -169,7 +169,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "SepdMon5")
   {
-    int canvasindex = 5;
+    int canvasindex = 6;
     TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 6 - Noise RMS", -1, 0, 1200, 600);
     gSystem->ProcessEvents();
     Pad[14] = new TPad("sepdpad14", "Left", 0., 0., 0.5, 1);
@@ -184,7 +184,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "SepdServerStats")
   {
-    int canvasindex = 6;
+    int canvasindex = 7;
     TC[canvasindex] = new TCanvas(name.c_str(), "SepdMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
