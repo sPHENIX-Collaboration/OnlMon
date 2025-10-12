@@ -572,7 +572,7 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
 
 int SepdMonDraw::DrawThird(const std::string & /* what */)
 {
-  int canvasindex = 2;
+  int canvasindex = 3;
   if (!gROOT->FindObject("SepdMon2"))
   {
     MakeCanvas("SepdMon2");
