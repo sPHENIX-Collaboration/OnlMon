@@ -88,11 +88,27 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     transparent[canvasindex]->Draw();
     TC[canvasindex]->SetEditable(false);
   }
-  else if (name == "SepdMon2")
+  else if (name == "SepdMon2_EXP")
   {
     int canvasindex = 2;
     // xpos negative: do not draw menu bar
     TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3 - EXPERT - North vs South Correlations", -1, 0, 1200, 600);
+    gSystem->ProcessEvents();
+    Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
+    Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
+    Pad[4]->Draw();
+    Pad[5]->Draw();
+    // this one is used to plot the run number on the canvas
+    transparent[canvasindex] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(false);
+  }
+  else if (name == "SepdMon2")
+  {
+    int canvasindex = 2;
+    // xpos negative: do not draw menu bar
+    TC[canvasindex] = new TCanvas(name.c_str(), "sEPD Monitor 3 - Under Development - North vs South Correlations", -1, 0, 1200, 600);
     gSystem->ProcessEvents();
     Pad[4] = new TPad("sepdpad4", "Left", 0., 0., 0.5, 1);
     Pad[5] = new TPad("sepdpad5", "Right", 0.5, 0., 1, 1);
@@ -198,6 +214,11 @@ int SepdMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "THIRD")
   {
     iret += DrawThird(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "THIRD_EXP")
+  {
+    iret += DrawThird_Expert(what);
     idraw++;
   }
   if (what == "ALL" || what == "FOURTH")
@@ -473,12 +494,12 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
 
 
 
-int SepdMonDraw::DrawThird(const std::string & /* what */)
+int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
 {
   int canvasindex = 2;
-  if (!gROOT->FindObject("SepdMon2"))
+  if (!gROOT->FindObject("SepdMon2_EXP"))
   {
-    MakeCanvas("SepdMon2");
+    MakeCanvas("SepdMon2_EXP");
   }
   OnlMonClient *cl = OnlMonClient::instance();
 
@@ -538,6 +559,89 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   std::string runstring;
   // fill run number and event time into string
   runnostream << "EXPERT ONLY " << ThisName << "_3 Run " << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  transparent[canvasindex]->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(false);
+  return 0;
+}
+
+int SepdMonDraw::DrawThird(const std::string & /* what */)
+{
+  int canvasindex = 2;
+  if (!gROOT->FindObject("SepdMon2"))
+  {
+    MakeCanvas("SepdMon2");
+  }
+  OnlMonClient *cl = OnlMonClient::instance();
+
+  TH2 *h_ADC_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_corr");
+  //TH2 *h_hits_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_corr");
+  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  if (!h_ADC_corr)
+  {
+    DrawDeadServer(transparent[canvasindex]);
+    TC[canvasindex]->SetEditable(false);
+    return -1;
+  }
+  // ---
+  TH1* h_adc_south = h_ADC_corr->ProjectionX();
+  TH1* h_adc_north = h_ADC_corr->ProjectionY();
+  // --- rebin histograms
+  //h_ADC_corr->Rebin2D(5,5);
+  //h_hits_corr->Rebin2D(5,5);
+  // ---
+  TC[canvasindex]->SetEditable(true);
+  TC[canvasindex]->Clear("D");
+  Pad[4]->cd();
+  h_ADC_corr->GetYaxis()->SetNdivisions(505);
+  h_ADC_corr->GetXaxis()->SetNdivisions(505);
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e6);
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6);
+  h_ADC_corr->Draw("COLZ");
+  // ---
+  gPad->SetLogz();
+  gPad->SetBottomMargin(0.16);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  // ---
+  Pad[5]->cd();
+  // h_hits_corr->GetYaxis()->SetNdivisions(505);
+  // h_hits_corr->GetXaxis()->SetNdivisions(505);
+  // h_hits_corr->GetYaxis()->SetRangeUser(0,380);
+  // h_hits_corr->GetXaxis()->SetRangeUser(0,380);
+  // h_hits_corr->Draw("COLZ");
+  h_adc_south->GetYaxis()->SetTitle("Counts");
+  h_adc_south->GetXaxis()->SetTitle("ADC sum");
+  h_adc_south->Draw();
+  h_adc_north->Draw("same");
+  // ---
+  gPad->SetLogz();
+  gPad->SetBottomMargin(0.16);
+  gPad->SetRightMargin(0.05);
+  gPad->SetLeftMargin(0.2);
+  gStyle->SetOptStat(0);
+  gStyle->SetPalette(57);
+  gPad->SetTicky();
+  gPad->SetTickx();
+  // ---
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  // fill run number and event time into string
+  runnostream << " Under Development " << ThisName << "_3 Run " << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[canvasindex]->cd();
