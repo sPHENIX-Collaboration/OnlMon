@@ -275,8 +275,11 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   TC[canvasindex]->Clear("D");
 
   //if (!h_ADC_all_channel)
-  if (!h_hits_all_channel)
+  if (!h_hits_all_channel || !h_event)
   {
+    //cout which one is not found
+    if (!h_hits_all_channel) std::cout << "h_hits_all_channel not found" << std::endl;
+    if (!h_event) std::cout << "h_event not found" << std::endl;
     DrawDeadServer(transparent[canvasindex]);
     TC[canvasindex]->SetEditable(false);
     return -1;
@@ -404,11 +407,23 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
 
   TH1 *h_ADC_channel[768];
   for ( int i = 0; i < 768; ++i )
+  {
+    h_ADC_channel[i] = cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
+    if (!h_ADC_channel[i])
     {
-      h_ADC_channel[i] = cl->getHisto("SEPDMON_0",Form("h_ADC_channel_%d",i));
+      DrawDeadServer(transparent[canvasindex]);
+      TC[canvasindex]->SetEditable(0);
+      return -1;
     }
+  }
 
   TH1 *h_event = cl->getHisto("SEPDMON_0", "h_event");
+  if (!h_event)
+  {
+    DrawDeadServer(transparent[canvasindex]);
+    TC[canvasindex]->SetEditable(0);
+    return -1;
+  }
   int nevt = h_event->GetEntries();
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
 
@@ -506,7 +521,7 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
   TH2 *h_ADC_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_ADC_corr");
   TH2 *h_hits_corr = (TH2 *) cl->getHisto("SEPDMON_0", "h_hits_corr");
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-  if (!h_ADC_corr)
+  if (!h_ADC_corr || !h_hits_corr)
   {
     DrawDeadServer(transparent[canvasindex]);
     TC[canvasindex]->SetEditable(false);
@@ -666,7 +681,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
 
 int SepdMonDraw::DrawFourth(const std::string & /* what */)
 {
-  int canvasindex = 3;
+  int canvasindex = 4;
   if (!gROOT->FindObject("SepdMon3"))
   {
     MakeCanvas("SepdMon3");
@@ -860,7 +875,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
 
 int SepdMonDraw::DrawFifth(const std::string & /* what */)
 {
-  int canvasindex = 4;
+  int canvasindex = 5;
   if (!gROOT->FindObject("SepdMon4"))
   {
     MakeCanvas("SepdMon4");
@@ -1146,7 +1161,7 @@ int SepdMonDraw::DrawFifth(const std::string & /* what */)
 
 int SepdMonDraw::DrawSixth(const std::string & /* what */)
 {
-  int canvasindex = 5;
+  int canvasindex = 6;
   if (!gROOT->FindObject("SepdMon5"))
   {
     MakeCanvas("SepdMon5");
@@ -2884,7 +2899,7 @@ int SepdMonDraw::returnTile(int ch){
 
 int SepdMonDraw::DrawServerStats()
 {
-  int canvasindex=6;
+  int canvasindex=7;
   OnlMonClient* cl = OnlMonClient::instance();
   if (!gROOT->FindObject("SepdServerStats"))
   {
