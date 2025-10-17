@@ -93,6 +93,7 @@ class BbcMonDraw : public OnlMonDraw
   int nWarning = 0;
 
   TH1 *Trigs{nullptr};
+  TH1 *bbc_nevent_counter{nullptr};
 
   // for the 1st Page
   TPad *PadZVertex = nullptr;
