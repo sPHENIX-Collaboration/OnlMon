@@ -1944,7 +1944,7 @@ int BbcMonDraw::Draw(const std::string &what)
 
       //std::cout << "CUTZ " << cutz << " " << gPad->GetFrame()->GetY1() << " " << gPad->GetFrame()->GetY2() << std::endl;
 
-      if (cutz>0. && cutz<60.)
+      if (cutz>1. && cutz<60.)
       {
         zpline.SetLineStyle(7);
         zpline.SetLineColor(kBlack);
