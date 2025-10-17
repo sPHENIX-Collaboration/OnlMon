@@ -1944,14 +1944,17 @@ int BbcMonDraw::Draw(const std::string &what)
 
       //std::cout << "CUTZ " << cutz << " " << gPad->GetFrame()->GetY1() << " " << gPad->GetFrame()->GetY2() << std::endl;
 
-      zpline.SetLineStyle(7);
-      zpline.SetLineColor(kBlack);
-      zpline.SetLineWidth(2);
-      zpline.DrawLine(cutz,gPad->GetFrame()->GetY1(),cutz,gPad->GetFrame()->GetY2());
-      zmline.SetLineStyle(7);
-      zmline.SetLineColor(kBlack);
-      zmline.SetLineWidth(2);
-      zmline.DrawLine(-cutz,gPad->GetFrame()->GetY1(),-cutz,gPad->GetFrame()->GetY2());
+      if (cutz>1. && cutz<60.)
+      {
+        zpline.SetLineStyle(7);
+        zpline.SetLineColor(kBlack);
+        zpline.SetLineWidth(2);
+        zpline.DrawLine(cutz,gPad->GetFrame()->GetY1(),cutz,gPad->GetFrame()->GetY2());
+        zmline.SetLineStyle(7);
+        zmline.SetLineColor(kBlack);
+        zmline.SetLineWidth(2);
+        zmline.DrawLine(-cutz,gPad->GetFrame()->GetY1(),-cutz,gPad->GetFrame()->GetY2());
+      }
     }
 
     // Status of sending vertex
