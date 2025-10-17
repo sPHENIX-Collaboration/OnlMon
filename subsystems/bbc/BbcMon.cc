@@ -409,7 +409,7 @@ int BbcMon::Init()
 
   f_zvtx = new TF1("f_zvtx", "gaus", -30., 30.);
   bbc_nevent_counter = new TH1F("bbc_nevent_counter",
-                                "The nEvent Counter bin1:Total Event bin2:Collision Event bin3:Laser Event",
+                                "The nEvent Counter bin1:Total Event bin2:Collision Event bin3:Laser Event bin7:TrigCut",
                                 16, 0, 16);
 
   // bbc_tzero_zvtx = new TH2F("bbc_tzero_zvtx",
@@ -749,6 +749,7 @@ uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
   
   int best_scaledown = 999999999;
   int best_trig = -1;
+  float zcut = 1000.;
   for ( int itrig : widebits )
   {
     int scaledown = bbc_prescale_hist->GetBinContent( itrig + 1 );
@@ -757,12 +758,28 @@ uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
     {
       best_scaledown = scaledown;
       best_trig = itrig;
+      switch (itrig)
+      {
+        case TriggerEnum::MBD_NS2_ZVRTX10:
+          zcut = 10.;
+          break;
+        case TriggerEnum::MBD_NS1_ZVRTX10:
+          zcut = 10.;
+          break;
+        case TriggerEnum::MBD_NS2_ZVRTX30:
+          zcut = 13.3;
+          break;
+        case TriggerEnum::MBD_NS2_ZVRTX150:
+          zcut = 150.;
+          break;
+      }
     }
   }
 
   if ( best_trig>=0 )
   {
     std::cout << "BEST MBDTRIG IS " << best_trig << std::endl;
+    bbc_nevent_counter->SetBinContent(7,zcut);
     return ( 0x1UL << best_trig );
   }
 

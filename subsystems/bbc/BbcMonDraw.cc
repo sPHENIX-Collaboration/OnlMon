@@ -1386,7 +1386,7 @@ int BbcMonDraw::Draw(const std::string &what)
     Nhit_hcalmbd[iarm] = static_cast<TH1 *>(bbc_nhit_hcalmbd->Clone());
   }
 
-  TH1 *bbc_nevent_counter = cl->getHisto("BBCMON_0", "bbc_nevent_counter");
+  bbc_nevent_counter = cl->getHisto("BBCMON_0", "bbc_nevent_counter");
 
   TH2 *bbc_tdc = static_cast<TH2 *>(cl->getHisto("BBCMON_0", "bbc_tdc"));
   //std::cout << "BBCTDC2 " << (uint64_t)bbc_tdc << std::endl;
@@ -1927,6 +1927,11 @@ int BbcMonDraw::Draw(const std::string &what)
 
     PadZVertex->cd();
 
+    TLine zpline;
+    TLine zmline;
+    float cutz = bbc_nevent_counter->GetBinContent(7) + 1.0;
+    //std::cout << "CUTZ " << cutz << std::endl;
+
     if (Zvtx->GetEntries() > 0)
     {
       Zvtx->SetLineColor(2);
@@ -1935,6 +1940,18 @@ int BbcMonDraw::Draw(const std::string &what)
       Zvtx->GetXaxis()->SetRangeUser(-60, 60);
       Zvtx->Draw("hist");
       //Zvtx_10->Draw("histsame");
+      PadZVertex->Update();
+
+      //std::cout << "CUTZ " << cutz << " " << gPad->GetFrame()->GetY1() << " " << gPad->GetFrame()->GetY2() << std::endl;
+
+      zpline.SetLineStyle(7);
+      zpline.SetLineColor(kBlack);
+      zpline.SetLineWidth(2);
+      zpline.DrawLine(cutz,gPad->GetFrame()->GetY1(),cutz,gPad->GetFrame()->GetY2());
+      zmline.SetLineStyle(7);
+      zmline.SetLineColor(kBlack);
+      zmline.SetLineWidth(2);
+      zmline.DrawLine(-cutz,gPad->GetFrame()->GetY1(),-cutz,gPad->GetFrame()->GetY2());
     }
 
     // Status of sending vertex
