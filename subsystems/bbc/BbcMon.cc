@@ -1296,54 +1296,53 @@ int BbcMon::process_event(Event *evt)
 
   // send the vtx at a min of 5 seconds of data, and when we have > 1000 events
   // or we always send at 60 seconds if the above two conditions are not satisfied
-  if ( ((timediff > 5) && (bbc_zvertex_short->Integral() >= 1000)) || (timediff > 60) )
+  if ( ((timediff > 5) && (bbc_zvertex_short->Integral() >= 1000)) ||
+       ((timediff > 60) && bbc_zvertex_short->GetEntries()>10) )
   {
       f_zvtx->SetRange(-75., 75.);
       f_zvtx->SetParameters(250, 0., 10);
 
-      if ( bbc_zvertex_short->GetEntries()>0 )
+      bbc_zvertex_short->Fit(f_zvtx, "RNQL");
+
+      // Report z-vertex mean and width
+      Double_t mean = f_zvtx->GetParameter(1);
+      Double_t rms = f_zvtx->GetParameter(2);
+      // we should do a check of a good fit here (skip for now)
+      Double_t meanerr = f_zvtx->GetParError(1);
+      Double_t rmserr = f_zvtx->GetParError(2);
+
+      // For debugging
+      if ( fabs(mean) > 20. )
       {
-        bbc_zvertex_short->Fit(f_zvtx, "RNQL");
-
-        // Report z-vertex mean and width
-        Double_t mean = f_zvtx->GetParameter(1);
-        Double_t rms = f_zvtx->GetParameter(2);
-        // we should do a check of a good fit here (skip for now)
-        Double_t meanerr = f_zvtx->GetParError(1);
-        Double_t rmserr = f_zvtx->GetParError(2);
-
-        // For debugging
-        if ( fabs(mean) > 20. )
-        {
-            double m = bbc_zvertex_short->GetMean();
-            double me = bbc_zvertex_short->GetMeanError();
-            double ent = bbc_zvertex_short->GetEntries();
-            std::cout << "ZZZZ " << m << "\t" << me << "\t" << ent << std::endl;
-            bbc_zvertex_short->Print("ALL");
-        }
-
-        std::ostringstream msg;
-        msg << "MBD zvertex mean/width: " << mean << " " << rms << " " << meanerr << " " << rmserr;
-        se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_INFORMATIONAL, msg.str(), 1);
-        std::cout << "MBD zvtx mean/width: " << mean << " " << rms << " " << meanerr << " " << rmserr << std::endl;
-
-        if ( useGL1==1 && GetSendFlag() == 1 )
-        {
-          TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM "; cmd += mean;
-          cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM "; cmd += rms;
-          gSystem->Exec( cmd );
-        }
-
-        // Fill histograms that keep track of running vtx
-        std::time_t currtime = time(0) - tstart;  // delta-T from BeginRun() time
-        std::cout << "currtime " << static_cast<Float_t>(currtime) << "\t" << time(0) << "\t" << tstart << std::endl;
-        int n = bbc_runvtx->GetEntries();
-        bbc_runvtx->SetBinContent( n+1, mean );
-        bbc_runvtxerr->SetBinContent( n+1, meanerr );
-        bbc_runvtxtime->SetBinContent( n+1, static_cast<Float_t>(currtime) );
-
-        bbc_zvertex_short->Reset();
+          double m = bbc_zvertex_short->GetMean();
+          double me = bbc_zvertex_short->GetMeanError();
+          double ent = bbc_zvertex_short->GetEntries();
+          std::cout << "ZZZZ " << m << "\t" << me << "\t" << ent << std::endl;
+          bbc_zvertex_short->Print("ALL");
       }
+
+      std::ostringstream msg;
+      msg << "MBD zvertex mean/width: " << mean << " " << rms << " " << meanerr << " " << rmserr;
+      se->send_message(this, MSG_SOURCE_BBC, MSG_SEV_INFORMATIONAL, msg.str(), 1);
+      std::cout << "MBD zvtx mean/width: " << mean << " " << rms << " " << meanerr << " " << rmserr << std::endl;
+
+      if ( useGL1==1 && GetSendFlag() == 1 )
+      {
+        TString cmd = "/home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zMeanM "; cmd += mean;
+        cmd += "; /home/phnxrc/mbd/chiu/mbd_operations/httpRequestDemo.py -s sphenix.detector zRmsM "; cmd += rms;
+        gSystem->Exec( cmd );
+      }
+
+      // Fill histograms that keep track of running vtx
+      std::time_t currtime = time(0) - tstart;  // delta-T from BeginRun() time
+      std::cout << "currtime " << static_cast<Float_t>(currtime) << "\t" << time(0) << "\t" << tstart << std::endl;
+      int n = bbc_runvtx->GetEntries();
+      bbc_runvtx->SetBinContent( n+1, mean );
+      bbc_runvtxerr->SetBinContent( n+1, meanerr );
+      bbc_runvtxtime->SetBinContent( n+1, static_cast<Float_t>(currtime) );
+
+      bbc_zvertex_short->Reset();
+      
       prev_send_time = time(0);
   }
 
