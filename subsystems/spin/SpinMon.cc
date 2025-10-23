@@ -13,7 +13,6 @@
 
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
-#include <Event/eventReceiverClient.h>
 #include <Event/msg_profile.h>
 
 #include <TH1.h>
@@ -128,8 +127,6 @@ int SpinMon::Init()
   // }
 
   Reset();
-
-//  erc = new eventReceiverClient(eventReceiverClientHost);
 
   return 0;
 }
