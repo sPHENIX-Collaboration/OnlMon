@@ -129,7 +129,7 @@ int SpinMon::Init()
 
   Reset();
 
-  erc = new eventReceiverClient("gl1daq");
+  erc = new eventReceiverClient(eventReceiverClientHost);
 
   return 0;
 }

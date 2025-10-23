@@ -90,8 +90,7 @@ int DaqMon::Init()
   se->registerHisto(this, h_gl1_clock_diff);  
   se->registerHisto(this, h_fem_match); 
   Reset();
-  //erc = new eventReceiverClient("gl1daq");
-  gl1mgr= new GL1Manager(GL1host.c_str());
+  gl1mgr= new GL1Manager(eventReceiverClientHost);
 
 
   std::string mappingfile = std::string(daqcalib) + "/" + "packetid_seb_mapping.txt";

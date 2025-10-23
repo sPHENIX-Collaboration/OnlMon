@@ -188,11 +188,7 @@ int SepdMon::Init()
 
   Reset();
 
-  // if (anaGL1)
-  // {
-  //erc = new eventReceiverClient("localhost"); // local testing
-  erc = new eventReceiverClient("gl1daq"); // 1008 deployment
-  // }
+  erc = new eventReceiverClient(eventReceiverClientHost);
 
   return 0;
 }

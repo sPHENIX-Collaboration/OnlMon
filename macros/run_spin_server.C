@@ -11,8 +11,10 @@ void run_spin_server(const std::string &name = "SPINMON", unsigned int serverid 
 {
   OnlMon *m = new SpinMon(name);                     // create subsystem Monitor object
   m->SetMonitorServerId(serverid);
-                                                //  m->AddTrigger("PPG(Laser)");  // high efficiency triggers selection at et pool
-                                                //  m->AddTrigger("ONLMONBBCLL1"); // generic bbcll1 minbias trigger (defined in ServerFuncs.C)
+// If running the eventServer_classic on the local host for offline debugging
+// uncomment the m->SetEventReceiverClient("localhost");
+//  m->SetEventReceiverClient("localhost");
+
   OnlMonServer *se = OnlMonServer::instance();  // get pointer to Server Framework
   se->registerMonitor(m);                       // register subsystem Monitor with Framework
   start_server(prdffile);
