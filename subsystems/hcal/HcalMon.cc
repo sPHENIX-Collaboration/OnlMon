@@ -260,7 +260,7 @@ int HcalMon::Init()
 
   if (anaGL1)
   {
-    erc = new eventReceiverClient("gl1daq");
+    erc = new eventReceiverClient(eventReceiverClientHost);
   }
 
   return 0;

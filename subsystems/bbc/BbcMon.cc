@@ -137,7 +137,7 @@ int BbcMon::Init()
   // get gl1 event receiver
   if ( useGL1==1 )
   {
-    erc = new eventReceiverClient("gl1daq");
+    erc = new eventReceiverClient(eventReceiverClientHost);
     rdb = new RunDBodbc;
   }
   else if ( useGL1==2 )
