@@ -189,16 +189,17 @@ int SpinMonDraw::Draw(const std::string &what)
 {
   int iret = 0;
   int idraw = 0;
-  if (what == "ALL" || what == "FIRST")
-  {
-    iret += DrawFirst(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "SECOND")
-  {
-    iret += DrawSecond(what);
-    idraw++;
-  }
+
+  // if (what == "ALL" || what == "FIRST")
+  // {
+  //   iret += DrawFirst(what);
+  //   idraw++;
+  // }
+  // if (what == "ALL" || what == "SECOND")
+  // {
+  //   iret += DrawSecond(what);
+  //   idraw++;
+  // }
   if (what == "ALL" || what == "THIRD")
   {
     iret += DrawThird(what);
@@ -1007,9 +1008,9 @@ int SpinMonDraw::DrawThird(const std::string & /* what */)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1F *hCorrect = (TH1F *) cl->getHisto("SPINMON_0", "hCorrect");
-  TH1F *hAbortgap = (TH1F *) cl->getHisto("SPINMON_0", "hAbortgap");
-  TH1F *hForbidden = (TH1F *) cl->getHisto("SPINMON_0", "hForbidden");
+  TH1 *hCorrect = cl->getHisto("SPINMON_0", "hCorrect");
+  TH1 *hAbortgap = cl->getHisto("SPINMON_0", "hAbortgap");
+  TH1 *hForbidden = cl->getHisto("SPINMON_0", "hForbidden");
 
   if (!gROOT->FindObject("SpinMon3"))
   {
