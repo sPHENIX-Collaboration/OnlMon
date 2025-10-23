@@ -37,11 +37,13 @@ class OnlMon : public OnlMonBase
   virtual int ResetEvent() { return 0; }
   virtual void SetMonitorServerId(unsigned int i);
   virtual unsigned int MonitorServerId() const {return m_MonitorServerId;}
-
+  void SetEventReceiverClient(const std::string &host) {eventReceiverClientHost = host;}
+  const std::string &GetEventReceiverClient() const {return eventReceiverClientHost;}
  protected:
+  TH1 *m_LocalFrameWorkVars {nullptr};
   int status;
-  unsigned int m_MonitorServerId = 0;
-  TH1 *m_LocalFrameWorkVars = nullptr;
+  unsigned int m_MonitorServerId {0};
+  std::string eventReceiverClientHost {"gl1daq"};
 };
 
 #endif /* ONLMONSERVER_ONLMON_H */
