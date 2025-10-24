@@ -190,16 +190,16 @@ int SpinMonDraw::Draw(const std::string &what)
   int iret = 0;
   int idraw = 0;
 
-  // if (what == "ALL" || what == "FIRST")
-  // {
-  //   iret += DrawFirst(what);
-  //   idraw++;
-  // }
-  // if (what == "ALL" || what == "SECOND")
-  // {
-  //   iret += DrawSecond(what);
-  //   idraw++;
-  // }
+  if (what == "ALL" || what == "FIRST")
+  {
+    iret += DrawFirst(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "SECOND")
+  {
+    iret += DrawSecond(what);
+    idraw++;
+  }
   if (what == "ALL" || what == "THIRD")
   {
     iret += DrawThird(what);
@@ -219,10 +219,10 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
 
   OnlMonClient *cl = OnlMonClient::instance();
 
-  TH1I *hpCspinpatternBlue = (TH1I *) cl->getHisto("SPINMON_0", "h1_pCspinpatternBlue");
-  TH1I *hpCspinpatternYellow = (TH1I *) cl->getHisto("SPINMON_0", "h1_pCspinpatternYellow");
-  TH1I *hspinpatternBlue = (TH1I *) cl->getHisto("SPINMON_0", "h1_spinpatternBlue");
-  TH1I *hspinpatternYellow = (TH1I *) cl->getHisto("SPINMON_0", "h1_spinpatternYellow");
+  TH1 *hpCspinpatternBlue = cl->getHisto("SPINMON_0", "h1_pCspinpatternBlue");
+  TH1 *hpCspinpatternYellow = cl->getHisto("SPINMON_0", "h1_pCspinpatternYellow");
+  TH1 *hspinpatternBlue = cl->getHisto("SPINMON_0", "h1_spinpatternBlue");
+  TH1 *hspinpatternYellow = cl->getHisto("SPINMON_0", "h1_spinpatternYellow");
 
   TH2I *pCspinpatternBlueUp = (TH2I *) cl->getHisto("SPINMON_0", "h2_pCspinpatternBlueUp");
   TH2I *pCspinpatternBlueDown = (TH2I *) cl->getHisto("SPINMON_0", "h2_pCspinpatternBlueDown");
@@ -241,10 +241,10 @@ int SpinMonDraw::DrawFirst(const std::string & /* what */)
   TH1D *hpolBlue = (TH1D *) cl->getHisto("SPINMON_0", "h1_polBlue");
   TH1D *hpolYellow = (TH1D *) cl->getHisto("SPINMON_0", "h1_polYellow");
 
-  TH1I *hxingshift = (TH1I *) cl->getHisto("SPINMON_0", "h1_xingshift");
-  TH1I *hfillnumber = (TH1I *) cl->getHisto("SPINMON_0", "h1_fillnumber");
-  TH1I *hfilltypeBlue = (TH1I *) cl->getHisto("SPINMON_0", "h1_filltypeBlue");
-  TH1I *hfilltypeYellow = (TH1I *) cl->getHisto("SPINMON_0", "h1_filltypeYellow");
+  TH1 *hxingshift = cl->getHisto("SPINMON_0", "h1_xingshift");
+  TH1 *hfillnumber = cl->getHisto("SPINMON_0", "h1_fillnumber");
+  TH1 *hfilltypeBlue = cl->getHisto("SPINMON_0", "h1_filltypeBlue");
+  TH1 *hfilltypeYellow = cl->getHisto("SPINMON_0", "h1_filltypeYellow");
 
   if (!gROOT->FindObject("SpinMon1"))
   {
@@ -1218,7 +1218,7 @@ std::string SpinMonDraw::TH1_to_string(TH1 *hspin_pattern)
 
 int SpinMonDraw::DrawGL1pRatio(const std::string &trig1, const std::string &trig2)
 {
-  TH1I *ratio;
+  TH1 *ratio;
   float labelsize = 0.05;
   if (gl1ptriggers[trig1]->GetSumOfWeights() != 0 && gl1ptriggers[trig2]->GetSumOfWeights() != 0)
   {
