@@ -59,6 +59,11 @@ void StartPoms()
   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
   // pmf->RegisterSubSystem(subsys);
 
+  subsys = new SubSystem("GL1", "spin");
+  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
+
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
   //subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
@@ -223,6 +228,14 @@ void StartPoms()
   subsys->AddAction("zdcDraw(\"SMD_MULTIPLICITIES\")", "SMD Multiplicities");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
+
+  subsys = new SubSystem("Itaru only", "spin");
+  subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
+  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
+
 
   // subsys = new SubSystem("LOCALPOL", "localpol");
   // subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries [expert]");
