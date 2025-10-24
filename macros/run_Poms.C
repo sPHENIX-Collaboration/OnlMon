@@ -229,12 +229,13 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("Itaru only", "spin");
-  subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
-  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
-  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // chp: for some reason this does not work - leave it for later
+  // subsys = new SubSystem("Itaru only", "spin");
+  // subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
+  // subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  // subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
 
   // subsys = new SubSystem("LOCALPOL", "localpol");
