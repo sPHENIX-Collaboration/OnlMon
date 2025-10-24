@@ -28,7 +28,7 @@ class GL1Manager
 {
  public:
 
-  GL1Manager (const char * /*hostname*/, const int /*history*/ = 6, const int /*maxdiscrepancy*/ = 3); // for eventReceiverclient
+  GL1Manager (const std::string & /*hostname*/, const int /*history*/ = 6, const int /*maxdiscrepancy*/ = 3); // for eventReceiverclient
   ~GL1Manager();
 
   void Reset();

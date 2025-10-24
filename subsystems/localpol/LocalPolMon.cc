@@ -9,7 +9,6 @@
 #include <onlmon/OnlMonDB.h>
 #include <onlmon/OnlMonServer.h>
 
-#include <Event/msg_profile.h>
 #include <caloreco/CaloWaveformFitting.h>
 
 #include <Event/Event.h>
@@ -148,7 +147,7 @@ int LocalPolMon::Init()
     else if (key == "monitoring"){
       val.ToLower();
       if (val == "online"){
-	erc = new eventReceiverClient("gl1daq");
+	erc = new eventReceiverClient(eventReceiverClientHost);
       }
       else if (val == "offline" ){
 	erc = new eventReceiverClient("localhost");
@@ -156,7 +155,7 @@ int LocalPolMon::Init()
       else {
 	std::cout<< key << ": expecting either online (data stream)/offline (with eventServer -d 5263250 -s 5 -i -v -f path to gl1 prdf) "<<std::endl;
 	std::cout<<"Fall back to online monitoring"<<std::endl;
-	erc = new eventReceiverClient("gl1daq");
+	erc = new eventReceiverClient(eventReceiverClientHost);
       }
     }
     else if (key == "sphenixgap")

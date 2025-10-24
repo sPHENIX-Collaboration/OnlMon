@@ -13,7 +13,6 @@
 
 #include <Event/Event.h>
 #include <Event/EventTypes.h>
-#include <Event/eventReceiverClient.h>
 #include <Event/msg_profile.h>
 
 #include <TH1.h>
@@ -93,43 +92,41 @@ int SpinMon::Init()
 
   OnlMonServer *se = OnlMonServer::instance();
 
-  se->registerHisto(this, hpCspinpatternBlue);
-  se->registerHisto(this, hpCspinpatternYellow);
-  se->registerHisto(this, pCspin_patternBlueUp);
-  se->registerHisto(this, pCspin_patternBlueDown);
-  se->registerHisto(this, pCspin_patternBlueUnpol);
-  se->registerHisto(this, pCspin_patternYellowUp);
-  se->registerHisto(this, pCspin_patternYellowDown);
-  se->registerHisto(this, pCspin_patternYellowUnpol);
+  // se->registerHisto(this, hpCspinpatternBlue);
+  // se->registerHisto(this, hpCspinpatternYellow);
+  // se->registerHisto(this, pCspin_patternBlueUp);
+  // se->registerHisto(this, pCspin_patternBlueDown);
+  // se->registerHisto(this, pCspin_patternBlueUnpol);
+  // se->registerHisto(this, pCspin_patternYellowUp);
+  // se->registerHisto(this, pCspin_patternYellowDown);
+  // se->registerHisto(this, pCspin_patternYellowUnpol);
 
-  se->registerHisto(this, hspinpatternBlue);
-  se->registerHisto(this, hspinpatternYellow);
-  se->registerHisto(this, spin_patternBlueUp);
-  se->registerHisto(this, spin_patternBlueDown);
-  se->registerHisto(this, spin_patternBlueUnpol);
-  se->registerHisto(this, spin_patternYellowUp);
-  se->registerHisto(this, spin_patternYellowDown);
-  se->registerHisto(this, spin_patternYellowUnpol);
+  // se->registerHisto(this, hspinpatternBlue);
+  // se->registerHisto(this, hspinpatternYellow);
+  // se->registerHisto(this, spin_patternBlueUp);
+  // se->registerHisto(this, spin_patternBlueDown);
+  // se->registerHisto(this, spin_patternBlueUnpol);
+  // se->registerHisto(this, spin_patternYellowUp);
+  // se->registerHisto(this, spin_patternYellowDown);
+  // se->registerHisto(this, spin_patternYellowUnpol);
 
-  se->registerHisto(this, hpolBlue);
-  se->registerHisto(this, hpolYellow);
-  se->registerHisto(this, hxingshift);
-  se->registerHisto(this, hfillnumber);
-  se->registerHisto(this, hfilltypeBlue);
-  se->registerHisto(this, hfilltypeYellow);
+  // se->registerHisto(this, hpolBlue);
+  // se->registerHisto(this, hpolYellow);
+  // se->registerHisto(this, hxingshift);
+  // se->registerHisto(this, hfillnumber);
+  // se->registerHisto(this, hfilltypeBlue);
+  // se->registerHisto(this, hfilltypeYellow);
 
   se->registerHisto(this, hCorrect);
   se->registerHisto(this, hAbortgap);
   se->registerHisto(this, hForbidden);
 
-  for (auto &i : gl1_counter)
-  {
-    se->registerHisto(this, i);
-  }
+  // for (auto &i : gl1_counter)
+  // {
+  //   se->registerHisto(this, i);
+  // }
 
   Reset();
-
-  erc = new eventReceiverClient("gl1daq");
 
   return 0;
 }
