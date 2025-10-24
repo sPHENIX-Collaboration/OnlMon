@@ -229,6 +229,14 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
+  subsys = new SubSystem("Itaru only", "spin");
+  subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
+  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
+
+
   // subsys = new SubSystem("LOCALPOL", "localpol");
   // subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries [expert]");
   // subsys->AddAction("localpolDraw(\"SECOND\")", "Polarisation direction [expert]");
