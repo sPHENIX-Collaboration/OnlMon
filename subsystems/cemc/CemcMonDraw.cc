@@ -993,6 +993,8 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     {
       if(((packetStatus[i] -> Integral()) && (i != 0)) || (isAlert == true))isAlert = true;
       packetStatus[i] -> SetFillColor(colorsThatDontSuck[i]);
+      packetStatus[i]->SetLineColor(kBlack);
+      packetStatus[i]->SetLineWidth(1); // Optional: make lines thicker if needed
     }
 
     //Normalize
@@ -1047,7 +1049,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   Pad[1]->cd(); 
   if(hs)
   {
-    hs->Draw();
+    hs->Draw("BAR");
     hs->GetXaxis()->SetTitle("Packet Number");
     hs->GetYaxis()->SetTitle("Event Fraction");
     hs->GetYaxis()->SetTitleOffset(0.9);
