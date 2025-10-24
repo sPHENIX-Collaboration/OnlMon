@@ -192,10 +192,10 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
     //Pad[2]->SetLeftMargin(0.05);
     Pad[2]->SetRightMargin(0);
     Pad[2] -> Draw();
-    // this one is used to plot the run number on the canvas
-    //transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
-    //transparent[1]->SetFillStyle(4000);
-    //transparent[1]->Draw();
+    //this one is used to plot the run number on the canvas
+    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
+    transparent[1]->SetFillStyle(4000);
+    transparent[1]->Draw();
 
     // packet warnings
     warning[1] = new TPad("warning1", "packet warnings", 0.75, 0.1, 1, 0.3);
@@ -989,8 +989,11 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
       } 
     }
     if(!packetStatus[0])continue;
-    if(((packetStatus[i] -> Integral()) && (i != 0)) || (isAlert == true))isAlert = true;
-    packetStatus[i] -> SetFillColor(colorsThatDontSuck[i]);
+    for(int i = 0; i < nPacketStatus; i++)
+    {
+      if(((packetStatus[i] -> Integral()) && (i != 0)) || (isAlert == true))isAlert = true;
+      packetStatus[i] -> SetFillColor(colorsThatDontSuck[i]);
+    }
 
     //Normalize
     const int nBins = packetStatus[0] -> GetNbinsX();
@@ -1022,11 +1025,17 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   //leg -> SetBorderSize(0);
   std::string stati[nPacketStatus] = {"Good", "Malformed Packet Header", "Unknown Word Classifier", "Too Many FEMs in Packet", "Malformed FEM Header", "Wrong Number of FEMs"};
 
-  for(int i = 0; i < nPacketStatus; i++)
+  if(packetStatusFull[0])
   {
-    hs->Add(packetStatusFull[i]);
-    leg->AddEntry(packetStatusFull[i],stati[i].c_str(),"f");
-  } 
+    for(int i = 0; i < nPacketStatus; i++)
+    {
+      hs->Add(packetStatusFull[i]);
+      leg->AddEntry(packetStatusFull[i],stati[i].c_str(),"f");
+    } 
+  }
+  else{
+    DrawDeadServer(transparent[1]);
+  }
 
   if (!gROOT->FindObject("CemcMon2"))
   {
@@ -1036,10 +1045,13 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[1]->cd(); 
-  hs->Draw();
-  hs->GetXaxis()->SetTitle("Packet Number");
-  hs->GetYaxis()->SetTitle("Event Fraction");
-  hs->GetYaxis()->SetTitleOffset(0.9);
+  if(hs)
+  {
+    hs->Draw();
+    hs->GetXaxis()->SetTitle("Packet Number");
+    hs->GetYaxis()->SetTitle("Event Fraction");
+    hs->GetYaxis()->SetTitleOffset(0.9);
+  }
   Pad[2] -> cd();
   leg->Draw();
   TC[1]->Update();
