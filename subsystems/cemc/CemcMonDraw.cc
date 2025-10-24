@@ -983,15 +983,15 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     for(int i = 0; i < nPacketStatus; i++)
     {
       packetStatus[i] = cl->getHisto(*server, Form("h1_packet_status_%d",i));
-      packetStatus[i] -> SetFillColor(colorsThatDontSuck[i]);
-      if(((packetStatus[i] -> Integral()) && (i != 0)) || (isAlert == true))isAlert = true;
       if(!packetStatus[i])
       {
         std::cout << "Didn't find " <<  Form("h1_packet_status_%d",i) << std::endl;
       } 
     }
     if(!packetStatus[0])continue;
-   
+    if(((packetStatus[i] -> Integral()) && (i != 0)) || (isAlert == true))isAlert = true;
+    packetStatus[i] -> SetFillColor(colorsThatDontSuck[i]);
+
     //Normalize
     const int nBins = packetStatus[0] -> GetNbinsX();
     float norm[nBins] = {0};
