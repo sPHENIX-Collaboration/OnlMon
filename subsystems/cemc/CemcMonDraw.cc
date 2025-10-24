@@ -975,7 +975,6 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   
   TH1 *packetStatusFull[nPacketStatus] = {nullptr};
   int nServer = 0;
-  cl->PrintHistos("CEMCMON_0");
   int colorsThatDontSuck[] = {kGreen+2,1,2,4, kViolet,kCyan,kOrange+2,kMagenta+2,kAzure-2};
   int isAlert = false;
   for (auto server = ServerBegin(); server != ServerEnd(); ++server)
