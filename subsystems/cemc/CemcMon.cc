@@ -133,6 +133,7 @@ int CemcMon::Init()
   h1_packet_number = new TH1F("h1_packet_number", "", 128, 6000.5, 6128.5);
   h1_packet_length = new TH1F("h1_packet_length", "", 128, 6000.5, 6128.5);
   h1_packet_chans = new TH1F("h1_packet_chans", "", 128, 6000.5, 6128.5);
+  for(int i = 0; i < nPacketStatus; i++) h1_packet_status[i] = new TH1F(Form("h1_packet_status_%d",i),"",128,6000.5, 6128.5);
 
   p2_bad_chi2 = new TProfile2D("p2_bad_chi2", "", 96, 0, 96, 256, 0, 256);
   //s option to track rms
@@ -183,6 +184,8 @@ int CemcMon::Init()
   se->registerHisto(this, h1_packet_length);
   se->registerHisto(this, h1_packet_chans);
   se->registerHisto(this, h1_cemc_adc);
+  for(int i = 0; i < nPacketStatus; i++) se->registerHisto(this, h1_packet_status[i]);
+
 
   // Commented until potential replacement with TProfile3D
   // h2_waveform=new TProfile**[nPhiIndex];
@@ -404,6 +407,7 @@ int CemcMon::process_event(Event *e /* evt */)
       h1_packet_length->SetBinContent(packet - 6000, h1_packet_length->GetBinContent(packet - 6000) + p->getLength());
 
       h1_packet_event->SetBinContent(packet - 6000, p->lValue(0, "CLOCK"));
+      h1_packet_status[(int)p->getStatus()]->Fill(packet);
 
       if (have_gl1)
       {

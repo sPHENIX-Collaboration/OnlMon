@@ -40,6 +40,7 @@ class CemcMon : public OnlMon
   std::vector<float> anaWaveformTemp(Packet* p, const int channel);
 
   int idummy = 0;
+  static const int nPacketStatus = 6;
   TH1* h1_cemc_adc = nullptr;
 
   static const int Nsector = 64;
@@ -78,6 +79,9 @@ class CemcMon : public OnlMon
   TH1* h1_sectorAvg_total{nullptr};
   TH1* h1_event{nullptr};
   TH1* h1_rm_sectorAvg[100] = {nullptr};
+  TH1* h1_packet_status[nPacketStatus] = {nullptr};
+
+
   TProfile2D* p2_bad_chi2{nullptr};
   TProfile2D* p2_pre_post{nullptr};
   // TProfile*** h2_waveform= {nullptr};
