@@ -12,7 +12,7 @@
 
 using namespace std;
 
-GL1Manager::GL1Manager (const char * hostname, const int h, const int d)
+GL1Manager::GL1Manager (const std::string &hostname, const int h, const int d)
 {
   _hostname = hostname;
   _broken = 0;

@@ -59,6 +59,11 @@ void StartPoms()
   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
   // pmf->RegisterSubSystem(subsys);
 
+  subsys = new SubSystem("GL1", "spin");
+  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
+
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
   //subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
