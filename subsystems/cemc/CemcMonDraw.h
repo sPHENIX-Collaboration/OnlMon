@@ -59,6 +59,7 @@ class CemcMonDraw : public OnlMonDraw
   const double SampleLowBoundary{4.5};
   const double SampleHighBoundary{7.5};
   int save{0};
+  const int nPacketStatus = 6;
 
   TCanvas *TC[19]{nullptr};
   // TCanvas *PopUpCanvas{nullptr};
