@@ -261,7 +261,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if(name == "HCalMon8")
   {
     // xpos negative: do not draw menu bar
-    TC[10] = new TCanvas(name.c_str(), "CemcMon2 Packet Information", -1, ysize, xsize , ysize);
+    TC[10] = new TCanvas(name.c_str(), "HCal Packet Decoder Statuse", -1, ysize, xsize , ysize);
     TC[10] -> Draw();
     gSystem->ProcessEvents();
     Pad[28] = new TPad("cemcpad1", "packet event check", 0.0, 0.0, 0.78, 0.95, 0);
@@ -3118,8 +3118,8 @@ int HcalMonDraw::DrawEighth(const std::string & /* what */)
     MakeCanvas("HCalMon8");
   }
  
-  TC[1]->SetEditable(true);
-  TC[1]->Clear("D");
+  TC[10]->SetEditable(true);
+  TC[10]->Clear("D");
   Pad[1]->cd(); 
   if(hs)
   {
@@ -3130,9 +3130,9 @@ int HcalMonDraw::DrawEighth(const std::string & /* what */)
   }
   Pad[2] -> cd();
   leg->Draw();
-  TC[1]->Update();
-  TC[1]->Show();
-  warning[1]->cd();
+  TC[10]->Update();
+  TC[10]->Show();
+  warning[4]->cd();
   TText warn;
   warn.SetTextFont(62);
   if(isAlert)
@@ -3149,7 +3149,7 @@ int HcalMonDraw::DrawEighth(const std::string & /* what */)
     warn.DrawText(0.1,0.5,"All good!");
   }
   
-  TC[1]->SetEditable(false);
+  TC[10]->SetEditable(false);
   
   // if(save)
   // {
