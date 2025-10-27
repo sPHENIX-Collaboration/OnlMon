@@ -14,7 +14,6 @@
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TText.h>
-#include <THStack.h>
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -183,32 +182,6 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     transparent[canvasindex]->Draw();
     TC[canvasindex]->SetEditable(false);
   }
-  else if (name == "SepdMon6")
-  {
-    int canvasindex=7;
-    // xpos negative: do not draw menu bar
-    TC[canvasindex] = new TCanvas(name.c_str(), "SepdMon Packet Decoder Status", -1, ysize, xsize , ysize);
-    TC[canvasindex] -> Draw();
-    gSystem->ProcessEvents();
-    Pad[16] = new TPad("cemcpad1", "packet event check", 0.0, 0.0, 0.78, 0.95, 0);
-    Pad[16]->SetLeftMargin(0.07);
-    Pad[16]->SetRightMargin(0.05);
-    Pad[16]->Draw();
-    Pad[17] = new TPad("cemcpad2", "packet event check legend", 0.75, 0.3, 0.95, 0.95, 0);
-    //Pad[2]->SetLeftMargin(0.05);
-    Pad[17]->SetRightMargin(0);
-    Pad[17] -> Draw();
-    //this one is used to plot the run number on the canvas
-    transparent[canvasindex] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
-    transparent[canvasindex]->SetFillStyle(4000);
-    transparent[canvasindex]->Draw();
-
-    // packet warnings
-    warning[2] = new TPad("warning1", "packet warnings", 0.75, 0.1, 1, 0.3);
-    warning[2] -> SetRightMargin(0);
-    warning[2]->SetFillStyle(4000);
-    warning[2]->Draw();
-  }
   else if (name == "SepdServerStats")
   {
     int canvasindex = 7;
@@ -261,11 +234,6 @@ int SepdMonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "SIXTH")
   {
     iret += DrawSixth(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "SEVENTH")
-  {
-    iret += DrawSeventh(what);
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -1311,118 +1279,7 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
 }
 
 
-int SepdMonDraw::DrawSeventh(const std::string &/*hwat*/)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  gStyle->SetOptStat(0);
-  
-  TH1 *packetStatusFull[nPacketStatus] = {nullptr};
-  int nServer = 0;
-  int colorsThatDontSuck[] = {kGreen+2,1,2,4, kViolet,kCyan,kOrange+2,kMagenta+2,kAzure-2};
-  int isAlert = false;
-  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
-  {   
-    TH1 *packetStatus[nPacketStatus] = {nullptr};
-    for(int i = 0; i < nPacketStatus; i++)
-    {
-      packetStatus[i] = cl->getHisto(*server, Form("h1_packet_status_%d",i));
-      if(!packetStatus[i])
-      {
-        std::cout << "Didn't find " <<  Form("h1_packet_status_%d",i) << std::endl;
-      } 
-    }
-    if(!packetStatus[0])continue;
-    for(int i = 0; i < nPacketStatus; i++)
-    {
-      if(((packetStatus[i] -> Integral()) && (i != 0)) || (isAlert == true))isAlert = true;
-      packetStatus[i] -> SetFillColor(colorsThatDontSuck[i]);
-      packetStatus[i]->SetLineColor(kBlack);
-      packetStatus[i]->SetLineWidth(1); // Optional: make lines thicker if needed
-    }
 
-    //Normalize
-    const int nBins = packetStatus[0] -> GetNbinsX();
-    float norm[nBins] = {0};
-    for(int i = 0; i < nBins; i++)
-    {
-      for(int j = 0; j < nPacketStatus; j++)
-      {
-        norm[i]+=packetStatus[j]->GetBinContent(i+1);
-      }
-    }
-    for(int i = 0; i < nPacketStatus; i++)
-    {
-      for(int j = 0; j < nBins; j++)
-      {
-        if(norm[j]>0)packetStatus[i]->SetBinContent(j+1, packetStatus[i]->GetBinContent(j+1)/norm[j]);
-        else packetStatus[i]->SetBinContent(j+1,0); 
-      }
-      nServer > 0 ? (TH1*)(packetStatusFull[i] -> Add(packetStatus[i])) : packetStatusFull[i] = packetStatus[i];
-    }
-    nServer++;
-  }
-
-  THStack *hs = new THStack("hs", "Event-Averaged Packet Status");
-   
-  TLegend *leg = new TLegend(0.05,0.1,0.95,1);
-  leg -> SetFillStyle(0);
-  leg -> SetTextSize(0.06);
-  //leg -> SetBorderSize(0);
-  std::string stati[nPacketStatus] = {"Good", "Malformed Packet Header", "Unknown Word Classifier", "Too Many FEMs in Packet", "Malformed FEM Header", "Wrong Number of FEMs"};
-
-  if(packetStatusFull[0])
-  {
-    for(int i = 0; i < nPacketStatus; i++)
-    {
-      hs->Add(packetStatusFull[i]);
-      leg->AddEntry(packetStatusFull[i],stati[i].c_str(),"f");
-    } 
-  }
-  else{
-    DrawDeadServer(transparent[1]);
-  }
-
-  if (!gROOT->FindObject("SepdMon6"))
-  {
-    MakeCanvas("SepdMon6");
-  }
- 
-  TC[6]->SetEditable(true);
-  TC[6]->Clear("D");
-  Pad[16]->cd(); 
-  if(hs)
-  {
-    hs->Draw("BAR");
-    hs->GetXaxis()->SetTitle("Packet Number");
-    hs->GetYaxis()->SetTitle("Event Fraction");
-    hs->GetYaxis()->SetTitleOffset(0.9);
-  }
-  Pad[17] -> cd();
-  leg->Draw();
-  TC[6]->Update();
-  TC[6]->Show();
-  warning[2]->cd();
-  TText warn;
-  warn.SetTextFont(62);
-  if(isAlert)
-  {
-    warn.SetTextSize(.15);
-    warn.SetTextColor(kRed);
-    warn.DrawText(0.05,0.5,"!WARNING!");
-    warn.DrawText(0.05,0.35,"POSSIBLE DATA CORRUPTION");
-    warn.DrawText(0.05,0.2,"CONTACT DAQ EXPERT");
-  }
-  else
-  {
-    warn.SetTextSize(0.3);
-    warn.DrawText(0.1,0.5,"All good!");
-  }
-  
-  TC[6]->SetEditable(false);
-
-  return 0;
-
-}
 
 int SepdMonDraw::SavePlot(const std::string &what, const std::string &type)
 {
