@@ -73,6 +73,8 @@ void bbcDrawInit(const int online = 0)
       std::string name = Form("bbc_zvertex_autoupdate_%i", i);
       cl->registerHisto(name, servername);
   }
+  for(int i = 0; i < 6; i++)cl->registerHisto(Form("h1_packet_status_%d",i),servername.c_str());
+
 
   // for local host, just call bbcDrawInit(2)
   CreateSubsysHostlist("bbc_hosts.list", online);

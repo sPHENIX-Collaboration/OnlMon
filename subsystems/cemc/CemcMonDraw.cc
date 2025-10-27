@@ -1075,7 +1075,7 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
     warn.DrawText(0.1,0.5,"All good!");
   }
   
-  //TC[1]->SetEditable(false);
+  TC[1]->SetEditable(false);
   
   if(save)
   {
