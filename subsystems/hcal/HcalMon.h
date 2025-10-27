@@ -48,6 +48,7 @@ class HcalMon : public OnlMon
   static constexpr int Nsector {32};
   static constexpr int Ntower {1536};
   static constexpr int m_nChannels {192};
+  static const int nPacketStatus{6};
   // TH1 *hcalhist1 {nullptr};
   // TH2 *hcalhist2 {nullptr};
   TH2* h2_hcal_hits {nullptr};
@@ -78,6 +79,8 @@ class HcalMon : public OnlMon
   TProfile2D* p2_pre_post{nullptr};
   CaloWaveformFitting* WaveformProcessing {nullptr};
   eventReceiverClient* erc {nullptr};
+  TH1* h1_packet_status[nPacketStatus] = {nullptr};
+
 
   int evtcnt {0};
   int idummy {0};
