@@ -56,6 +56,8 @@ class SepdMon : public OnlMon
   int nPhi = 24;
   int nRad = 24;
   double axislimit = M_PI;
+  static const int nPacketStatus{6};
+
 
   TH2 *h_ADC_corr = nullptr;
   TH2 *h_hits_corr = nullptr;
@@ -79,6 +81,8 @@ class SepdMon : public OnlMon
   TH1 *h_hits_all_channel = nullptr;
   TH1 *h_ADC_all_channel = nullptr;
   TH1 *h_ADC_channel[768] = {nullptr};
+  TH1* h1_packet_status[nPacketStatus] = {nullptr};
+
   //TH1 *h_ADC_channel[744] = {nullptr};
 
   std::string runtypestr = "Unknown";
