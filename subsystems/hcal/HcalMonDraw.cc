@@ -264,18 +264,18 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     TC[10] = new TCanvas(name.c_str(), "HCal Packet Decoder Statuse", -1, ysize, xsize , ysize);
     TC[10] -> Draw();
     gSystem->ProcessEvents();
-    Pad[28] = new TPad("cemcpad1", "packet event check", 0.0, 0.0, 0.78, 0.95, 0);
+    Pad[28] = new TPad("hcalpad28", "packet event check", 0.0, 0.0, 0.78, 0.95, 0);
     Pad[28]->SetLeftMargin(0.07);
     Pad[28]->SetRightMargin(0.05);
     Pad[28]->Draw();
-    Pad[29] = new TPad("cemcpad2", "packet event check legend", 0.75, 0.3, 0.95, 0.95, 0);
+    Pad[29] = new TPad("hcalpad29", "packet event check legend", 0.75, 0.3, 0.95, 0.95, 0);
     //Pad[2]->SetLeftMargin(0.05);
     Pad[29]->SetRightMargin(0);
     Pad[29] -> Draw();
     //this one is used to plot the run number on the canvas
-    transparent[12] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
-    transparent[12]->SetFillStyle(4000);
-    transparent[12]->Draw();
+    transparent[10] = new TPad("transparent12", "this does not show", 0, 0, 1., 1);
+    transparent[10]->SetFillStyle(4000);
+    transparent[10]->Draw();
 
     // packet warnings
     warning[4] = new TPad("warning1", "packet warnings", 0.75, 0.1, 1, 0.3);
@@ -307,22 +307,22 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if (name == "HcalAllTrigHits")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[10] = new TCanvas(name.c_str(), "Hcal Towers", -1, ysize, xsize / 3, ysize);
+    TC[2] = new TCanvas(name.c_str(), "Hcal Towers", -1, ysize, xsize / 3, ysize);
 
     gSystem->ProcessEvents();
     Pad[26] = new TPad("hist", "On the top", 0., 0.2, 1., 0.97);
     Pad[26]->Draw();
     //  this one is used to plot the run number on the canvas
-    transparent[10] = new TPad("transparent10", "this does not show", 0, 0, 1, 1);
-    transparent[10]->SetFillStyle(4000);
-    transparent[10]->Draw();
+    transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[2]->SetFillStyle(4000);
+    transparent[2]->Draw();
 
     // warning
     warning[2] = new TPad("warning2", "this does not show", 0, 0, 0.9, 0.2);
     warning[2]->SetFillStyle(4000);
     warning[2]->Draw();
 
-    TC[10]->SetEditable(false);
+    TC[2]->SetEditable(false);
   }
   else if (name == "HcalNoiseRMS")
   {
