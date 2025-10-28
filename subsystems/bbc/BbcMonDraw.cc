@@ -1088,8 +1088,8 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "BbcMon6")
   {
       // xpos negative: do not draw menu bar
-    TC[3] = new TCanvas(name.c_str(), "Bbc Packet Information", -1, ysize, xsize , ysize);
-    TC[3] -> Draw();
+    TC[7] = new TCanvas(name.c_str(), "Bbc Packet Information", -1, ysize, xsize , ysize);
+    TC[7] -> Draw();
     gSystem->ProcessEvents();
     Pad[2] = new TPad("cemcpad1", "packet event check", 0.0, 0.0, 0.78, 0.95, 0);
     Pad[2]->SetLeftMargin(0.07);
@@ -1100,9 +1100,9 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     Pad[3]->SetRightMargin(0);
     Pad[4] -> Draw();
     //this one is used to plot the run number on the canvas
-    transparent[9] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
-    transparent[9]->SetFillStyle(4000);
-    transparent[9]->Draw();
+    transparent[7] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
+    transparent[7]->SetFillStyle(4000);
+    transparent[7]->Draw();
 
     // packet warnings
     packetWarning = new TPad("warning1", "packet warnings", 0.75, 0.1, 1, 0.3);
