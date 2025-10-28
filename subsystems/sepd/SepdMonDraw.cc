@@ -211,7 +211,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "SepdServerStats")
   {
-    int canvasindex = 7;
+    int canvasindex = 8;
     TC[canvasindex] = new TCanvas(name.c_str(), "SepdMon Server Stats", -1, 0, xsize, ysize);
     gSystem->ProcessEvents();
     // this one is used to plot the run number on the canvas
