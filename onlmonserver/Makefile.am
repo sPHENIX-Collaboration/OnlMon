@@ -7,13 +7,16 @@ AM_CPPFLAGS = \
   -isystem$(ROOTSYS)/include
 
 lib_LTLIBRARIES = \
+  libonlmonbase.la \
   libonlmonserver.la \
   libonlmonserver_funcs.la
 
+libonlmonserver_funcs_la_LDFLAGS = \
+  -L$(libdir) \
+  -L$(ONLINE_MAIN)/lib
+
 libonlmonserver_funcs_la_LIBADD = \
   libonlmonserver.la \
-  -L$(libdir) \
-  -L$(ONLINE_MAIN)/lib \
   -lpmonitor \
   -lmessage
 
@@ -21,7 +24,10 @@ libonlmonserver_la_LDFLAGS = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -L$(OPT_SPHENIX)/lib \
-  `root-config --libs` \
+  `root-config --libs`
+
+libonlmonserver_la_LIBADD = \
+  libonlmonbase.la \
   -lmessage \
   -lNoRootEvent \
   -lodbc++ \
@@ -39,13 +45,15 @@ pkginclude_HEADERS = \
   OnlMonServer.h \
   OnlMonStatus.h
 
+libonlmonbase_la_SOURCES = \
+  OnlMonBase.cc
+
 libonlmonserver_funcs_la_SOURCES = \
   pmonitorInterface.cc
 
 libonlmonserver_la_SOURCES = \
   MessageSystem.cc \
   OnlMon.cc \
-  OnlMonBase.cc \
   OnlMonServer.cc \
   OnlMonStatusDB.cc
 

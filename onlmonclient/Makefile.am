@@ -28,6 +28,7 @@ libonlmonclient_la_SOURCES = \
 libonlmonclient_la_LDFLAGS = \
   -L$(libdir) \
   -lstdc++fs \
+  -lonlmonbase \
   -lonlmondb \
   -luuid \
   `root-config --glibs`
