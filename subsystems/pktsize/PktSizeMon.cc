@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 const char *histoname = "pktsize_hist";
 const int NUPDATE = 1000;
@@ -74,22 +75,14 @@ int PktSizeMon::process_event(Event *e)
   {
     return 0;
   }
-  int nw = e->getPacketList(plist, 10000);
-  if (nw >= 10000)
-  {
-    std::ostringstream errmsg;
-    errmsg << "Packet array too small, need at least " << nw << " entries";
-    OnlMonServer *se = OnlMonServer::instance();
-    se->send_message(this, MSG_SOURCE_DAQMON, MSG_SEV_ERROR, errmsg.str(), 1);
-    nw = 10000;
-  }
+  std::vector<Packet*> pktvec = e->getPacketVector();
   int packetid;
   unsigned int size;
   std::map<unsigned int, unsigned int>::iterator mapiter;
-  for (int i = 0; i < nw; i++)
+  for (Packet* pkt : pktvec)
   {
-    packetid = plist[i]->getIdentifier();
-    size = (plist[i]->getLength());
+    packetid = pkt->getIdentifier();
+    size = (pkt->getLength());
     packetsize[packetid] += size;
     //      std::string dcmgrp = dcmgroups[packetid];
     //      dcmgroupsize[dcmgrp] += size;
@@ -102,9 +95,12 @@ int PktSizeMon::process_event(Event *e)
     //         {
     //           packetsize[packetid] = size;
     //         }
+    if (verbosity > 1)
+    {
     std::cout << "Packet " << packetid << " size: " << size << " sum size: "
 	      << packetsize[packetid] << std::endl;
-    delete plist[i];
+    }
+    delete pkt;
   }
   nevnts++;
   if (nevnts % NUPDATE == 0)
