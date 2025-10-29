@@ -35,11 +35,13 @@ class SepdMonDraw : public OnlMonDraw
   int DrawFourth(const std::string &what = "ALL");
   int DrawFifth(const std::string &what = "ALL");
   int DrawSixth(const std::string &what = "ALL");
+  int DrawSeventh(const std::string & = "ALL");
   int DrawServerStats();
   int returnSector(int ch);
   int returnTile(int ch);
   int returnArm(int ch);
   int returnRing(int ch);
+  const int nPacketStatus{6};
 
   TCanvas* TC[9] {nullptr};
   TPad* transparent[9] {nullptr};
