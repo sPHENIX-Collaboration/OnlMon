@@ -268,7 +268,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttTimingOkay")
   {
-    TC[k_timing_okay] = new TCanvas(name.c_str(), "Intt Timing Okay?", m_cnvs_width, m_cnvs_height);
+    TC[k_timing_okay] = new TCanvas(name.c_str(), "Intt Timing Okay?", -1, 0, m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_timing_okay] = new TPad(Form("transparent%d", k_timing_okay), "this does not show", 0, 0, 1, 1);
     transparent[k_timing_okay]->SetFillStyle(4000);  // Transparent
