@@ -39,7 +39,6 @@ class HcalMonDraw : public OnlMonDraw
   int DrawFourth(const std::string& what = "ALL");
   int DrawFifth(const std::string& what = "ALL");
   int DrawSixth(const std::string& what = "ALL");
-  int DrawEighth(const std::string& what = "ALL");
   int DrawSeventh(const std::string& what = "ALL");
   int DrawNoiseRMS(const std::string &what = "ALL");
   int DrawServerStats();
@@ -71,8 +70,8 @@ class HcalMonDraw : public OnlMonDraw
   std::string prefix {"HCALMON"};
   TCanvas* TC[100] {nullptr};
   TPad* transparent[19] {nullptr};
-  TPad* Pad[30] {nullptr};
-  TPad* warning[30] {nullptr};
+  TPad* Pad[29] {nullptr};
+  TPad* warning[28] {nullptr};
   TH2* h2_mean_template {nullptr};
   TH2* h2_mean_template_cosmic {nullptr};
   TH2 *h2_noiserms{nullptr};
@@ -80,8 +79,7 @@ class HcalMonDraw : public OnlMonDraw
   TH1* h1_zs {nullptr};
   TH1* h1_zs_low {nullptr};
   TH1* h1_zs_high {nullptr};
-  const int nPacketStatus{6};
-
+  
   Int_t ZSPalette[255] {0};
 
   //  TGraphErrors* gr[2] {nullptr};

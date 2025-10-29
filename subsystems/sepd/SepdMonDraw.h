@@ -35,7 +35,6 @@ class SepdMonDraw : public OnlMonDraw
   int DrawFourth(const std::string &what = "ALL");
   int DrawFifth(const std::string &what = "ALL");
   int DrawSixth(const std::string &what = "ALL");
-  int DrawSeventh(const std::string &what = "ALL");
   int DrawServerStats();
   int returnSector(int ch);
   int returnTile(int ch);
@@ -48,8 +47,6 @@ class SepdMonDraw : public OnlMonDraw
   TPad* adc_dist_pad[32] {nullptr};
   TPad* warning[18] {nullptr};
   TGraphErrors *gr[2] {nullptr};
-  static const int nPacketStatus{6};
-
 };
 
 #endif /* SEPD_SEPDMONDRAW_H */

@@ -256,7 +256,7 @@ int InttMonDraw::MakeCanvas(const std::string& name)
   }
   if (name == "InttHistory")
   {
-    TC[k_history] = new TCanvas(name.c_str(), "Intt History", m_cnvs_width, m_cnvs_height);
+    TC[k_history] = new TCanvas(name.c_str(), "Intt History", -1, 0, m_cnvs_width, m_cnvs_height);
     gSystem->ProcessEvents();
     transparent[k_history] = new TPad(Form("transparent%d", k_history), "this does not show", 0, 0, 1, 1);
     transparent[k_history]->SetFillStyle(4000);  // Transparent

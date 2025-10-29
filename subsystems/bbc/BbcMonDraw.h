@@ -75,8 +75,6 @@ class BbcMonDraw : public OnlMonDraw
   int GetGL1BadFlag();
   int UpdateGL1BadFlag(const int flag);
 
-
-  const int nPacketStatus{6};
   TCanvas *TC[nCANVAS] = {nullptr};
   TPad *transparent[nCANVAS] = {nullptr};
 
@@ -93,7 +91,6 @@ class BbcMonDraw : public OnlMonDraw
   TPad *PadWarning[BbcMonDefs::MAX_WARNING] = {};
   int nPadWarning[BbcMonDefs::MAX_WARNING] = {};
   int nWarning = 0;
-  TPad *packetWarning{nullptr};
 
   TH1 *Trigs{nullptr};
   TH1 *bbc_nevent_counter{nullptr};
