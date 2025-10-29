@@ -32,6 +32,7 @@
 #include <TString.h>
 #include <TSystem.h>
 
+#include <chrono>
 #include <cmath>
 #include <cstdio>  // for printf
 #include <ctime>
@@ -39,6 +40,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <thread>
 #include <vector>
 
 
@@ -692,15 +694,29 @@ int BbcMon::BeginRun(const int runno)
     std::vector<int> scaledowns;
     rdb->GetScaledowns( scaledowns, runno );
     bbc_prescale_hist->Reset();
-    for ( int itrig = 0; itrig < 64; itrig++)
+    if (scaledowns.empty())
     {
-      bbc_prescale_hist->SetBinContent( itrig+1, scaledowns[itrig] );
-      std::cout << "scaledowns " << itrig << "\t" << scaledowns[itrig] << std::endl;
-
-      if ( scaledowns[itrig] >= 0 )
+      std::cout << "could not read scaledowns from run db, sleeping 1 minute and trying again" << std::endl;
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000*60)); // sleep for 1 minute
+      rdb->GetScaledowns( scaledowns, runno );
+    }
+    if (!scaledowns.empty())
+    {
+      for ( int itrig = 0; itrig < 64; itrig++)
       {
-        trigs_enabled |= (0x1UL<<itrig);
+	bbc_prescale_hist->SetBinContent( itrig+1, scaledowns[itrig] );
+	std::cout << "scaledowns " << itrig << "\t" << scaledowns[itrig] << std::endl;
+
+	if ( scaledowns[itrig] >= 0 )
+	{
+	  trigs_enabled |= (0x1UL<<itrig);
+	}
       }
+    }
+    else
+    {
+      std::cout << "could not read scaledowns from run db setting all scaledowns to 1" << std::endl;
+      trigs_enabled = std::numeric_limits<uint64_t>::max();
     }
   }
   std::cout << "trigs_enabled 0x" << std::hex << trigs_enabled << std::dec << std::endl;
