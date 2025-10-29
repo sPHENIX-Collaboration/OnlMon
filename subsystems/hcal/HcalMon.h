@@ -48,6 +48,8 @@ class HcalMon : public OnlMon
   static constexpr int Nsector {32};
   static constexpr int Ntower {1536};
   static constexpr int m_nChannels {192};
+  static const int nPacketStatus{6};
+
   // TH1 *hcalhist1 {nullptr};
   // TH2 *hcalhist2 {nullptr};
   TH2* h2_hcal_hits {nullptr};
@@ -74,6 +76,7 @@ class HcalMon : public OnlMon
   TH1* h_rm_tower[24][64]{{nullptr}};
   TH1* h_hcal_trig {nullptr};
   TH2* h_caloPack_gl1_clock_diff {nullptr};
+  TH1* h1_packet_status[nPacketStatus];
   TProfile* h_evtRec {nullptr};
   TProfile2D* p2_pre_post{nullptr};
   CaloWaveformFitting* WaveformProcessing {nullptr};
