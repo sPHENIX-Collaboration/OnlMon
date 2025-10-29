@@ -198,6 +198,7 @@ class BbcMonDraw : public OnlMonDraw
   TPad *PadZvtx{ nullptr };
   TPad *PadZvtxHCAL{ nullptr };
   TPad *PadZvtxEMCAL{ nullptr };
+  TPad *packetWarning{nullptr};
 
   TH1 *SouthChargeSum = nullptr;
   TH1 *NorthChargeSum = nullptr;
