@@ -91,6 +91,7 @@ class BbcMonDraw : public OnlMonDraw
   TPad *PadWarning[BbcMonDefs::MAX_WARNING] = {};
   int nPadWarning[BbcMonDefs::MAX_WARNING] = {};
   int nWarning = 0;
+  const int nPacketStatus{6};
 
   TH1 *Trigs{nullptr};
   TH1 *bbc_nevent_counter{nullptr};
