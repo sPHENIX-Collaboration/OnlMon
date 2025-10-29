@@ -9,6 +9,11 @@
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpcmon_client.so)
 
+void tpcFetchHistos();
+
+time_t lastupdate {0};
+time_t max_time_to_last_update = 5*60; // 5 minutes
+
 void tpcDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -116,25 +121,17 @@ void tpcDrawInit(const int online = 0)
   // for local host, just call tpcDrawInit(2)
   CreateSubsysHostlist("tpc_hosts.list", online);
 
-  // get my histos from server, the second parameter = 1
-  // says I know they are all on the same node
-
-   for (auto iter = tpcmon->ServerBegin(); iter != tpcmon->ServerEnd(); ++iter)
-  {
-    cl->requestHistoBySubSystem(iter->c_str(), 1);
-  }
-
   cl->registerDrawer(tpcmon);             // register with client framework
 }
 
 void tpcDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  OnlMonDraw *mvtxmon = cl->GetDrawer("TPCMONDRAW");  // get pointer to this drawer
-  for (auto iter = mvtxmon->ServerBegin(); iter != mvtxmon->ServerEnd(); ++iter)
-  {
-    cl->requestHistoBySubSystem(iter->c_str(), 1);
-  }
+  if (std::time(nullptr) - lastupdate > max_time_to_last_update)
+    {
+      tpcFetchHistos();
+      lastupdate = std::time(nullptr);
+    }
   cl->Draw("TPCMONDRAW", what);                     // Draw Histos of registered Drawers
 }
 
@@ -149,5 +146,16 @@ void tpcHtml()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   cl->MakeHtml("TPCMONDRAW");                       // Create html output
+  return;
+}
+
+void tpcFetchHistos()
+{
+  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
+  OnlMonDraw *tpcmon = cl->GetDrawer("TPCMONDRAW");  // get pointer to this drawer
+  for (auto iter = tpcmon->ServerBegin(); iter != tpcmon->ServerEnd(); ++iter)
+  {
+       cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
   return;
 }
