@@ -70,7 +70,7 @@ class HcalMonDraw : public OnlMonDraw
   std::string prefix {"HCALMON"};
   TCanvas* TC[100] {nullptr};
   TPad* transparent[19] {nullptr};
-  TPad* Pad[29] {nullptr};
+  TPad* Pad[30] {nullptr};
   TPad* warning[28] {nullptr};
   TH2* h2_mean_template {nullptr};
   TH2* h2_mean_template_cosmic {nullptr};
