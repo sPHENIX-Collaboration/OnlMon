@@ -135,7 +135,7 @@ int PktSizeMonDraw::DrawFirst(const std::string & /*what*/)
     MakeCanvas("PktSizeMon0");
   }
   //  TC[0]->Clear("D");
-  TH1 *pktsize_hist = cl->getHisto("PKTSIZEMON_0", "pktsize_hist");
+  TH1 *pktsize_hist = cl->getHisto("PKTSIZEMON_15", "pktsize_hist");
   if (!pktsize_hist)
   {
     DrawDeadServer(transparent[0]);
