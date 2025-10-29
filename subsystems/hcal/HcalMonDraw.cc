@@ -21,6 +21,7 @@
 #include <TStyle.h>
 #include <TSystem.h>
 #include <TText.h>
+#include <THStack.h> 
 
 #include <cstring>  // for memset
 #include <ctime>
@@ -259,7 +260,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if(name == "HCalMon8")
   {
     // xpos negative: do not draw menu bar
-    TC[10] = new TCanvas(name.c_str(), "HCal Packet Decoder Statuse", -1, ysize, xsize , ysize);
+    TC[10] = new TCanvas(name.c_str(), "HCal Packet Decoder Status", -1, ysize, xsize , ysize);
     TC[10] -> Draw();
     gSystem->ProcessEvents();
     Pad[28] = new TPad("hcalpad28", "packet event check", 0.0, 0.0, 0.78, 0.95, 0);
@@ -429,6 +430,15 @@ int HcalMonDraw::Draw(const std::string& what)
   {
     int retcode = DrawSeventh(what);
     if (!retcode)
+    {
+      isuccess++;
+    }
+    idraw++;
+  }
+  if(what == "ALL" || what == "EIGHTH")
+  {
+    int retcode = DrawEighth(what);
+    if(!retcode)
     {
       isuccess++;
     }
@@ -3029,6 +3039,124 @@ int HcalMonDraw::DrawSeventh(const std::string& what)
   TC[9]->SetEditable(false);
 
   return 0;
+}
+
+int HcalMonDraw::DrawEighth(const std::string & /* what */)
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  gStyle->SetOptStat(0);
+  
+  TH1 *packetStatusFull[nPacketStatus] = {nullptr};
+  int nServer = 0;
+  int colorsThatDontSuck[] = {kGreen+2,1,2,4, kViolet,kCyan,kOrange+2,kMagenta+2,kAzure-2};
+  int isAlert = false;
+  for (auto server = ServerBegin(); server != ServerEnd(); ++server)
+  {   
+    TH1 *packetStatus[nPacketStatus] = {nullptr};
+    for(int i = 0; i < nPacketStatus; i++)
+    {
+      packetStatus[i] = cl->getHisto(*server, Form("h1_packet_status_%d",i));
+      if(!packetStatus[i])
+      {
+        std::cout << "Didn't find " <<  Form("h1_packet_status_%d",i) << std::endl;
+      } 
+    }
+    if(!packetStatus[0])continue;
+    for(int i = 0; i < nPacketStatus; i++)
+    {
+      if(((packetStatus[i] -> Integral()) && (i != 0)) || (isAlert == true))isAlert = true;
+      packetStatus[i] -> SetFillColor(colorsThatDontSuck[i]);
+      packetStatus[i]->SetLineColor(kBlack);
+      packetStatus[i]->SetLineWidth(1); // Optional: make lines thicker if needed
+    }
+
+    //Normalize
+    const int nBins = packetStatus[0] -> GetNbinsX();
+    float norm[nBins] = {0};
+    for(int i = 0; i < nBins; i++)
+    {
+      for(int j = 0; j < nPacketStatus; j++)
+      {
+        norm[i]+=packetStatus[j]->GetBinContent(i+1);
+      }
+    }
+    for(int i = 0; i < nPacketStatus; i++)
+    {
+      for(int j = 0; j < nBins; j++)
+      {
+        if(norm[j]>0)packetStatus[i]->SetBinContent(j+1, packetStatus[i]->GetBinContent(j+1)/norm[j]);
+        else packetStatus[i]->SetBinContent(j+1,0); 
+      }
+      nServer > 0 ? (TH1*)(packetStatusFull[i] -> Add(packetStatus[i])) : packetStatusFull[i] = packetStatus[i];
+    }
+    nServer++;
+  }
+
+  THStack *hs = new THStack("hs", "Event-Averaged Packet Status");
+   
+  TLegend *leg = new TLegend(0.05,0.1,0.95,1);
+  leg -> SetFillStyle(0);
+  leg -> SetTextSize(0.06);
+  //leg -> SetBorderSize(0);
+  std::string stati[nPacketStatus] = {"Good", "Malformed Packet Header", "Unknown Word Classifier", "Too Many FEMs in Packet", "Malformed FEM Header", "Wrong Number of FEMs"};
+
+  if(packetStatusFull[0])
+  {
+    for(int i = 0; i < nPacketStatus; i++)
+    {
+      hs->Add(packetStatusFull[i]);
+      leg->AddEntry(packetStatusFull[i],stati[i].c_str(),"f");
+    } 
+  }
+  else{
+    DrawDeadServer(transparent[1]);
+  }
+
+  if (!gROOT->FindObject("HCalMon8"))
+  {
+    MakeCanvas("HCalMon8");
+  }
+ 
+  TC[1]->SetEditable(true);
+  TC[1]->Clear("D");
+  Pad[1]->cd(); 
+  if(hs)
+  {
+    hs->Draw("BAR");
+    hs->GetXaxis()->SetTitle("Packet Number");
+    hs->GetYaxis()->SetTitle("Event Fraction");
+    hs->GetYaxis()->SetTitleOffset(0.9);
+  }
+  Pad[2] -> cd();
+  leg->Draw();
+  TC[1]->Update();
+  TC[1]->Show();
+  warning[1]->cd();
+  TText warn;
+  warn.SetTextFont(62);
+  if(isAlert)
+  {
+    warn.SetTextSize(.15);
+    warn.SetTextColor(kRed);
+    warn.DrawText(0.05,0.5,"!WARNING!");
+    warn.DrawText(0.05,0.35,"POSSIBLE DATA CORRUPTION");
+    warn.DrawText(0.05,0.2,"CONTACT DAQ EXPERT");
+  }
+  else
+  {
+    warn.SetTextSize(0.3);
+    warn.DrawText(0.1,0.5,"All good!");
+  }
+  
+  TC[1]->SetEditable(false);
+  
+  // if(save)
+  // {
+  //   TC[1]->SaveAs("plots/packetHealthThing.pdf");
+  // }
+
+  return 0;
+
 }
 
 int HcalMonDraw::DrawServerStats()
