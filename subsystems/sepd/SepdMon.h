@@ -33,6 +33,7 @@ class SepdMon : public OnlMon
   std::vector<float> anaWaveformTemp(Packet *p, const int channel);
   int evtcnt = 0;
   int idummy = 0;
+  static const int nPacketStatus = 6;
 
   // --- copied straight from the MBD
   uint64_t mbdtrig{0};        // main mbd trigger
@@ -79,6 +80,7 @@ class SepdMon : public OnlMon
   TH1 *h_hits_all_channel = nullptr;
   TH1 *h_ADC_all_channel = nullptr;
   TH1 *h_ADC_channel[768] = {nullptr};
+  TH1 *h1_packet_status[nPacketStatus];
   //TH1 *h_ADC_channel[744] = {nullptr};
 
   std::string runtypestr = "Unknown";
