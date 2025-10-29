@@ -21,7 +21,7 @@ class LocalPolMon : public OnlMon
 {
  public:
   explicit LocalPolMon(const std::string &name = "LOCALPOLMON");
-  virtual ~LocalPolMon();
+  virtual ~LocalPolMon() = default;
 
   int process_event(Event *evt);
   int Init();
@@ -81,8 +81,8 @@ class LocalPolMon : public OnlMon
   float ZDC2Cut=10.;
   float VetoCut=0.;
   float SMDthr=5.;
-  long long int Prevgl1_clock;
-  long long int Prevzdc_clock;
+  long long int Prevgl1_clock {0};
+  long long int Prevzdc_clock {0};
   int lowSample[52]={0};
   int highSample[52]={0};
   int evtcnt = 0;
@@ -97,7 +97,7 @@ class LocalPolMon : public OnlMon
   int ConversionSign[4] = {1, -1, 1, -1};  // NorthY (bottom to top), NorthX (left to righ from IR->ZDC, while x points outside the ring), SouthY (bottom to top), SouthX (left to right from IR->ZDC and x points outside ring but z is going from south to north, need extra minus one when considering yellow direction)
   float smd_north_relatgain[16]={0.};
   float smd_south_relatgain[16]={0.}; 
-  float smd_adc[32];
+  float smd_adc[32]{};
   float signalZDCN1 = 0;
   float signalZDCS1 = 0;
   float signalZDCN2 = 0;
