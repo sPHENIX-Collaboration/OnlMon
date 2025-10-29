@@ -43,12 +43,6 @@ LocalPolMon::LocalPolMon(const std::string& name)
   return;  // test
 }
 
-LocalPolMon::~LocalPolMon()
-{
-  // you can delete NULL pointers it results in a NOOP (No Operation)
-  return;
-}
-
 int LocalPolMon::Init()
 {
   iPoint = 0;
