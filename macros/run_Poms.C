@@ -12,7 +12,7 @@
 
 // cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libpoms.so)
-R__LOAD_LIBRARY(libonlmonserver.so)
+R__LOAD_LIBRARY(libonlmonclient.so)
 
 void StartPoms()
 {
@@ -146,6 +146,7 @@ void StartPoms()
   // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPC EXPERT", "tpc");
+  subsys->AddAction("tpcFetchHistos()", "Fetch Fresh Tpc Histos");
   subsys->AddAction("tpcDraw(\"TPCMODULE\")", "TPC SUM[ADC]");
   subsys->AddAction("tpcDraw(\"TPCSAMPLESIZE\")", "TPC Sample Size");
   subsys->AddAction("tpcDraw(\"TPCCHECKSUMERROR\")", "TPC Checksum Error Prob.");
@@ -183,6 +184,7 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPC SHIFTER", "tpc");
+  subsys->AddAction("tpcFetchHistos()", "Fetch Fresh Tpc Histos");
   subsys->AddAction("tpcDraw(\"SHIFTER_DRIFT_PLOT\")", "SHIFTER TPC DRIFT");
   subsys->AddAction("tpcDraw(\"TPCCLUSTERSXYWEIGTHED\")", "SHIFTER TPC ACCEPTANCE");
   subsys->AddAction("tpcDraw(\"SHIFTER_TRANSMISSION_PLOT\")", "SHIFTER TPC TRANSMISSION");
@@ -194,6 +196,7 @@ void StartPoms()
   pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("TPC DIGITAL CURRENT", "tpc");
+  subsys->AddAction("tpcFetchHistos()", "Fetch Fresh Tpc Histos");
   subsys->AddAction("tpcDraw(\"TPCDCVSSAMPA\")", "TPC DIGITAL CURRENT VS SAMPA");
   subsys->AddAction("tpcDraw(\"TPCDCSAMPAVSTIME\")", "TPC SAMPA VS TIME WTD. BY DC");
   subsys->AddAction("tpcDraw(\"SERVERSTATS\")", "Server Stats");
@@ -229,7 +232,6 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // chp: for some reason this does not work - leave it for later
   // subsys = new SubSystem("Itaru only", "spin");
   // subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
   // subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
