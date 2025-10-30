@@ -4895,7 +4895,7 @@ int TpcMonDraw::DrawServerStats()
   PrintRun.SetTextColor(1);
   PrintRun.DrawText(0.5, 0.99, "Server Statistics");
 
-  PrintRun.SetTextAlign(13);  // center/top alignment
+  PrintRun.SetTextAlign(13);  // left/top alignment
   PrintRun.SetTextSize(0.02);
   double vdist = 0.03;
   double vstart = 0.9;
@@ -4931,9 +4931,9 @@ int TpcMonDraw::DrawServerStats()
     else
     {
       txt << "Server " << server
-          << ", run number " << std::get<1>(servermapiter->second)
-          << ", event count: " << std::get<2>(servermapiter->second)
-          << ", current time " << ctime(&(std::get<3>(servermapiter->second)));
+          << ", run:" << std::get<1>(servermapiter->second)
+          << ", events: " << std::get<2>(servermapiter->second)
+          << ", time: " << ctime(&(std::get<3>(servermapiter->second)));
       if (std::get<0>(servermapiter->second))
       {
         PrintRun.SetTextColor(kGray+2);
