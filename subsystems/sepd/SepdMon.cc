@@ -131,6 +131,8 @@ int SepdMon::Init()
   h1_packet_length = new TH1D("h1_packet_length", "", 6, packetlow - 0.5, packethigh + 0.5);
   h1_packet_chans = new TH1D("h1_packet_chans", "", 6, packetlow - 0.5, packethigh + 0.5);
   h1_packet_event = new TH1D("h1_packet_event", "", 6, packetlow - 0.5, packethigh + 0.5);
+  for(int i = 0; i < nPacketStatus; i++) h1_packet_status[i] = new TH1F(Form("h1_packet_status_%d",i),"",5,packetlow-0.5, packethigh+0.5);
+
 
   for (int i = 0; i < 6; i++)
   {
@@ -156,6 +158,9 @@ int SepdMon::Init()
   se->registerHisto(this, h1_packet_length);
   se->registerHisto(this, h1_packet_chans);
   se->registerHisto(this, h1_packet_event);
+  for(int i = 0; i < nPacketStatus; i++) se->registerHisto(this, h1_packet_status[i]);
+
+
   //  se->registerHisto(this, h1_sepd_fitting_sigDiff);
   //  se->registerHisto(this, h1_sepd_fitting_pedDiff);
   //  se->registerHisto(this, h1_sepd_fitting_timeDiff);
@@ -354,7 +359,7 @@ int SepdMon::process_event(Event *e /* evt */)
       rm_packet_number[packet_index]->Add(one);
       int packet_length[1] = {p->getLength()};
       rm_packet_length[packet_index]->Add(packet_length);
-
+      h1_packet_status[(int)p->getStatus()]->Fill(packet);
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet_index]->getMean(0));
 
       // ---

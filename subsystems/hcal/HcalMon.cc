@@ -166,6 +166,9 @@ int HcalMon::Init()
 
   p2_pre_post = new TProfile2D("p2_pre_post", "", 24, 0, 24, 64, 0, 64, "S");
 
+  for(int i = 0; i < nPacketStatus; i++) h1_packet_status[i] = new TH1F(Form("h1_packet_status_%d",i),"",7,packetlow-0.5, packethigh+0.5);
+
+
   for (int ih = 0; ih < Nsector; ih++)
   {
     h_rm_sectorAvg[ih] = new TH1F(Form("h_rm_sectorAvg_s%d", ih), "", historyLength, 0, historyLength * historyScaleDown);
@@ -227,6 +230,8 @@ int HcalMon::Init()
   se->registerHisto(this, h1_packet_event);
   se->registerHisto(this, h2_hcal_correlation);
   se->registerHisto(this, p2_pre_post);
+  for(int i = 0; i < nPacketStatus; i++) se->registerHisto(this, h1_packet_status[i]);
+
 
   for (auto& ih : h_rm_sectorAvg)
   {
@@ -462,6 +467,7 @@ int HcalMon::process_event(Event* e /* evt */)
       rm_packet_number[packet - packetlow]->Add(one);
       int packet_length[1] = {p->getLength()};
       rm_packet_length[packet - packetlow]->Add(packet_length);
+      h1_packet_status[(int)p->getStatus()]->Fill(packet);
 
       h1_packet_length->SetBinContent(packet_bin, rm_packet_length[packet - packetlow]->getMean(0));
 

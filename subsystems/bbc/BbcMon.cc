@@ -187,6 +187,9 @@ int BbcMon::Init()
     name = "bbc_nhit_hcalmbd"; name += iarm;
     bbc_nhit_hcalmbd[iarm] = new TH1F(name,"MBD Nhits, JET&&MBD trig",64,-0.5,63.5);
   }
+  for(int i = 0; i < nPacketStatus; i++) h1_packet_status[i] = new TH1F(Form("h1_packet_status_%d",i),"",2,1000.5, 1002.5);
+
+
 
   // TDC Distribution ----------------------------------------------------
 
@@ -614,6 +617,9 @@ int BbcMon::Init()
   se->registerHisto(this, bbc_runvtx);
   se->registerHisto(this, bbc_runvtxerr);
   se->registerHisto(this, bbc_runvtxtime);
+  for(int i = 0; i < nPacketStatus; i++) se->registerHisto(this, h1_packet_status[i]);
+
+
 
   /*
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
@@ -987,7 +993,11 @@ int BbcMon::process_event(Event *evt)
 
   Packet *p[2];
   p[0] = evt->getPacket(1001);
+  h1_packet_status[p[0]->getStatus()]->Fill(1001);
   p[1] = evt->getPacket(1002);
+  h1_packet_status[p[1]->getStatus()]->Fill(1002);
+
+
 
   // Check that we have both MBD/BBC packets
   if (!p[0] || !p[1])

@@ -65,6 +65,7 @@ class BbcMon : public OnlMon
   uint64_t orig_trigmask{0};  // store for recovering from runs with one trigger defined
   eventReceiverClient *erc{nullptr};
   int      skipto{0};
+  static const int nPacketStatus{6};
   //GL1Manager *gl1mgr{nullptr};
   RunDBodbc *rdb{nullptr};
 
@@ -111,6 +112,7 @@ class BbcMon : public OnlMon
   TH1 *bbc_nhit_hcal[2]{nullptr,nullptr};
   TH1 *bbc_nhit_emcalmbd[2]{nullptr,nullptr};
   TH1 *bbc_nhit_hcalmbd[2]{nullptr,nullptr};
+  TH1 *h1_packet_status[nPacketStatus];
 
   TH1 * bbc_zvertex_autoupdate[TriggerEnum::NUM_MBD_TRIGGERS]{nullptr};  // BBCMON_NTRIGS = 16, for all triggers
   unsigned int bbc_last_update_ticker[TriggerEnum::NUM_MBD_TRIGGERS]{0};  // last update ticker for zvtx autoupdate

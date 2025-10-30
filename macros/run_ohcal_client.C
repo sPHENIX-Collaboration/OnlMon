@@ -42,6 +42,8 @@ void ohcalDrawInit(const int online = 0)
     cl->registerHisto("h_hcal_trig", servername);
     cl->registerHisto("pr_zsFrac_etaphi", servername);
     cl->registerHisto("pr_zsFrac_etaphi_all", servername);
+    for(int i = 0; i < 6; i++)cl->registerHisto(Form("h1_packet_status_%d",i),servername.c_str());
+
 
     for (int ih = 0; ih < 32; ih++)
     {

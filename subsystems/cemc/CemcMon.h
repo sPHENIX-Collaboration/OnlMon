@@ -40,7 +40,7 @@ class CemcMon : public OnlMon
   std::vector<float> anaWaveformTemp(Packet* p, const int channel);
 
   int idummy = 0;
-  static const int nPacketStatus = 6;
+  static const int nPacketStatus{6};
   TH1* h1_cemc_adc = nullptr;
 
   static const int Nsector = 64;
