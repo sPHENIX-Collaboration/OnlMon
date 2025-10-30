@@ -1362,7 +1362,7 @@ int BbcMonDraw::Draw(const std::string &what)
   {
     OnlMonClient *cl = OnlMonClient::instance();
     gStyle->SetOptStat(0);
-    int canvasindex = MakeCanvas("BbcMon6");
+    int canvasindexlocal = MakeCanvas("BbcMon6");
 
     TH1 *packetStatusFull[nPacketStatus] = {nullptr};
     int nServer = 0;
@@ -1421,11 +1421,11 @@ int BbcMonDraw::Draw(const std::string &what)
       } 
     }
     else{
-      DrawDeadServer(transparent[canvasindex]);
+      DrawDeadServer(transparent[canvasindexlocal]);
     }
 
-    TC[canvasindex]->SetEditable(true);
-    TC[canvasindex]->Clear("D");
+    TC[canvasindexlocal]->SetEditable(true);
+    TC[canvasindexlocal]->Clear("D");
     Pad[2]->cd(); 
     if(hs)
     {
@@ -1436,8 +1436,8 @@ int BbcMonDraw::Draw(const std::string &what)
     }
     Pad[3] -> cd();
     leg->Draw();
-    TC[canvasindex]->Update();
-    TC[canvasindex]->Show();
+    TC[canvasindexlocal]->Update();
+    TC[canvasindexlocal]->Show();
     packetWarning->cd();
     TText warn;
     warn.SetTextFont(62);
@@ -1455,7 +1455,7 @@ int BbcMonDraw::Draw(const std::string &what)
       warn.DrawText(0.1,0.5,"All good!");
     }
     
-    TC[canvasindex]->SetEditable(false);
+    TC[canvasindexlocal]->SetEditable(false);
 
     return 0;
 
