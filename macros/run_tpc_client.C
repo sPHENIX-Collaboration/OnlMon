@@ -129,7 +129,11 @@ void tpcDraw(const char *what = "ALL")
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
   if (std::time(nullptr) - lastupdate > max_time_to_last_update)
     {
-      tpcFetchHistos();
+      OnlMonDraw *tpcmon = cl->GetDrawer("TPCMONDRAW");  // get pointer to this drawer
+      for (auto iter = tpcmon->ServerBegin(); iter != tpcmon->ServerEnd(); ++iter)
+	{
+	  cl->requestHistoBySubSystem(iter->c_str(), 1);
+	}
       lastupdate = std::time(nullptr);
     }
   cl->Draw("TPCMONDRAW", what);                     // Draw Histos of registered Drawers
@@ -151,11 +155,6 @@ void tpcHtml()
 
 void tpcFetchHistos()
 {
-  OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  OnlMonDraw *tpcmon = cl->GetDrawer("TPCMONDRAW");  // get pointer to this drawer
-  for (auto iter = tpcmon->ServerBegin(); iter != tpcmon->ServerEnd(); ++iter)
-  {
-       cl->requestHistoBySubSystem(iter->c_str(), 1);
-  }
+  lastupdate = 0;
   return;
 }
