@@ -259,9 +259,14 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   }
   else if(name == "HCalMon8")
   {
+    int canvasindex = 12;
+    if (gROOT->FindObject("HCalMon8"))
+      {
+	return canvasindex;
+      }
     // xpos negative: do not draw menu bar
-    TC[10] = new TCanvas(name.c_str(), "HCal Packet Decoder Status", -1, ysize, xsize , ysize);
-    TC[10] -> Draw();
+    TC[canvasindex] = new TCanvas(name.c_str(), "HCal Packet Decoder Status", -1, ysize, xsize , ysize);
+    TC[canvasindex] -> Draw();
     gSystem->ProcessEvents();
     Pad[28] = new TPad("hcalpad28", "packet event check", 0.0, 0.0, 0.78, 0.95, 0);
     Pad[28]->SetLeftMargin(0.07);
@@ -272,16 +277,17 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
     Pad[29]->SetRightMargin(0);
     Pad[29] -> Draw();
     //this one is used to plot the run number on the canvas
-    transparent[10] = new TPad("transparent12", "this does not show", 0, 0, 1., 1);
-    transparent[10]->SetFillStyle(4000);
-    transparent[10]->Draw();
+    transparent[canvasindex] = new TPad("transparent12", "this does not show", 0, 0, 1., 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
 
     // packet warnings
     warning[4] = new TPad("warning1", "packet warnings", 0.75, 0.1, 1, 0.3);
     warning[4] -> SetRightMargin(0);
     warning[4]->SetFillStyle(4000);
     warning[4]->Draw();
-  }
+    return canvasindex;
+   }
   else if (name == "HcalPopUp")
   {
     TC[4] = new TCanvas(name.c_str(), "!!!DO NOT CLOSE!!! OR THE CODE WILL CRASH!!!!(Maybe not...)", -1, ysize, xsize / 2, 2 * ysize / 3);
@@ -3045,7 +3051,8 @@ int HcalMonDraw::DrawEighth(const std::string & /* what */)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   gStyle->SetOptStat(0);
-  
+
+    int canvasindex = MakeCanvas("HCalMon8");
   TH1 *packetStatusFull[nPacketStatus] = {nullptr};
   int nServer = 0;
   int colorsThatDontSuck[] = {kGreen+2,1,2,4, kViolet,kCyan,kOrange+2,kMagenta+2,kAzure-2};
@@ -3109,17 +3116,12 @@ int HcalMonDraw::DrawEighth(const std::string & /* what */)
     } 
   }
   else{
-    DrawDeadServer(transparent[1]);
+    DrawDeadServer(transparent[canvasindex]);
   }
 
-  if (!gROOT->FindObject("HCalMon8"))
-  {
-    MakeCanvas("HCalMon8");
-  }
- 
-  TC[1]->SetEditable(true);
-  TC[1]->Clear("D");
-  Pad[1]->cd(); 
+  TC[canvasindex]->SetEditable(true);
+  TC[canvasindex]->Clear("D");
+  Pad[28]->cd(); 
   if(hs)
   {
     hs->Draw("BAR");
@@ -3127,11 +3129,11 @@ int HcalMonDraw::DrawEighth(const std::string & /* what */)
     hs->GetYaxis()->SetTitle("Event Fraction");
     hs->GetYaxis()->SetTitleOffset(0.9);
   }
-  Pad[2] -> cd();
+  Pad[29] -> cd();
   leg->Draw();
-  TC[1]->Update();
-  TC[1]->Show();
-  warning[1]->cd();
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  warning[4]->cd();
   TText warn;
   warn.SetTextFont(62);
   if(isAlert)
@@ -3148,7 +3150,7 @@ int HcalMonDraw::DrawEighth(const std::string & /* what */)
     warn.DrawText(0.1,0.5,"All good!");
   }
   
-  TC[1]->SetEditable(false);
+  TC[canvasindex]->SetEditable(false);
   
   // if(save)
   // {
