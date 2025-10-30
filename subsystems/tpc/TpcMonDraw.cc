@@ -4392,7 +4392,7 @@ int TpcMonDraw::DrawShifterTransmissionDist(const std::string & /* what */)
   TH1 *tpcmon_Drift_u[48][3] = {nullptr};
   //TH1 *tpcmoneventsebdc[24] = {nullptr};
 
-  TH1F *PERCENT = new TH1F("PERCENT","TPC PERCENT TRANSMISSION; % Transmission; Counts",75,-1.5,151.5);
+  TH1F *PERCENT = new TH1F("PERCENT","TPC PERCENT TRANSMISSION; % Transmission; Counts",124,-1.5,251.5);
 
   TF1 *exxy = new TF1("exxy","[0]*exp(x*[1])",0,500);
 
