@@ -69,6 +69,8 @@ void bbcDrawInit(const int online = 0)
   cl->registerHisto("bbc_runvtx", servername);
   cl->registerHisto("bbc_runvtxerr", servername);
   cl->registerHisto("bbc_runvtxtime", servername);
+  for(int i = 0; i < 6; i++)cl->registerHisto(Form("h1_packet_status_%d",i),servername.c_str());
+
   for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
       std::string name = Form("bbc_zvertex_autoupdate_%i", i);
       cl->registerHisto(name, servername);
