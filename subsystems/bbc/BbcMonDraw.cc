@@ -1087,6 +1087,12 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
   }
   else if (name == "BbcMon6")
   {
+    int canvasindex = 7;
+   if (gROOT->FindObject("BbcMon6"))
+    {
+      return canvasindex;
+    }
+    
       // xpos negative: do not draw menu bar
     TC[7] = new TCanvas(name.c_str(), "Bbc Packet Information", -1, ysize, xsize , ysize);
     TC[7] -> Draw();
@@ -1098,7 +1104,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     Pad[3] = new TPad("bbcpad2", "packet event check legend", 0.75, 0.3, 0.95, 0.95, 0);
     //Pad[2]->SetLeftMargin(0.05);
     Pad[3]->SetRightMargin(0);
-    Pad[4] -> Draw();
+    Pad[3] -> Draw();
     //this one is used to plot the run number on the canvas
     transparent[7] = new TPad("transparent1", "this does not show", 0, 0, 1., 1);
     transparent[7]->SetFillStyle(4000);
@@ -1109,6 +1115,7 @@ int BbcMonDraw::MakeCanvas(const std::string &name)
     packetWarning -> SetRightMargin(0);
     packetWarning -> SetFillStyle(4000);
     packetWarning -> Draw();
+    return canvasindex;
   }
   else if (name == "BbcAutoUpdate")
   {
@@ -1355,7 +1362,8 @@ int BbcMonDraw::Draw(const std::string &what)
   {
     OnlMonClient *cl = OnlMonClient::instance();
     gStyle->SetOptStat(0);
-    
+    int canvasindex = MakeCanvas("BbcMon6");
+
     TH1 *packetStatusFull[nPacketStatus] = {nullptr};
     int nServer = 0;
     int colorsThatDontSuck[] = {kGreen+2,1,2,4, kViolet,kCyan,kOrange+2,kMagenta+2,kAzure-2};
@@ -1416,11 +1424,6 @@ int BbcMonDraw::Draw(const std::string &what)
       DrawDeadServer(transparent[canvasindex]);
     }
 
-    if (!gROOT->FindObject("CemcMon2"))
-    {
-      MakeCanvas("CemcMon2");
-    }
-  
     TC[canvasindex]->SetEditable(true);
     TC[canvasindex]->Clear("D");
     Pad[2]->cd(); 
