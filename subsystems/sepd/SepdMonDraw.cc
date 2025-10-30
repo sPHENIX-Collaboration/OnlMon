@@ -186,6 +186,10 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     else if (name == "SepdMon6")
   {
     int canvasindex=8;
+  if (gROOT->FindObject("SepdMon6"))
+  {
+    return canvasindex;
+  }
     // xpos negative: do not draw menu bar
     TC[canvasindex] = new TCanvas(name.c_str(), "SepdMon Packet Decoder Status", -1, ysize, xsize , ysize);
     TC[canvasindex] -> Draw();
@@ -208,6 +212,7 @@ int SepdMonDraw::MakeCanvas(const std::string &name)
     warning[2] -> SetRightMargin(0);
     warning[2]->SetFillStyle(4000);
     warning[2]->Draw();
+    return canvasindex;
   }
   else if (name == "SepdServerStats")
   {
@@ -1312,9 +1317,9 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
 
 int SepdMonDraw::DrawSeventh(const std::string &/*hwat*/)
 {
-  int canvasindex = 8;
   OnlMonClient *cl = OnlMonClient::instance();
   gStyle->SetOptStat(0);
+    int canvasindex = MakeCanvas("SepdMon6");
   
   TH1 *packetStatusFull[nPacketStatus] = {nullptr};
   int nServer = 0;
@@ -1364,6 +1369,8 @@ int SepdMonDraw::DrawSeventh(const std::string &/*hwat*/)
   //leg -> SetBorderSize(0);
   std::string stati[nPacketStatus] = {"Good", "Malformed Packet Header", "Unknown Word Classifier", "Too Many FEMs in Packet", "Malformed FEM Header", "Wrong Number of FEMs"};
 
+  TC[canvasindex]->SetEditable(true);
+  TC[canvasindex]->Clear("D");
   if(packetStatusFull[0])
   {
     for(int i = 0; i < nPacketStatus; i++)
@@ -1373,16 +1380,10 @@ int SepdMonDraw::DrawSeventh(const std::string &/*hwat*/)
     } 
   }
   else{
-    DrawDeadServer(transparent[1]);
+    DrawDeadServer(transparent[canvasindex]);
+    return -1;
   }
 
-  if (!gROOT->FindObject("SepdMon6"))
-  {
-    MakeCanvas("SepdMon6");
-  }
- 
-  TC[canvasindex]->SetEditable(true);
-  TC[canvasindex]->Clear("D");
   Pad[16]->cd(); 
   if(hs)
   {
