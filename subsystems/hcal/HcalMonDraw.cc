@@ -716,12 +716,12 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   }
   if (!hist1 || !hist1_1 || !h_event || !h_event_1)
   {
-    DrawDeadServer(transparent[10]);
-    TC[10]->SetEditable(false);
+    DrawDeadServer(transparent[2]);
+    TC[2]->SetEditable(false);
     if (isHtml())
     {
-      delete TC[10];
-      TC[10] = nullptr;
+      delete TC[2];
+      TC[2] = nullptr;
     }
     return -1;
   }
@@ -735,8 +735,8 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   // h2_hcal_mean->Scale(1. / h_event->GetEntries());
   // hist1->Divide(h2_hcal_mean);
 
-  TC[10]->SetEditable(true);
-  TC[10]->Clear("D");
+  TC[2]->SetEditable(true);
+  TC[2]->Clear("D");
   Pad[26]->cd();
   gStyle->SetPalette(57);
   gStyle->SetOptStat(0);
@@ -832,7 +832,7 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   runnostream2 << " threshold: " << threshold << "ADC, Run " << cl->RunNumber();
   runnostream3 << "Time: " << ctime(&evttime.first);
 
-  transparent[10]->cd();
+  transparent[2]->cd();
   runstring = runnostream.str();
   PrintRun.SetTextColor(evttime.second);
   PrintRun.DrawText(0.5, 0.99, runstring.c_str());
@@ -841,11 +841,11 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   runstring = runnostream3.str();
   PrintRun.DrawText(0.5, 0.93, runstring.c_str());
 
-  TC[10]->Update();
+  TC[2]->Update();
 
-  TC[10]->Show();
+  TC[2]->Show();
 
-  TC[10]->SetEditable(false);
+  TC[2]->SetEditable(false);
 
   return 0;
 }
