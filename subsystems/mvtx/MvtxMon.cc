@@ -83,7 +83,8 @@ int MvtxMon::Init()
   mvtxmon_EvtHitChip = new TH1D("OCC_HitChipPerStrobe", "Number of Hits Per Strobe Per Chip Distribution", 51, -0.5, 50.5);
   // pp
   // mvtxmon_EvtHitDis = new TH1D("OCC_HitFLXPerStrobe", "Number of Hits Per Strobe Distribution", 501, -0.5, 2000.5);
-  mvtxmon_EvtHitDis = new TH1D("OCC_HitFLXPerStrobe", "Number of Hits Per Strobe Distribution", 1001, -0.5, 4000.5);
+  // AuAu
+  mvtxmon_EvtHitDis = new TH1D("OCC_HitFLXPerStrobe", "Number of Hits Per Strobe Distribution", 1501, -0.5, 6000.5);
 
   mvtxmon_ChipStaveOcc->SetStats(false);
   mvtxmon_ChipStave1D->SetStats(false);
