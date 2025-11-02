@@ -2090,7 +2090,7 @@ int BbcMonDraw::Draw(const std::string &what)
       {
 	gRunVtx->Draw("ap");
 	gRunAvgVtx->Draw("c");
-
+        PadRunZVertex->SetGridy();
 	PadRunZVertex->Update();
 	aline.SetLineStyle(7);
 	aline.SetLineColor(kRed);
