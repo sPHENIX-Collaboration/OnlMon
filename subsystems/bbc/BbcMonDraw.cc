@@ -2264,6 +2264,7 @@ int BbcMonDraw::Draw(const std::string &what)
     // PadNorthHitMap->cd();
     // NorthHitMap->Scale(1.0 / nevents);
     // NorthHitMap->Draw("colz");
+    TC[6]->Update();
   }
 
   if (TC[7])
