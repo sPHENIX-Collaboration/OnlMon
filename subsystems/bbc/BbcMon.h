@@ -66,6 +66,7 @@ class BbcMon : public OnlMon
   eventReceiverClient *erc{nullptr};
   int      skipto{0};
   static const int nPacketStatus{6};
+  uint64_t dclock{0};         // clock diff between BCO and fem clock
   //GL1Manager *gl1mgr{nullptr};
   RunDBodbc *rdb{nullptr};
 
