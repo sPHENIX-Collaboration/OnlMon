@@ -710,13 +710,13 @@ int BbcMon::BeginRun(const int runno)
     {
       for ( int itrig = 0; itrig < 64; itrig++)
       {
-	bbc_prescale_hist->SetBinContent( itrig+1, scaledowns[itrig] );
-	std::cout << "scaledowns " << itrig << "\t" << scaledowns[itrig] << std::endl;
+        bbc_prescale_hist->SetBinContent( itrig+1, scaledowns[itrig] );
+        std::cout << "scaledowns " << itrig << "\t" << scaledowns[itrig] << std::endl;
 
-	if ( scaledowns[itrig] >= 0 )
-	{
-	  trigs_enabled |= (0x1UL<<itrig);
-	}
+        if ( scaledowns[itrig] >= 0 )
+        {
+            trigs_enabled |= (0x1UL<<itrig);
+        }
       }
     }
     else
@@ -740,6 +740,8 @@ int BbcMon::BeginRun(const int runno)
   {
     trigmask = orig_trigmask;
   }
+
+  dclock = 0xffffffffffffffffUL;
 
   return 0;
 }
@@ -1014,7 +1016,8 @@ int BbcMon::process_event(Event *evt)
     return 0;
   }
 
-  // Check that both MBD/BBC packets have good checksums
+  // Check that both MBD/BBC packets have good checksums, and get clocks
+
   if ((p[0]->iValue(0, "EVENCHECKSUMOK") == 0) || (p[0]->iValue(0, "ODDCHECKSUMOK") == 0) ||
       (p[1]->iValue(0, "EVENCHECKSUMOK") == 0) || (p[1]->iValue(0, "ODDCHECKSUMOK") == 0))
   {
@@ -1028,6 +1031,25 @@ int BbcMon::process_event(Event *evt)
     delete p[1];
 
     return 0;
+  }
+
+  // Get clocks
+  uint64_t clock0 = p[0]->lValue(0,"CLOCK");
+  uint64_t clock1 = p[1]->lValue(0,"CLOCK");
+  // check that they are the same...
+  if ( clock0 != clock1 )
+  {
+    static int ctr = 0;
+    if (evtcnt==1)
+    {
+      ctr = 0;
+    }
+
+    if ( ctr<10 )
+    {
+      std::cout << "ERROR, FEM clocks differ, 0x" << std::hex << clock0 << "\t0x" << clock1 << std::dec << std::endl;
+      ctr++;
+    }
   }
 
   delete p[0];
@@ -1132,6 +1154,24 @@ int BbcMon::process_event(Event *evt)
                 {
                     bbc_trigs->Fill( itrig );
                 }
+            }
+
+            // get dclock
+            static int ctr = 0;
+            if ( dclock == 0xffffffffffffffffUL )
+            {
+              dclock = (p_gl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
+              std::cout << "DCLOCK = 0x" << std::hex << dclock << std::dec << std::endl;
+              ctr = 0;
+            }
+            else
+            {
+              uint64_t curr_dclock = (p_gl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
+              if ( (curr_dclock != dclock) && ctr<10 )
+              {
+                std::cout << "ERROR, clocks differ, 0x" << std::hex << dclock << "\t0x" << curr_dclock << std::dec << std::endl;
+                ctr++;
+              }
             }
 
             delete p_gl1;
