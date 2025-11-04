@@ -185,6 +185,7 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(TextZvtxStatus[0]);
   ifdelete(TextZvtxStatus[1]);
   ifdelete(TextZvtxStatus[2]);
+  ifdelete(TextZvtxStatus[3]);
 
   ifdelete(RunVtx);
   ifdelete(RunVtxErr);
@@ -247,6 +248,7 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(TextZvtxStatus[0]);
   ifdelete(TextZvtxStatus[1]);
   ifdelete(TextZvtxStatus[2]);
+  ifdelete(TextZvtxStatus[3]);
 
   for (auto &icv : TC)
   {
@@ -449,6 +451,7 @@ int BbcMonDraw::Init()
   TextZvtxStatus[0] = new TLatex;
   TextZvtxStatus[1] = new TLatex;
   TextZvtxStatus[2] = new TLatex;
+  TextZvtxStatus[3] = new TLatex;
 
   tspec = new TSpectrum(5);  // 5 peaks is enough - we have 4
 
@@ -1377,8 +1380,8 @@ int BbcMonDraw::Draw(const std::string &what)
   PRINT_DEBUG("Start Getting Histogram");
 
   TH1 *bbc_trigs = cl->getHisto("BBCMON_0", "bbc_trigs");
-  ifdelete(Trigs);
-  if ( bbc_trigs!=0 )
+  //ifdelete(Trigs);
+  if ( bbc_trigs )
   {
     Trigs = static_cast<TH1 *>(bbc_trigs->Clone());
   }
@@ -2010,6 +2013,12 @@ int BbcMonDraw::Draw(const std::string &what)
     TextZvtxStatus[2]->SetTextSize(0.05);
     TextZvtxStatus[2]->DrawLatexNDC(0.15,0.8,text.c_str());
 
+    if ( bbc_nevent_counter->GetBinContent(8)>0 )
+    {
+      text = "GL1 mis-aligned";
+      TextZvtxStatus[3]->SetTextSize(0.05);
+      TextZvtxStatus[3]->DrawLatexNDC(0.15,0.7,text.c_str());
+    }
     /*
     // replaced with hitmap
     PadTzeroZVertex->cd();
@@ -2280,7 +2289,10 @@ int BbcMonDraw::Draw(const std::string &what)
     for (auto server = ServerBegin(); server != ServerEnd(); ++server)
     {   
       TH1 *packetStatus[nPacketStatus] = {nullptr};
-      for(int i = 0; i < nPacketStatus; i++) packetStatus[i] = cl->getHisto(*server, Form("h1_packet_status_%d",i));
+      for(int i = 0; i < nPacketStatus; i++)
+      {
+        packetStatus[i] = cl->getHisto(*server, Form("h1_packet_status_%d",i));
+      }
       
       if(!packetStatus[0])continue;
       for(int i = 0; i < nPacketStatus; i++)
@@ -2314,6 +2326,7 @@ int BbcMonDraw::Draw(const std::string &what)
     }
 
     THStack *hs = new THStack("hs", "Event-Averaged Packet Status");
+
     
     TLegend *leg = new TLegend(0.05,0.1,0.95,1);
     leg->SetFillStyle(0);
@@ -2339,6 +2352,7 @@ int BbcMonDraw::Draw(const std::string &what)
     if(hs)
     {
       hs->Draw("BAR");
+      hs->GetXaxis()->SetNdivisions(3);
       hs->GetXaxis()->SetTitle("Packet Number");
       hs->GetYaxis()->SetTitle("Event Fraction");
       hs->GetYaxis()->SetTitleOffset(0.9);

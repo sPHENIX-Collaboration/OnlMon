@@ -1047,7 +1047,7 @@ int BbcMon::process_event(Event *evt)
 
     if ( ctr<10 )
     {
-      std::cout << "ERROR, FEM clocks differ, 0x" << std::hex << clock0 << "\t0x" << clock1 << std::dec << std::endl;
+      std::cout << "ERROR, XMIT clocks differ, 0x" << std::hex << clock0 << "\t0x" << clock1 << std::dec << std::endl;
       ctr++;
     }
   }
@@ -1167,10 +1167,19 @@ int BbcMon::process_event(Event *evt)
             else
             {
               uint64_t curr_dclock = (p_gl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
-              if ( (curr_dclock != dclock) && ctr<10 )
+              if ( curr_dclock != dclock )
               {
-                std::cout << "ERROR, clocks differ, 0x" << std::hex << dclock << "\t0x" << curr_dclock << std::dec << std::endl;
+                if ( ctr<10 )
+                {
+                  std::cout << "ERROR, clocks differ, 0x" << std::hex << dclock << "\t0x" << curr_dclock << std::dec << std::endl;
+                }
+                bbc_nevent_counter->Fill(7);    // bad clock found
                 ctr++;
+              }
+              else
+              {
+                // if gl1 re-aligns, we reset the bad evt counter
+                bbc_nevent_counter->SetBinContent(8,0);
               }
             }
 
