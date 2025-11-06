@@ -132,16 +132,6 @@ int GL1MonDraw::Draw(const std::string &what)
     iret += DrawScaled(what);
     idraw++;
   }
-  if (what == "ALL" || what == "LIVE")
-  {
-//    iret += DrawLive(what);
-    idraw++;
-  }
-  if (what == "ALL" || what == "RAW")
-  {
-//    iret += DrawRaw(what);
-    idraw++;
-  }
   if (!idraw)
   {
     std::cout << __PRETTY_FUNCTION__ << " Unimplemented Drawing option: " << what << std::endl;
@@ -216,103 +206,6 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
   return 0;
 }
 
-int GL1MonDraw::DrawLive(const std::string & /* what */)
-{
-  return 0;
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *mymon_hist1 = cl->getHisto("MYMON_0","mymon_hist2");
-  TH1 *mymon_hist2 = cl->getHisto("MYMON_1","mymon_hist2");
-  if (!gROOT->FindObject("GL1Mon2"))
-  {
-    MakeCanvas("GL1Mon2");
-  }
-  TC[1]->SetEditable(true);
-  TC[1]->Clear("D");
-  Pad[2]->cd();
-  if (mymon_hist1)
-  {
-    mymon_hist1->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[1]);
-    TC[1]->SetEditable(false);
-    return -1;
-  }
-  Pad[3]->cd();
-  if (mymon_hist2)
-  {
-    mymon_hist2->DrawCopy();
-  }
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime.first);
-  runstring = runnostream.str();
-  transparent[1]->cd();
-  PrintRun.SetTextColor(evttime.second);
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[1]->Update();
-  TC[1]->Show();
-  TC[1]->SetEditable(false);
-  return 0;
-}
-
-int GL1MonDraw::DrawRaw(const std::string & /* what */)
-{
-  OnlMonClient *cl = OnlMonClient::instance();
-  TH1 *mymon_hist1 = cl->getHisto("MYMON_0","mymon_hist2");
-  TH1 *mymon_hist2 = cl->getHisto("MYMON_1","mymon_hist2");
-  if (!gROOT->FindObject("GL1Mon2"))
-  {
-    MakeCanvas("GL1Mon2");
-  }
-  TC[1]->SetEditable(true);
-  TC[1]->Clear("D");
-  Pad[2]->cd();
-  if (mymon_hist1)
-  {
-    mymon_hist1->DrawCopy();
-  }
-  else
-  {
-    DrawDeadServer(transparent[1]);
-    TC[1]->SetEditable(false);
-    return -1;
-  }
-  Pad[3]->cd();
-  if (mymon_hist2)
-  {
-    mymon_hist2->DrawCopy();
-  }
-  TText PrintRun;
-  PrintRun.SetTextFont(62);
-  PrintRun.SetTextSize(0.04);
-  PrintRun.SetNDC();          // set to normalized coordinates
-  PrintRun.SetTextAlign(23);  // center/top alignment
-  std::ostringstream runnostream;
-  std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
-  // fill run number and event time into string
-  runnostream << ThisName << "_2 Run " << cl->RunNumber()
-              << ", Time: " << ctime(&evttime.first);
-  runstring = runnostream.str();
-  transparent[1]->cd();
-  PrintRun.SetTextColor(evttime.second);
-  PrintRun.DrawText(0.5, 1., runstring.c_str());
-  TC[1]->Update();
-  TC[1]->Show();
-  TC[1]->SetEditable(false);
-  return 0;
-}
-
 int GL1MonDraw::SavePlot(const std::string &what, const std::string &type)
 {
 
@@ -362,20 +255,20 @@ int GL1MonDraw::MakeHtml(const std::string &what)
 
   // Now register also EXPERTS html pages, under the EXPERTS subfolder.
 
-  std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
-  std::ofstream out(logfile.c_str());
-  out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
-      << "</TITLE></HEAD>" << std::endl;
-  out << "<P>Some log file output would go here." << std::endl;
-  out.close();
+  // std::string logfile = cl->htmlRegisterPage(*this, "EXPERTS/Log", "log", "html");
+  // std::ofstream out(logfile.c_str());
+  // out << "<HTML><HEAD><TITLE>Log file for run " << cl->RunNumber()
+  //     << "</TITLE></HEAD>" << std::endl;
+  // out << "<P>Some log file output would go here." << std::endl;
+  // out.close();
 
-  std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
-  std::ofstream out2(status.c_str());
-  out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
-       << "</TITLE></HEAD>" << std::endl;
-  out2 << "<P>Some status output would go here." << std::endl;
-  out2.close();
-  cl->SaveLogFile(*this);
+  // std::string status = cl->htmlRegisterPage(*this, "EXPERTS/Status", "status", "html");
+  // std::ofstream out2(status.c_str());
+  // out2 << "<HTML><HEAD><TITLE>Status file for run " << cl->RunNumber()
+  //      << "</TITLE></HEAD>" << std::endl;
+  // out2 << "<P>Some status output would go here." << std::endl;
+  // out2.close();
+  // cl->SaveLogFile(*this);
   return 0;
 }
 

@@ -27,8 +27,6 @@ class GL1MonDraw : public OnlMonDraw
  protected:
   int MakeCanvas(const std::string &name);
   int DrawScaled(const std::string &what = "ALL");
-  int DrawLive(const std::string &what = "ALL");
-  int DrawRaw(const std::string &what = "ALL");
   TStyle *gl1Style{nullptr}; 
   TCanvas *TC[3] {};
   TPad *transparent[3] {};
