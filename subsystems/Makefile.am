@@ -13,6 +13,7 @@ SUBDIRS = \
   daq \
   sepd \
   example \
+  gl1 \
   hcal \
   intt \
   localpol \

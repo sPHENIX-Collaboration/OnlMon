@@ -252,3 +252,60 @@ int RunDBodbc::GetScaledowns(std::vector<int> &result, const int runno) const
   delete con;
   return 0;
 }
+
+int RunDBodbc::GetTriggerNames(std::array<std::string,64> &trignames, const int runno) const
+{
+  odbc::Connection *con = nullptr;
+  odbc::Statement *query = nullptr;
+  odbc::ResultSet *rs = nullptr;
+  std::ostringstream cmd;
+  trignames.fill("");   // clear result, in case it is not empty
+
+  try
+  {
+    con = odbc::DriverManager::getConnection(dbname.c_str(), dbowner.c_str(), dbpasswd.c_str());
+  }
+  catch (odbc::SQLException &e)
+  {
+    std::cout << __PRETTY_FUNCTION__
+              << " Exception caught during DriverManager::getConnection" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
+    return -1;
+  }
+
+  query = con->createStatement();
+  cmd << "SELECT triggername,index FROM gl1_triggernames  WHERE runnumber <= " << runno
+      << " and runnumber_last > " << runno << " order by index";
+  if (verbosity > 0)
+  {
+    std::cout << "command: " << cmd.str() << std::endl;
+  }
+  try
+  {
+    rs = query->executeQuery(cmd.str());
+  }
+  catch (odbc::SQLException &e)
+  {
+    std::cout << "Exception caught" << std::endl;
+    std::cout << "Message: " << e.getMessage() << std::endl;
+    delete con;
+  }
+
+  while (rs->next())
+  {
+    std::string trigname = rs->getString("triggername");
+    int index = rs->getInt("index");
+    if (index >= 0 && index < 64)
+    {
+      trignames[index] = trigname;
+    }
+    else
+    {
+      std::cout << "triggername index out of bounds: " << index << std::endl;
+    }
+    std::cout << "index " << index << ", name: " << trigname << std::endl;
+  }
+  delete rs;
+  delete con;
+  return 0;
+}
