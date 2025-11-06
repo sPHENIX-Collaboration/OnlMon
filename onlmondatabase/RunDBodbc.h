@@ -1,6 +1,7 @@
 #ifndef ONLMONDATABASE_RUNDBODBC_H
 #define ONLMONDATABASE_RUNDBODBC_H
 
+#include <array>
 #include <set>
 #include <vector>
 #include <string>
@@ -16,6 +17,7 @@ class RunDBodbc
   void Verbosity(const int i) { verbosity = i; }
   int GetRunNumbers(std::set<int> &result, const std::string &type, const int nruns, const int lastrunexclusive) const;
   int GetScaledowns(std::vector<int> &result, const int runno) const;
+  int GetTriggerNames(std::array<std::string,64> &trignames, const int runno) const;
 
  private:
   int verbosity = 0;

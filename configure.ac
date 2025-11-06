@@ -42,6 +42,7 @@ subsystems/sepd/Makefile
 subsystems/sepd/calib/Makefile
 subsystems/example/Makefile
 subsystems/example/calib/Makefile
+subsystems/gl1/Makefile
 subsystems/hcal/Makefile
 subsystems/hcal/calib/Makefile
 subsystems/intt/Makefile
