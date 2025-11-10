@@ -5,7 +5,6 @@
 
 #include <fstream>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpotmon_server.so)
 
 void run_tpot_server(

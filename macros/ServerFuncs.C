@@ -1,9 +1,7 @@
 #include <onlmon/OnlMonServer.h>
 #include <pmonitor/pmonitor.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmonserver.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmonserver_funcs.so)
 void CleanUpServer();
 

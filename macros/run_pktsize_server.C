@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonServer.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlpktsizemon_server.so)
 
 void run_pktsize_server(const std::string &name = "PKTSIZEMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/aligned/beam-00022982-0000.prdf")

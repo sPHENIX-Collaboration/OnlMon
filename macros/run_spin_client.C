@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlspinmon_client.so)
 
 void spinDrawInit(const int online = 0)

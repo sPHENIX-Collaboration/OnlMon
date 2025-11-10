@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonServer.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlll1mon_server.so)
 
 void run_ll1_server(const std::string &name = "LL1MON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/rawdata/commissioning/LL1/calib/calib_LL1-00013020-0000.prdf")

@@ -10,7 +10,6 @@
 #include <onlmon/Poms.h>
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libpoms.so)
 R__LOAD_LIBRARY(libonlmonclient.so)
 
@@ -32,7 +31,8 @@ void StartPoms()
   subsys->AddAction("bbcDraw(\"BbcMon5\")", "Vertex for All Triggers");
   subsys->AddAction("bbcDraw(\"MBD2MCR\")", "MBD TOGGLE VTX TO MCR");
   subsys->AddAction("bbcDraw(\"MBDZRESET\")", "MBD RESET VTX");
-  subsys->AddAction("bbcDraw(\"BbcMon6\")","Packet Decoder Status");
+  // crashes
+  //  subsys->AddAction("bbcDraw(\"BbcMon6\")","Packet Decoder Status");
   //  subsys->AddAction("bbcDraw(\"BbcAutoUpdate\")", "MBD VTX Auto Update");
   //  subsys->AddAction("bbcDraw(\"BADGL1\")", "MBD TOGGLE IGNORE GL1 MISS");
   subsys->AddAction("bbcDraw(\"BbcMonServerStats\")", "MBD Server Stats");
@@ -60,17 +60,23 @@ void StartPoms()
   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
   // pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("GL1", "spin");
-  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+
+   subsys = new SubSystem("GL1", "gl1");
+   subsys->AddAction("gl1Draw(\"SCALED\")", "Abort Gap");
+   subsys->AddAction(new SubSystemActionSavePlot(subsys));
+   pmf->RegisterSubSystem(subsys);
+
+   // subsys = new SubSystem("SPIN", "spin");
+   // subsys->AddAction("spinDraw(\"THIRD\")", "The Old Abort Gap");
+   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+   // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
   //subsys->AddAction("ihcalDraw(\"SECOND\")", "Sector Average [Expert]");
   subsys->AddAction("ihcalDraw(\"THIRD\")", "Wave Form");
   //subsys->AddAction("ihcalDraw(\"FOURTH\")", "Packet Health [Expert]");
-  subsys->AddAction("ihcalDraw(\"EIGHTH\")","Packet Decoder Status");
+  //subsys->AddAction("ihcalDraw(\"EIGHTH\")","Packet Decoder Status");
   subsys->AddAction("ihcalDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("ihcalDraw(\"SIXTH\")", "Tower Status [Expert]");
   subsys->AddAction("ihcalDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
@@ -90,7 +96,7 @@ void StartPoms()
   subsys->AddAction("ohcalDraw(\"SIXTH\")", "Tower Status [Expert]");
   subsys->AddAction("ohcalDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
   subsys->AddAction("ohcalDraw(\"SEVENTH\")", "Zero-suppression info");
-  subsys->AddAction("ohcalDraw(\"EIGHTH\")","Packet Decoder Status");
+  //subsys->AddAction("ohcalDraw(\"EIGHTH\")","Packet Decoder Status");
   subsys->AddAction("ohcalDraw(\"ALLTRIGZS\")", "All Trigger ZS info");
   subsys->AddAction("ohcalDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction("ohcalDraw(\"NOISERMS\")", "tower prepost RMS");
@@ -109,16 +115,16 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("Local Level 1", "ll1");
-  subsys->AddAction("ll1Draw(\"FIRST\")", "Hits");
-  subsys->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
-  subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
-  subsys->AddAction("ll1Draw(\"FOURTH\")", "EMCAL LL1 - Photon");
-  subsys->AddAction("ll1Draw(\"FIFTH\")", "Jet Input - HCAL");
-  subsys->AddAction("ll1Draw(\"SIXTH\")", "Jet LL1");
-  subsys->AddAction("ll1Draw(\"SEVENTH\")", "EMCAL 2x2 Sums");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // subsys = new SubSystem("Local Level 1", "ll1");
+  // subsys->AddAction("ll1Draw(\"FIRST\")", "Hits");
+  // subsys->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
+  // subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
+  // subsys->AddAction("ll1Draw(\"FOURTH\")", "EMCAL LL1 - Photon");
+  // subsys->AddAction("ll1Draw(\"FIFTH\")", "Jet Input - HCAL");
+  // subsys->AddAction("ll1Draw(\"SIXTH\")", "Jet LL1");
+  // subsys->AddAction("ll1Draw(\"SEVENTH\")", "EMCAL 2x2 Sums");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("MVTX", "mvtx");
   subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");
@@ -137,7 +143,7 @@ void StartPoms()
   subsys->AddAction("sepdDraw(\"FOURTH\")", "Wave Forms");
   subsys->AddAction("sepdDraw(\"FIFTH\")", "Packet Information");
   subsys->AddAction("sepdDraw(\"SIXTH\")", "Noise RMS");
-  subsys->AddAction("sepdDraw(\"SEVENTH\")", "Packet Decoder Status");
+  //subsys->AddAction("sepdDraw(\"SEVENTH\")", "Packet Decoder Status");
   subsys->AddAction("sepdDraw(\"SERVERSTATS\")", "Server Stats");
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);

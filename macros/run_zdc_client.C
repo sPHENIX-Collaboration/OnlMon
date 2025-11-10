@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlzdcmon_client.so)
 
 void zdcDrawInit(const int online = 0)

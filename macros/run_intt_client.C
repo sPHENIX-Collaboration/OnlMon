@@ -3,7 +3,6 @@
 #include <onlmon/OnlMonClient.h>
 #include <onlmon/intt/InttMonDraw.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlinttmon_client.so)
 
 void inttDrawInit(const int online = 0)

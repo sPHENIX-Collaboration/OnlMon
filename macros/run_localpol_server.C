@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonServer.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonllocalpolmon_server.so)
 
 void run_localpol_server(const std::string &name = "LOCALPOLMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/GL1/beam/GL1_beam_gl1daq-00041352-0000.evt")

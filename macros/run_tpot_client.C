@@ -5,7 +5,6 @@
 #include <array>
 #include <fstream>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpotmon_client.so)
 
 void tpotDrawInit(const int online = 0)

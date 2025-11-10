@@ -6,7 +6,6 @@
 
 //const std::string DrawerName = "TPCMONDRAW";
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpcmon_client.so)
 
 void tpcFetchHistos();
