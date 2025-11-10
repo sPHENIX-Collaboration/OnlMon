@@ -39,6 +39,7 @@ int GL1MonDraw::Init()
   gl1Style->SetFrameBorderMode(0);
   gl1Style->SetCanvasColor(0);
   gl1Style->SetPadBorderMode(0);
+  gl1Style->SetPadBottomMargin(0.15);
   gl1Style->SetCanvasBorderMode(0);
   oldStyle->cd();
   m_RunDB = new RunDBodbc();
@@ -169,7 +170,12 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
       hist1->SetXTitle("Bunch Crossing");
       hist1->SetYTitle("Events");
       hist1->GetXaxis()->SetLabelSize(0.06);
+      hist1->GetXaxis()->SetTitleSize(0.055);
+      hist1->GetXaxis()->SetTitleOffset(1.1);
+
       hist1->GetYaxis()->SetLabelSize(0.06);
+      hist1->GetYaxis()->SetTitleSize(0.06);
+      hist1->GetYaxis()->SetTitleOffset(0.4);
       hist1->SetTitle("");
       hist1->DrawCopy();
       if (htitle.find("Clock") == std::string::npos)
