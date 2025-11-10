@@ -5,8 +5,9 @@
 
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
-#include <TDatime.h>
+#include <TFrame.h>
 #include <TH1.h>
+#include <TLine.h>
 #include <TPad.h>
 #include <TROOT.h>
 #include <TStyle.h>
@@ -84,35 +85,6 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     transparent[0]->Draw();
     TC[0]->SetEditable(false);
   }
-  else if (name == "GL1Mon2")
-  {
-    // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "GL1Mon2 Example Monitor", -xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[2] = new TPad("mypad3", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[3] = new TPad("mypad4", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[2]->Draw();
-    Pad[3]->Draw();
-    // this one is used to plot the run number on the canvas
-    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
-    transparent[1]->SetFillStyle(4000);
-    transparent[1]->Draw();
-    TC[1]->SetEditable(false);
-  }
-  else if (name == "GL1Mon3")
-  {
-    TC[2] = new TCanvas(name.c_str(), "GL1Mon3 Example Monitor", xsize / 2, 0, xsize / 2, ysize);
-    gSystem->ProcessEvents();
-    Pad[4] = new TPad("mypad5", "who needs this?", 0.1, 0.5, 0.9, 0.9, 0);
-    Pad[5] = new TPad("mypad6", "who needs this?", 0.1, 0.05, 0.9, 0.45, 0);
-    Pad[4]->Draw();
-    Pad[5]->Draw();
-    // this one is used to plot the run number on the canvas
-    //        transparent[2] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
-    //        transparent[2]->SetFillStyle(4000);
-    //        transparent[2]->Draw();
-    //      TC[2]->SetEditable(0);
-  }
   oldStyle->cd();
   return 0;
 }
@@ -152,6 +124,12 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
   TText title;
   title.SetNDC();
   title.SetTextAlign(23);
+  title.SetTextColor(4);
+  title.SetTextSize(0.1);
+  TText agap;
+  agap.SetTextAlign(21);
+  agap.SetTextSize(0.055);
+
   int ipad = 0;
   for (int i=0; i<64; i++)
   {
@@ -165,18 +143,59 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
     }
     if (hist1->GetMaximum() > 0)
     {
+      TH1 *abortgap = (TH1 *) hist1->Clone();
+      TH1 *forbidden = (TH1 *) hist1->Clone();
+      abortgap->SetFillColor(6);
+      forbidden->SetFillColor(2);
+      for (int j = 0; j< 112; j++)
+      {
+	abortgap->SetBinContent(j,0);
+	forbidden->SetBinContent(j,0);
+      }
+      for (int j = 112; j< 121; j++)
+      {
+	forbidden->SetBinContent(j,0);
+      }
+      for (int j = 121; j< 130; j++)
+      {
+	abortgap->SetBinContent(j,0);
+      }
       Pad[ipad]->cd();
       Pad[ipad]->SetLogy();
       hist1->SetStats(0);
       std::string htitle = m_TrignameArray[i];
-      std::cout << "index " << i << " title: " << htitle << std::endl;
+//      std::cout << "index " << i << " title: " << htitle << std::endl;
+      hist1->SetFillColor(3);
       hist1->SetXTitle("Bunch Crossing");
-      hist1->GetXaxis()->SetLabelSize(0.05);
+      hist1->SetYTitle("Events");
+      hist1->GetXaxis()->SetLabelSize(0.06);
+      hist1->GetYaxis()->SetLabelSize(0.06);
       hist1->SetTitle("");
       hist1->DrawCopy();
+      if (htitle.find("Clock") == std::string::npos)
+      {
+        abortgap->DrawCopy("same");
+      }
+      forbidden->DrawCopy("same");
       title.SetTextColor(4);
-      title.SetTextSize(0.08);
+      title.SetTextSize(0.1);
       title.DrawText(0.5, 0.99, htitle.c_str());
+      delete abortgap;
+      delete forbidden;
+      TLine* line = new TLine(); //= new TLine(110.5, 0, 110.5, hist1->GetMaximum());
+      line->SetLineColor(6);
+      line->SetLineWidth(2);
+      line->SetLineStyle(2); // dashed
+      Pad[ipad]->Update();
+// whoopee - this is how to get the top of the pad in a log y scale
+// only after the TPad::Update() where the Pad figures out its dimensions
+      line->DrawLine(119.5, std::pow(10,Pad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10,Pad[ipad]->GetFrame()->GetY2()));
+      if (htitle.find("Clock") == std::string::npos)
+      {
+        line->DrawLine(110.5, std::pow(10,Pad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10,Pad[ipad]->GetFrame()->GetY2()));
+	agap.DrawText(115, std::pow(10,Pad[ipad]->GetFrame()->GetY2()), "Abort Gap");
+      }
+      agap.DrawText(125, std::pow(10,Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
       ipad++;
     }
   // else

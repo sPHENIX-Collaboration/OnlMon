@@ -86,18 +86,19 @@ int GL1Mon::process_event(Event *evt)
       for (int itrig = 0; itrig < 64; itrig++ )
       {
 	uint64_t trigbit = 0x1UL << itrig;
+// fill with bunchnr+1, so the 0th bunch goes into the first channel (channel 0 is underflow)
 	if ( (trigscaled&trigbit) != 0 )
 	{
 //	  std::cout << " setting trig " << itrig << std::endl;
-	  scaledtriggers[itrig]->AddBinContent(bunchnr);
+	  scaledtriggers[itrig]->AddBinContent(bunchnr+1);
 	}
 	if ( (triglive&trigbit) != 0 )
 	{
-	  livetriggers[itrig]->AddBinContent(bunchnr);
+	  livetriggers[itrig]->AddBinContent(bunchnr+1);
 	}
 	if ( (trigraw&trigbit) != 0 )
 	{
-	  rawtriggers[itrig]->AddBinContent(bunchnr);
+	  rawtriggers[itrig]->AddBinContent(bunchnr+1);
 	}
       }
       delete p;

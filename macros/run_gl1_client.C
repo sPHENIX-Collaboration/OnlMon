@@ -26,7 +26,7 @@ void gl1DrawInit(const int online = 0)
     hname = "gl1_rawtrigger_" + std::to_string(i);
     cl->registerHisto(hname, "GL1MON_0");
   }
-//  CreateHostList(online);
+  CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
   cl->requestHistoBySubSystem("GL1MON_0", 1);
