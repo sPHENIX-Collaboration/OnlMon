@@ -303,7 +303,10 @@ int RunDBodbc::GetTriggerNames(std::array<std::string,64> &trignames, const int 
     {
       std::cout << "triggername index out of bounds: " << index << std::endl;
     }
-    std::cout << "index " << index << ", name: " << trigname << std::endl;
+    if (verbosity > 0)
+    {
+      std::cout << "index " << index << ", name: " << trigname << std::endl;
+    }
   }
   delete rs;
   delete con;
