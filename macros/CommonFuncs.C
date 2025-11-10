@@ -3,7 +3,6 @@
 
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmonclient.so)
 
 void CreateHostList(const int online = 0)
