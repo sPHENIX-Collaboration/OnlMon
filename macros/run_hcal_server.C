@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonServer.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlhcalmon_server.so)
 
 void run_hcal_server(const std::string &name = "HCALMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/commissioning/HCal/beam/beam_West-00020797-0000.prdf")

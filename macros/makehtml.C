@@ -15,31 +15,18 @@
 
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlbbcmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
-// cppcheck-suppress unknownMacro
 //R__LOAD_LIBRARY(libonldaqmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlhcalmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlinttmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlll1mon_client.so)
-// cppcheck-suppress unknownMacro
 //R__LOAD_LIBRARY(libonllocalpolmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmvtxmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlsepdmon_client.so)
-// cppcheck-suppress unknownMacro
 //R__LOAD_LIBRARY(libonlspinmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpcmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonltpotmon_client.so)
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlzdcmon_client.so)
 
 void makehtml(const std::string &filelist, const std::string &subsystem, int test = 0)

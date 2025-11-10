@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonServer.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlsepdmon_server.so)
 
 void run_sepd_server(const std::string &name = "SEPDMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/physics/ZDC/physics/physics_seb20-00068986-0000.prdf")

@@ -8,7 +8,6 @@
 
 #include <onlmon/triggerEnum.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlbbcmon_client.so)
 
 // 0 is default (looks for things online)

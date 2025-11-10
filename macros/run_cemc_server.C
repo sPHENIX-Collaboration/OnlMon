@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonServer.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_server.so)
 
 void run_cemc_server(const std::string &name = "CEMCMON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/data/data02/sphnxpro/commissioning/jsh/emcal/eventcombiner/junk-00035646-0000.prdf")

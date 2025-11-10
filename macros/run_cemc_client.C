@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
 const int nServers = 16;
   //call with online > 1 if you want to just use the localhost

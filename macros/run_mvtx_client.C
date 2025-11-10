@@ -6,7 +6,6 @@
 
 //const std::string DrawerName = "MVTXMONDRAW";
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlmvtxmon_client.so)
 
 void mvtxDrawInit(const int online = 0)

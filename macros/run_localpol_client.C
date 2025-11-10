@@ -5,7 +5,6 @@
 #include <onlmon/OnlMonClient.h>
 #include <TString.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonllocalpolmon_client.so)
 
 void localpolDrawInit(const int online = 0)

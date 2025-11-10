@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlcemcmon_client.so)
 
 std::string monitorname("CEMCMON");

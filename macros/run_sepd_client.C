@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlsepdmon_client.so)
 
 std::string DrawerName="SEPDMONDRAW";

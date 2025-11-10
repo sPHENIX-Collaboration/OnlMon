@@ -4,7 +4,6 @@
 
 #include <onlmon/OnlMonClient.h>
 
-// cppcheck-suppress unknownMacro
 R__LOAD_LIBRARY(libonlpktsizemon_client.so)
 
 void pktsizeDrawInit(const int online = 0)
