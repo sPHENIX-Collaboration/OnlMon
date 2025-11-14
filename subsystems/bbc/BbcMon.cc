@@ -21,6 +21,7 @@
 
 #include <mbd/MbdGeomV1.h>
 #include <mbd/MbdOutV2.h>
+#include <mbd/MbdRawContainerV1.h>
 #include <mbd/MbdPmtContainerV1.h>
 #include <mbd/MbdPmtHit.h>
 
@@ -628,6 +629,7 @@ int BbcMon::Init()
   Reset();
 
   m_mbdout = new MbdOutV2();
+  m_mbdraws = new MbdRawContainerV1();
   m_mbdpmts = new MbdPmtContainerV1();
 
   // prep the vtx to MCR info
@@ -1196,7 +1198,7 @@ int BbcMon::process_event(Event *evt)
 
   // calculate BBC
   bevt->Clear();
-  bevt->SetRawData(evt,m_mbdpmts);
+  bevt->SetRawData(evt,m_mbdraws,m_mbdpmts);
 
   if (bevt->calib_is_done() == 0)
   {
