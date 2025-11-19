@@ -16,6 +16,7 @@ class TH2Poly;
 class MbdEvent;
 class MbdGeom;
 class MbdOut;
+class MbdRawContainer;
 class MbdPmtContainer;
 //class GL1Manager;
 class eventReceiverClient;
@@ -78,6 +79,7 @@ class BbcMon : public OnlMon
 
   MbdGeom *_mbdgeom{nullptr};  // contains positions of BBC PMTs
   MbdOut *m_mbdout{nullptr};
+  MbdRawContainer *m_mbdraws{nullptr};
   MbdPmtContainer *m_mbdpmts{nullptr};
 
   // vtx to MCR variables
