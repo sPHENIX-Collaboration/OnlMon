@@ -5,9 +5,10 @@ use warnings;
 
 sub findruns;
 
+my $maxrun=80000; # tpc/tpoc create large runnumbers, only look up to this run
 my $stopthis = sprintf("stopthis");
 my $histodir = sprintf("/sphenix/lustre01/sphnxpro/commissioning/online_monitoring/histograms");
-my @subsystems = ("BBCMON", "CEMCMON", "DAQMON", "IHCALMON", "INTTMON", "LL1MON", "LOCALPOLMON", "MVTXMON", "OHCALMON", "SPINMON", "SEPDMON", "TPCMON", "TPOTMON", "ZDCMON");
+my @subsystems = ("BBCMON", "CEMCMON", "DAQMON", "GL1MON", "IHCALMON", "INTTMON", "LL1MON", "MVTXMON", "OHCALMON", "SEPDMON", "SPINMON", "TPCMON", "TPOTMON", "ZDCMON");
 #my @subsystems = ("BBCMON", "CEMCMON", "INTTMON", "LL1MON", "TPOTMON", "TPCMON");
 
 for my $subsys (@subsystems)
@@ -36,7 +37,7 @@ for my $subsys (@subsystems)
     my $lastrun = 0;
     for my $run (sort { $a <=> $b } keys %todoruns)
     {
-	if ($run < 80000) # tpot/intt creates large bad runnumbers
+	if ($run < $maxrun) # tpot/intt creates large bad runnumbers
 	{
 	    my $listfile = sprintf("%s.list",$subsys);
 	    my $cmd = sprintf("ls -1 /sphenix/lustre01/sphnxpro/commissioning/online_monitoring/histograms/%s/Run_%d-* > %s.list",$subsys,$run,$subsys);
@@ -62,7 +63,11 @@ for my $subsys (@subsystems)
 	my $updatedone = sprintf("echo %d >> %s",$run,$rundone);
 	system($updatedone);
     }
-    unlink $stopthis;
+    if (-e $stopthis)
+    {
+	unlink $stopthis;
+	exit(0);
+    }
 }
 
 sub findruns
@@ -87,7 +92,7 @@ sub findruns
 		{
 		    next;
 		}
-		if ($run > 80000)
+		if ($run > $maxrun)
 		{
 		    next;
 		}
