@@ -59,28 +59,28 @@ class TpcMonDraw : public OnlMonDraw
   int DrawTPCNStreaksvsEventNo(const std::string &what = "ALL");
   int DrawTPCNEventsvsEBDC(const std::string &what = "ALL");
   int DrawTPCPacketTypes(const std::string &what = "ALL");
-  int DrawTPCPACKETTYPEvsSAMPLEADC (const std::string &what = "ALL");
+  int DrawTPCPACKETTYPEvsSAMPLEADC(const std::string &what = "ALL");
   int DrawTPCNoiseChannelPlots(const std::string &what = "ALL");
   int DrawShifterTPCDriftWindow(const std::string &what = "ALL");
   int DrawShifterTransmissionDist(const std::string &what = "ALL");
   int DrawDCvsSAMPA(const std::string &what = "ALL");
   int DrawDCSAMPAvsTIME(const std::string &what = "ALL");
   int DrawServerStats();
-  void add_TH1(TH1* hist[48], TH1* histadd[24]);
-  void add_TH2(TH2* hist[48], TH2* histadd[24]);  
-  void add_TH1_modules(TH1* hist[48][3], TH1* histadd[24][3]);
-  void add_TH2_modules(TH2* hist[48][3], TH2* histadd[24][3]);
+  void add_TH1(TH1 *hist[48], TH1 *histadd[24]);
+  void add_TH2(TH2 *hist[48], TH2 *histadd[24]);
+  void add_TH1_modules(TH1 *hist[48][3], TH1 *histadd[24][3]);
+  void add_TH2_modules(TH2 *hist[48][3], TH2 *histadd[24][3]);
   time_t getTime();
-  
+
   TCanvas *TC[40] = {nullptr};
   TPad *transparent[40] = {nullptr};
   TPad *Pad[11] = {nullptr};
   TGraphErrors *gr[2] = {nullptr};
-  //TPC Module
-  TH2 *dummy_his1 {nullptr};
-  TH2 *dummy_his2 {nullptr};
+  // TPC Module
+  TH2 *dummy_his1{nullptr};
+  TH2 *dummy_his2{nullptr};
 
-  //TPC Module
+  // TPC Module
   TH2 *dummy_his1_XY = nullptr;
   TH2 *dummy_his2_XY = nullptr;
 
@@ -100,31 +100,31 @@ class TpcMonDraw : public OnlMonDraw
   TH2 *dummy_his1_channelphi_layer_w = nullptr;
   TH1 *dummy_his1_NEvents_EBDC = nullptr;
 
-  TPaveLabel* NS18 = nullptr; //North Side labels
-  TPaveLabel* NS17 = nullptr;
-  TPaveLabel* NS16 = nullptr;
-  TPaveLabel* NS15 = nullptr;
-  TPaveLabel* NS14 = nullptr;
-  TPaveLabel* NS13 = nullptr;
-  TPaveLabel* NS12 = nullptr;
-  TPaveLabel* NS23 = nullptr;
-  TPaveLabel* NS22 = nullptr;
-  TPaveLabel* NS21 = nullptr;
-  TPaveLabel* NS20 = nullptr;
-  TPaveLabel* NS19 = nullptr;
+  TPaveLabel *NS18 = nullptr;  // North Side labels
+  TPaveLabel *NS17 = nullptr;
+  TPaveLabel *NS16 = nullptr;
+  TPaveLabel *NS15 = nullptr;
+  TPaveLabel *NS14 = nullptr;
+  TPaveLabel *NS13 = nullptr;
+  TPaveLabel *NS12 = nullptr;
+  TPaveLabel *NS23 = nullptr;
+  TPaveLabel *NS22 = nullptr;
+  TPaveLabel *NS21 = nullptr;
+  TPaveLabel *NS20 = nullptr;
+  TPaveLabel *NS19 = nullptr;
 
-  TPaveLabel* SS00 = nullptr; //South Side labels
-  TPaveLabel* SS01 = nullptr;
-  TPaveLabel* SS02 = nullptr;
-  TPaveLabel* SS03 = nullptr;
-  TPaveLabel* SS04 = nullptr;
-  TPaveLabel* SS05 = nullptr;
-  TPaveLabel* SS06 = nullptr;
-  TPaveLabel* SS07 = nullptr;
-  TPaveLabel* SS08 = nullptr;
-  TPaveLabel* SS09 = nullptr;
-  TPaveLabel* SS10 = nullptr;
-  TPaveLabel* SS11 = nullptr;
+  TPaveLabel *SS00 = nullptr;  // South Side labels
+  TPaveLabel *SS01 = nullptr;
+  TPaveLabel *SS02 = nullptr;
+  TPaveLabel *SS03 = nullptr;
+  TPaveLabel *SS04 = nullptr;
+  TPaveLabel *SS05 = nullptr;
+  TPaveLabel *SS06 = nullptr;
+  TPaveLabel *SS07 = nullptr;
+  TPaveLabel *SS08 = nullptr;
+  TPaveLabel *SS09 = nullptr;
+  TPaveLabel *SS10 = nullptr;
+  TPaveLabel *SS11 = nullptr;
 };
 
 #endif /* TPC_TPCMONDRAW_H */
