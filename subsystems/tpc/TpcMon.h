@@ -4,6 +4,7 @@
 #include <onlmon/OnlMon.h>
 
 #include <tpc/TpcMap.h>  //this needs to be pointed to coresoftware - not sure how to do that on EBDCXX...
+
 #include <cmath>
 #include <map>
 #include <memory>
@@ -19,7 +20,7 @@ class TpcMon : public OnlMon
 {
  public:
   TpcMon(const std::string &name);
-  virtual ~TpcMon();
+  virtual ~TpcMon() = default;
 
   int process_event(Event *evt);
   int Init();
@@ -29,7 +30,6 @@ class TpcMon : public OnlMon
  protected:
   int evtcnt = 0;
   int evtcnt5 = 0;
-  int idummy = 0;
   int weird_counter = 0;
 
   static const int N_rBins = 4;                                             //(one inner bin not filled, 2nd bin is R1, 3rd bin is R2, 4th bin is R3)
@@ -154,7 +154,7 @@ class TpcMon : public OnlMon
 
   int serverid;
 
-  int stuck_channel_count[256][26] = {0};  // array for counting # of times a unique channel get stuck
+  int stuck_channel_count[256][26] = {{0}};  // array for counting # of times a unique channel get stuck
 
   void Locate(int id, float *rbin, float *thbin);
   int ebdc_from_serverid(int server_id);

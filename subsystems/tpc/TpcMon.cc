@@ -12,10 +12,6 @@
 #include <Event/Event.h>
 #include <Event/msg_profile.h>
 #include <Event/oncsSubConstants.h>
-// #include </sphenix/user/chhughes/Takao_Decoder/online_distribution/newbasic/oncsEvent.h>
-// #include </sphenix/user/chhughes/Takao_Decoder/online_distribution/newbasic/msg_profile.h>
-// #include </sphenix/user/chhughes/Takao_Decoder/online_distribution/newbasic/oncsSubConstants.h>
-// #include </sphenix/user/chhughes/Takao_Decoder/online_distribution/newbasic/oncsSub_idtpcfeev5.h>
 
 #include <tpc/TpcMap.h>
 
@@ -55,16 +51,6 @@ TpcMon::TpcMon(const std::string &name)
   current_BCOBIN = 0;
   // Evgeny Map
   M.setMapNames("AutoPad-R1-RevA.sch.ChannelMapping.csv", "AutoPad-R2-RevA-Pads.sch.ChannelMapping.csv", "AutoPad-R3-RevA.sch.ChannelMapping.csv");
-  // Mariia MAp
-  //  M.setMapNames("../../../../../../../../../../../sphenix/user/mitrankova/PadPlane_Readout/map/AutoPad-R1-RevA.sch.ChannelMapping.csv",
-  //                "../../../../../../../../../../../sphenix/user/mitrankova/PadPlane_Readout/map/AutoPad-R2-RevA-Pads.sch.ChannelMapping.csv",
-  //                "../../../../../../../../../../../sphenix/user/mitrankova/PadPlane_Readout/map/AutoPad-R3-RevA.sch.ChannelMapping.csv");
-  return;
-}
-
-TpcMon::~TpcMon()
-{
-  // you can delete NULL pointers it results in a NOOP (No Operation)
   return;
 }
 
@@ -1792,6 +1778,5 @@ int TpcMon::Reset()
 {
   // reset our internal counters
   evtcnt = 0;
-  idummy = 0;
   return 0;
 }
