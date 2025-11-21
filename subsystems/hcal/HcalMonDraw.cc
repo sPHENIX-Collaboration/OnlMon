@@ -1206,8 +1206,8 @@ int HcalMonDraw::DrawThird(const std::string& /* what */)
   h2_hcal_waveform->Draw("colz");
 
   float tsize = 0.06;
-  h2_hcal_waveform->GetXaxis()->SetNdivisions(510, kTRUE);
-  h2_hcal_waveform->GetXaxis()->SetRangeUser(0, 16);
+  h2_hcal_waveform->GetXaxis()->SetNdivisions(16);
+  h2_hcal_waveform->GetXaxis()->SetRangeUser(0, 11);
   h2_hcal_waveform->GetXaxis()->SetTitle("Sample #");
   h2_hcal_waveform->GetYaxis()->SetTitle("Waveform [ADC]");
   h2_hcal_waveform->GetXaxis()->SetLabelSize(tsize);
