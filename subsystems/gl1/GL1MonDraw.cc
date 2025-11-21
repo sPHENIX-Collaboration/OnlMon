@@ -298,7 +298,7 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       TC[1]->SetEditable(false);
       return -1;
     }
-    if (hist1->GetMaximum() > 0 && icnt < 10 /*&& !m_TrignameArray[i].empty()*/)
+    if (hist1->GetMaximum() > 0 && icnt < 10 && !m_TrignameArray[i].empty())
     {
       icnt++;
       TH1 *abortgap = (TH1 *) hist1->Clone();
@@ -376,7 +376,7 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
   std::string runstring;
   std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << "GL1 Scaled Trigger Run:" << cl->RunNumber()
+  runnostream << "GL1 Live Trigger Run:" << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
   runstring = runnostream.str();
   transparent[1]->cd();
