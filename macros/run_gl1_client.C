@@ -1,10 +1,3 @@
-//
-// You need to run 2 servers by executing (in 2 separate root sessions)
-// .x run_example_server0.C
-// .x run_example_server1.C
-// and then start the client
-// if you only start one server only one set of histograms will be displayed
-
 #include "CommonFuncs.C"
 
 #include <onlmon/gl1/GL1MonDraw.h>
@@ -13,44 +6,54 @@
 
 R__LOAD_LIBRARY(libonlgl1mon_client.so)
 
+std::string DrawerName="GL1MONDRAW";
+
 void gl1DrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
+  OnlMonDraw *gl1mon = new GL1MonDraw(DrawerName);  // create Drawing Object
+  std::string servername = "GL1MON_0";
+  gl1mon->AddServer(servername);
   // register histos we want with monitor name
+  cl->registerHisto("gl1_stats", servername);
+
   for (int i=0; i<64; i++)
   {
     std::string hname = "gl1_scaledtrigger_" + std::to_string(i);
-    cl->registerHisto(hname, "GL1MON_0");
+    cl->registerHisto(hname, servername);
     hname = "gl1_livetrigger_" + std::to_string(i);
-    cl->registerHisto(hname, "GL1MON_0");
+    cl->registerHisto(hname, servername);
     hname = "gl1_rawtrigger_" + std::to_string(i);
-    cl->registerHisto(hname, "GL1MON_0");
+    cl->registerHisto(hname, servername);
   }
   CreateHostList(online);
   // get my histos from server, the second parameter = 1
   // says I know they are all on the same node
-  cl->requestHistoBySubSystem("GL1MON_0", 1);
-  OnlMonDraw *mymon = new GL1MonDraw("GL1DRAW");  // create Drawing Object
-  cl->registerDrawer(mymon);            // register with client framework
+  cl->requestHistoBySubSystem(servername, 1);
+  cl->registerDrawer(gl1mon);            // register with client framework
 }
 
 void gl1Draw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->requestHistoBySubSystem("GL1MON_0",1);         // update histos
-  cl->Draw("GL1DRAW", what);                      // Draw Histos of registered Drawers
+  OnlMonDraw *drawer = cl->GetDrawer(DrawerName);
+  for (auto iter = drawer->ServerBegin(); iter != drawer->ServerEnd(); ++iter)
+  {
+    cl->requestHistoBySubSystem(iter->c_str(), 1);
+  }
+  cl->Draw(DrawerName.c_str(), what);                      // Draw Histos of registered Drawers
 }
 
 void gl1SavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot("GL1DRAW");                          // Save Plots
+  cl->SavePlot(DrawerName);                          // Save Plots
   return;
 }
 
 void gl1Html()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml("GL1DRAW");                        // Create html output
+  cl->MakeHtml(DrawerName.c_str());                        // Create html output
   return;
 }
