@@ -80,8 +80,8 @@ int GL1Mon::process_event(Event *evt)
       uint64_t trigscaled = static_cast<uint64_t>( p->lValue(0,"ScaledVector") );	     
       uint64_t triglive = static_cast<uint64_t>( p->lValue(0,"LiveVector") );	     
       uint64_t trigraw = static_cast<uint64_t>( p->lValue(0,"RawVector") );
-      triglive |= 0x1;
-      trigscaled |= 0x1;
+      //triglive |= 0x1;
+      //trigscaled |= 0x1;
       // if ((triglive & trigscaled) != trigscaled) // this fails for the clock trigger
       // {
       //   std::cout << "scaled trig vector: " << std::bitset<64>(trigscaled) << std::endl;
