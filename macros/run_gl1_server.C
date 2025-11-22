@@ -10,6 +10,7 @@ void run_gl1_server(const std::string &name = "GL1MON", unsigned int serverid = 
 {
   OnlMon *m = new GL1Mon(name);                     // create subsystem Monitor object
   m->SetMonitorServerId(serverid);
+//  m->SetEventReceiverClient("localhost"); // for testing with client
 
   OnlMonServer *se = OnlMonServer::instance();  // get pointer to Server Framework
   se->registerMonitor(m);                       // register subsystem Monitor with Framework
