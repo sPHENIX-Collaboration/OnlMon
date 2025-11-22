@@ -6,14 +6,14 @@
 
 R__LOAD_LIBRARY(libonlsepdmon_client.so)
 
-std::string DrawerName="SEPDMONDRAW";
+std::string SepdDrawerName="SEPDMONDRAW";
 
 void sepdDrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
   // register histos we want with monitor name
   // first histogram uses the TH1->GetName() as key
-  OnlMonDraw *sepdmon = new SepdMonDraw(DrawerName);  // create Drawing Object
+  OnlMonDraw *sepdmon = new SepdMonDraw(SepdDrawerName);  // create Drawing Object
   std::string servername = "SEPDMON_0";
   sepdmon->AddServer(servername);
 
@@ -50,7 +50,7 @@ void sepdDrawInit(const int online = 0)
 void sepdDraw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  OnlMonDraw *sepddraw = cl->GetDrawer(DrawerName);
+  OnlMonDraw *sepddraw = cl->GetDrawer(SepdDrawerName);
   for (auto iter = sepddraw->ServerBegin(); iter != sepddraw->ServerEnd(); ++iter)
   {
     cl->requestHistoBySubSystem(iter->c_str(), 1);

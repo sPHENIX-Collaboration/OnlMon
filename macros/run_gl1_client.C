@@ -6,12 +6,12 @@
 
 R__LOAD_LIBRARY(libonlgl1mon_client.so)
 
-std::string DrawerName="GL1MONDRAW";
+std::string GL1DrawerName="GL1MONDRAW";
 
 void gl1DrawInit(const int online = 0)
 {
   OnlMonClient *cl = OnlMonClient::instance();
-  OnlMonDraw *gl1mon = new GL1MonDraw(DrawerName);  // create Drawing Object
+  OnlMonDraw *gl1mon = new GL1MonDraw(GL1DrawerName);  // create Drawing Object
   std::string servername = "GL1MON_0";
   gl1mon->AddServer(servername);
   // register histos we want with monitor name
@@ -36,24 +36,24 @@ void gl1DrawInit(const int online = 0)
 void gl1Draw(const char *what = "ALL")
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  OnlMonDraw *drawer = cl->GetDrawer(DrawerName);
+  OnlMonDraw *drawer = cl->GetDrawer(GL1DrawerName);
   for (auto iter = drawer->ServerBegin(); iter != drawer->ServerEnd(); ++iter)
   {
     cl->requestHistoBySubSystem(iter->c_str(), 1);
   }
-  cl->Draw(DrawerName.c_str(), what);                      // Draw Histos of registered Drawers
+  cl->Draw(GL1DrawerName.c_str(), what);                      // Draw Histos of registered Drawers
 }
 
 void gl1SavePlot()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->SavePlot(DrawerName);                          // Save Plots
+  cl->SavePlot(GL1DrawerName);                          // Save Plots
   return;
 }
 
 void gl1Html()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml(DrawerName.c_str());                        // Create html output
+  cl->MakeHtml(GL1DrawerName.c_str());                        // Create html output
   return;
 }
