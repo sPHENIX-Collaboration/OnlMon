@@ -113,10 +113,21 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
       }
     }
     // this one is used to plot the run number on the canvas
-    transparent[1] = new TPad("transparent0", "this does not show", 0, 0, 1, 1);
+    transparent[1] = new TPad("transparent1", "this does not show", 0, 0, 1, 1);
     transparent[1]->SetFillStyle(4000);
     transparent[1]->Draw();
     TC[1]->SetEditable(false);
+  }
+  else if (name == "GL1ServerStats")
+  {
+    int canvasindex = 2;
+    TC[canvasindex] = new TCanvas(name.c_str(), "GL1Mon Server Stats", -1, 0, xsize, ysize);
+    gSystem->ProcessEvents();
+    // this one is used to plot the run number on the canvas
+    transparent[canvasindex] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->Draw();
+    transparent[canvasindex]->SetFillColor(kGray);
+    TC[canvasindex]->SetEditable(false);
   }
   oldStyle->cd();
   return 0;
@@ -140,6 +151,11 @@ int GL1MonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "LIVE")
   {
     iret += DrawLive(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "ServerStats")
+  {
+    iret += DrawServerStats();
     idraw++;
   }
   if (!idraw)
@@ -469,5 +485,88 @@ int GL1MonDraw::FetchTriggerNames()
 {
   m_TrignameArray.fill("");
   m_RunDB->GetTriggerNames(m_TrignameArray,m_CurrentRunnumber);
+  return 0;
+}
+
+int GL1MonDraw::DrawServerStats()
+{
+  int canvasindex=2;
+  OnlMonClient* cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("GL1ServerStats"))
+  {
+    MakeCanvas("GL1ServerStats");
+  }
+  TC[canvasindex]->Clear("D");
+  TC[canvasindex]->SetEditable(true);
+  transparent[canvasindex]->cd();
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetTextColor(1);
+  PrintRun.DrawText(0.5, 0.99, "Server Statistics");
+
+  PrintRun.SetTextSize(0.02);
+  double vdist = 0.05;
+  double vpos = 0.9;
+  time_t clienttime = time(nullptr);
+  for (const auto& server : m_ServerSet)
+  {
+    std::ostringstream txt;
+    auto servermapiter = cl->GetServerMap(server);
+    if (servermapiter == cl->GetServerMapEnd())
+    {
+      txt << "Server " << server
+          << " is dead ";
+      PrintRun.SetTextColor(kRed);
+    }
+    else
+    {
+      int errorcounts = -1;
+      TH1 *gl1_stats = cl->getHisto("GL1MON_0","gl1_stats");
+      if (gl1_stats)
+      {
+	errorcounts = gl1_stats->GetBinContent(1);
+      }
+      int gl1counts = std::get<4>(servermapiter->second);
+      time_t currtime = std::get<3>(servermapiter->second);
+      txt << "Server " << server
+          << ", run number: " << std::get<1>(servermapiter->second)
+          << ", event count: " << std::get<2>(servermapiter->second);
+      if (gl1counts >= 0)
+      {
+	txt << ", gl1 count: " << gl1counts;
+      }
+      txt << ", errors: " << errorcounts;
+      txt  << ", current Event time: " << ctime(&currtime);
+      if (isHtml())
+      {
+	clienttime = currtime; // just prevent the font from getting red
+      }
+      else // print time diff only for live display
+      {
+        txt  << ", minutes since last evt: " << (clienttime - currtime)/60;
+      }
+      if (std::get<0>(servermapiter->second) && ((clienttime - currtime)/60) < 10)
+      {
+        PrintRun.SetTextColor(kGray + 2);
+      }
+      else
+      {
+        PrintRun.SetTextColor(kRed);
+      }
+      if (errorcounts > 0)
+      {
+        PrintRun.SetTextColor(kRed);
+      }
+    }
+    PrintRun.DrawText(0.5, vpos, txt.str().c_str());
+    vpos -= vdist;
+  }
+  TC[canvasindex]->Update();
+  TC[canvasindex]->Show();
+  TC[canvasindex]->SetEditable(false);
+
   return 0;
 }

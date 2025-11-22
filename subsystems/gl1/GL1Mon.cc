@@ -5,6 +5,7 @@
 
 #include <Event/Event.h>
 #include <Event/packet.h>
+#include <Event/eventReceiverClient.h>
 
 #include <TH1.h>
 
@@ -22,7 +23,7 @@ GL1Mon::GL1Mon(const std::string &name)
 
 GL1Mon::~GL1Mon()
 {
-  // you can delete NULL pointers it results in a NOOP (No Operation)
+  delete erc;
   return;
 }
 
@@ -30,6 +31,8 @@ int GL1Mon::Init()
 {
   int ihist = 0;
   OnlMonServer *se = OnlMonServer::instance();
+  gl1_stats = new TH1I("gl1_stats","GL1 statistics",1,-0.5,0.5);
+  se->registerHisto(this,gl1_stats);
   for (auto &iter : scaledtriggers)
   {
     std::string name = "gl1_scaledtrigger_" + std::to_string(ihist);
@@ -58,6 +61,8 @@ int GL1Mon::Init()
     se->registerHisto(this, iter);  // uses the TH1->GetName() as key
     ihist++;
   }
+  erc = new eventReceiverClient(eventReceiverClientHost);
+
   // register histograms with server otherwise client won't get them
   return 0;
 }
@@ -66,6 +71,11 @@ int GL1Mon::BeginRun(const int /* runno */)
 {
   // if you need to read calibrations on a run by run basis
   // this is the place to do it
+  if (erc->getStatus() != 0)
+  {
+    delete erc;
+    erc = new eventReceiverClient(eventReceiverClientHost);
+  }
   return 0;
 }
 
@@ -107,6 +117,36 @@ int GL1Mon::process_event(Event *evt)
 	  rawtriggers[itrig]->AddBinContent(bunchnr+1);
 	}
       }
+      int eventnumber = evt->getEvtSequence();
+      Event *gl1Event = erc->getEvent(eventnumber);
+      if (gl1Event)
+      {
+	OnlMonServer *se = OnlMonServer::instance();
+	se->IncrementGl1FoundCounter();
+	if (gl1Event->getEvtSequence() != eventnumber)
+	{
+	  std::cout << "event number mismatch, asked for " << eventnumber
+		    << ", got " << gl1Event->getEvtSequence() << std::endl;
+	}
+	Packet *p_gl1 = gl1Event->getPacket(14001);
+	if (p_gl1)
+	{
+	  if (p_gl1->lValue(0, "BCO") != p->lValue(0, "BCO"))
+	  {
+	    std::cout << "BCO mismatch for event " << eventnumber
+		      << std::endl;
+	  }
+	  if (p_gl1->iValue(0) != p->iValue(0))
+	  {
+	    std::cout << "Packet number mismatch for event " << eventnumber
+		      << "erc: " << p_gl1->iValue(0) << " current event: "
+		      << p->iValue(0) << std::endl;
+            gl1_stats->AddBinContent(1);
+	  }
+	}
+	delete p_gl1;
+      }
+      delete gl1Event;
       delete p;
     }
   }
