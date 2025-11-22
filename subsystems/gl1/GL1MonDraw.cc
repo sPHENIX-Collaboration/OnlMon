@@ -153,7 +153,7 @@ int GL1MonDraw::Draw(const std::string &what)
     iret += DrawLive(what);
     idraw++;
   }
-  if (what == "ALL" || what == "ServerStats")
+  if (what == "ALL" || what == "SERVERSTATS")
   {
     iret += DrawServerStats();
     idraw++;
