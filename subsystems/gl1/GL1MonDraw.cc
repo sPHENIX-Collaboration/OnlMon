@@ -298,7 +298,18 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       TC[1]->SetEditable(false);
       return -1;
     }
-    if (hist1->GetMaximum() > 0 && icnt < 10 && !m_TrignameArray[i].empty())
+    if (i != 0 &&
+	i != 1 &&
+	i != 12 &&
+	i != 13 &&
+	i != 14 &&
+	i != 22 &&
+	i != 23 &&
+	i != 34)
+    {
+      continue;
+    }
+    if (hist1->GetMaximum() > 0 && icnt < 10)
     {
       icnt++;
       TH1 *abortgap = (TH1 *) hist1->Clone();
@@ -322,7 +333,7 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       Pad[ipad]->SetLogy();
       hist1->SetStats(0);
       std::string htitle = m_TrignameArray[i];
-      std::cout << "index " << i << " title: " << htitle << std::endl;
+//      std::cout << "index " << i << " title: " << htitle << std::endl;
       hist1->SetFillColor(3);
       hist1->SetXTitle("Bunch Crossing");
       hist1->SetYTitle("Events");
