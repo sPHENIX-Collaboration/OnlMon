@@ -62,7 +62,8 @@ void StartPoms()
 
 
    subsys = new SubSystem("GL1", "gl1");
-   subsys->AddAction("gl1Draw(\"SCALED\")", "Abort Gap");
+   subsys->AddAction("gl1Draw(\"SCALED\")", "Scaled Triggers");
+   subsys->AddAction("gl1Draw(\"LIVE\")", "Live Triggers [Expert]");
    subsys->AddAction(new SubSystemActionSavePlot(subsys));
    pmf->RegisterSubSystem(subsys);
 
