@@ -79,9 +79,16 @@ int GL1Mon::process_event(Event *evt)
       int bunchnr = (p->lValue(0, "BunchNumber"));
       uint64_t trigscaled = static_cast<uint64_t>( p->lValue(0,"ScaledVector") );	     
       uint64_t triglive = static_cast<uint64_t>( p->lValue(0,"LiveVector") );	     
-      uint64_t trigraw = static_cast<uint64_t>( p->lValue(0,"RawVector") );	     
+      uint64_t trigraw = static_cast<uint64_t>( p->lValue(0,"RawVector") );
+      triglive |= 0x1;
+      trigscaled |= 0x1;
+      // if ((triglive & trigscaled) != trigscaled) // this fails for the clock trigger
+      // {
+      //   std::cout << "scaled trig vector: " << std::bitset<64>(trigscaled) << std::endl;
+      //   std::cout << "live trig vector:   " << std::bitset<64>(triglive) << std::endl << std::endl;
+      // }
       // std::cout << "scaled trig vector: " << std::bitset<64>(trigscaled) << std::endl;
-      // std::cout << "live trig vector: " << std::bitset<64>(triglive) << std::endl;
+      // std::cout << "live trig vector:   " << std::bitset<64>(triglive) << std::endl << std::endl;
       // std::cout << "raw trig vector: " << std::bitset<64>(trigraw) << std::endl;
       for (int itrig = 0; itrig < 64; itrig++ )
       {
@@ -89,7 +96,6 @@ int GL1Mon::process_event(Event *evt)
 // fill with bunchnr+1, so the 0th bunch goes into the first channel (channel 0 is underflow)
 	if ( (trigscaled&trigbit) != 0 )
 	{
-//	  std::cout << " setting trig " << itrig << std::endl;
 	  scaledtriggers[itrig]->AddBinContent(bunchnr+1);
 	}
 	if ( (triglive&trigbit) != 0 )

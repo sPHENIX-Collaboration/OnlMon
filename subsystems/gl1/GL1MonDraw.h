@@ -27,10 +27,11 @@ class GL1MonDraw : public OnlMonDraw
  protected:
   int MakeCanvas(const std::string &name);
   int DrawScaled(const std::string &what = "ALL");
+  int DrawLive(const std::string &what = "ALL");
   TStyle *gl1Style{nullptr}; 
   TCanvas *TC[3] {};
   TPad *transparent[3] {};
-  TPad *Pad[10] {};
+  TPad *Pad[20] {};
   RunDBodbc *m_RunDB {nullptr};
   int m_CurrentRunnumber {0};
   std::array<std::string,64> m_TrignameArray;
