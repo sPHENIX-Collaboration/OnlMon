@@ -6,7 +6,9 @@
 #include <TAxis.h>  // for TAxis
 #include <TCanvas.h>
 #include <TFrame.h>
+#include <TGraph.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TLine.h>
 #include <TPad.h>
 #include <TROOT.h>
@@ -43,6 +45,7 @@ int GL1MonDraw::Init()
   gl1Style->SetCanvasBorderMode(0);
   oldStyle->cd();
   m_RunDB = new RunDBodbc();
+  reject_graph.resize(2, nullptr);
   return 0;
 }
 
@@ -57,7 +60,7 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
   if (name == "GL1MonScaled")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "GL1 Scaled Triggers", -1, 0, xsize , ysize);
+    TC[0] = new TCanvas(name.c_str(), "GL1 Scaled Triggers", -1, 0, xsize, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -65,19 +68,19 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     gSystem->ProcessEvents();
     for (int i = 0; i < 2; i++)
     {
-      double xlow = (0.5*i);
-      double xhigh = xlow+0.5;
+      double xlow = (0.5 * i);
+      double xhigh = xlow + 0.5;
       for (int j = 0; j < 5; j++)
       {
-	double ylow = 0.0+(0.19*j);
-	double yhigh = ylow + 0.19;
-	int padindex = 9 - (i + 2*j); // make it start from the top of the plot
-	// std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
-	// << "pad: yl: " << ylow << ", yh: " << yhigh
-	// 	  << std::endl;
-	std::string padname = "gl1pad_" + std::to_string(padindex); 
-	Pad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
-	Pad[padindex]->Draw();
+        double ylow = 0.0 + (0.19 * j);
+        double yhigh = ylow + 0.19;
+        int padindex = 9 - (i + 2 * j);  // make it start from the top of the plot
+        // std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
+        // << "pad: yl: " << ylow << ", yh: " << yhigh
+        // 	  << std::endl;
+        std::string padname = "gl1pad_" + std::to_string(padindex);
+        Pad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
+        Pad[padindex]->Draw();
       }
     }
     // this one is used to plot the run number on the canvas
@@ -89,7 +92,7 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
   if (name == "GL1MonLive")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "GL1 Live Triggers", -1, 0, xsize , ysize);
+    TC[1] = new TCanvas(name.c_str(), "GL1 Live Triggers", -1, 0, xsize, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -97,19 +100,19 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     gSystem->ProcessEvents();
     for (int i = 0; i < 2; i++)
     {
-      double xlow = (0.5*i);
-      double xhigh = xlow+0.5;
+      double xlow = (0.5 * i);
+      double xhigh = xlow + 0.5;
       for (int j = 0; j < 5; j++)
       {
-	double ylow = 0.0+(0.19*j);
-	double yhigh = ylow + 0.19;
-	int padindex = 10 + (9 - (i + 2*j)); // make it start from the top of the plot
-	// std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
-	// << "pad: yl: " << ylow << ", yh: " << yhigh
-	// 	  << std::endl;
-	std::string padname = "gl1pad_" + std::to_string(padindex); 
-	Pad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
-	Pad[padindex]->Draw();
+        double ylow = 0.0 + (0.19 * j);
+        double yhigh = ylow + 0.19;
+        int padindex = 10 + (9 - (i + 2 * j));  // make it start from the top of the plot
+        // std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
+        // << "pad: yl: " << ylow << ", yh: " << yhigh
+        // 	  << std::endl;
+        std::string padname = "gl1pad_" + std::to_string(padindex);
+        Pad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
+        Pad[padindex]->Draw();
       }
     }
     // this one is used to plot the run number on the canvas
@@ -127,6 +130,36 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     transparent[canvasindex] = new TPad("transparent2", "this does not show", 0, 0, 1, 1);
     transparent[canvasindex]->Draw();
     transparent[canvasindex]->SetFillColor(kGray);
+    TC[canvasindex]->SetEditable(false);
+  }
+  if (name == "GL1MonRejection")
+  {
+    int canvasindex = 3;
+    // xpos (-1) negative: do not draw menu bar
+    TC[canvasindex] = new TCanvas(name.c_str(), "GL1 Live Triggers", -1, 0, xsize, ysize);
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+    for (int i = 0; i < 2; i++)
+    {
+      double xlow = 0.;
+      double xhigh = 1.;
+      double ylow = 0.0 + (0.44 * i);
+      double yhigh = ylow + 0.44;
+      int padindex = 20 + i;  // make it start from the top of the plot
+      // std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
+      // << "pad: yl: " << ylow << ", yh: " << yhigh
+      // 	  << std::endl;
+      std::string padname = "gl1pad_" + std::to_string(padindex);
+      Pad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
+      Pad[padindex]->Draw();
+    }
+    // this one is used to plot the run number on the canvas
+    transparent[canvasindex] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
     TC[canvasindex]->SetEditable(false);
   }
   oldStyle->cd();
@@ -151,6 +184,11 @@ int GL1MonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "LIVE")
   {
     iret += DrawLive(what);
+    idraw++;
+  }
+  if (what == "ALL" || what == "REJECTION")
+  {
+    iret += DrawRejection();
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -185,10 +223,10 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
   agap.SetTextSize(0.055);
 
   int ipad = 0;
-  for (int i=0; i<64; i++)
+  for (int i = 0; i < 64; i++)
   {
     std::string hname = "gl1_scaledtrigger_" + std::to_string(i);
-    TH1 *hist1 = cl->getHisto("GL1MON_0",hname);
+    TH1 *hist1 = cl->getHisto("GL1MON_0", hname);
     if (!hist1)
     {
       DrawDeadServer(transparent[0]);
@@ -201,24 +239,24 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
       TH1 *forbidden = (TH1 *) hist1->Clone();
       abortgap->SetFillColor(6);
       forbidden->SetFillColor(2);
-      for (int j = 0; j< 112; j++)
+      for (int j = 0; j < 112; j++)
       {
-	abortgap->SetBinContent(j,0);
-	forbidden->SetBinContent(j,0);
+        abortgap->SetBinContent(j, 0);
+        forbidden->SetBinContent(j, 0);
       }
-      for (int j = 112; j< 121; j++)
+      for (int j = 112; j < 121; j++)
       {
-	forbidden->SetBinContent(j,0);
+        forbidden->SetBinContent(j, 0);
       }
-      for (int j = 121; j< 130; j++)
+      for (int j = 121; j < 130; j++)
       {
-	abortgap->SetBinContent(j,0);
+        abortgap->SetBinContent(j, 0);
       }
       Pad[ipad]->cd();
       Pad[ipad]->SetLogy();
       hist1->SetStats(0);
       std::string htitle = m_TrignameArray[i];
-//      std::cout << "index " << i << " title: " << htitle << std::endl;
+      //      std::cout << "index " << i << " title: " << htitle << std::endl;
       hist1->SetFillColor(3);
       hist1->SetXTitle("Bunch Crossing");
       hist1->SetYTitle("Events");
@@ -241,26 +279,26 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
       title.DrawText(0.5, 0.99, htitle.c_str());
       delete abortgap;
       delete forbidden;
-      TLine* line = new TLine(); //= new TLine(110.5, 0, 110.5, hist1->GetMaximum());
+      TLine *line = new TLine();  //= new TLine(110.5, 0, 110.5, hist1->GetMaximum());
       line->SetLineColor(6);
       line->SetLineWidth(2);
-      line->SetLineStyle(2); // dashed
+      line->SetLineStyle(2);  // dashed
       Pad[ipad]->Update();
-// whoopee - this is how to get the top of the pad in a log y scale
-// only after the TPad::Update() where the Pad figures out its dimensions
-      line->DrawLine(119.5, std::pow(10,Pad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10,Pad[ipad]->GetFrame()->GetY2()));
+      // whoopee - this is how to get the top of the pad in a log y scale
+      // only after the TPad::Update() where the Pad figures out its dimensions
+      line->DrawLine(119.5, std::pow(10, Pad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10, Pad[ipad]->GetFrame()->GetY2()));
       if (htitle.find("Clock") == std::string::npos)
       {
-        line->DrawLine(110.5, std::pow(10,Pad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10,Pad[ipad]->GetFrame()->GetY2()));
-	agap.DrawText(115, std::pow(10,Pad[ipad]->GetFrame()->GetY2()), "Abort Gap");
+        line->DrawLine(110.5, std::pow(10, Pad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10, Pad[ipad]->GetFrame()->GetY2()));
+        agap.DrawText(115, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Abort Gap");
       }
-      agap.DrawText(125, std::pow(10,Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
+      agap.DrawText(125, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
       ipad++;
     }
-  // else
-  // {
-  //   std::cout << "histogram " << hname << " is empty" << std::endl;
-  // }
+    // else
+    // {
+    //   std::cout << "histogram " << hname << " is empty" << std::endl;
+    // }
   }
   // else
   TText PrintRun;
@@ -270,7 +308,7 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "GL1 Scaled Trigger Run:" << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
@@ -304,10 +342,10 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
 
   int ipad = 10;
   int icnt = 0;
-  for (int i=0; i<64; i++)
+  for (int i = 0; i < 64; i++)
   {
     std::string hname = "gl1_livetrigger_" + std::to_string(i);
-    TH1 *hist1 = cl->getHisto("GL1MON_0",hname);
+    TH1 *hist1 = cl->getHisto("GL1MON_0", hname);
     if (!hist1)
     {
       DrawDeadServer(transparent[1]);
@@ -315,13 +353,13 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       return -1;
     }
     if (i != 0 &&
-	i != 1 &&
-	i != 12 &&
-	i != 13 &&
-	i != 14 &&
-	i != 22 &&
-	i != 23 &&
-	i != 34)
+        i != 1 &&
+        i != 12 &&
+        i != 13 &&
+        i != 14 &&
+        i != 22 &&
+        i != 23 &&
+        i != 34)
     {
       continue;
     }
@@ -332,24 +370,24 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       TH1 *forbidden = (TH1 *) hist1->Clone();
       abortgap->SetFillColor(6);
       forbidden->SetFillColor(2);
-      for (int j = 0; j< 112; j++)
+      for (int j = 0; j < 112; j++)
       {
-	abortgap->SetBinContent(j,0);
-	forbidden->SetBinContent(j,0);
+        abortgap->SetBinContent(j, 0);
+        forbidden->SetBinContent(j, 0);
       }
-      for (int j = 112; j< 121; j++)
+      for (int j = 112; j < 121; j++)
       {
-	forbidden->SetBinContent(j,0);
+        forbidden->SetBinContent(j, 0);
       }
-      for (int j = 121; j< 130; j++)
+      for (int j = 121; j < 130; j++)
       {
-	abortgap->SetBinContent(j,0);
+        abortgap->SetBinContent(j, 0);
       }
       Pad[ipad]->cd();
       Pad[ipad]->SetLogy();
       hist1->SetStats(0);
       std::string htitle = m_TrignameArray[i];
-//      std::cout << "index " << i << " title: " << htitle << std::endl;
+      //      std::cout << "index " << i << " title: " << htitle << std::endl;
       hist1->SetFillColor(3);
       hist1->SetXTitle("Bunch Crossing");
       hist1->SetYTitle("Events");
@@ -372,26 +410,26 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       title.DrawText(0.5, 0.99, htitle.c_str());
       delete abortgap;
       delete forbidden;
-      TLine* line = new TLine(); //= new TLine(110.5, 0, 110.5, hist1->GetMaximum());
+      TLine *line = new TLine();  //= new TLine(110.5, 0, 110.5, hist1->GetMaximum());
       line->SetLineColor(6);
       line->SetLineWidth(2);
-      line->SetLineStyle(2); // dashed
+      line->SetLineStyle(2);  // dashed
       Pad[ipad]->Update();
-// whoopee - this is how to get the top of the pad in a log y scale
-// only after the TPad::Update() where the Pad figures out its dimensions
-      line->DrawLine(119.5, std::pow(10,Pad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10,Pad[ipad]->GetFrame()->GetY2()));
+      // whoopee - this is how to get the top of the pad in a log y scale
+      // only after the TPad::Update() where the Pad figures out its dimensions
+      line->DrawLine(119.5, std::pow(10, Pad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10, Pad[ipad]->GetFrame()->GetY2()));
       if (htitle.find("Clock") == std::string::npos)
       {
-        line->DrawLine(110.5, std::pow(10,Pad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10,Pad[ipad]->GetFrame()->GetY2()));
-	agap.DrawText(115, std::pow(10,Pad[ipad]->GetFrame()->GetY2()), "Abort Gap");
+        line->DrawLine(110.5, std::pow(10, Pad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10, Pad[ipad]->GetFrame()->GetY2()));
+        agap.DrawText(115, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Abort Gap");
       }
-      agap.DrawText(125, std::pow(10,Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
+      agap.DrawText(125, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
       ipad++;
     }
-  // else
-  // {
-  //   std::cout << "histogram " << hname << " is empty" << std::endl;
-  // }
+    // else
+    // {
+    //   std::cout << "histogram " << hname << " is empty" << std::endl;
+    // }
   }
   // else
   TText PrintRun;
@@ -401,7 +439,7 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
   PrintRun.SetTextAlign(23);  // center/top alignment
   std::ostringstream runnostream;
   std::string runstring;
-  std::pair<time_t,int> evttime = cl->EventTime("CURRENT");
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
   runnostream << "GL1 Live Trigger Run:" << cl->RunNumber()
               << ", Time: " << ctime(&evttime.first);
@@ -415,14 +453,110 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
   return 0;
 }
 
+int GL1MonDraw::DrawRejection()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("GL1MonRejection"))
+  {
+    MakeCanvas("GL1MonRejection");
+  }
+  TC[3]->SetEditable(true);
+  TC[3]->Clear("D");
+  TText title;
+  title.SetNDC();
+  title.SetTextAlign(23);
+  title.SetTextColor(4);
+  title.SetTextSize(0.1);
+  for (int i = 0; i < 2; i++)
+  {
+    std::string hname = "gl1_reject_" + std::to_string(i);
+    TH1 *hist1 = cl->getHisto("GL1MON_0", hname);
+    if (!hist1)
+    {
+      DrawDeadServer(transparent[3]);
+      TC[3]->SetEditable(false);
+      return -1;
+    }
+    int ipad = 20 + i;
+    int nEntries = hist1->GetEntries();
+    if (nEntries > 0)
+    {
+      Pad[ipad]->cd();
+      Pad[ipad]->SetGridy();
+      float *x = new float[nEntries];
+      float *y = new float[nEntries];
+      // std::vector<float> y[;
+      for (int ibin = 1; ibin <= nEntries; ibin++)
+      {
+        x[ibin - 1] = hist1->GetBinError(ibin);
+        y[ibin - 1] = hist1->GetBinContent(ibin);
+      }
+      delete reject_graph[i];
+      reject_graph[i] = new TGraph(nEntries, x, y);
+      TH2 *h2 = new TH2F("h2", m_TrignameArray[i + 21].c_str(), 1, 0, x[nEntries - 1] + 50, 1, 0, 100);
+      h2->SetStats(0);
+      h2->SetXTitle("time in Run");
+      h2->SetYTitle("Rejection over MB");
+      h2->GetXaxis()->SetLabelSize(0.06);
+      h2->GetXaxis()->SetTitleSize(0.055);
+      h2->GetXaxis()->SetTitleOffset(1.1);
+
+      h2->GetYaxis()->SetLabelSize(0.06);
+      h2->GetYaxis()->SetTitleSize(0.06);
+      h2->GetYaxis()->SetTitleOffset(0.4);
+      h2->SetTitle("");
+      h2->DrawCopy();
+      reject_graph[i]->SetMarkerStyle(20);
+      reject_graph[i]->SetMarkerSize(1.3);
+      reject_graph[i]->SetLineColor(1);
+
+      reject_graph[i]->Draw("p same");
+      delete[] x;
+      delete[] y;
+      delete h2;
+      //       hist1->SetStats(0);
+      //       std::string htitle = m_TrignameArray[i+21];
+      // //      std::cout << "index " << i << " title: " << htitle << std::endl;
+      //       hist1->SetFillColor(3);
+      //       hist1->DrawCopy();
+      title.SetTextColor(4);
+      title.SetTextSize(0.1);
+      title.DrawText(0.5, 0.99, m_TrignameArray[i + 21].c_str());
+    }
+    // else
+    // {
+    //   std::cout << "histogram " << hname << " is empty" << std::endl;
+    // }
+  }
+  // else
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << "GL1 Trigger Rejection Run:" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  transparent[3]->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[3]->Update();
+  TC[3]->Show();
+  TC[3]->SetEditable(false);
+  return 0;
+}
+
 int GL1MonDraw::SavePlot(const std::string &what, const std::string &type)
 {
-
   OnlMonClient *cl = OnlMonClient::instance();
   int iret = Draw(what);
   if (iret)  // on error no png files please
   {
-      return iret;
+    return iret;
   }
   int icnt = 0;
   for (TCanvas *canvas : TC)
@@ -433,7 +567,7 @@ int GL1MonDraw::SavePlot(const std::string &what, const std::string &type)
     }
     icnt++;
     std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
-      std::to_string(cl->RunNumber()) + "." + type;
+                           std::to_string(cl->RunNumber()) + "." + type;
     cl->CanvasToPng(canvas, filename);
   }
   return 0;
@@ -484,14 +618,14 @@ int GL1MonDraw::MakeHtml(const std::string &what)
 int GL1MonDraw::FetchTriggerNames()
 {
   m_TrignameArray.fill("");
-  m_RunDB->GetTriggerNames(m_TrignameArray,m_CurrentRunnumber);
+  m_RunDB->GetTriggerNames(m_TrignameArray, m_CurrentRunnumber);
   return 0;
 }
 
 int GL1MonDraw::DrawServerStats()
 {
-  int canvasindex=2;
-  OnlMonClient* cl = OnlMonClient::instance();
+  int canvasindex = 2;
+  OnlMonClient *cl = OnlMonClient::instance();
   if (!gROOT->FindObject("GL1ServerStats"))
   {
     MakeCanvas("GL1ServerStats");
@@ -511,7 +645,7 @@ int GL1MonDraw::DrawServerStats()
   double vdist = 0.05;
   double vpos = 0.9;
   time_t clienttime = time(nullptr);
-  for (const auto& server : m_ServerSet)
+  for (const auto &server : m_ServerSet)
   {
     std::ostringstream txt;
     auto servermapiter = cl->GetServerMap(server);
@@ -524,10 +658,10 @@ int GL1MonDraw::DrawServerStats()
     else
     {
       int errorcounts = -1;
-      TH1 *gl1_stats = cl->getHisto("GL1MON_0","gl1_stats");
+      TH1 *gl1_stats = cl->getHisto("GL1MON_0", "gl1_stats");
       if (gl1_stats)
       {
-	errorcounts = gl1_stats->GetBinContent(1);
+        errorcounts = gl1_stats->GetBinContent(1);
       }
       int gl1counts = std::get<4>(servermapiter->second);
       time_t currtime = std::get<3>(servermapiter->second);
@@ -536,19 +670,19 @@ int GL1MonDraw::DrawServerStats()
           << ", event count: " << std::get<2>(servermapiter->second);
       if (gl1counts >= 0)
       {
-	txt << ", gl1 count: " << gl1counts;
+        txt << ", gl1 count: " << gl1counts;
       }
       txt << ", errors: " << errorcounts;
-      txt  << ", current Event time: " << ctime(&currtime);
+      txt << ", current Event time: " << ctime(&currtime);
       if (isHtml())
       {
-	clienttime = currtime; // just prevent the font from getting red
+        clienttime = currtime;  // just prevent the font from getting red
       }
-      else // print time diff only for live display
+      else  // print time diff only for live display
       {
-        txt  << ", minutes since last evt: " << (clienttime - currtime)/60;
+        txt << ", minutes since last evt: " << (clienttime - currtime) / 60;
       }
-      if (std::get<0>(servermapiter->second) && ((clienttime - currtime)/60) < 10)
+      if (std::get<0>(servermapiter->second) && ((clienttime - currtime) / 60) < 10)
       {
         PrintRun.SetTextColor(kGray + 2);
       }
