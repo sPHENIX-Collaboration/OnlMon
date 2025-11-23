@@ -175,7 +175,7 @@ int GL1Mon::process_event(Event *evt)
       if (ticks - lastupdate > mintimediff)
       {
         //      std::cout << "ticks: " << ticks << ", last: " << lastupdate << std::endl;
-        int64_t current_mbtrigs = p->lValue(12, "TRIGGERSCALED") - n_minbias;
+        int64_t current_mbtrigs = p->lValue(14, "TRIGGERSCALED") - n_minbias;
 
         for (size_t i = 0; i < triggernumber.size(); i++)
         {
