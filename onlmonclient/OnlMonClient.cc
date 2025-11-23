@@ -362,12 +362,12 @@ int OnlMonClient::requestHistoBySubSystem(const std::string &subsys, int getall)
   }
   else if (getall == 2)
   {
-    const char *hname = "none";
+    std::string hname = "none";
     for (histoiter = Histo.begin(); histoiter != Histo.end(); ++histoiter)
     {
       if (histoiter->second->SubSystem() == subsys)
       {
-        hname = histoiter->first.c_str();
+        hname = histoiter->first;
         break;
       }
     }
@@ -436,7 +436,7 @@ void OnlMonClient::registerDrawer(OnlMonDraw *Drawer)
   return;
 }
 
-int OnlMonClient::Draw(const char *who, const char *what)
+int OnlMonClient::Draw(const std::string &who, const std::string &what)
 {
   GetServerInfo();
   int iret = DoSomething(who, what, "DRAW");
@@ -461,14 +461,14 @@ int OnlMonClient::SavePlot(const std::string &who, const std::string &what)
   return iret;
 }
 
-int OnlMonClient::MakePS(const char *who, const char *what)
+int OnlMonClient::MakePS(const std::string &who, const std::string &what)
 {
   int iret = DoSomething(who, what, "PS");
   //  gSystem->ProcessEvents();
   return iret;
 }
 
-int OnlMonClient::MakeHtml(const char *who, const char *what)
+int OnlMonClient::MakeHtml(const std::string &who, const std::string &what)
 {
   isHtml(true); // so the client knows we run in html mode
   GetServerInfo();
@@ -964,9 +964,9 @@ TH1 *OnlMonClient::getHisto(const std::string &monitor, const std::string &hname
   return hiter->second->Histo();
 }
 
-void OnlMonClient::Print(const char *what)
+void OnlMonClient::Print(const std::string &what)
 {
-  if (!strcmp(what, "ALL") || !strcmp(what, "DRAWER"))
+  if ((what == "ALL") || (what == "DRAWER"))
   {
     // loop over the map and print out the content (name and location in memory)
     std::cout << "--------------------------------------" << std::endl
@@ -980,7 +980,7 @@ void OnlMonClient::Print(const char *what)
     }
     std::cout << std::endl;
   }
-  if (!strcmp(what, "ALL") || !strcmp(what, "SERVERS"))
+  if ((what == "ALL") || (what == "SERVERS"))
   {
     // loop over the map and print out the content (name and location in memory)
     std::cout << "--------------------------------------" << std::endl
@@ -993,7 +993,7 @@ void OnlMonClient::Print(const char *what)
       std::cout << "ServerHost: " << *hostiter << std::endl;
     }
   }
-  if (!strcmp(what, "ALL") || !strcmp(what, "MONITORS"))
+  if ((what == "ALL") || (what == "MONITORS"))
   {
     // loop over the map and print out the content (name and location in memory)
     std::cout << "--------------------------------------" << std::endl
@@ -1006,7 +1006,7 @@ void OnlMonClient::Print(const char *what)
                 << " listening to port " << moniiter.second.second << std::endl;
     }
   }
-  if (!strcmp(what, "ALL") || !strcmp(what, "HISTOS"))
+  if ((what == "ALL") || (what == "HISTOS"))
   {
     // loop over the map and print out the content (name and location in memory)
     std::cout << "--------------------------------------" << std::endl
@@ -1044,7 +1044,7 @@ void OnlMonClient::Print(const char *what)
     }
     std::cout << std::endl;
   }
-  if (!strcmp(what, "ALL") || !strcmp(what, "UNKNOWN"))
+  if ((what == "ALL") || (what == "UNKNOWN"))
   {
     // loop over the map and print out the content (name and location in memory)
     std::cout << "--------------------------------------" << std::endl
@@ -1441,12 +1441,12 @@ int OnlMonClient::ReadHistogramsFromFile(const std::string &filename, OnlMonDraw
   return 0;
 }
 
-int OnlMonClient::SendCommand(const char *hostname, const int port, const char *cmd)
+int OnlMonClient::SendCommand(const std::string &hostname, const int port, const std::string &cmd)
 {
   // Open connection to server
-  TSocket sock(hostname, port);
+  TSocket sock(hostname.c_str(), port);
   TMessage *mess;
-  if (!sock.Send(cmd))
+  if (!sock.Send(cmd.c_str()))
   {
     std::cout << "Server not running on " << hostname
               << " port " << port << std::endl;
@@ -1559,7 +1559,7 @@ int OnlMonClient::CanvasToPng(TCanvas *canvas, std::string const &pngfilename)
   return 0;
 }
 
-int OnlMonClient::HistoToPng(TH1 *histo, std::string const &pngfilename, const char *drawopt, const int statopt)
+int OnlMonClient::HistoToPng(TH1 *histo, std::string const &pngfilename, const std::string &drawopt, const int statopt)
 {
   TCanvas *cgiCanv = new TCanvas("cgiCanv", "cgiCanv", 200, 200, 650, 500);
   gStyle->SetOptStat(statopt);
@@ -1573,7 +1573,7 @@ int OnlMonClient::HistoToPng(TH1 *histo, std::string const &pngfilename, const c
   cgiCanv->cd();
   histo->SetMarkerStyle(8);
   histo->SetMarkerSize(0.15);
-  histo->Draw(drawopt);
+  histo->Draw(drawopt.c_str());
   uuid_t uu;
   uuid_generate(uu);
   char uuid[50];

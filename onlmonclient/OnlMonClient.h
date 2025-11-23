@@ -38,15 +38,15 @@ class OnlMonClient : public OnlMonBase
   int requestHistoByName(const std::string &subsystem, const std::string &what = "ALL");
   int requestHistoBySubSystem(const std::string &subsystem, int getall = 0);
   void registerHisto(const std::string &hname, const std::string &subsys);
-  void Print(const char *what = "ALL");
+  void Print(const std::string &what = "ALL");
   void PrintHistos(const std::string &what = "ALL");
 
   void AddServerHost(const std::string &hostname);
   void registerDrawer(OnlMonDraw *Drawer);
   int ReadHistogramsFromFile(const std::string &filename, OnlMonDraw *drawer);
-  int Draw(const char *who = "ALL", const char *what = "ALL");
-  int MakePS(const char *who = "ALL", const char *what = "ALL");
-  int MakeHtml(const char *who = "ALL", const char *what = "ALL");
+  int Draw(const std::string &who = "ALL", const std::string &what = "ALL");
+  int MakePS(const std::string &who = "ALL", const std::string &what = "ALL");
+  int MakeHtml(const std::string &who = "ALL", const std::string &what = "ALL");
   int SavePlot(const std::string &who = "ALL", const std::string &what = "ALL");
 
   std::string htmlRegisterPage(const OnlMonDraw &drawer,
@@ -65,14 +65,14 @@ class OnlMonClient : public OnlMonBase
   int RunNumber();
   std::pair<time_t,int> EventTime(const std::string &which);
   time_t EventTime(const std::string &servername, const std::string &which);
-  int SendCommand(const char *hostname, const int port, const char *cmd);
+  int SendCommand(const std::string &hostname, const int port, const std::string &cmd);
 
   void SetDisplaySizeX(int xsize) { display_sizex = xsize; }
   void SetDisplaySizeY(int ysize) { display_sizey = ysize; }
   int GetDisplaySizeX() { return display_sizex; }
   int GetDisplaySizeY() { return display_sizey; }
   int CanvasToPng(TCanvas *canvas, std::string const &filename);
-  int HistoToPng(TH1 *histo, std::string const &pngfilename, const char *drawopt = "", const int statopt = 11);
+  int HistoToPng(TH1 *histo, std::string const &pngfilename, const std::string &drawopt = "", const int statopt = 11);
 
   int SaveLogFile(const OnlMonDraw &drawer);
   int SetStyleToDefault();
