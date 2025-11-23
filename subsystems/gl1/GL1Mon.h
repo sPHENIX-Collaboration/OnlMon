@@ -4,6 +4,9 @@
 #include <onlmon/OnlMon.h>
 
 #include <array>
+#include <cstdint>
+#include <map>
+#include <vector>
 
 class Event;
 class eventReceiverClient;
@@ -21,8 +24,16 @@ class GL1Mon : public OnlMon
   int Reset() override;
 
  private:
-  eventReceiverClient* erc {nullptr};
-  TH1 *gl1_stats {nullptr};
+  eventReceiverClient *erc{nullptr};
+  TH1 *gl1_stats{nullptr};
+  std::vector<TH1 *> gl1_reject;
+  time_t starttime{0};
+  time_t lastupdate{0};
+  int64_t n_minbias{0};
+  std::vector<int> triggernumber;
+  std::vector<int> ntriggers;
+  std::vector<std::string> triggername;
+  std::map<int, std::string> triggernamemap;
   std::array<TH1 *, 64> scaledtriggers;
   std::array<TH1 *, 64> livetriggers;
   std::array<TH1 *, 64> rawtriggers;

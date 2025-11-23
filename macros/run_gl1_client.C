@@ -17,6 +17,11 @@ void gl1DrawInit(const int online = 0)
   // register histos we want with monitor name
   cl->registerHisto("gl1_stats", servername);
 
+  for (int i=0; i<2; i++)
+  {
+    std::string hname = "gl1_reject_" + std::to_string(i);
+    cl->registerHisto(hname, servername);
+  }
   for (int i=0; i<64; i++)
   {
     std::string hname = "gl1_scaledtrigger_" + std::to_string(i);

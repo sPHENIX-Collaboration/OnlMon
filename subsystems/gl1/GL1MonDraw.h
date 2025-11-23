@@ -5,10 +5,11 @@
 
 #include <array>
 #include <string>  // for allocator, string
+#include <vector>
 
 class RunDBodbc;
 class TCanvas;
-class TGraphErrors;
+class TGraph;
 class TPad;
 class TStyle;
 
@@ -29,13 +30,15 @@ class GL1MonDraw : public OnlMonDraw
   int DrawScaled(const std::string &what = "ALL");
   int DrawLive(const std::string &what = "ALL");
   int DrawServerStats();
-  TStyle *gl1Style{nullptr}; 
-  TCanvas *TC[3] {};
-  TPad *transparent[3] {};
-  TPad *Pad[20] {};
-  RunDBodbc *m_RunDB {nullptr};
-  int m_CurrentRunnumber {0};
-  std::array<std::string,64> m_TrignameArray;
+  int DrawRejection();
+  std::vector<TGraph *> reject_graph;
+  TStyle *gl1Style{nullptr};
+  TCanvas *TC[4]{};
+  TPad *transparent[4]{};
+  TPad *Pad[22]{};
+  RunDBodbc *m_RunDB{nullptr};
+  int m_CurrentRunnumber{0};
+  std::array<std::string, 64> m_TrignameArray;
 };
 
 #endif /*GL1_GL1MONDRAW_H */
