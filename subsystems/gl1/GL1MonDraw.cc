@@ -493,7 +493,7 @@ int GL1MonDraw::DrawRejection()
       }
       delete reject_graph[i];
       reject_graph[i] = new TGraph(nEntries, x, y);
-      TH2 *h2 = new TH2F("h2", m_TrignameArray[i + 21].c_str(), 1, 0, x[nEntries - 1] + 50, 1, 0, 100);
+      TH2 *h2 = new TH2F("h2", m_TrignameArray[i + 22].c_str(), 1, 0, x[nEntries - 1] + 50, 1, 0, 100);
       h2->SetStats(0);
       h2->SetXTitle("time in Run");
       h2->SetYTitle("Rejection over MB");
@@ -521,7 +521,7 @@ int GL1MonDraw::DrawRejection()
       //       hist1->DrawCopy();
       title.SetTextColor(4);
       title.SetTextSize(0.1);
-      title.DrawText(0.5, 0.99, m_TrignameArray[i + 21].c_str());
+      title.DrawText(0.5, 0.99, m_TrignameArray[i + 22].c_str());
     }
     // else
     // {
