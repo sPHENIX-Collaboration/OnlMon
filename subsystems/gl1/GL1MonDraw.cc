@@ -45,7 +45,13 @@ int GL1MonDraw::Init()
   gl1Style->SetCanvasBorderMode(0);
   oldStyle->cd();
   m_RunDB = new RunDBodbc();
-  reject_graph.resize(2, nullptr);
+  reject_graph_good.resize(2, nullptr);
+  reject_graph_bad.resize(2, nullptr);
+  rejection_limit.resize(2);
+// from /home/repo/Debian/bin/ll1TriggerControl.py
+//  self.rej_ranges = [[14,25],[40,60]]
+  rejection_limit[0] = std::make_pair(14,25);
+  rejection_limit[1] = std::make_pair(40,60);
   return 0;
 }
 
@@ -136,7 +142,7 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
   {
     int canvasindex = 3;
     // xpos (-1) negative: do not draw menu bar
-    TC[canvasindex] = new TCanvas(name.c_str(), "GL1 Live Triggers", -1, 0, xsize, ysize);
+    TC[canvasindex] = new TCanvas(name.c_str(), "GL1 Rejection", -1, 0, xsize, ysize);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
@@ -221,6 +227,7 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
   TText agap;
   agap.SetTextAlign(21);
   agap.SetTextSize(0.055);
+  TLine *line = new TLine();
 
   int ipad = 0;
   for (int i = 0; i < 64; i++)
@@ -279,7 +286,6 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
       title.DrawText(0.5, 0.99, htitle.c_str());
       delete abortgap;
       delete forbidden;
-      TLine *line = new TLine();  //= new TLine(110.5, 0, 110.5, hist1->GetMaximum());
       line->SetLineColor(6);
       line->SetLineWidth(2);
       line->SetLineStyle(2);  // dashed
@@ -295,11 +301,8 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
       agap.DrawText(125, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
       ipad++;
     }
-    // else
-    // {
-    //   std::cout << "histogram " << hname << " is empty" << std::endl;
-    // }
   }
+  delete line;
   // else
   TText PrintRun;
   PrintRun.SetTextFont(62);
@@ -340,6 +343,7 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
   agap.SetTextAlign(21);
   agap.SetTextSize(0.055);
 
+  TLine *line = new TLine();
   int ipad = 10;
   int icnt = 0;
   for (int i = 0; i < 64; i++)
@@ -410,7 +414,6 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       title.DrawText(0.5, 0.99, htitle.c_str());
       delete abortgap;
       delete forbidden;
-      TLine *line = new TLine();  //= new TLine(110.5, 0, 110.5, hist1->GetMaximum());
       line->SetLineColor(6);
       line->SetLineWidth(2);
       line->SetLineStyle(2);  // dashed
@@ -426,12 +429,8 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       agap.DrawText(125, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
       ipad++;
     }
-    // else
-    // {
-    //   std::cout << "histogram " << hname << " is empty" << std::endl;
-    // }
   }
-  // else
+  delete line;
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
@@ -467,6 +466,10 @@ int GL1MonDraw::DrawRejection()
   title.SetTextAlign(23);
   title.SetTextColor(4);
   title.SetTextSize(0.1);
+  TLine *tl = new TLine();
+  tl->SetLineWidth(4);
+  tl->SetLineColor(7);
+  tl->SetLineStyle(2);
   for (int i = 0; i < 2; i++)
   {
     std::string hname = "gl1_reject_" + std::to_string(i);
@@ -483,17 +486,44 @@ int GL1MonDraw::DrawRejection()
     {
       Pad[ipad]->cd();
       Pad[ipad]->SetGridy();
-      float *x = new float[nEntries];
-      float *y = new float[nEntries];
-      // std::vector<float> y[;
+      float *x_good = new float[nEntries];
+      float *y_good = new float[nEntries];
+      float *x_bad = new float[nEntries];
+      float *y_bad = new float[nEntries];
+      int igood_bin = 0;
+      int ibad_bin = 0;
+      float xmax {0.};
       for (int ibin = 1; ibin <= nEntries; ibin++)
       {
-        x[ibin - 1] = hist1->GetBinError(ibin);
-        y[ibin - 1] = hist1->GetBinContent(ibin);
+	float y = hist1->GetBinContent(ibin);
+	if (y >= rejection_limit[i].first && y <= rejection_limit[i].second)
+	{
+	  x_good[igood_bin] = hist1->GetBinError(ibin);
+	  y_good[igood_bin] = hist1->GetBinContent(ibin);
+	  xmax = std::max(xmax,x_good[igood_bin]);
+	  igood_bin++;
+	}
+	else
+	{
+	  x_bad[ibad_bin] = hist1->GetBinError(ibin);
+	  y_bad[ibad_bin] = hist1->GetBinContent(ibin);
+	  xmax = std::max(xmax,x_bad[ibad_bin]);
+	  ibad_bin++;
+	}
       }
-      delete reject_graph[i];
-      reject_graph[i] = new TGraph(nEntries, x, y);
-      TH2 *h2 = new TH2F("h2", m_TrignameArray[i + 22].c_str(), 1, 0, x[nEntries - 1] + 50, 1, 0, 100);
+      delete reject_graph_good[i];
+      delete reject_graph_bad[i];
+      reject_graph_good[i] = nullptr;
+      reject_graph_bad[i] = nullptr;
+      if (igood_bin > 0)
+      {
+	reject_graph_good[i] = new TGraph(igood_bin, x_good, y_good);
+      }
+      if (ibad_bin > 0)
+      {
+	reject_graph_bad[i] = new TGraph(ibad_bin, x_bad, y_bad);
+      }
+      TH2 *h2 = new TH2F("h2", m_TrignameArray[i + 22].c_str(), 1, 0, xmax + 50, 1, 0, 100);
       h2->SetStats(0);
       h2->SetXTitle("time in Run");
       h2->SetYTitle("Rejection over MB");
@@ -506,29 +536,35 @@ int GL1MonDraw::DrawRejection()
       h2->GetYaxis()->SetTitleOffset(0.4);
       h2->SetTitle("");
       h2->DrawCopy();
-      reject_graph[i]->SetMarkerStyle(20);
-      reject_graph[i]->SetMarkerSize(1.3);
-      reject_graph[i]->SetLineColor(1);
+      if (reject_graph_good[i])
+      {
+	reject_graph_good[i]->SetMarkerStyle(20);
+	reject_graph_good[i]->SetMarkerSize(2.);
+	reject_graph_good[i]->SetMarkerColor(3);
 
-      reject_graph[i]->Draw("p same");
-      delete[] x;
-      delete[] y;
+	reject_graph_good[i]->Draw("p same");
+      }
+      if (reject_graph_bad[i])
+      {
+	reject_graph_bad[i]->SetMarkerStyle(20);
+	reject_graph_bad[i]->SetMarkerSize(2.);
+	reject_graph_bad[i]->SetMarkerColor(2);
+
+	reject_graph_bad[i]->Draw("p same");
+      }
+      tl->DrawLine(0,rejection_limit[i].first, xmax + 50,rejection_limit[i].first);
+      tl->DrawLine(0,rejection_limit[i].second, xmax + 50,rejection_limit[i].second);
+      delete[] x_good;
+      delete[] y_good;
+      delete[] x_bad;
+      delete[] y_bad;
       delete h2;
-      //       hist1->SetStats(0);
-      //       std::string htitle = m_TrignameArray[i+21];
-      // //      std::cout << "index " << i << " title: " << htitle << std::endl;
-      //       hist1->SetFillColor(3);
-      //       hist1->DrawCopy();
       title.SetTextColor(4);
       title.SetTextSize(0.1);
       title.DrawText(0.5, 0.99, m_TrignameArray[i + 22].c_str());
     }
-    // else
-    // {
-    //   std::cout << "histogram " << hname << " is empty" << std::endl;
-    // }
   }
-  // else
+  delete tl;
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);

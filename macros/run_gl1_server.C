@@ -6,7 +6,7 @@
 
 R__LOAD_LIBRARY(libonlgl1mon_server.so)
  
-void run_gl1_server(const std::string &name = "GL1MON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/physics/GL1/physics/GL1_physics_gl1daq-00076682-0000.evt")
+void run_gl1_server(const std::string &name = "GL1MON", unsigned int serverid = 0, const std::string &prdffile = "/sphenix/lustre01/sphnxpro/physics/GL1/physics/GL1_physics_gl1daq-00078015-0000.evt")
 {
   OnlMon *m = new GL1Mon(name);                     // create subsystem Monitor object
   m->SetMonitorServerId(serverid);
