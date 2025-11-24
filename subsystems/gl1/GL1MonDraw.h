@@ -31,7 +31,9 @@ class GL1MonDraw : public OnlMonDraw
   int DrawLive(const std::string &what = "ALL");
   int DrawServerStats();
   int DrawRejection();
-  std::vector<TGraph *> reject_graph;
+  std::vector<TGraph *> reject_graph_good;
+  std::vector<TGraph *> reject_graph_bad;
+  std::vector<std::pair<int, int>> rejection_limit;
   TStyle *gl1Style{nullptr};
   TCanvas *TC[4]{};
   TPad *transparent[4]{};
