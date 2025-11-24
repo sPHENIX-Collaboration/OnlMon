@@ -175,13 +175,13 @@ int GL1Mon::process_event(Event *evt)
       if (ticks - lastupdate > mintimediff)
       {
         //      std::cout << "ticks: " << ticks << ", last: " << lastupdate << std::endl;
-        int64_t current_mbtrigs = p->lValue(14, "TRIGGERSCALED") - n_minbias;
+        int64_t current_mbtrigs = p->lValue(14, "TRIGGERLIVE") - n_minbias;
 
         for (size_t i = 0; i < triggernumber.size(); i++)
         {
-          int64_t curscale = p->lValue(triggernumber[i], "TRIGGERSCALED") - ntriggers[i];
-          // std::cout << "mb trigs: " << current_mbtrigs << " " <<  triggername[i]
-          // 	    << ": " << curscale << std::endl;
+          int64_t curscale = p->lValue(triggernumber[i], "TRIGGERLIVE") - ntriggers[i];
+           // std::cout << "mb trigs: " << current_mbtrigs << " " <<  triggername[i]
+           // 	    << ": " << curscale << std::endl;
           float rejection = (current_mbtrigs * 1.) / (curscale * 1.);
           ntriggers[i] += curscale;
           if (std::isfinite(rejection))
