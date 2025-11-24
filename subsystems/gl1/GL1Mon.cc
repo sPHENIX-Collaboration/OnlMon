@@ -91,6 +91,7 @@ int GL1Mon::BeginRun(const int /* runno */)
     erc = new eventReceiverClient(eventReceiverClientHost);
   }
   OnlMonServer *se = OnlMonServer::instance();
+  se->UseGl1();
   lastupdate = se->CurrentTicks();
   starttime = lastupdate;
   return 0;
