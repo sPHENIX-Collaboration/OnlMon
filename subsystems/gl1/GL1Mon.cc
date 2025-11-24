@@ -208,5 +208,7 @@ int GL1Mon::process_event(Event *evt)
 int GL1Mon::Reset()
 {
   // reset our internal counters
+  n_minbias = 0;
+  std::fill(ntriggers.begin(), ntriggers.end(),0);
   return 0;
 }
