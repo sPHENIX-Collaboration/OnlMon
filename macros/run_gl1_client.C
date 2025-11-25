@@ -44,9 +44,9 @@ void gl1Draw(const char *what = "ALL")
   OnlMonDraw *drawer = cl->GetDrawer(GL1DrawerName);
   for (auto iter = drawer->ServerBegin(); iter != drawer->ServerEnd(); ++iter)
   {
-    cl->requestHistoBySubSystem(iter->c_str(), 1);
+    cl->requestHistoBySubSystem(*iter, 1);
   }
-  cl->Draw(GL1DrawerName.c_str(), what);                      // Draw Histos of registered Drawers
+  cl->Draw(GL1DrawerName, what);                      // Draw Histos of registered Drawers
 }
 
 void gl1SavePlot()
@@ -59,6 +59,6 @@ void gl1SavePlot()
 void gl1Html()
 {
   OnlMonClient *cl = OnlMonClient::instance();  // get pointer to framewrk
-  cl->MakeHtml(GL1DrawerName.c_str());                        // Create html output
+  cl->MakeHtml(GL1DrawerName);                        // Create html output
   return;
 }

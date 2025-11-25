@@ -48,10 +48,11 @@ int GL1MonDraw::Init()
   reject_graph_good.resize(2, nullptr);
   reject_graph_bad.resize(2, nullptr);
   rejection_limit.resize(2);
+
 // from /home/repo/Debian/bin/ll1TriggerControl.py
-//  self.rej_ranges = [[14,25],[40,60]]
-  rejection_limit[0] = std::make_pair(14,25);
-  rejection_limit[1] = std::make_pair(40,60);
+// photon_triggers_rejection_ranges = [[19, 27], [50, 70]]
+  rejection_limit[0] = std::make_pair(19,27);
+  rejection_limit[1] = std::make_pair(50,70);
   return 0;
 }
 
