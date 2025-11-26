@@ -153,9 +153,9 @@ int BbcMon::Init()
   // Book Histograms
 
   // Trigger Information ----------------------------------------------------
+  bbc_trigs = new TH1F("bbc_trigs", "Trigger Counts", 64, -0.5, 63.5);
   if ( useGL1 )
   {
-    bbc_trigs = new TH1F("bbc_trigs", "Trigger Counts", 64, -0.5, 63.5);
     // initialize auto-update trigger histograms
     for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
       std::string name = Form("bbc_zvertex_autoupdate_%i", i);
@@ -559,21 +559,18 @@ int BbcMon::Init()
   // register histograms with server otherwise client won't get them
   OnlMonServer *se = OnlMonServer::instance();
 
-  // if ( useGL1 )
-  // {
-    se->registerHisto(this, bbc_trigs);
-    for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
+  se->registerHisto(this, bbc_trigs);
+  for ( int i = 0; i < TriggerEnum::NUM_MBD_TRIGGERS; i++ ){
       se->registerHisto(this, bbc_zvertex_autoupdate[i]);
-    }
-  // }
+  }
   se->registerHisto(this, bbc_south_nhit);
   se->registerHisto(this, bbc_north_nhit);
   for (int iarm=0; iarm<2; iarm++)
   {
-    se->registerHisto(this, bbc_nhit_emcal[iarm]);
-    se->registerHisto(this, bbc_nhit_hcal[iarm]);
-    se->registerHisto(this, bbc_nhit_emcalmbd[iarm]);
-    se->registerHisto(this, bbc_nhit_hcalmbd[iarm]);
+      se->registerHisto(this, bbc_nhit_emcal[iarm]);
+      se->registerHisto(this, bbc_nhit_hcal[iarm]);
+      se->registerHisto(this, bbc_nhit_emcalmbd[iarm]);
+      se->registerHisto(this, bbc_nhit_hcalmbd[iarm]);
   }
   se->registerHisto(this, bbc_adc);
   se->registerHisto(this, bbc_tdc);
@@ -995,13 +992,9 @@ int BbcMon::process_event(Event *evt)
 
   [[maybe_unused]] OnlMonServer *se = OnlMonServer::instance();
 
-  Packet *p[2];
+  std::array<Packet *,2> p;
   p[0] = evt->getPacket(1001);
-  h1_packet_status[p[0]->getStatus()]->Fill(1001);
   p[1] = evt->getPacket(1002);
-  h1_packet_status[p[1]->getStatus()]->Fill(1002);
-
-
 
   // Check that we have both MBD/BBC packets
   if (!p[0] || !p[1])
@@ -1017,6 +1010,9 @@ int BbcMon::process_event(Event *evt)
 
     return 0;
   }
+
+  h1_packet_status[p[0]->getStatus()]->Fill(1001);
+  h1_packet_status[p[1]->getStatus()]->Fill(1002);
 
   // Check that both MBD/BBC packets have good checksums, and get clocks
 
@@ -1054,14 +1050,34 @@ int BbcMon::process_event(Event *evt)
     }
   }
 
-  delete p[0];
-  delete p[1];
-
   int f_evt = evt->getEvtSequence();
   if ( Verbosity() && f_evt%1000 == 0 )
   {
     std::cout << "mbd evt " << f_evt << "\t" << useGL1 << std::endl;
   }
+
+  // Check event numbers
+  int evt0 = p[0]->iValue(0,"EVTNR");
+  int evt1 = p[1]->iValue(0,"EVTNR");
+  int evtx = (f_evt&0xffffffff) - 2;      // xmit evt num, low 16 bits
+
+  if ( (evt0 != evtx) || (evt1 != evtx) )
+  {
+    static int ctr = 0;
+    if (evtcnt==1)
+    {
+      ctr = 0;
+    }
+
+    if ( ctr<5 )
+    {
+      std::cout << "ERROR, XMIT evtnum differs from pkts, " << evtx << "\t" << evt0 << "\t" << evt1 << std::endl;
+      ctr++;
+    }
+  }
+
+  delete p[0];
+  delete p[1];
 
   if ( f_evt < skipto )
   {
@@ -1174,14 +1190,52 @@ int BbcMon::process_event(Event *evt)
                 if ( ctr<10 )
                 {
                   std::cout << "ERROR, clocks differ, 0x" << std::hex << dclock << "\t0x" << curr_dclock << std::dec << std::endl;
-                }
+                  std::cout << "evt nums: " << f_evt << "\t" << evtx << "\t" << evt0 << "\t" << evt1 << std::endl;
+
+                  // try gl1 both before and after
+                  Event *pre_gl1Event = erc->getEvent( f_evt-1 );
+                  if (pre_gl1Event)
+                  {      
+                      se->IncrementGl1FoundCounter(); // do i need to do this?
+                      std::cout << "Found pre gl1event " << f_evt-1 << std::endl;
+                      Packet* pre_pgl1 = pre_gl1Event->getPacket(14001);
+                      if (pre_pgl1)
+                      {
+                          uint64_t pre_dclock = (pre_pgl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
+                          if ( pre_dclock == dclock )
+                          {
+                            std::cout << "Found correct gl1, prev event" << std::endl;
+                          }
+                          delete pre_pgl1;
+                      }
+                      delete pre_gl1Event;
+                  }
+                  // try gl1 after
+                  Event *post_gl1Event = erc->getEvent( f_evt+1 );
+                  if (post_gl1Event)
+                  {      
+                      se->IncrementGl1FoundCounter(); // do i need to do this?
+                      std::cout << "Found post gl1event " << f_evt+1 << std::endl;
+                      Packet* post_pgl1 = post_gl1Event->getPacket(14001);
+                      if (post_pgl1)
+                      {
+                          uint64_t post_dclock = (post_pgl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
+                          if ( post_dclock == dclock )
+                          {
+                            std::cout << "Found correct gl1, post event" << std::endl;
+                          }
+                          delete post_pgl1;
+                      }
+                      delete post_gl1Event;
+                  }
+                }   // end of ctr
                 bbc_nevent_counter->Fill(7);    // bad clock found
                 ctr++;
               }
               else
               {
-                // if gl1 re-aligns, we reset the bad evt counter
-                bbc_nevent_counter->SetBinContent(8,0);
+                  // if gl1 re-aligns, we reset the bad evt counter
+                  bbc_nevent_counter->SetBinContent(8,0);
               }
             }
 
