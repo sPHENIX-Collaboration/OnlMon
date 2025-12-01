@@ -20,6 +20,7 @@ class MbdRawContainer;
 class MbdPmtContainer;
 //class GL1Manager;
 class eventReceiverClient;
+class Packet;
 class RunDBodbc;
 // class OnlMonDB;
 
@@ -36,7 +37,8 @@ class BbcMon : public OnlMon
   int Reset() override;
 
   void set_GL1(const int g) { useGL1 = g; }
-  void set_skipto(const int s) { skipto = s; }
+  //void set_skipto(const int s) { skipto = s; }
+  void set_skipto(const int s);
 
  protected:
   int DBVarInit();
@@ -49,7 +51,8 @@ class BbcMon : public OnlMon
   uint64_t trigraw{0};
   uint64_t triglive{0};
   uint64_t trigscaled{0};
-  //uint64_t gl1_bco{0};
+  uint64_t gl1_bco{0};
+  uint64_t gl1_offset{0};     // offset needed to get gl1 match
   uint64_t trigmask{0};       // accepted triggers
   uint64_t mbdtrig{0};        // main mbd trigger
   uint64_t mbdwidebest{0};    // best of mbdns n>=1or2, or |z|<150, or zdcns
@@ -74,7 +77,8 @@ class BbcMon : public OnlMon
   uint64_t GetMinBiasTrigBit(uint64_t trigs_enabled);
   uint64_t GetMinBiasWideTrigBit(uint64_t trigs_enabled);
 
-  int evtcnt{0};
+  int      f_evt{0};          // event number
+  int      evtcnt{0};
   // OnlMonDB *dbvars = nullptr;
 
   MbdGeom *_mbdgeom{nullptr};  // contains positions of BBC PMTs
@@ -103,6 +107,7 @@ class BbcMon : public OnlMon
   std::string gl1badflagfname;
   int GetGL1BadFlag();
   int UpdateGL1BadFlag(const int flag);
+  int FindGoodGL1(Event*& g, Packet*& p, uint64_t femclk);
 
   TH1 *bbc_trigs{nullptr};
   TH2 *bbc_adc{nullptr};
