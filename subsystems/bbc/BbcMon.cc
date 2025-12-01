@@ -188,7 +188,10 @@ int BbcMon::Init()
     name = "bbc_nhit_hcalmbd"; name += iarm;
     bbc_nhit_hcalmbd[iarm] = new TH1F(name,"MBD Nhits, JET&&MBD trig",64,-0.5,63.5);
   }
-  for(int i = 0; i < nPacketStatus; i++) h1_packet_status[i] = new TH1F(Form("h1_packet_status_%d",i),"",2,1000.5, 1002.5);
+  for(int i = 0; i < nPacketStatus; i++)
+  {
+    h1_packet_status[i] = new TH1F(Form("h1_packet_status_%d",i),"",2,1000.5, 1002.5);
+  }
 
 
 
@@ -615,9 +618,10 @@ int BbcMon::Init()
   se->registerHisto(this, bbc_runvtx);
   se->registerHisto(this, bbc_runvtxerr);
   se->registerHisto(this, bbc_runvtxtime);
-  for(int i = 0; i < nPacketStatus; i++) se->registerHisto(this, h1_packet_status[i]);
-
-
+  for (int i = 0; i < nPacketStatus; i++)
+  {
+    se->registerHisto(this, h1_packet_status[i]);
+  }
 
   /*
   dbvars = new OnlMonDB(ThisName);  // use monitor name for db table name
@@ -958,6 +962,58 @@ int BbcMon::GetGL1BadFlag()
   return gl1badflag;
 }
 
+int BbcMon::FindGoodGL1(Event*& gl1evt, Packet*& gl1p, uint64_t fem_clock)
+{
+  // Save originals
+  Event *orig_e = gl1evt;
+  Packet *orig_p = gl1p;
+
+  //std::cout << "In FindGoodGL1" << orig_e << "\t" << orig_p << std::endl;
+
+  // try up to 100 gl1 before
+  for (int ievt = 1; ievt<=100; ievt++)
+  {
+    int evt2try = f_evt - gl1_offset - ievt;
+    gl1evt = erc->getEvent( evt2try );
+    if ( gl1evt )
+    {
+      gl1p = gl1evt->getPacket(14001);
+      if ( gl1p )
+      {
+        uint64_t pre_dclock = ( gl1p->lValue(0,"BCO") - fem_clock )&0xffffffffUL;
+        if ( pre_dclock == dclock )
+        {
+          gl1_offset = f_evt - evt2try;
+          std::cout << "Found correct gl1, prev event " << ievt << "\t" << gl1_offset << "\t" << evt2try << std::endl;
+          std::cout << "New pointers " << gl1evt << "\t" << gl1p << std::endl;
+          if ( orig_e != gl1evt )
+          {
+            delete orig_e;
+          }
+          if ( orig_p != gl1p )
+          {
+            delete orig_p;
+          }
+          return 1;
+        }
+        delete gl1p;
+      }
+      delete gl1evt;
+    }
+    else
+    {
+      // ran out of gl1 in buffer, use originals
+      gl1evt = orig_e;
+      gl1p = orig_p;
+      return -1;
+    }
+  }
+
+  gl1evt = orig_e;
+  gl1p = orig_p;
+  return -1;    // not found
+}
+
 int BbcMon::EndRun(const int /* runno */)
 {
   // This does nothing for now, but can put summary info here for debugging
@@ -986,6 +1042,24 @@ int BbcMon::process_event(Event *evt)
   {
     return 0;
   }
+
+  f_evt = evt->getEvtSequence();
+
+  if ( f_evt==100 ) std::cout << "skipto " << skipto << std::endl;
+  if ( f_evt < skipto )
+  {
+      if ( (f_evt%10000)==0 )
+      {
+          std::cout << "skipping " << f_evt << ", skipto = " << skipto << std::endl;
+      }
+      return 0;
+  }
+
+  if ( Verbosity() && f_evt%1000 == 0 )
+  {
+    std::cout << "mbd evt " << f_evt << "\t" << useGL1 << std::endl;
+  }
+
 
   evtcnt++;
   bbc_nevent_counter->Fill(0);
@@ -1050,12 +1124,6 @@ int BbcMon::process_event(Event *evt)
     }
   }
 
-  int f_evt = evt->getEvtSequence();
-  if ( Verbosity() && f_evt%1000 == 0 )
-  {
-    std::cout << "mbd evt " << f_evt << "\t" << useGL1 << std::endl;
-  }
-
   // Check event numbers
   int evt0 = p[0]->iValue(0,"EVTNR");
   int evt1 = p[1]->iValue(0,"EVTNR");
@@ -1078,15 +1146,6 @@ int BbcMon::process_event(Event *evt)
 
   delete p[0];
   delete p[1];
-
-  if ( f_evt < skipto )
-  {
-      if ( (f_evt%10000)==0 )
-      {
-          std::cout << "skipping " << f_evt << std::endl;
-      }
-      return 0;
-  }
 
   if ( (f_evt%1000)==0 )
   {
@@ -1125,7 +1184,7 @@ int BbcMon::process_event(Event *evt)
     trigraw = 0UL;
     triglive = 0UL;
     trigscaled = 0UL;
-    Event *gl1Event = erc->getEvent( f_evt );
+    Event *gl1Event = erc->getEvent( f_evt - gl1_offset );
     //std::cout << "gl1event " << (uint64_t)gl1Event << "\t" << f_evt << std::endl;
 
     if (gl1Event)
@@ -1135,7 +1194,43 @@ int BbcMon::process_event(Event *evt)
         Packet* p_gl1 = gl1Event->getPacket(14001);
         if (p_gl1)
         {
-            //gl1_bco = p_gl1->lValue(0,"BCO");
+            gl1_bco = p_gl1->lValue(0,"BCO");
+            // get dclock
+            if ( dclock == 0xffffffffffffffffUL )
+            {
+              dclock = (gl1_bco - clock0)&0xffffffffUL;
+              std::cout << "DCLOCK = 0x" << std::hex << dclock << std::dec << std::endl;
+            }
+            else
+            {
+              uint64_t curr_dclock = (p_gl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
+              if ( curr_dclock != dclock )
+              {
+                static int ctr = 0;
+                // Look for a good GL1
+                if ( ctr<10 )
+                {
+                  std::cout << "ERROR, clocks differ, 0x" << std::hex << dclock << "\t0x" << curr_dclock << std::dec << std::endl;
+                  std::cout << "clocks: 0x" << std::hex << gl1_bco << "\t0x" << clock0 << std::dec << std::endl;
+                  std::cout << "evt nums: " << f_evt << "\t" << evtx << "\t" << evt0 << "\t" << evt1 << std::endl;
+                  ctr++;
+                }
+
+                int retval = FindGoodGL1( gl1Event, p_gl1, clock0 );
+
+                if ( retval == -1 ) 
+                {
+                  bbc_nevent_counter->Fill(7);    // still bad clock
+                }
+                else
+                {
+                  // if gl1 re-aligns, we reset the bad evt counter
+                  bbc_nevent_counter->SetBinContent(8,0);
+                  ctr = 0;
+                }
+              }
+            }
+
             triggervec = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerVector") );
             triginput = static_cast<uint64_t>( p_gl1->lValue(0,"TriggerInput") );
             //std::cout << "trig " << std::hex << triggervec << "\t" << triginput << std::dec << std::endl;
@@ -1172,71 +1267,6 @@ int BbcMon::process_event(Event *evt)
                 {
                     bbc_trigs->Fill( itrig );
                 }
-            }
-
-            // get dclock
-            static int ctr = 0;
-            if ( dclock == 0xffffffffffffffffUL )
-            {
-              dclock = (p_gl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
-              std::cout << "DCLOCK = 0x" << std::hex << dclock << std::dec << std::endl;
-              ctr = 0;
-            }
-            else
-            {
-              uint64_t curr_dclock = (p_gl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
-              if ( curr_dclock != dclock )
-              {
-                if ( ctr<10 )
-                {
-                  std::cout << "ERROR, clocks differ, 0x" << std::hex << dclock << "\t0x" << curr_dclock << std::dec << std::endl;
-                  std::cout << "evt nums: " << f_evt << "\t" << evtx << "\t" << evt0 << "\t" << evt1 << std::endl;
-
-                  // try gl1 both before and after
-                  Event *pre_gl1Event = erc->getEvent( f_evt-1 );
-                  if (pre_gl1Event)
-                  {      
-                      se->IncrementGl1FoundCounter(); // do i need to do this?
-                      std::cout << "Found pre gl1event " << f_evt-1 << std::endl;
-                      Packet* pre_pgl1 = pre_gl1Event->getPacket(14001);
-                      if (pre_pgl1)
-                      {
-                          uint64_t pre_dclock = (pre_pgl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
-                          if ( pre_dclock == dclock )
-                          {
-                            std::cout << "Found correct gl1, prev event" << std::endl;
-                          }
-                          delete pre_pgl1;
-                      }
-                      delete pre_gl1Event;
-                  }
-                  // try gl1 after
-                  Event *post_gl1Event = erc->getEvent( f_evt+1 );
-                  if (post_gl1Event)
-                  {      
-                      se->IncrementGl1FoundCounter(); // do i need to do this?
-                      std::cout << "Found post gl1event " << f_evt+1 << std::endl;
-                      Packet* post_pgl1 = post_gl1Event->getPacket(14001);
-                      if (post_pgl1)
-                      {
-                          uint64_t post_dclock = (post_pgl1->lValue(0,"BCO") - clock0)&0xffffffffUL;
-                          if ( post_dclock == dclock )
-                          {
-                            std::cout << "Found correct gl1, post event" << std::endl;
-                          }
-                          delete post_pgl1;
-                      }
-                      delete post_gl1Event;
-                  }
-                }   // end of ctr
-                bbc_nevent_counter->Fill(7);    // bad clock found
-                ctr++;
-              }
-              else
-              {
-                  // if gl1 re-aligns, we reset the bad evt counter
-                  bbc_nevent_counter->SetBinContent(8,0);
-              }
             }
 
             delete p_gl1;
@@ -1634,4 +1664,10 @@ int BbcMon::DBVarInit()
        dbvars->DBInit();
        */
     return 0;
+}
+
+void BbcMon::set_skipto(const int s)
+{
+  skipto = s;
+  std::cout << "set skip " << skipto << std::endl;
 }
