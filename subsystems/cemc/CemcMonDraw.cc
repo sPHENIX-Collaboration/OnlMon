@@ -1065,9 +1065,8 @@ int CemcMonDraw::DrawSecond(const std::string & /* what */)
   {
     warn.SetTextSize(.15);
     warn.SetTextColor(kRed);
-    warn.DrawText(0.05,0.5,"!WARNING!");
-    warn.DrawText(0.05,0.35,"POSSIBLE DATA CORRUPTION");
-    warn.DrawText(0.05,0.2,"CONTACT DAQ EXPERT");
+    warn.DrawText(0.05,0.5,"Nonzero Decoder Status Found");
+    warn.DrawText(0.05,0.35,"Possible Data Corruption");
   }
   else
   {
