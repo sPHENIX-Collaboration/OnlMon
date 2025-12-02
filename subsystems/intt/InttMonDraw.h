@@ -132,13 +132,13 @@ class InttMonDraw : public OnlMonDraw
   double constexpr static m_min_events = 50000;
 
   // pp defaults
-  // double m_lower = 0.015;
-  // double m_upper = 0.650;
+  double m_lower = 0.015;
+  double m_upper = 0.650;
 
   // AuAu defaults
-  double m_lower = 0.400;
-  // double m_upper = 2.500; // For DAC0 = 30
-  double m_upper = 8.000; // For DAC0 = 25, some channels become hotter but it is not something the shift crew should worry about
+  // double m_lower = 0.400;
+  // // double m_upper = 2.500; // For DAC0 = 30
+  // double m_upper = 8.000; // For DAC0 = 25, some channels become hotter but it is not something the shift crew should worry about
 };
 
 #endif
