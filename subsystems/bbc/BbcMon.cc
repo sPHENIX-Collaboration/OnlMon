@@ -745,6 +745,7 @@ int BbcMon::BeginRun(const int runno)
   }
 
   dclock = 0xffffffffffffffffUL;
+  gl1_offset = 0;
 
   return 0;
 }
@@ -868,7 +869,12 @@ int BbcMon::UpdateSendFlag(const int flag)
   }
   else
   {
-    std::cout << "unable to open file " << sendflagfname << std::endl;
+    static int ctr = 0;
+    if ( ctr < 10 )
+    {
+      std::cout << "unable to open file " << sendflagfname << std::endl;
+      ctr++;
+    }
     return 0;
   }
   sendflagfile.close();
@@ -884,7 +890,12 @@ int BbcMon::GetSendFlag()
   }
   else
   {
-    std::cout << "unable to open file " << sendflagfname << std::endl;
+    static int ctr = 0;
+    if ( ctr < 10 )
+    {
+      std::cout << "unable to open file " << sendflagfname << std::endl;
+      ctr++;
+    }
     sendflag = 0;
   }
   sendflagfile.close();
@@ -902,7 +913,12 @@ int BbcMon::UpdateZResetFlag(const int flag)
   }
   else
   {
-    std::cout << "unable to open file " << zresetflagfname << std::endl;
+    static int ctr = 0;
+    if ( ctr < 10 )
+    {
+      std::cout << "unable to open file " << zresetflagfname << std::endl;
+      ctr++;
+    }
     return 0;
   }
   zresetflagfile.close();
@@ -918,7 +934,12 @@ int BbcMon::GetZResetFlag()
   }
   else
   {
-    std::cout << "unable to open file " << zresetflagfname << std::endl;
+    static int ctr = 0;
+    if ( ctr < 10 )
+    {
+      std::cout << "unable to open file " << zresetflagfname << std::endl;
+      ctr++;
+    }
     zresetflag = 0;
   }
   zresetflagfile.close();
@@ -936,7 +957,12 @@ int BbcMon::UpdateGL1BadFlag(const int flag)
   }
   else
   {
-    std::cout << "unable to open file " << gl1badflagfname << std::endl;
+    static int ctr = 0;
+    if ( ctr < 10 )
+    {
+      std::cout << "unable to open file " << gl1badflagfname << std::endl;
+      ctr++;
+    }
     return 0;
   }
   gl1badflagfile.close();
@@ -953,7 +979,12 @@ int BbcMon::GetGL1BadFlag()
   }
   else
   {
-    std::cout << "unable to open file " << gl1badflagfname << std::endl;
+    static int ctr = 0;
+    if ( ctr < 10 )
+    {
+      std::cout << "unable to open file " << gl1badflagfname << std::endl;
+      ctr++;
+    }
     gl1badflag = 0;
   }
   gl1badflagfile.close();
@@ -1210,7 +1241,7 @@ int BbcMon::process_event(Event *evt)
                 // Look for a good GL1
                 if ( ctr<10 )
                 {
-                  std::cout << "ERROR, clocks differ, 0x" << std::hex << dclock << "\t0x" << curr_dclock << std::dec << std::endl;
+                  std::cout << "ERROR, dclocks differ, 0x" << std::hex << dclock << "\t0x" << curr_dclock << std::dec << std::endl;
                   std::cout << "clocks: 0x" << std::hex << gl1_bco << "\t0x" << clock0 << std::dec << std::endl;
                   std::cout << "evt nums: " << f_evt << "\t" << evtx << "\t" << evt0 << "\t" << evt1 << std::endl;
                   ctr++;
