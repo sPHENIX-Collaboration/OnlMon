@@ -181,7 +181,7 @@ int CemcMonDraw::MakeCanvas(const std::string &name)
   else if (name == "CemcMon2")
   {
     // xpos negative: do not draw menu bar
-    TC[1] = new TCanvas(name.c_str(), "CemcMon2 Packet Information", -1, ysize, xsize , ysize);
+    TC[1] = new TCanvas(name.c_str(), "Expert: CemcMon2 Packet Information", -1, ysize, xsize , ysize);
     TC[1] -> Draw();
     gSystem->ProcessEvents();
     Pad[1] = new TPad("cemcpad1", "packet event check", 0.0, 0.0, 0.78, 0.95, 0);
