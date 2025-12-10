@@ -93,9 +93,9 @@ int SepdMon::Init()
 
   // --- copied straight from the MBD code
   mbdns = (0x1UL << TriggerEnum::MBD_NS2) | (0x1UL << TriggerEnum::MBD_NS1); // mbd wide triggers
-  mbdnsvtx10 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX10) | (0x1UL << TriggerEnum::MBD_NS1_ZVRTX10);
-  mbdnsvtx30 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX30);
-  mbdnsvtx150 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX150);
+  mbdnsvtx10 = (0x1UL << TriggerEnum::MBD_NS1_ZVRTX10) | (0x1UL << TriggerEnum::MBD_NS2_ZVRTX10);
+  mbdnsvtx30 = (0x1UL << TriggerEnum::MBD_NS1_ZVRTX13);
+  mbdnsvtx150 = (0x1UL << TriggerEnum::MBD_NS1_ZVRTX150);
   mbdtrig = mbdns | mbdnsvtx10 | mbdnsvtx30 | mbdnsvtx150;
 
 
