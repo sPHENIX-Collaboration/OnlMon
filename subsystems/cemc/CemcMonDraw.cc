@@ -1681,10 +1681,10 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   {
     // Priority to the bits between 24 and 31 (draw photon trig first)
     // if (n_entries[itrig].second >= 24 && n_entries[itrig].second <= 31)
-    if (n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON6_MBD_NS2 ||
-        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON8_MBD_NS2 ||
-        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON10_MBD_NS2 ||
-        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON12_MBD_NS2 || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_SINGLES || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_VERT || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_VERT || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_HORZ || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_HORZ)
+    if (n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON2_MBD_NS1 ||
+        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON3_MBD_NS1 ||
+        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON4_MBD_NS1 ||
+        n_entries[itrig].second == TriggerEnum::BitCodes::PHOTON5_MBD_NS1 || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_SINGLES || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_VERT || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_VERT || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_NARROW_HORZ || n_entries[itrig].second == TriggerEnum::BitCodes::HCAL_WIDE_HORZ)
     {
       if (n_entries[itrig].first > 0. && priority_triggers.size() < 4)
       {
@@ -1698,7 +1698,7 @@ int CemcMonDraw::DrawFifth(const std::string & /* what */)
   {
     for (int itrig = 0; itrig < 64; itrig++)
     {
-      if (priority_triggers.size() < 4 && n_entries[itrig].second < TriggerEnum::BitCodes::PHOTON12_MBD_NS2)
+      if (priority_triggers.size() < 4 && n_entries[itrig].second < TriggerEnum::BitCodes::PHOTON5_MBD_NS1)
       {
         priority_triggers.push_back(n_entries[itrig].second);
       }
