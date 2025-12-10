@@ -443,7 +443,7 @@ int HcalMon::process_event(Event* e /* evt */)
     if (usetrig4_10)
     {
       // commenting out until we have a better way to handle cosmic bits -- tanner
-      if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX10) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX30) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX150) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0)
+      if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX10) == 0 &&trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX30) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS2_ZVRTX150) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS1) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS2) == 0)
       {
         fillhist = false;
       }
