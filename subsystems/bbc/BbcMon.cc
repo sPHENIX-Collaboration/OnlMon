@@ -81,13 +81,13 @@ int BbcMon::Init()
 
   // Set trigger bits
   mbdns = (0x1UL << TriggerEnum::MBD_NS2) | (0x1UL << TriggerEnum::MBD_NS1); // mbd wide triggers
-  mbdnsvtx10 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX10) | (0x1UL << TriggerEnum::MBD_NS1_ZVRTX10);
-  mbdnsvtx30 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX30);
-  mbdnsvtx150 = (0x1UL << TriggerEnum::MBD_NS2_ZVRTX150);
+  mbdnsvtx10 = (0x1UL << TriggerEnum::MBD_NS1_ZVRTX10) | (0x1UL << TriggerEnum::MBD_NS2_ZVRTX10);
+  mbdnsvtx30 = (0x1UL << TriggerEnum::MBD_NS1_ZVRTX13);
+  mbdnsvtx150 = (0x1UL << TriggerEnum::MBD_NS1_ZVRTX150);
   mbdtrig = mbdns | mbdnsvtx10 | mbdnsvtx30 | mbdnsvtx150;
   zdcns = (0x1UL << TriggerEnum::ZDC_NS);
-  emcal = (0x1UL << TriggerEnum::PHOTON6_MBD_NS2) | (0x1UL << TriggerEnum::PHOTON8_MBD_NS2)
-          | (0x1UL << TriggerEnum::PHOTON10_MBD_NS2) | (0x1UL << TriggerEnum::PHOTON12_MBD_NS2);
+  emcal = (0x1UL << TriggerEnum::PHOTON2_MBD_NS1) | (0x1UL << TriggerEnum::PHOTON3_MBD_NS1)
+          | (0x1UL << TriggerEnum::PHOTON4_MBD_NS1) | (0x1UL << TriggerEnum::PHOTON5_MBD_NS1);
   hcal = (0x1UL << TriggerEnum::HCAL_SINGLES);
   emcalmbd = emcal | mbdtrig;
   hcalmbd = hcal | mbdtrig;
@@ -769,10 +769,10 @@ uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
   std::vector<int> widebits = {
     TriggerEnum::MBD_NS2_ZVRTX10,
     TriggerEnum::MBD_NS1_ZVRTX10,
-    TriggerEnum::MBD_NS2_ZVRTX30,
+    TriggerEnum::MBD_NS1_ZVRTX13,
     TriggerEnum::MBD_NS1,
     TriggerEnum::MBD_NS2,
-    TriggerEnum::MBD_NS2_ZVRTX150,
+    TriggerEnum::MBD_NS1_ZVRTX150,
   };
   
   int best_scaledown = 999999999;
@@ -788,16 +788,16 @@ uint64_t BbcMon::GetMinBiasTrigBit(uint64_t trigs_enabled)
       best_trig = itrig;
       switch (itrig)
       {
-        case TriggerEnum::MBD_NS2_ZVRTX10:
-          zcut = 10.;
-          break;
         case TriggerEnum::MBD_NS1_ZVRTX10:
           zcut = 10.;
           break;
-        case TriggerEnum::MBD_NS2_ZVRTX30:
+        case TriggerEnum::MBD_NS2_ZVRTX10:
+          zcut = 10.;
+          break;
+        case TriggerEnum::MBD_NS1_ZVRTX13:
           zcut = 13.3;
           break;
-        case TriggerEnum::MBD_NS2_ZVRTX150:
+        case TriggerEnum::MBD_NS1_ZVRTX150:
           zcut = 150.;
           break;
       }
@@ -827,7 +827,7 @@ uint64_t BbcMon::GetMinBiasWideTrigBit(uint64_t trigs_enabled)
   std::vector<int> widebits = {
     TriggerEnum::MBD_NS1,
     TriggerEnum::MBD_NS2,
-    TriggerEnum::MBD_NS2_ZVRTX150
+    TriggerEnum::MBD_NS1_ZVRTX150
   };
   
   int best_scaledown = 99999999;
