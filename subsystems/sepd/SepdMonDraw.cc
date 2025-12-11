@@ -375,7 +375,7 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
   //double zmax = 0.1;
-  double zmax = 1.0;
+  double zmax = 0.3;
   //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
@@ -407,6 +407,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
   polar_histN->Draw("same colz pol AH");
   polar_histN01->Draw("same col pol AH");
+  // adjust z axis 
+  // polar
   tarm.DrawText(0.40,0.91,"North");
   gStyle->SetPalette(57);
 
@@ -573,8 +575,8 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
   Pad[4]->cd();
   h_ADC_corr->GetYaxis()->SetNdivisions(505);
   h_ADC_corr->GetXaxis()->SetNdivisions(505);
-  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e6);
-  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6);
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e4);
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e4);
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -589,8 +591,8 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
   Pad[5]->cd();
   h_hits_corr->GetYaxis()->SetNdivisions(505);
   h_hits_corr->GetXaxis()->SetNdivisions(505);
-  h_hits_corr->GetYaxis()->SetRangeUser(0,380);
-  h_hits_corr->GetXaxis()->SetRangeUser(0,380);
+  h_hits_corr->GetYaxis()->SetRangeUser(0,200);
+  h_hits_corr->GetXaxis()->SetRangeUser(0,200);
   h_hits_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -656,8 +658,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[4]->cd();
   h_ADC_corr->GetYaxis()->SetNdivisions(505);
   h_ADC_corr->GetXaxis()->SetNdivisions(505);
-  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e6);
-  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6);
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e4);
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e4);
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -676,7 +678,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   // h_hits_corr->GetXaxis()->SetRangeUser(0,380);
   // h_hits_corr->Draw("COLZ");
   h_adc_south->GetXaxis()->SetNdivisions(505);
-  h_adc_south->GetXaxis()->SetRangeUser(0,1.5e6);
+  h_adc_south->GetXaxis()->SetRangeUser(0,1.5e4);
   h_adc_south->GetXaxis()->SetTitle("ADC sum");
   h_adc_south->GetYaxis()->SetTitle("Counts");
   h_adc_south->Draw();
