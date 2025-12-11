@@ -2,6 +2,7 @@
 
 #include <onlmon/OnlMon.h>  // for OnlMon
 #include <onlmon/OnlMonServer.h>
+#include <onlmon/triggerEnum.h>
 
 #include <Event/Event.h>
 #include <Event/eventReceiverClient.h>
@@ -18,8 +19,15 @@ GL1Mon::GL1Mon(const std::string &name)
 {
   // leave ctor fairly empty, its hard to debug if code crashes already
   // during a new GL1Mon()
-  triggernamemap[22] = "22";
-  triggernamemap[23] = "23";
+  // triggernamemap[22] = "22";
+  // triggernamemap[23] = "23";
+  // triggernamemap[]
+  // RareProbeTriggers
+  for (const auto &miter : TriggerEnum::RareProbeTriggers)
+  {
+    // convert int to "int"
+    triggernamemap[static_cast<int>(miter.first)] = std::to_string(static_cast<int>(miter.first));
+  }
   return;
 }
 
