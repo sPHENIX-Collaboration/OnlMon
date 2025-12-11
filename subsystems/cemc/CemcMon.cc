@@ -41,8 +41,8 @@ enum
 const int depth = 50000;
 // const int historyLength = 100;
 // const float hit_threshold = 100;
-const float hit_threshold = 100;
-const float waveform_hit_threshold = 100;
+const float hit_threshold = 50;
+const float waveform_hit_threshold = 50;
 const float chi2_check_threshold = 3000;
 
 using namespace std;
