@@ -75,7 +75,7 @@ int HcalMonDraw::Init()
   char TEMPFILENAME[100];
   const char* hcalcalib = getenv("HCALCALIB");
 
-  sprintf(TEMPFILENAME, "%s/%s_79152.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_79243.root", hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
