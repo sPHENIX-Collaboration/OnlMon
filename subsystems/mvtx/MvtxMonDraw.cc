@@ -505,7 +505,7 @@ int MvtxMonDraw::DrawGeneral(const std::string & /* what */)
   {
     mvtxmon_mGeneralOccupancy[NFlx]->GetYaxis()->SetTitleOffset(0.6);
     mvtxmon_mGeneralOccupancy[NFlx]->SetMinimum(0);
-    mvtxmon_mGeneralOccupancy[NFlx]->SetMaximum(100E-6);  // set a fixed max value
+    mvtxmon_mGeneralOccupancy[NFlx]->SetMaximum(30E-6);  // set a fixed max value, was 100E-6 for AuAu
     mvtxmon_mGeneralOccupancy[NFlx]->SetContour(100);
   }
 
