@@ -309,31 +309,32 @@ int SepdMon::process_event(Event *e /* evt */)
   long double sumADC_n = 0;
 
   // --- get the trigger info...
-  bool is_trigger_okay = false;
-  int evtnr = e->getEvtSequence();
-  Event* gl1Event = erc->getEvent(evtnr);
-  // --- only do this insanity for diagnostic purposes and a small number of events
-  // std::cout << "event number evtnr is " << evtnr << std::endl;
-  // std::cout << "gl1Event pointer is " << gl1Event << std::endl;
-  if ( gl1Event )
-    {
-      OnlMonServer *se = OnlMonServer::instance();
-      se->IncrementGl1FoundCounter();
-      Packet* pgl1 = gl1Event->getPacket(14001);
-      // --- only do this insanity for diagnostic purposes and a small number of events
-      // std::cout << "gl1 packet 14001 pointer is " << pgl1 << std::endl;
-      if ( pgl1 )
-        {
-          uint64_t triggervec = pgl1->lValue(0, "ScaledVector");
-          is_trigger_okay = triggervec & mbdtrig;
-          // --- only do this insanity for diagnostic purposes and a small number of events
-          // std::cout << "triggervec is " << triggervec << std::endl;
-          // std::cout << "mbdtrig is " << mbdtrig << std::endl;
-          // std::cout << "trigger decision is " << is_trigger_okay << std::endl;
-          delete pgl1;
-        }
-      delete gl1Event;
-    }
+  // --- don't need trigger info for pp
+  // bool is_trigger_okay = false;
+  // int evtnr = e->getEvtSequence();
+  // Event* gl1Event = erc->getEvent(evtnr);
+  // // --- only do this insanity for diagnostic purposes and a small number of events
+  // // std::cout << "event number evtnr is " << evtnr << std::endl;
+  // // std::cout << "gl1Event pointer is " << gl1Event << std::endl;
+  // if ( gl1Event )
+  //   {
+  //     OnlMonServer *se = OnlMonServer::instance();
+  //     se->IncrementGl1FoundCounter();
+  //     Packet* pgl1 = gl1Event->getPacket(14001);
+  //     // --- only do this insanity for diagnostic purposes and a small number of events
+  //     // std::cout << "gl1 packet 14001 pointer is " << pgl1 << std::endl;
+  //     if ( pgl1 )
+  //       {
+  //         uint64_t triggervec = pgl1->lValue(0, "ScaledVector");
+  //         is_trigger_okay = triggervec & mbdtrig;
+  //         // --- only do this insanity for diagnostic purposes and a small number of events
+  //         // std::cout << "triggervec is " << triggervec << std::endl;
+  //         // std::cout << "mbdtrig is " << mbdtrig << std::endl;
+  //         // std::cout << "trigger decision is " << is_trigger_okay << std::endl;
+  //         delete pgl1;
+  //       }
+  //     delete gl1Event;
+  //   }
 
   uint64_t zdc_clock = 0;
   Packet* pzdc = e->getPacket(12001);
@@ -488,11 +489,12 @@ int SepdMon::process_event(Event *e /* evt */)
   h1_waveform_twrAvg->Scale((float) 1 / ChannelNumber);
 
   // --- need to make a trigger selection?
-  if ( is_trigger_okay )
-    {
-      h_ADC_corr->Fill(sumADC_s, sumADC_n);
-      h_hits_corr->Fill(sumhit_s, sumhit_n);
-    }
+  // --- yes in AuAu, no in pp
+  //  if ( is_trigger_okay )
+  //    {
+  h_ADC_corr->Fill(sumADC_s, sumADC_n);
+  h_hits_corr->Fill(sumhit_s, sumhit_n);
+  //    }
 
   return 0;
 
