@@ -52,7 +52,7 @@ ZdcMon::~ZdcMon()
 int ZdcMon::Init()
 {
   const float MAX_ENERGY1 = 12000.;
-  const float MAX_ENERGY2 = 30000.;
+  const float MAX_ENERGY2 = 1500.;
   const float MAX_WFAMP = 20000.;
   const float MIN_ENERGY1 = 0.;
   const float MIN_ENERGY2 = 0.;
