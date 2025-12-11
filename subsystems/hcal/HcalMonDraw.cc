@@ -142,7 +142,6 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
 
     TC[0]->SetEditable(false);
   }
-
   else if (name == "HcalMon2")
   {
     // xpos negative: do not draw menu bar
@@ -312,7 +311,7 @@ int HcalMonDraw::MakeCanvas(const std::string& name)
   else if (name == "HcalAllTrigHits")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[2] = new TCanvas(name.c_str(), "Hcal Towers", -1, ysize, xsize / 3, ysize);
+    TC[2] = new TCanvas(name.c_str(), "Hcal Towers all trigger", -1, ysize, xsize / 3, ysize);
 
     gSystem->ProcessEvents();
     Pad[26] = new TPad("hist", "On the top", 0., 0.2, 1., 0.97);
@@ -636,7 +635,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gROOT->ForceStyle();
   gStyle->SetPalette(4, palette);
   double cold_tower_thresh = 0.75;
-  double hot_tower_thresh = 1.5;
+  double hot_tower_thresh = 1.7;
   double dead_tower_thresh = 0.01;
   if(iscosmic) cold_tower_thresh = 0.5;
   double_t levels[5] = {0, dead_tower_thresh, cold_tower_thresh, hot_tower_thresh, 4};
