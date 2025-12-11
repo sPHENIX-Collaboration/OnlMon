@@ -51,15 +51,16 @@ ZdcMon::~ZdcMon()
 
 int ZdcMon::Init()
 {
-  const float MAX_ENERGY1 = 1500.;
-  const float MAX_ENERGY2 = 1500.;
+  const float MAX_ENERGY1 = 1500.; // previously 12000 for AuAu
+  const float MAX_ENERGY2 = 1500.; // previously 30000 for AuAu
   const float MAX_WFAMP = 20000.;
   const float MIN_ENERGY1 = 0.;
   const float MIN_ENERGY2 = 0.;
   const int BIN_NUMBER1 = 250;
   const int BIN_NUMBER2 = 550;
   const int SMD_ADC_BIN = 360;
-  const float MAX_SMD_ADC = 18000.;
+  //const float MAX_SMD_ADC = 18000.; // AuAu
+  const float MAX_SMD_ADC = 12000.; // pp
   const int BIN_WF = 1000;
     
   //  gRandom->SetSeed(rand());
