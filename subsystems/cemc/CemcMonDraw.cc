@@ -82,7 +82,8 @@ int CemcMonDraw::Init()
     //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_69238_100ADC_hits.root";
     //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_71954_100ADC_hits.root";
     //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_73834_100ADC_hits.root";
-    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_79152_100ADC_hits.root";
+    //std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_79152_100ADC_hits.root";
+    std::string Templatefilename = std::string(CEMCcalib) + "/" + "Template_79267_50ADC_hits.root";
     
     inputTemplate = new TFile(Templatefilename.c_str(), "READ");
     if (!inputTemplate->IsOpen())
@@ -103,7 +104,8 @@ int CemcMonDraw::Init()
     //std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_69238_100ADC_alltrig.root";
     //std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_71954_100ADC_alltrig.root";
     //std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_73834_100ADC_alltrig.root";
-    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_79152_100ADC_alltrig.root";
+    //std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_79152_100ADC_alltrig.root";
+    std::string Templatefilename_alltrig = std::string(CEMCcalib) + "/" + "Template_79267_50ADC_alltrig.root";
 
     inputTemplate_alltrig = new TFile(Templatefilename_alltrig.c_str(), "READ");
     if (!inputTemplate_alltrig->IsOpen())
