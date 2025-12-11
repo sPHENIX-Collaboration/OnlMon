@@ -443,12 +443,22 @@ int HcalMon::process_event(Event* e /* evt */)
     if (usetrig4_10)
     {
       // commenting out until we have a better way to handle cosmic bits -- tanner
-      if (trig_bools.at(TriggerEnum::BitCodes::MBD_NS1_ZVRTX10) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS1_ZVRTX13) == 0 && trig_bools.at(TriggerEnum::BitCodes::MBD_NS1_ZVRTX150) == 0 && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0)
+      if (
+        trig_bools.at(TriggerEnum::BitCodes::MBD_NS1_ZVRTX10) == 0 
+        && trig_bools.at(TriggerEnum::BitCodes::MBD_NS1_ZVRTX13) == 0 
+        && trig_bools.at(TriggerEnum::BitCodes::MBD_NS1_ZVRTX150) == 0 
+        && trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) == 0
+      )
       {
         fillhist = false;
       }
       // if we have hcal single cosmic trigger we are in cosmic running mode and need to adjust thresholds accordingly
-      if (trig_bools.at(TriggerEnum::BitCodes::RANDOM) || trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_VERT) || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_VERT) || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_HORZ) || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_HORZ))
+      if (trig_bools.at(TriggerEnum::BitCodes::RANDOM) 
+        || trig_bools.at(TriggerEnum::BitCodes::HCAL_SINGLES) 
+        || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_VERT) 
+        || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_VERT) 
+        || trig_bools.at(TriggerEnum::BitCodes::HCAL_NARROW_HORZ) 
+        || trig_bools.at(TriggerEnum::BitCodes::HCAL_WIDE_HORZ))
       {
         hit_threshold = 1000;
         waveform_hit_threshold = 1500;
