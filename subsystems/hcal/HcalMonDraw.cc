@@ -493,10 +493,10 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 {
   OnlMonClient* cl = OnlMonClient::instance();
 
-  TH2* hist1 = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_rm");
+  TH2* hist1 = (TH2*) cl->getHisto(hcalmon[0], "h2_hcal_rm_alltrig");
   TH1* h_event = cl->getHisto(hcalmon[0], "h_event");
 
-  TH2* hist1_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_rm");
+  TH2* hist1_1 = (TH2*) cl->getHisto(hcalmon[1], "h2_hcal_rm_alltrig");
   TH1* h_event_1 = cl->getHisto(hcalmon[1], "h_event");
 
   TH1* h_hcal_trig = cl->getHisto(hcalmon[0], "h_hcal_trig");
@@ -659,7 +659,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
     threshold = 1000;
   }
   // fill run number and event time into string
-  runnostream << ThisName << ": tower occupancy running mean/template";
+  runnostream << ThisName << ": tower occupancy running mean/template with all trigger";
   runnostream2 << " threshold: " << threshold << "ADC, Run " << cl->RunNumber() << ", Event: " << avgevents;
   runnostream3 << "Time: " << ctime(&evttime.first);
 
