@@ -39,24 +39,24 @@ enum BitCodes
     JET10 = 22, // jet 10 GeV
     JET12 = 23, // jet 12 GeV
   
-    PHOTON2_MBD_NS1 = 24, // photon 3 GeV, mbd north+south >= 1
-    PHOTON3_MBD_NS1 = 25, // photon 4 GeV, mbd north+south >= 1
-    PHOTON4_MBD_NS1 = 26, // photon 5 GeV, mbd north+south >= 1
-    PHOTON5_MBD_NS1 = 27, // photon 6 GeV, mbd north+south >= 1
+    PHOTON2_MBD_NS1 = 24, // photon 2 GeV, mbd north+south >= 1
+    PHOTON3_MBD_NS1 = 25, // photon 3 GeV, mbd north+south >= 1
+    PHOTON4_MBD_NS1 = 26, // photon 4 GeV, mbd north+south >= 1
+    PHOTON5_MBD_NS1 = 27, // photon 5 GeV, mbd north+south >= 1
     
-    PHOTON2 = 28, // photon 3 GeV
-    PHOTON3 = 29, // photon 4 GeV
-    PHOTON4 = 30, // photon 5 GeV
-    PHOTON5 = 31, // photon 6 GeV
+    PHOTON2 = 28, // photon 2 GeV
+    PHOTON3 = 29, // photon 3 GeV
+    PHOTON4 = 30, // photon 4 GeV
+    PHOTON5 = 31, // photon 5 GeV
 
     JET6_MBD_NS1_ZVRTX10 = 32, // jet 6 GeV, mbd north+south >= 1, zvertex < 10 cm
     JET8_MBD_NS1_ZVRTX10 = 33, // jet 8 GeV, mbd north+south >= 1, zvertex < 10 cm
     JET10_MBD_NS1_ZVRTX10 = 34, // jet 10 GeV, mbd north+south >= 1, zvertex < 10 cm
     JET12_MBD_NS1_ZVRTX10 = 35, // jet 12 GeV, mbd north+south >= 1, zvertex < 10 cm
 
-    PHOTON3_MBD_NS1_ZVRTX10 = 36, // photon 4 GeV, mbd north+south >= 1, zvertex < 10 cm
-    PHOTON4_MBD_NS1_ZVRTX10 = 37, // photon 5 GeV, mbd north+south >= 1, zvertex < 10 cm
-    PHOTON5_MBD_NS1_ZVRTX10 = 38, // photon 6 GeV, mbd north+south >= 1, zvertex < 10 cm
+    PHOTON3_MBD_NS1_ZVRTX10 = 36, // photon 3 GeV, mbd north+south >= 1, zvertex < 10 cm
+    PHOTON4_MBD_NS1_ZVRTX10 = 37, // photon 4 GeV, mbd north+south >= 1, zvertex < 10 cm
+    PHOTON5_MBD_NS1_ZVRTX10 = 38, // photon 5 GeV, mbd north+south >= 1, zvertex < 10 cm
     
     NA = 39,
 
@@ -123,24 +123,24 @@ const std::map< TriggerEnum::BitCodes, std::string> TriggerNames =
     {JET10, "Jet 10 GeV"},
     {JET12, "Jet 12 GeV"},
 
-    {PHOTON2_MBD_NS1, "Photon 3 GeV + MBD N&S >= 1"},
-    {PHOTON3_MBD_NS1, "Photon 4 GeV + MBD N&S >= 1"},
-    {PHOTON4_MBD_NS1, "Photon 5 GeV + MBD N&S >= 1"},
-    {PHOTON5_MBD_NS1, "Photon 6 GeV + MBD N&S >= 1"},
+    {PHOTON2_MBD_NS1, "Photon 2 GeV + MBD N&S >= 1"},
+    {PHOTON3_MBD_NS1, "Photon 3 GeV + MBD N&S >= 1"},
+    {PHOTON4_MBD_NS1, "Photon 4 GeV + MBD N&S >= 1"},
+    {PHOTON5_MBD_NS1, "Photon 5 GeV + MBD N&S >= 1"},
 
-    {PHOTON2, "Photon 3 GeV"},
-    {PHOTON3, "Photon 4 GeV"},
-    {PHOTON4, "Photon 5 GeV"},
-    {PHOTON5, "Photon 6 GeV"},  
+    {PHOTON2, "Photon 2 GeV"},
+    {PHOTON3, "Photon 3 GeV"},
+    {PHOTON4, "Photon 4 GeV"},
+    {PHOTON5, "Photon 5 GeV"},  
     
     {JET6_MBD_NS1_ZVRTX10, "Jet 6 GeV + MBD N&S >= 1, |z| < 10 cm"},
     {JET8_MBD_NS1_ZVRTX10, "Jet 8 GeV + MBD N&S >= 1, |z| < 10 cm"},
     {JET10_MBD_NS1_ZVRTX10, "Jet 10 GeV + MBD N&S >= 1, |z| < 10 cm"},
     {JET12_MBD_NS1_ZVRTX10, "Jet 12 GeV + MBD N&S >= 1, |z| < 10 cm"},
 
-    {PHOTON3_MBD_NS1_ZVRTX10, "Photon 4 GeV + MBD N&S >= 1, |z| < 10 cm"},
-    {PHOTON4_MBD_NS1_ZVRTX10, "Photon 5 GeV + MBD N&S >= 1, |z| < 10 cm"},
-    {PHOTON5_MBD_NS1_ZVRTX10, "Photon 6 GeV + MBD N&S >= 1, |z| < 10 cm"},
+    {PHOTON3_MBD_NS1_ZVRTX10, "Photon 3 GeV + MBD N&S >= 1, |z| < 10 cm"},
+    {PHOTON4_MBD_NS1_ZVRTX10, "Photon 4 GeV + MBD N&S >= 1, |z| < 10 cm"},
+    {PHOTON5_MBD_NS1_ZVRTX10, "Photon 5 GeV + MBD N&S >= 1, |z| < 10 cm"},
     
     {MBD_LASER, "MBD Laser"},
     {RANDOM, "Random"},
@@ -155,6 +155,17 @@ const std::map< TriggerEnum::BitCodes, std::string> TriggerNames =
 
 std::string GetTriggerName(TriggerEnum::BitCodes code);
 
+const std::map< TriggerEnum::BitCodes, std::string> RareProbeTriggers =
+{
+    {JET6, "Jet 6 GeV"},
+    {JET8, "Jet 8 GeV"},
+    {JET10, "Jet 10 GeV"},
+    {JET12, "Jet 12 GeV"},
+    {PHOTON2, "Photon 2 GeV"},
+    {PHOTON3, "Photon 3 GeV"},
+    {PHOTON4, "Photon 4 GeV"},
+    {PHOTON5, "Photon 5 GeV"},
+};
 
 } // namespace TriggerEnum
 
