@@ -239,7 +239,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // xpos negative: do not draw menu bar
     TC[6] = new TCanvas(name.c_str(), "EXPERT - Veto counter", -1, ysize, xsize / 2, ysize / 2);
     gSystem->ProcessEvents();
-  
+
     Pad[51] = new TPad("Veto_NF", "Veto_NF", 0.05, 0.5, 0.5, 0.98, 0);
     Pad[52] = new TPad("Veto_NB", "Veto_NB", 0.5, 0.5, 0.98, 0.98, 0);
     Pad[53] = new TPad("Veto_SF", "Veto_SF", 0.05, 0.05, 0.5, 0.5, 0);
@@ -257,7 +257,7 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     transparent[6]->Draw();
     TC[6]->SetEditable(false);
   }
-    
+
   else if (name == "SmdMultiplicities")
   {
     // xpos negative: do not draw menu bar
@@ -289,8 +289,8 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-      
-    // float xshift = 0.04; 
+
+    // float xshift = 0.04;
 
     Pad[59] = new TPad("zdcpad59", "who needs this?", 0.05, 0.5, 0.2, 0.9, 0);
     Pad[60] = new TPad("zdcpad60", "who needs this?", 0.25, 0.5, 0.25+0.15, 0.9, 0);
@@ -298,14 +298,14 @@ int ZdcMonDraw::MakeCanvas(const std::string &name)
     Pad[62] = new TPad("zdcpad62", "who needs this?", 0.25+0.3+0.05+0.05, 0.5, 0.25+0.45+0.05+0.05, 0.9, 0);
     Pad[63] = new TPad("zdcpad63", "who needs this?", 0.25+0.45+0.05+0.05+0.05, 0.5, 1, 0.9, 0);
 
-    
+
     Pad[64] = new TPad("zdcpad64", "who needs this?", 0.05, 0.05, 0.2, 0.4, 0);
     Pad[65] = new TPad("zdcpad65", "who needs this?", 0.25, 0.05, 0.25+0.15, 0.4, 0);
     Pad[66] = new TPad("zdcpad66", "who needs this?", 0.25+0.15+0.05, 0.05, 0.25+0.3+0.05, 0.4, 0);
     Pad[67] = new TPad("zdcpad67", "who needs this?", 0.25+0.3+0.05+0.05, 0.05, 0.25+0.45+0.05+0.05, 0.4, 0);
     Pad[68] = new TPad("zdcpad68", "who needs this?", 0.25+0.45+0.05+0.05+0.05, 0.05, 1, 0.4, 0);
-      
-  
+
+
     Pad[59]->Draw();
     Pad[60]->Draw();
     Pad[61]->Draw();
@@ -379,13 +379,13 @@ int ZdcMonDraw::Draw(const std::string &what)
      iret += DrawSmdMultiplicities(what);
      idraw++;
   }
-    
+
   if (what == "ALL" || what == "ZDC_WAVEFORM")
   {
     iret += DrawWaveForm(what);
     idraw++;
   }
-    
+
 
 
   if (!idraw)
@@ -487,7 +487,7 @@ int ZdcMonDraw::DrawFirst(const std::string & /* what */)
 
 int ZdcMonDraw::DrawSecond(const std::string & /* what */)
 {
-    
+
   int textsize = 22;
   TString zdclabels[6] = {"ZDCS1 ADC","ZDCS2 ADC","ZDCS3 ADC", "ZDCN1 ADC", "ZDCN2 ADC", "ZDCN3 ADC"};
   TLatex l[6];
@@ -505,7 +505,7 @@ int ZdcMonDraw::DrawSecond(const std::string & /* what */)
     MakeCanvas("ZdcMon2");
   }
 
-    
+
   TC[1]->SetEditable(true);
   TC[1]->Clear("D");
   Pad[4]->cd();
@@ -646,7 +646,7 @@ int ZdcMonDraw::DrawSmdValues(const std::string & /* what */)
     smd_value->SetYTitle("Channels");
     smd_value->SetStats(0);
     smd_value->DrawCopy("col");
-  
+
   }
   else
   {
@@ -717,8 +717,8 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
   TH1 *smd_ver_north_good = cl->getHisto("ZDCMON_0", "smd_ver_north_good");
   TH1 *smd_hor_south_good = cl->getHisto("ZDCMON_0", "smd_hor_south_good");
   TH1 *smd_ver_south_good = cl->getHisto("ZDCMON_0", "smd_ver_south_good");
- 
-    
+
+
   TH1 *smd_sum_hor_south = cl->getHisto("ZDCMON_0", "smd_sum_hor_south");
   TH1 *smd_sum_ver_south = cl->getHisto("ZDCMON_0", "smd_sum_ver_south");
   TH1 *smd_sum_hor_north = cl->getHisto("ZDCMON_0", "smd_sum_hor_north");
@@ -923,14 +923,14 @@ int ZdcMonDraw::DrawSmdNorthandSouth(const std::string & /* what */)
 
 int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
 {
-    
+
     TString smdnorthlabel[15] = {"SMDNH1 ADC","SMDNH2 ADC","SMDNH3 ADC","SMDNH4 ADC","SMDNH5 ADC","SMDNH6 ADC","SMDNH7 ADC", "SMDNH8 ADC","SMDNV1 ADC","SMDNV2 ADC","SMDNV3 ADC","SMDNV4 ADC","SMDNV5 ADC","SMDNV6 ADC", "SMDNV7 ADC"};
     TLatex l[15];
-    
+
     int textsize = 18;
     TString meantrunc[15];
 
-    
+
   OnlMonClient *cl = OnlMonClient::instance();
 
   // Array that holds pointer to the histogram of each channel
@@ -983,7 +983,7 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
     }
     return -1;
   }
-    
+
 
   for (int i = 1; i < 8; ++i)
   {
@@ -1050,13 +1050,13 @@ int ZdcMonDraw::DrawSmdAdcNorthIndividual(const std::string & /* what */)
 
 int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
 {
-    
+
   TString smdsouthlabel[15] = {"SMDSH1 ADC","SMDSH2 ADC","SMDSH3 ADC","SMDSH4 ADC","SMDSH5 ADC","SMDSH6 ADC","SMDSH7 ADC", "SMDSH8 ADC","SMDSV1 ADC","SMDSV2 ADC","SMDSV3 ADC","SMDSV4 ADC","SMDSV5 ADC","SMDSV6 ADC", "SMDSV7 ADC"};
   TLatex l[15];
-    
+
   int textsize = 18;
   TString meantrunc[15];
-    
+
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *smd_adc_s_hor_ind[8];
@@ -1171,11 +1171,11 @@ int ZdcMonDraw::DrawSmdAdcSouthIndividual(const std::string & /* what */)
 
 int ZdcMonDraw::Drawveto(const std::string & /* what */)
 {
-    
+
   TString vnmame[4] = {"Veto North Front", "Veto North Back","Veto South Front","Veto South Back"};
   TLatex l[4];
   int textsize = 15;
-    
+
   OnlMonClient *cl = OnlMonClient::instance();
 
   TH1 *veto_NF = (TH1 *) cl->getHisto("ZDCMON_0", "veto_NF");
@@ -1274,11 +1274,11 @@ int ZdcMonDraw::Drawveto(const std::string & /* what */)
 
 int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
 {
-    
+
  TString Mult[4] = {"SMD North y mult", "SMD North x mult","SMD South y mult","SMD South x mult"};
  TLatex l[4];
   int textsize = 15;
-    
+
   OnlMonClient *cl = OnlMonClient::instance();
   TH1 *smd_north_hor_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_north_hor_hits");
   TH1 *smd_north_ver_hits = (TH1 *) cl->getHisto("ZDCMON_0", "smd_north_ver_hits");
@@ -1289,7 +1289,7 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
   {
     MakeCanvas("SmdMultiplicities");
   }
-        
+
     TC[7]->SetEditable(true);
     TC[7]->Clear("D");
     Pad[55]->cd();
@@ -1330,7 +1330,7 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
       smd_north_ver_hits->DrawCopy();
       l[1].DrawLatex(0.15, 0.75, Mult[1]);
     }
-    
+
     Pad[57]->cd();
     gPad->SetLogy();
     if (smd_south_hor_hits)
@@ -1344,7 +1344,7 @@ int ZdcMonDraw::DrawSmdMultiplicities(const std::string & /* what */)
       smd_south_hor_hits->DrawCopy();
       l[2].DrawLatex(0.15, 0.75, Mult[2]);
     }
-    
+
     Pad[58]->cd();
     gPad->SetLogy();
     if (smd_south_ver_hits)
@@ -1421,19 +1421,19 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     }
     return -1;
   }
-    
+
 
   // --- widening window for ZDC from 5-9 to 4-10
   TLine *t1 = new TLine(4,0.0,4,maxwf);
   t1->SetLineWidth(3);
   t1->SetLineStyle(1);
   t1->SetLineColor(kRed);
-    
+
   TLine *t2 = new TLine(10,0.0,10,maxwf);
   t2->SetLineWidth(3);
   t2->SetLineStyle(1);
   t2->SetLineColor(kRed);
-    
+
   Pad[59]->cd();
   gPad->SetLogz();
   gPad->SetRightMargin(0.15);
@@ -1457,7 +1457,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   h_waveformZDC->GetYaxis()->SetTitleOffset(offset);
   t1->Draw("same");
   t2->Draw("same");
-    
+
   Pad[64]->cd();
   gPad->SetLeftMargin(lf);
 
@@ -1480,32 +1480,33 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   if(h_waveform_timez->GetEntries()){
      h_waveform_timez->Scale(1. / h_waveform_timez->GetEntries());
    }
-       
+
   // --- widening window for ZDC from 5-9 to 4-10
   TLine *t11 = new TLine(4,0.0,4,h_waveform_timez->GetMaximum() * 1.05);
   t11->SetLineWidth(3);
   t11->SetLineStyle(1);
   t11->SetLineColor(kRed);
-           
+
   TLine *t22 = new TLine(10,0.0,10,h_waveform_timez->GetMaximum() * 1.05);
   t22->SetLineWidth(3);
   t22->SetLineStyle(1);
   t22->SetLineColor(kRed);
   t11->Draw("same");
   t22->Draw("same");
-    
+
 
   // --- widening window for SMD north from 9-14 to 7-14
-    TLine *t3 = new TLine(7,0.0,7,  maxwf);
+  // --- changing 7-14 to 8-14 for run25pp
+    TLine *t3 = new TLine(8,0.0,8,  maxwf);
     t3->SetLineWidth(3);
     t3->SetLineStyle(1);
     t3->SetLineColor(kRed);
-      
+
     TLine *t4 = new TLine(14,0.0,14, maxwf);
     t4->SetLineWidth(3);
     t4->SetLineStyle(1);
     t4->SetLineColor(kRed);
-      
+
     Pad[60]->cd();
     gPad->SetLogz();
     gPad->SetRightMargin(0.15);
@@ -1529,7 +1530,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
 
     t3->Draw("same");
     t4->Draw("same");
-      
+
     Pad[65]->cd();
     gPad->SetLeftMargin(lf);
 
@@ -1554,33 +1555,35 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     if(h_waveform_timesn->GetEntries()){
         h_waveform_timesn->Scale(1. / h_waveform_timesn->GetEntries());
      }
-    
+
     // --- widening window for SMD north from 9-14 to 7-14
-    TLine *t33 = new TLine(7,0.0,7, h_waveform_timesn->GetMaximum() * 1.05);
+    // --- changing to 8-14 for run25pp
+    TLine *t33 = new TLine(8,0.0,8, h_waveform_timesn->GetMaximum() * 1.05);
     t33->SetLineWidth(3);
     t33->SetLineStyle(1);
     t33->SetLineColor(kRed);
-        
+
     TLine *t44 = new TLine(14,0.0,14,h_waveform_timesn->GetMaximum() * 1.05);
     t44->SetLineWidth(3);
     t44->SetLineStyle(1);
     t44->SetLineColor(kRed);
-    
+
     t33->Draw("same");
-    t44->Draw("same");   
-   
-    
+    t44->Draw("same");
+
+
     // --- leaving window for SMD south as 6-12
-  TLine *t5 = new TLine(6,0.0,6, maxwf);
+    // --- changing to 7-13 for run25pp
+  TLine *t5 = new TLine(7,0.0,7, maxwf);
   t5->SetLineWidth(3);
   t5->SetLineStyle(1);
   t5->SetLineColor(kRed);
-    
-  TLine *t6 = new TLine(12,0.0,12, maxwf);
+
+  TLine *t6 = new TLine(13,0.0,13, maxwf);
   t6->SetLineWidth(3);
   t6->SetLineStyle(1);
   t6->SetLineColor(kRed);
-      
+
     Pad[61]->cd();
     gPad->SetLogz();
     gPad->SetRightMargin(0.15);
@@ -1604,7 +1607,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
 
      t5->Draw("same");
     t6->Draw("same");
-      
+
     Pad[66]->cd();
     gPad->SetLeftMargin(lf);
 
@@ -1629,22 +1632,24 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     if(h_waveform_timess->GetEntries()){
         h_waveform_timess->Scale(1. / h_waveform_timess->GetEntries());
      }
-    
+
     // --- leaving window for SMD south as 6-12
-  TLine *t55 = new TLine(6,0.0,6,h_waveform_timess->GetMaximum() * 1.05);
+    // --- changing to 7-13 for run25pp
+  TLine *t55 = new TLine(7,0.0,7,h_waveform_timess->GetMaximum() * 1.05);
   t55->SetLineWidth(3);
   t55->SetLineStyle(1);
   t55->SetLineColor(kRed);
-      
-  TLine *t66 = new TLine(12,0.0,12,h_waveform_timess->GetMaximum() * 1.05);
+
+  TLine *t66 = new TLine(13,0.0,13,h_waveform_timess->GetMaximum() * 1.05);
   t66->SetLineWidth(3);
   t66->SetLineStyle(1);
   t66->SetLineColor(kRed);
   t55->Draw("same");
   t66->Draw("same");
-      
+
 
   // --- widening window for VETO north from 5-9 to 4-10
+  // --- staying the same for run25pp
   TLine *t7 = new TLine(4,0.0,4, maxwf);
   t7->SetLineWidth(3);
   t7->SetLineStyle(1);
@@ -1654,7 +1659,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t8->SetLineWidth(3);
   t8->SetLineStyle(1);
   t8->SetLineColor(kRed);
-      
+
     Pad[62]->cd();
     gPad->SetLogz();
     gPad->SetRightMargin(0.15);
@@ -1678,7 +1683,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
 
     t7->Draw("same");
     t8->Draw("same");
-      
+
     Pad[67]->cd();
     gPad->SetLeftMargin(lf);
     gStyle->SetTitleFontSize(0.06);
@@ -1702,10 +1707,11 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     if(h_waveform_timevn->GetEntries()){
         h_waveform_timevn->Scale(1. / h_waveform_timevn->GetEntries());
      }
-    
+
 
 
   // --- widening window for VETO north from 5-9 to 4-10
+  // --- staying the same for run25pp
   TLine *t77 = new TLine(4,0.0,4,h_waveform_timevn->GetMaximum() * 1.05);
   t77->SetLineWidth(3);
   t77->SetLineStyle(1);
@@ -1720,17 +1726,18 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
   t88->Draw("same");
 
   // --- leaving VETO south as 6-12
-  TLine *t9 = new TLine(6,0.0,6,maxwf);
+  // --- changing to 7-13 for run25pp
+  TLine *t9 = new TLine(7,0.0,7,maxwf);
   t9->SetLineWidth(3);
   t9->SetLineStyle(1);
   t9->SetLineColor(kRed);
 
-  TLine *t10 = new TLine(12,0.0,12,maxwf);
+  TLine *t10 = new TLine(13,0.0,13,maxwf);
   t10->SetLineWidth(3);
   t10->SetLineStyle(1);
   t10->SetLineColor(kRed);
 
-      
+
     Pad[63]->cd();
     gPad->SetLogz();
     gPad->SetRightMargin(0.15);
@@ -1753,7 +1760,7 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     h_waveformVeto_South->GetYaxis()->SetTitleOffset(offset);
     t9->Draw("same");
     t10->Draw("same");
-      
+
     Pad[68]->cd();
     gPad->SetLeftMargin(lf);
 
@@ -1776,22 +1783,23 @@ int ZdcMonDraw::DrawWaveForm(const std::string & /* what */)
     if(h_waveform_timevs->GetEntries()){
         h_waveform_timevs->Scale(1. / h_waveform_timevs->GetEntries());
      }
-    
+
 
   // --- leaving VETO south as 6-12
-  TLine *t99 = new TLine(6,0.0,6,h_waveform_timevs->GetMaximum() * 1.05);
+  // --- changing to 7-13 for run25pp
+  TLine *t99 = new TLine(7,0.0,7,h_waveform_timevs->GetMaximum() * 1.05);
   t99->SetLineWidth(3);
   t99->SetLineStyle(1);
   t99->SetLineColor(kRed);
 
-  TLine *t100 = new TLine(12,0.0,12,h_waveform_timevs->GetMaximum() * 1.05);
+  TLine *t100 = new TLine(13,0.0,13,h_waveform_timevs->GetMaximum() * 1.05);
   t100->SetLineWidth(3);
   t100->SetLineStyle(1);
   t100->SetLineColor(kRed);
   t99->Draw("same");
   t100->Draw("same");
 
- 
+
   TText PrintRun;
   PrintRun.SetTextFont(62);
   PrintRun.SetTextSize(0.04);
