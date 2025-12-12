@@ -118,16 +118,16 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  // subsys = new SubSystem("Local Level 1", "ll1");
-  // subsys->AddAction("ll1Draw(\"FIRST\")", "Hits");
-  // subsys->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
-  // subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
-  // subsys->AddAction("ll1Draw(\"FOURTH\")", "EMCAL LL1 - Photon");
-  // subsys->AddAction("ll1Draw(\"FIFTH\")", "Jet Input - HCAL");
-  // subsys->AddAction("ll1Draw(\"SIXTH\")", "Jet LL1");
-  // subsys->AddAction("ll1Draw(\"SEVENTH\")", "EMCAL 2x2 Sums");
-  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  // pmf->RegisterSubSystem(subsys);
+  subsys = new SubSystem("Local Level 1", "ll1");
+  subsys->AddAction("ll1Draw(\"FIRST\")", "Hits");
+  subsys->AddAction("ll1Draw(\"SECOND\")", "Hits Correlation");
+  subsys->AddAction("ll1Draw(\"THIRD\")", "Hits Lineup");
+  subsys->AddAction("ll1Draw(\"FOURTH\")", "EMCAL LL1 - Photon");
+  subsys->AddAction("ll1Draw(\"FIFTH\")", "Jet Input - HCAL");
+  subsys->AddAction("ll1Draw(\"SIXTH\")", "Jet LL1");
+  subsys->AddAction("ll1Draw(\"SEVENTH\")", "EMCAL 2x2 Sums");
+  subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("MVTX", "mvtx");
   subsys->AddAction("mvtxDraw(\"GENERAL\")", "General Monitor");

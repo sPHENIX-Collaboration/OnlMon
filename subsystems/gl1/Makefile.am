@@ -22,7 +22,7 @@ libonlgl1mon_client_la_LIBADD = \
   -L$(libdir) \
   -L$(ONLINE_MAIN)/lib \
   -lonlmonclient \
-  -lonlmondb
+  -lonlmonodbc
 
 
 gl1includedir=$(pkgincludedir)/gl1

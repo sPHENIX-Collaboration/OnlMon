@@ -73,21 +73,21 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 4; i++)
     {
-      double xlow = (0.5 * i);
-      double xhigh = xlow + 0.5;
-      for (int j = 0; j < 5; j++)
+      double xlow = 0.75 - (0.25 * i);
+      double xhigh = xlow + 0.25;
+      for (int j = 0; j < 7; j++)
       {
-        double ylow = 0.0 + (0.19 * j);
-        double yhigh = ylow + 0.19;
-        int padindex = 9 - (i + 2 * j);  // make it start from the top of the plot
-        // std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
-        // << "pad: yl: " << ylow << ", yh: " << yhigh
-        // 	  << std::endl;
+        double ylow = 0.0 + (0.13 * j);
+        double yhigh = ylow + 0.13;
+        int padindex = 27 - (i + 4 * j);  // make it start from the top of the plot
+        // std::cout << "idx: " << padindex << " pad: xl: " << xlow << ", xh: " << xhigh
+        //  << " pad: yl: " << ylow << ", yh: " << yhigh
+        //  	  << std::endl;
         std::string padname = "gl1pad_" + std::to_string(padindex);
-        Pad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
-        Pad[padindex]->Draw();
+        ScalePad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
+        ScalePad[padindex]->Draw();
       }
     }
     // this one is used to plot the run number on the canvas
@@ -105,21 +105,21 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 4; i++)
     {
-      double xlow = (0.5 * i);
-      double xhigh = xlow + 0.5;
-      for (int j = 0; j < 5; j++)
+      double xlow = 0.75 - (0.25 * i);
+      double xhigh = xlow + 0.25;
+      for (int j = 0; j < 7; j++)
       {
-        double ylow = 0.0 + (0.19 * j);
-        double yhigh = ylow + 0.19;
-        int padindex = 10 + (9 - (i + 2 * j));  // make it start from the top of the plot
+        double ylow = 0.0 + (0.13 * j);
+        double yhigh = ylow + 0.13;
+        int padindex = 27 - (i + 4 * j);  // make it start from the top of the plot
         // std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
         // << "pad: yl: " << ylow << ", yh: " << yhigh
-        // 	  << std::endl;
+        //  	  << std::endl;
         std::string padname = "gl1pad_" + std::to_string(padindex);
-        Pad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
-        Pad[padindex]->Draw();
+        LivePad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
+        LivePad[padindex]->Draw();
       }
     }
     // this one is used to plot the run number on the canvas
@@ -155,13 +155,13 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
       double xhigh = 1.;
       double ylow = 0.0 + (0.44 * i);
       double yhigh = ylow + 0.44;
-      int padindex = 20 + i;  // make it start from the top of the plot
+      int padindex = i;  // make it start from the top of the plot
       // std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
       // << "pad: yl: " << ylow << ", yh: " << yhigh
       // 	  << std::endl;
       std::string padname = "gl1pad_" + std::to_string(padindex);
-      Pad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
-      Pad[padindex]->Draw();
+      RejPad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
+      RejPad[padindex]->Draw();
     }
     // this one is used to plot the run number on the canvas
     transparent[canvasindex] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
@@ -233,6 +233,7 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
   int ipad = 0;
   for (int i = 0; i < 64; i++)
   {
+	
     std::string hname = "gl1_scaledtrigger_" + std::to_string(i);
     TH1 *hist1 = cl->getHisto("GL1MON_0", hname);
     if (!hist1)
@@ -243,6 +244,15 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
     }
     if (hist1->GetMaximum() > 0)
     {
+      // std::cout << "ipad: " << ipad << " trigger no: " << i << " trigger: "
+      // 		  << m_TrignameArray[i] << std::endl;
+      if (ipad > 27)
+	{
+	  std::cout << "ipad: " << ipad << " trigger: "
+		    << m_TrignameArray[i] << std::endl;
+	  ipad++;
+	  continue;
+	}
       TH1 *abortgap = (TH1 *) hist1->Clone();
       TH1 *forbidden = (TH1 *) hist1->Clone();
       abortgap->SetFillColor(6);
@@ -260,8 +270,8 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
       {
         abortgap->SetBinContent(j, 0);
       }
-      Pad[ipad]->cd();
-      Pad[ipad]->SetLogy();
+      ScalePad[ipad]->cd();
+      ScalePad[ipad]->SetLogy();
       hist1->SetStats(0);
       std::string htitle = m_TrignameArray[i];
       //      std::cout << "index " << i << " title: " << htitle << std::endl;
@@ -290,16 +300,16 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
       line->SetLineColor(6);
       line->SetLineWidth(2);
       line->SetLineStyle(2);  // dashed
-      Pad[ipad]->Update();
+      ScalePad[ipad]->Update();
       // whoopee - this is how to get the top of the pad in a log y scale
       // only after the TPad::Update() where the Pad figures out its dimensions
-      line->DrawLine(119.5, std::pow(10, Pad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10, Pad[ipad]->GetFrame()->GetY2()));
+      line->DrawLine(119.5, std::pow(10, ScalePad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10, ScalePad[ipad]->GetFrame()->GetY2()));
       if (htitle.find("Clock") == std::string::npos)
       {
-        line->DrawLine(110.5, std::pow(10, Pad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10, Pad[ipad]->GetFrame()->GetY2()));
-        agap.DrawText(115, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Abort Gap");
+        line->DrawLine(110.5, std::pow(10, ScalePad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10, ScalePad[ipad]->GetFrame()->GetY2()));
+        agap.DrawText(115, std::pow(10, ScalePad[ipad]->GetFrame()->GetY2()), "Abort Gap");
       }
-      agap.DrawText(125, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
+      agap.DrawText(125, std::pow(10, ScalePad[ipad]->GetFrame()->GetY2()), "Forbidden");
       ipad++;
     }
   }
@@ -345,7 +355,7 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
   agap.SetTextSize(0.055);
 
   TLine *line = new TLine();
-  int ipad = 10;
+  int ipad = 0;
   int icnt = 0;
   for (int i = 0; i < 64; i++)
   {
@@ -357,19 +367,40 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       TC[1]->SetEditable(false);
       return -1;
     }
-    if (i != 0 &&
-        i != 1 &&
-        i != 12 &&
-        i != 13 &&
-        i != 14 &&
-        i != 22 &&
-        i != 23 &&
-        i != 34)
+    if (i != 0
+	&& i != 1
+	&& i != 12
+	&& i != 14
+	&& i != 16
+	&& i != 17
+	&& i != 18
+	&& i != 19
+	&& i != 20
+	&& i != 21
+	&& i != 22
+	&& i != 23
+	&& i != 24
+	&& i != 25
+	&& i != 26
+	&& i != 27
+	&& i != 28
+	&& i != 29
+	&& i != 30
+	&& i != 31
+	&& i != 32
+	&& i != 33
+	&& i != 34
+	&& i != 35
+	&& i != 36
+	&& i != 37
+	&& i != 38)
+      {
+	continue;
+      }
+    if (hist1->GetMaximum() > 0 && ipad < 28)
     {
-      continue;
-    }
-    if (hist1->GetMaximum() > 0 && icnt < 10)
-    {
+      // std::cout << "ipad: " << ipad << " trigger no: " << i << " trigger: "
+      // 		  << m_TrignameArray[i] << std::endl;
       icnt++;
       TH1 *abortgap = (TH1 *) hist1->Clone();
       TH1 *forbidden = (TH1 *) hist1->Clone();
@@ -388,8 +419,8 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       {
         abortgap->SetBinContent(j, 0);
       }
-      Pad[ipad]->cd();
-      Pad[ipad]->SetLogy();
+      LivePad[ipad]->cd();
+      LivePad[ipad]->SetLogy();
       hist1->SetStats(0);
       std::string htitle = m_TrignameArray[i];
       //      std::cout << "index " << i << " title: " << htitle << std::endl;
@@ -418,16 +449,16 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
       line->SetLineColor(6);
       line->SetLineWidth(2);
       line->SetLineStyle(2);  // dashed
-      Pad[ipad]->Update();
+      LivePad[ipad]->Update();
       // whoopee - this is how to get the top of the pad in a log y scale
       // only after the TPad::Update() where the Pad figures out its dimensions
-      line->DrawLine(119.5, std::pow(10, Pad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10, Pad[ipad]->GetFrame()->GetY2()));
+      line->DrawLine(119.5, std::pow(10, LivePad[ipad]->GetFrame()->GetY1()), 119.5, std::pow(10, LivePad[ipad]->GetFrame()->GetY2()));
       if (htitle.find("Clock") == std::string::npos)
       {
-        line->DrawLine(110.5, std::pow(10, Pad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10, Pad[ipad]->GetFrame()->GetY2()));
-        agap.DrawText(115, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Abort Gap");
+        line->DrawLine(110.5, std::pow(10, LivePad[ipad]->GetFrame()->GetY1()), 110.5, std::pow(10, LivePad[ipad]->GetFrame()->GetY2()));
+        agap.DrawText(115, std::pow(10, LivePad[ipad]->GetFrame()->GetY2()), "Abort Gap");
       }
-      agap.DrawText(125, std::pow(10, Pad[ipad]->GetFrame()->GetY2()), "Forbidden");
+      agap.DrawText(125, std::pow(10, LivePad[ipad]->GetFrame()->GetY2()), "Forbidden");
       ipad++;
     }
   }
@@ -481,12 +512,12 @@ int GL1MonDraw::DrawRejection()
       TC[3]->SetEditable(false);
       return -1;
     }
-    int ipad = 20 + i;
+    int ipad = i;
     int nEntries = hist1->GetEntries();
     if (nEntries > 0)
     {
-      Pad[ipad]->cd();
-      Pad[ipad]->SetGridy();
+      RejPad[ipad]->cd();
+      RejPad[ipad]->SetGridy();
       float *x_good = new float[nEntries];
       float *y_good = new float[nEntries];
       float *x_bad = new float[nEntries];
