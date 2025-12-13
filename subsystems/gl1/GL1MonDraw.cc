@@ -522,7 +522,7 @@ int GL1MonDraw::DrawRejection()
   tl->SetLineWidth(4);
   tl->SetLineColor(7);
   tl->SetLineStyle(2);
-  std::vector<int> remap_draw_idx = {0,4,1,5,2,6,3,7};
+  std::vector<int> remap_draw_idx = {0,2,4,6,1,3,5,7};
   for (int i = 0; i < 8; i++)
   {
     std::string hname = "gl1_reject_" + std::to_string(i);
