@@ -189,8 +189,8 @@ int GL1Mon::process_event(Event *evt)
         for (size_t i = 0; i < triggernumber.size(); i++)
         {
           int64_t curscale = p->lValue(triggernumber[i], "TRIGGERLIVE") - ntriggers[i];
-           // std::cout << "mb trigs: " << current_mbtrigs << " " <<  triggername[i]
-           // 	    << ": " << curscale << std::endl;
+          // std::cout << "mb trigs: " << current_mbtrigs << " " <<  triggername[i]
+          // 	    << ": " << curscale << std::endl;
           float rejection = (current_mbtrigs * 1.) / (curscale * 1.);
           ntriggers[i] += curscale;
           if (std::isfinite(rejection))
@@ -199,7 +199,7 @@ int GL1Mon::process_event(Event *evt)
             gl1_reject[i]->SetBinContent(nEntries + 1, rejection);
             gl1_reject[i]->SetBinError(nEntries + 1, ticks - starttime);
           }
-          //	  std::cout << "setting rejection to " << rejection << " for trigger " << triggername[i] << std::endl;
+          // std::cout << "setting rejection to " << rejection << " for trigger " << triggername[i] << std::endl;
         }
         n_minbias += current_mbtrigs;
         lastupdate = ticks;

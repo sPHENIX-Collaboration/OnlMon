@@ -45,14 +45,20 @@ int GL1MonDraw::Init()
   gl1Style->SetCanvasBorderMode(0);
   oldStyle->cd();
   m_RunDB = new RunDBodbc();
-  reject_graph_good.resize(2, nullptr);
-  reject_graph_bad.resize(2, nullptr);
-  rejection_limit.resize(2);
+  reject_graph_good.resize(8, nullptr);
+  reject_graph_bad.resize(8, nullptr);
+  rejection_limit.resize(8);
 
 // from /home/repo/Debian/bin/ll1TriggerControl.py
 // photon_triggers_rejection_ranges = [[19, 27], [50, 70]]
   rejection_limit[0] = std::make_pair(19,27);
   rejection_limit[1] = std::make_pair(50,70);
+  rejection_limit[2] = std::make_pair(50,70);
+  rejection_limit[3] = std::make_pair(50,70);
+  rejection_limit[4] = std::make_pair(50,70);
+  rejection_limit[5] = std::make_pair(50,70);
+  rejection_limit[6] = std::make_pair(50,70);
+  rejection_limit[7] = std::make_pair(50,70);
   return 0;
 }
 
@@ -151,17 +157,20 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     gSystem->ProcessEvents();
     for (int i = 0; i < 2; i++)
     {
-      double xlow = 0.;
-      double xhigh = 1.;
-      double ylow = 0.0 + (0.44 * i);
-      double yhigh = ylow + 0.44;
-      int padindex = i;  // make it start from the top of the plot
-      // std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
-      // << "pad: yl: " << ylow << ", yh: " << yhigh
-      // 	  << std::endl;
-      std::string padname = "gl1pad_" + std::to_string(padindex);
-      RejPad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
-      RejPad[padindex]->Draw();
+      double xlow = 0.5 - (0.5 *i);
+      double xhigh = xlow + 0.5;
+      for (int j = 0; j < 4; j++)
+      {
+	double ylow = 0.0 + (0.23 * j);
+	double yhigh = ylow + 0.23;
+	int padindex = 7 -  (i + 2 * j);  // make it start from the top of the plot
+	// std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
+	// 	  << "pad: yl: " << ylow << ", yh: " << yhigh
+	// 	  << std::endl;
+	std::string padname = "gl1pad_" + std::to_string(padindex);
+	RejPad[padindex] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
+	RejPad[padindex]->Draw();
+      }
     }
     // this one is used to plot the run number on the canvas
     transparent[canvasindex] = new TPad("transparent3", "this does not show", 0, 0, 1, 1);
@@ -502,10 +511,11 @@ int GL1MonDraw::DrawRejection()
   tl->SetLineWidth(4);
   tl->SetLineColor(7);
   tl->SetLineStyle(2);
-  for (int i = 0; i < 2; i++)
+  for (int i = 0; i < 8; i++)
   {
     std::string hname = "gl1_reject_" + std::to_string(i);
     TH1 *hist1 = cl->getHisto("GL1MON_0", hname);
+    int trigno = std::stoi(hist1->GetTitle());
     if (!hist1)
     {
       DrawDeadServer(transparent[3]);
@@ -525,21 +535,27 @@ int GL1MonDraw::DrawRejection()
       int igood_bin = 0;
       int ibad_bin = 0;
       float xmax {0.};
+      float ymax {0.};
+      float ymin {1000000.};
       for (int ibin = 1; ibin <= nEntries; ibin++)
       {
 	float y = hist1->GetBinContent(ibin);
 	if (y >= rejection_limit[i].first && y <= rejection_limit[i].second)
 	{
 	  x_good[igood_bin] = hist1->GetBinError(ibin);
-	  y_good[igood_bin] = hist1->GetBinContent(ibin);
+	  y_good[igood_bin] = y;
 	  xmax = std::max(xmax,x_good[igood_bin]);
+	  ymax = std::max(ymax,y_good[igood_bin]);
+	  ymin = std::min(ymin,y_good[igood_bin]);
 	  igood_bin++;
 	}
 	else
 	{
 	  x_bad[ibad_bin] = hist1->GetBinError(ibin);
-	  y_bad[ibad_bin] = hist1->GetBinContent(ibin);
+	  y_bad[ibad_bin] = y;
 	  xmax = std::max(xmax,x_bad[ibad_bin]);
+	  ymax = std::max(ymax,y_bad[ibad_bin]);
+	  ymin = std::min(ymin,y_bad[ibad_bin]);
 	  ibad_bin++;
 	}
       }
@@ -555,7 +571,7 @@ int GL1MonDraw::DrawRejection()
       {
 	reject_graph_bad[i] = new TGraph(ibad_bin, x_bad, y_bad);
       }
-      TH2 *h2 = new TH2F("h2", m_TrignameArray[i + 22].c_str(), 1, 0, xmax + 50, 1, 0, 100);
+      TH2 *h2 = new TH2F("h2", m_TrignameArray[trigno].c_str(), 1, 0, xmax + 50, 1, 0, ymax+ymax/5.);
       h2->SetStats(0);
       h2->SetXTitle("time in Run");
       h2->SetYTitle("Rejection over MB");
@@ -565,7 +581,7 @@ int GL1MonDraw::DrawRejection()
 
       h2->GetYaxis()->SetLabelSize(0.06);
       h2->GetYaxis()->SetTitleSize(0.06);
-      h2->GetYaxis()->SetTitleOffset(0.4);
+      h2->GetYaxis()->SetTitleOffset(0.45);
       h2->SetTitle("");
       h2->DrawCopy();
       if (reject_graph_good[i])
@@ -581,11 +597,14 @@ int GL1MonDraw::DrawRejection()
 	reject_graph_bad[i]->SetMarkerStyle(20);
 	reject_graph_bad[i]->SetMarkerSize(2.);
 	reject_graph_bad[i]->SetMarkerColor(2);
+	reject_graph_bad[i]->SetMarkerColor(3);
 
 	reject_graph_bad[i]->Draw("p same");
       }
-      tl->DrawLine(0,rejection_limit[i].first, xmax + 50,rejection_limit[i].first);
-      tl->DrawLine(0,rejection_limit[i].second, xmax + 50,rejection_limit[i].second);
+      // tl->DrawLine(0,rejection_limit[i].first, xmax + 50,rejection_limit[i].first);
+      // tl->DrawLine(0,rejection_limit[i].second, xmax + 50,rejection_limit[i].second);
+      tl->DrawLine(0,ymin-ymin/10., xmax + 50,ymin-ymin/10.);
+      tl->DrawLine(0,ymax+ymax/10., xmax + 50,ymax+ymax/10.);
       delete[] x_good;
       delete[] y_good;
       delete[] x_bad;
