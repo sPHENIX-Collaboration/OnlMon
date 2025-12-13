@@ -41,7 +41,7 @@ void StartPoms()
 
   subsys = new SubSystem("CEMC", "cemc");
   subsys->AddAction("cemcDraw(\"FIRST\")", "Towers");
-  subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Decoder Status");
+  subsys->AddAction("cemcDraw(\"SECOND\")", "Packet Decoder Status [Expert]");
   subsys->AddAction("cemcDraw(\"THIRD\")", "Wave Forms");
   subsys->AddAction("cemcDraw(\"FIFTH\")", "Trigger [Expert]");
   subsys->AddAction("cemcDraw(\"ALLTRIGHITS\")", "All Trigger Tower Hits");
@@ -64,7 +64,7 @@ void StartPoms()
    subsys = new SubSystem("GL1", "gl1");
    subsys->AddAction("gl1Draw(\"SCALED\")", "Scaled Triggers");
    subsys->AddAction("gl1Draw(\"LIVE\")", "Live Triggers [Expert]");
-   subsys->AddAction("gl1Draw(\"REJECTION\")", "Rejection");
+   subsys->AddAction("gl1Draw(\"REJECTION\")", "Rejection [Expert]");
    subsys->AddAction("gl1Draw(\"SERVERSTATS\")", "Server Stats");
    subsys->AddAction(new SubSystemActionSavePlot(subsys));
    pmf->RegisterSubSystem(subsys);
