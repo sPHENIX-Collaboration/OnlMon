@@ -157,14 +157,14 @@ std::string GetTriggerName(TriggerEnum::BitCodes code);
 
 const std::map< TriggerEnum::BitCodes, std::string> RareProbeTriggers =
 {
-    {JET6, "Jet 6 GeV"},
-    {JET8, "Jet 8 GeV"},
-    {JET10, "Jet 10 GeV"},
-    {JET12, "Jet 12 GeV"},
-    {PHOTON2, "Photon 2 GeV"},
-    {PHOTON3, "Photon 3 GeV"},
-    {PHOTON4, "Photon 4 GeV"},
-    {PHOTON5, "Photon 5 GeV"},
+    {JET6_MBD_NS1, "Jet 6 GeV + MBD N&S >= 1"},
+    {JET8_MBD_NS1, "Jet 8 GeV + MBD N&S >= 1"},
+    {JET10_MBD_NS1, "Jet 10 GeV + MBD N&S >= 1"},
+    {JET12_MBD_NS1, "Jet 12 GeV + MBD N&S >= 1"},
+    {PHOTON2_MBD_NS1, "Photon 2 GeV + MBD N&S >= 1"},
+    {PHOTON3_MBD_NS1, "Photon 3 GeV + MBD N&S >= 1"},
+    {PHOTON4_MBD_NS1, "Photon 4 GeV + MBD N&S >= 1"},
+    {PHOTON5_MBD_NS1, "Photon 5 GeV + MBD N&S >= 1"},
 };
 
 } // namespace TriggerEnum

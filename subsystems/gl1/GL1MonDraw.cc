@@ -51,14 +51,25 @@ int GL1MonDraw::Init()
 
 // from /home/repo/Debian/bin/ll1TriggerControl.py
 // photon_triggers_rejection_ranges = [[19, 27], [50, 70]]
-  rejection_limit[0] = std::make_pair(19,27);
-  rejection_limit[1] = std::make_pair(50,70);
-  rejection_limit[2] = std::make_pair(50,70);
-  rejection_limit[3] = std::make_pair(50,70);
-  rejection_limit[4] = std::make_pair(50,70);
-  rejection_limit[5] = std::make_pair(50,70);
-  rejection_limit[6] = std::make_pair(50,70);
-  rejection_limit[7] = std::make_pair(50,70);
+// self.rej_ranges = [[560,840],[3760,5640],[21440,40160],[70000,130000],[65,85],    [240,360],[1120,1680],[4000,6000]]
+
+  // rejection_limit[0] = std::make_pair(19,27);
+  // rejection_limit[1] = std::make_pair(50,70);
+  // rejection_limit[2] = std::make_pair(50,70);
+  // rejection_limit[3] = std::make_pair(50,70);
+  // rejection_limit[4] = std::make_pair(50,70);
+  // rejection_limit[5] = std::make_pair(50,70);
+  // rejection_limit[6] = std::make_pair(50,70);
+  // rejection_limit[7] = std::make_pair(50,70);
+  rejection_limit[0] = std::make_pair(560,840);
+  rejection_limit[1] = std::make_pair(3760,5640);
+  rejection_limit[2] = std::make_pair(21440,40160);
+  rejection_limit[3] = std::make_pair(70000,130000);
+  rejection_limit[4] = std::make_pair(65,85);
+  rejection_limit[5] = std::make_pair(240,360);
+  rejection_limit[6] = std::make_pair(1120,1680);
+  rejection_limit[7] = std::make_pair(4000,6000);
+  
   return 0;
 }
 
@@ -511,6 +522,7 @@ int GL1MonDraw::DrawRejection()
   tl->SetLineWidth(4);
   tl->SetLineColor(7);
   tl->SetLineStyle(2);
+  std::vector<int> remap_draw_idx = {0,2,4,6,1,3,5,7};
   for (int i = 0; i < 8; i++)
   {
     std::string hname = "gl1_reject_" + std::to_string(i);
@@ -522,7 +534,7 @@ int GL1MonDraw::DrawRejection()
       TC[3]->SetEditable(false);
       return -1;
     }
-    int ipad = i;
+    int ipad = remap_draw_idx[i];
     int nEntries = hist1->GetEntries();
     if (nEntries > 0)
     {
@@ -539,25 +551,25 @@ int GL1MonDraw::DrawRejection()
       float ymin {1000000.};
       for (int ibin = 1; ibin <= nEntries; ibin++)
       {
-	float y = hist1->GetBinContent(ibin);
-	if (y >= rejection_limit[i].first && y <= rejection_limit[i].second)
-	{
-	  x_good[igood_bin] = hist1->GetBinError(ibin);
-	  y_good[igood_bin] = y;
-	  xmax = std::max(xmax,x_good[igood_bin]);
-	  ymax = std::max(ymax,y_good[igood_bin]);
-	  ymin = std::min(ymin,y_good[igood_bin]);
-	  igood_bin++;
-	}
-	else
-	{
-	  x_bad[ibad_bin] = hist1->GetBinError(ibin);
-	  y_bad[ibad_bin] = y;
-	  xmax = std::max(xmax,x_bad[ibad_bin]);
-	  ymax = std::max(ymax,y_bad[ibad_bin]);
-	  ymin = std::min(ymin,y_bad[ibad_bin]);
-	  ibad_bin++;
-	}
+        float y = hist1->GetBinContent(ibin);
+        if (y >= rejection_limit[i].first && y <= rejection_limit[i].second)
+        {
+          x_good[igood_bin] = hist1->GetBinError(ibin);
+          y_good[igood_bin] = y;
+          xmax = std::max(xmax,x_good[igood_bin]);
+          ymax = std::max(ymax,y_good[igood_bin]);
+          ymin = std::min(ymin,y_good[igood_bin]);
+          igood_bin++;
+        }
+        else
+        {
+          x_bad[ibad_bin] = hist1->GetBinError(ibin);
+          y_bad[ibad_bin] = y;
+          xmax = std::max(xmax,x_bad[ibad_bin]);
+          ymax = std::max(ymax,y_bad[ibad_bin]);
+          ymin = std::min(ymin,y_bad[ibad_bin]);
+          ibad_bin++;
+	      }
       }
       delete reject_graph_good[i];
       delete reject_graph_bad[i];
@@ -565,13 +577,13 @@ int GL1MonDraw::DrawRejection()
       reject_graph_bad[i] = nullptr;
       if (igood_bin > 0)
       {
-	reject_graph_good[i] = new TGraph(igood_bin, x_good, y_good);
+	      reject_graph_good[i] = new TGraph(igood_bin, x_good, y_good);
       }
       if (ibad_bin > 0)
       {
-	reject_graph_bad[i] = new TGraph(ibad_bin, x_bad, y_bad);
+	      reject_graph_bad[i] = new TGraph(ibad_bin, x_bad, y_bad);
       }
-      TH2 *h2 = new TH2F("h2", m_TrignameArray[trigno].c_str(), 1, 0, xmax + 50, 1, 0, ymax+ymax/5.);
+      TH2 *h2 = new TH2F("h2", Form("%s (%d)" , m_TrignameArray[trigno].c_str(), trigno ) , 1, 0, xmax + 50, 1, 0, ymax+ymax/5.);
       h2->SetStats(0);
       h2->SetXTitle("time in Run");
       h2->SetYTitle("Rejection over MB");
@@ -586,20 +598,20 @@ int GL1MonDraw::DrawRejection()
       h2->DrawCopy();
       if (reject_graph_good[i])
       {
-	reject_graph_good[i]->SetMarkerStyle(20);
-	reject_graph_good[i]->SetMarkerSize(2.);
-	reject_graph_good[i]->SetMarkerColor(3);
+        reject_graph_good[i]->SetMarkerStyle(20);
+        reject_graph_good[i]->SetMarkerSize(2.);
+        reject_graph_good[i]->SetMarkerColor(3);
 
-	reject_graph_good[i]->Draw("p same");
+        reject_graph_good[i]->Draw("p same");
       }
       if (reject_graph_bad[i])
       {
-	reject_graph_bad[i]->SetMarkerStyle(20);
-	reject_graph_bad[i]->SetMarkerSize(2.);
-	reject_graph_bad[i]->SetMarkerColor(2);
-	reject_graph_bad[i]->SetMarkerColor(3);
+        reject_graph_bad[i]->SetMarkerStyle(20);
+        reject_graph_bad[i]->SetMarkerSize(2.);
+        reject_graph_bad[i]->SetMarkerColor(2);
+        reject_graph_bad[i]->SetMarkerColor(3);
 
-	reject_graph_bad[i]->Draw("p same");
+        reject_graph_bad[i]->Draw("p same");
       }
       // tl->DrawLine(0,rejection_limit[i].first, xmax + 50,rejection_limit[i].first);
       // tl->DrawLine(0,rejection_limit[i].second, xmax + 50,rejection_limit[i].second);
@@ -612,7 +624,7 @@ int GL1MonDraw::DrawRejection()
       delete h2;
       title.SetTextColor(4);
       title.SetTextSize(0.1);
-      title.DrawText(0.5, 0.99, m_TrignameArray[i + 22].c_str());
+      title.DrawText(0.5, 0.99, Form("%s", m_TrignameArray[trigno].c_str()));
     }
   }
   delete tl;
