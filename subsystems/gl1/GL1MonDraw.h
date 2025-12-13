@@ -39,7 +39,7 @@ class GL1MonDraw : public OnlMonDraw
   TPad *transparent[4]{};
   TPad *ScalePad[28]{};
   TPad *LivePad[28]{};
-  TPad *RejPad[2]{};
+  TPad *RejPad[8]{};
   RunDBodbc *m_RunDB{nullptr};
   int m_CurrentRunnumber{0};
   std::array<std::string, 64> m_TrignameArray;
