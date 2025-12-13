@@ -51,14 +51,25 @@ int GL1MonDraw::Init()
 
 // from /home/repo/Debian/bin/ll1TriggerControl.py
 // photon_triggers_rejection_ranges = [[19, 27], [50, 70]]
-  rejection_limit[0] = std::make_pair(19,27);
-  rejection_limit[1] = std::make_pair(50,70);
-  rejection_limit[2] = std::make_pair(50,70);
-  rejection_limit[3] = std::make_pair(50,70);
-  rejection_limit[4] = std::make_pair(50,70);
-  rejection_limit[5] = std::make_pair(50,70);
-  rejection_limit[6] = std::make_pair(50,70);
-  rejection_limit[7] = std::make_pair(50,70);
+// self.rej_ranges = [[560,840],[3760,5640],[21440,40160],[70000,130000],[65,85],    [240,360],[1120,1680],[4000,6000]]
+
+  // rejection_limit[0] = std::make_pair(19,27);
+  // rejection_limit[1] = std::make_pair(50,70);
+  // rejection_limit[2] = std::make_pair(50,70);
+  // rejection_limit[3] = std::make_pair(50,70);
+  // rejection_limit[4] = std::make_pair(50,70);
+  // rejection_limit[5] = std::make_pair(50,70);
+  // rejection_limit[6] = std::make_pair(50,70);
+  // rejection_limit[7] = std::make_pair(50,70);
+  rejection_limit[0] = std::make_pair(560,840);
+  rejection_limit[1] = std::make_pair(3760,5640);
+  rejection_limit[2] = std::make_pair(21440,40160);
+  rejection_limit[3] = std::make_pair(70000,130000);
+  rejection_limit[4] = std::make_pair(65,85);
+  rejection_limit[5] = std::make_pair(240,360);
+  rejection_limit[6] = std::make_pair(1120,1680);
+  rejection_limit[7] = std::make_pair(4000,6000);
+  
   return 0;
 }
 
@@ -571,7 +582,7 @@ int GL1MonDraw::DrawRejection()
       {
 	reject_graph_bad[i] = new TGraph(ibad_bin, x_bad, y_bad);
       }
-      TH2 *h2 = new TH2F("h2", m_TrignameArray[trigno].c_str(), 1, 0, xmax + 50, 1, 0, ymax+ymax/5.);
+      TH2 *h2 = new TH2F("h2", Form("%s (%d)" , m_TrignameArray[trigno].c_str(), trigno ) , 1, 0, xmax + 50, 1, 0, ymax+ymax/5.);
       h2->SetStats(0);
       h2->SetXTitle("time in Run");
       h2->SetYTitle("Rejection over MB");
