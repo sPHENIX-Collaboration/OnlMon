@@ -184,11 +184,11 @@ int GL1Mon::process_event(Event *evt)
       if (ticks - lastupdate > mintimediff)
       {
         //      std::cout << "ticks: " << ticks << ", last: " << lastupdate << std::endl;
-        int64_t current_mbtrigs = p->lValue(14, "TRIGGERLIVE") - n_minbias;
+        int64_t current_mbtrigs = p->lValue(TriggerEnum::BitCodes::MBD_NS1_ZVRTX150, "TRIGGERRAW") - n_minbias;
 
         for (size_t i = 0; i < triggernumber.size(); i++)
         {
-          int64_t curscale = p->lValue(triggernumber[i], "TRIGGERLIVE") - ntriggers[i];
+          int64_t curscale = p->lValue(triggernumber[i], "TRIGGERRAW") - ntriggers[i];
           // std::cout << "mb trigs: " << current_mbtrigs << " " <<  triggername[i]
           // 	    << ": " << curscale << std::endl;
           float rejection = (current_mbtrigs * 1.) / (curscale * 1.);
