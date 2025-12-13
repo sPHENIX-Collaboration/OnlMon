@@ -623,7 +623,7 @@ int GL1MonDraw::DrawRejection()
       delete h2;
       title.SetTextColor(4);
       title.SetTextSize(0.1);
-      title.DrawText(0.5, 0.99, m_TrignameArray[trigno].c_str());
+      title.DrawText(0.5, 0.99, Form("%s,%d", m_TrignameArray[trigno].c_str(), trigno));
     }
   }
   delete tl;
