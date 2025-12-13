@@ -522,6 +522,7 @@ int GL1MonDraw::DrawRejection()
   tl->SetLineWidth(4);
   tl->SetLineColor(7);
   tl->SetLineStyle(2);
+  std::vector<int> remap_draw_idx = {0,4,1,5,2,6,3,7};
   for (int i = 0; i < 8; i++)
   {
     std::string hname = "gl1_reject_" + std::to_string(i);
@@ -533,7 +534,7 @@ int GL1MonDraw::DrawRejection()
       TC[3]->SetEditable(false);
       return -1;
     }
-    int ipad = i;
+    int ipad = remap_draw_idx[i];
     int nEntries = hist1->GetEntries();
     if (nEntries > 0)
     {
@@ -623,7 +624,7 @@ int GL1MonDraw::DrawRejection()
       delete h2;
       title.SetTextColor(4);
       title.SetTextSize(0.1);
-      title.DrawText(0.5, 0.99, Form("%s,%d", m_TrignameArray[trigno].c_str(), trigno));
+      title.DrawText(0.5, 0.99, Form("%s", m_TrignameArray[trigno].c_str()));
     }
   }
   delete tl;
