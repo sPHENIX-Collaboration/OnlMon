@@ -105,7 +105,8 @@ int SepdMon::Init()
   p_noiserms_all_channel = new TProfile("p_noiserms_all_channel","",768,0,768,"S");
 
   int nADCcorr = 500;
-  double ADCcorrmax = 6e6;
+  //double ADCcorrmax = 6e6; // AuAu
+  double ADCcorrmax = 2e4; // pp
   int nhitscorr = 500;
   double hitscorrmax = 1000;
   h_ADC_corr = new TH2F("h_ADC_corr", ";ADC sum (south); ADC sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
