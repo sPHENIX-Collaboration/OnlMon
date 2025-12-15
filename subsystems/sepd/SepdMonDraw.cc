@@ -566,7 +566,7 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
   }
   // --- rebin histograms
   //h_ADC_corr->Rebin2D(5,5);
-  //h_hits_corr->Rebin2D(5,5);
+  h_hits_corr->Rebin2D(5,5);//bringing this back for pp
   // ---
   TC[canvasindex]->SetEditable(true);
   TC[canvasindex]->Clear("D");
