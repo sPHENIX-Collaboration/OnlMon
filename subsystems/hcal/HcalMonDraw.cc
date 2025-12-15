@@ -634,8 +634,8 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   gROOT->SetStyle("hcalStyle");
   gROOT->ForceStyle();
   gStyle->SetPalette(4, palette);
-  double cold_tower_thresh = 0.75;
-  double hot_tower_thresh = 1.7;
+  double cold_tower_thresh = 0.5;
+  double hot_tower_thresh = 2.0;
   double dead_tower_thresh = 0.01;
   if(iscosmic) cold_tower_thresh = 0.5;
   double_t levels[5] = {0, dead_tower_thresh, cold_tower_thresh, hot_tower_thresh, 4};

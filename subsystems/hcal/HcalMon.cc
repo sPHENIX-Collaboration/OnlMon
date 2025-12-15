@@ -705,7 +705,8 @@ int HcalMon::process_event(Event* e /* evt */)
 
   }  // sector loop
 
-  if (fillhist) h_event->Fill(0);
+  //if (fillhist)
+  h_event->Fill(0);
   h_waveform_twrAvg->Scale(1. / 32. / 48.);  // average tower waveform
 
   return 0;
