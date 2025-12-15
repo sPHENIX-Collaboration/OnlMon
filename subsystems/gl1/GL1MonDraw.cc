@@ -149,12 +149,12 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     // gSystem->ProcessEvents(), otherwise your process will grow and
     // grow and grow but will not show a definitely lost memory leak
     gSystem->ProcessEvents();
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 8; i++)
     {
       double xlow = 0.;
       double xhigh = 1.;
-      double ylow = 0.0 + (0.44 * i);
-      double yhigh = ylow + 0.44;
+      double ylow = 0.0 + (0.11 * i);
+      double yhigh = ylow + 0.11;
       int padindex = 20 + i;  // make it start from the top of the plot
       // std::cout << "idx: " << padindex << "pad: xl: " << xlow << ", xh: " << xhigh
       // << "pad: yl: " << ylow << ", yh: " << yhigh

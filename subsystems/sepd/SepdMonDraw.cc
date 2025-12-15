@@ -374,8 +374,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
 
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
-  //double zmax = 0.1;
-  double zmax = 0.3;
+  double zmax = 0.1; // pp
+  //double zmax = 1.0; // AuAu
   //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
@@ -407,8 +407,6 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   gPad->DrawFrame(-3.8, -3.8,3.8, 3.8);
   polar_histN->Draw("same colz pol AH");
   polar_histN01->Draw("same col pol AH");
-  // adjust z axis 
-  // polar
   tarm.DrawText(0.40,0.91,"North");
   gStyle->SetPalette(57);
 
@@ -508,7 +506,7 @@ int SepdMonDraw::DrawSecond(const std::string & /* what */)
         {
           h_ADC_channel[i]->Scale(1.0/nevt);
           h_ADC_channel[i]->GetXaxis()->SetNdivisions(505);
-          h_ADC_channel[i]->GetXaxis()->SetRangeUser(0,500);
+          h_ADC_channel[i]->GetXaxis()->SetRangeUser(0,500); // okay for AuAu and pp
           h_ADC_channel[i]->SetMinimum(0.0);
           h_ADC_channel[i]->SetMaximum(0.003);
           h_ADC_channel[i]->SetLineColor(color);
@@ -575,8 +573,10 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
   Pad[4]->cd();
   h_ADC_corr->GetYaxis()->SetNdivisions(505);
   h_ADC_corr->GetXaxis()->SetNdivisions(505);
-  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e4);
-  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e4);
+  // h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e6); // AuAu
+  // h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6); // AuAu
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,2e4); // pp
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,2e4); // pp
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -591,8 +591,10 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
   Pad[5]->cd();
   h_hits_corr->GetYaxis()->SetNdivisions(505);
   h_hits_corr->GetXaxis()->SetNdivisions(505);
-  h_hits_corr->GetYaxis()->SetRangeUser(0,200);
-  h_hits_corr->GetXaxis()->SetRangeUser(0,200);
+  // h_hits_corr->GetYaxis()->SetRangeUser(0,380); // AuAu shoulda been 384 lol
+  // h_hits_corr->GetXaxis()->SetRangeUser(0,380); // AuAu
+  h_hits_corr->GetYaxis()->SetRangeUser(0,200); // pp
+  h_hits_corr->GetXaxis()->SetRangeUser(0,200); // pp
   h_hits_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -658,8 +660,10 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   Pad[4]->cd();
   h_ADC_corr->GetYaxis()->SetNdivisions(505);
   h_ADC_corr->GetXaxis()->SetNdivisions(505);
-  h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e4);
-  h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e4);
+  // h_ADC_corr->GetYaxis()->SetRangeUser(0,1.5e6); // AuAu
+  // h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6); // AuAu
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,2e4); // pp
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,2e4); // pp
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -678,7 +682,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   // h_hits_corr->GetXaxis()->SetRangeUser(0,380);
   // h_hits_corr->Draw("COLZ");
   h_adc_south->GetXaxis()->SetNdivisions(505);
-  h_adc_south->GetXaxis()->SetRangeUser(0,1.5e4);
+  //h_adc_south->GetXaxis()->SetRangeUser(0,1.5e6); // AuAu
+  h_adc_south->GetXaxis()->SetRangeUser(0,2e4); // pp
   h_adc_south->GetXaxis()->SetTitle("ADC sum");
   h_adc_south->GetYaxis()->SetTitle("Counts");
   h_adc_south->Draw();
@@ -754,7 +759,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_sepd_waveform->ProfileX()->GetMaximum();
   float ymaxdraw = ymaxp * 10; // was originally 20, but that is too much
-  h2_sepd_waveform->GetYaxis()->SetRangeUser(0,ymaxdraw);
+  h2_sepd_waveform->GetYaxis()->SetRangeUser(0,ymaxdraw); // should work for AuAu and pp
   h2_sepd_waveform->GetXaxis()->SetRangeUser(0, 11);
   h2_sepd_waveform->Draw("colz");
   // --- add a profile on top
@@ -1262,7 +1267,7 @@ int SepdMonDraw::DrawSixth(const std::string & /* what */)
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
   //double zmax = 0.1;
-  double zmax = 100.0;
+  double zmax = 100.0; // AuAu RMS, pp RMS not yet known, but probably similar
   //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
