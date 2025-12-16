@@ -565,8 +565,8 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
     return -1;
   }
   // --- rebin histograms
-  //h_ADC_corr->Rebin2D(5,5);
-  h_hits_corr->Rebin2D(5,5);//bringing this back for pp
+  h_ADC_corr->Rebin2D(5,5);//bringing this back for pp
+  //h_hits_corr->Rebin2D(5,5);
   // ---
   TC[canvasindex]->SetEditable(true);
   TC[canvasindex]->Clear("D");
@@ -652,7 +652,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   h_adc_south->SetLineWidth(2);
   h_adc_north->SetLineWidth(2);
   // --- rebin histograms
-  //h_ADC_corr->Rebin2D(5,5);
+  h_ADC_corr->Rebin2D(5,5);
   //h_hits_corr->Rebin2D(5,5);
   // ---
   TC[canvasindex]->SetEditable(true);
