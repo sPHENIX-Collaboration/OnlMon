@@ -64,6 +64,7 @@ class InttMonDraw : public OnlMonDraw
   int DrawHistPad_ZoomedFphxBco(int i, int icnvs);
 
   Color_t static GetFeeColor(int const&);
+  int static GetFeeStyle(int const&);
 
   int Draw_HitMap();
   int DrawLgndPad_HitMap();

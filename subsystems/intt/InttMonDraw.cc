@@ -538,14 +538,14 @@ int InttMonDraw::Draw_FelixBcoFphxBco()
   // Draw Legend
   double lgnd_text_size = 0.08;
   double lgnd_box_width = 0.16;
-  double lgnd_box_height = 0.01;
+  // double lgnd_box_height = 0.01;
 
   std::string name;
 
   m_lgnd_pad[k_felixbcofphxbco]->Clear();
   m_lgnd_pad[k_felixbcofphxbco]->cd();
 
-  double x0, y0, x[4], y[4];
+  double x0, y0; // , x[4], y[4];
   for (int fee = 0; fee < 14; ++fee)
   {
     x0 = 0.5 - lgnd_box_width;
@@ -557,22 +557,30 @@ int InttMonDraw::Draw_FelixBcoFphxBco()
     lgnd_text.SetTextColor(kBlack);
     lgnd_text.DrawText(x0 + 1.5 * lgnd_box_width, y0, Form("FChn %2d", fee));
 
-    x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
-    y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
-    for (int i = 0; i < 4; ++i)
-    {
-      x[i] *= 0.5 * lgnd_box_width;
-      x[i] += x0;
+    // x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
+    // y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
+    // for (int i = 0; i < 4; ++i)
+    // {
+    //   x[i] *= 0.5 * lgnd_box_width;
+    //   x[i] += x0;
 
-      y[i] *= 0.5 * lgnd_box_height;
-      y[i] += y0;
-    }
+    //   y[i] *= 0.5 * lgnd_box_height;
+    //   y[i] += y0;
+    // }
 
-    TPolyLine box;
-    box.SetFillColor(GetFeeColor(fee));
-    box.SetLineColor(kBlack);
-    box.SetLineWidth(1);
-    box.DrawPolyLine(4, x, y, "f");
+    // TPolyLine box;
+    // box.SetFillColor(GetFeeColor(fee));
+    // box.SetLineColor(kBlack);
+    // box.SetLineWidth(1);
+    // box.DrawPolyLine(4, x, y, "f");
+	TLine line;
+	line.SetLineColor(GetFeeColor(fee));
+	line.SetLineStyle(GetFeeStyle(fee));
+	line.SetLineWidth(3);
+	line.DrawLine (
+		x0 - 0.5 * lgnd_box_width, y0,
+		x0 + 0.5 * lgnd_box_width, y0
+	);
   }
 
   int iret = 1;
@@ -605,6 +613,7 @@ int InttMonDraw::DrawHistPad_FelixBcoFphxBco(
       m_hist_felixbcofphxbco[i][fee]->SetTitle(Form("intt%01d;Felix BCO - FPHX BCO;Counts (Hits)", i));
       m_hist_felixbcofphxbco[i][fee]->GetXaxis()->SetNdivisions(16);  //, true);
       m_hist_felixbcofphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
+      m_hist_felixbcofphxbco[i][fee]->SetLineStyle(GetFeeStyle(fee));
       m_hist_felixbcofphxbco[i][fee]->SetFillStyle(4000);  // Transparent
     }
     m_hist_pad[k_felixbcofphxbco][i]->SetLogy();
@@ -690,14 +699,14 @@ int InttMonDraw::Draw_JustFphxBco()
   // Draw Legend
   double lgnd_text_size = 0.08;
   double lgnd_box_width = 0.16;
-  double lgnd_box_height = 0.01;
+  // double lgnd_box_height = 0.01;
 
   std::string name;
 
   m_lgnd_pad[k_justfphxbco]->Clear();
   m_lgnd_pad[k_justfphxbco]->cd();
 
-  double x0, y0, x[4], y[4];
+  double x0, y0; // , x[4], y[4];
   for (int fee = 0; fee < 14; ++fee)
   {
     x0 = 0.5 - lgnd_box_width;
@@ -709,22 +718,30 @@ int InttMonDraw::Draw_JustFphxBco()
     lgnd_text.SetTextColor(kBlack);
     lgnd_text.DrawText(x0 + 1.5 * lgnd_box_width, y0, Form("FChn %2d", fee));
 
-    x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
-    y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
-    for (int i = 0; i < 4; ++i)
-    {
-      x[i] *= 0.5 * lgnd_box_width;
-      x[i] += x0;
+    // x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
+    // y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
+    // for (int i = 0; i < 4; ++i)
+    // {
+    //   x[i] *= 0.5 * lgnd_box_width;
+    //   x[i] += x0;
 
-      y[i] *= 0.5 * lgnd_box_height;
-      y[i] += y0;
-    }
+    //   y[i] *= 0.5 * lgnd_box_height;
+    //   y[i] += y0;
+    // }
 
-    TPolyLine box;
-    box.SetFillColor(GetFeeColor(fee));
-    box.SetLineColor(kBlack);
-    box.SetLineWidth(1);
-    box.DrawPolyLine(4, x, y, "f");
+    // TPolyLine box;
+    // box.SetFillColor(GetFeeColor(fee));
+    // box.SetLineColor(kBlack);
+    // box.SetLineWidth(1);
+    // box.DrawPolyLine(4, x, y, "f");
+	TLine line;
+	line.SetLineColor(GetFeeColor(fee));
+	line.SetLineStyle(GetFeeStyle(fee));
+	line.SetLineWidth(3);
+	line.DrawLine (
+		x0 - 0.5 * lgnd_box_width, y0,
+		x0 + 0.5 * lgnd_box_width, y0
+	);
   }
 
   int iret = 1;
@@ -757,6 +774,7 @@ int InttMonDraw::DrawHistPad_JustFphxBco(
       m_hist_justfphxbco[i][fee]->SetTitle(Form("intt%01d;FPHX BCO;Counts (Hits)", i));
       m_hist_justfphxbco[i][fee]->GetXaxis()->SetNdivisions(16);  //, true);
       m_hist_justfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
+      m_hist_justfphxbco[i][fee]->SetLineStyle(GetFeeStyle(fee));
       m_hist_justfphxbco[i][fee]->SetFillStyle(4000);  // Transparent
     }
     m_hist_pad[k_justfphxbco][i]->SetLogy();
@@ -841,14 +859,14 @@ int InttMonDraw::Draw_ZoomedFphxBco()
   // Draw Legend
   double lgnd_text_size = 0.08;
   double lgnd_box_width = 0.16;
-  double lgnd_box_height = 0.01;
+  // double lgnd_box_height = 0.01;
 
   std::string name;
 
   m_lgnd_pad[k_zoomedfphxbco]->Clear();
   m_lgnd_pad[k_zoomedfphxbco]->cd();
 
-  double x0, y0, x[4], y[4];
+  double x0, y0; //, x[4], y[4];
   for (int fee = 0; fee < 14; ++fee)
   {
     x0 = 0.5 - lgnd_box_width;
@@ -860,22 +878,31 @@ int InttMonDraw::Draw_ZoomedFphxBco()
     lgnd_text.SetTextColor(kBlack);
     lgnd_text.DrawText(x0 + 1.5 * lgnd_box_width, y0, Form("FChn %2d", fee));
 
-    x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
-    y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
-    for (int i = 0; i < 4; ++i)
-    {
-      x[i] *= 0.5 * lgnd_box_width;
-      x[i] += x0;
+    // x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
+    // y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
+    // for (int i = 0; i < 4; ++i)
+    // {
+    //   x[i] *= 0.5 * lgnd_box_width;
+    //   x[i] += x0;
 
-      y[i] *= 0.5 * lgnd_box_height;
-      y[i] += y0;
-    }
+    //   y[i] *= 0.5 * lgnd_box_height;
+    //   y[i] += y0;
+    // }
 
-    TPolyLine box;
-    box.SetFillColor(GetFeeColor(fee));
-    box.SetLineColor(kBlack);
-    box.SetLineWidth(1);
-    box.DrawPolyLine(4, x, y, "f");
+    // TPolyLine box;
+    // box.SetFillColor(GetFeeColor(fee));
+    // box.SetLineColor(kBlack);
+    // box.SetLineWidth(1);
+    // box.DrawPolyLine(4, x, y, "f");
+	TLine line;
+	line.SetLineColor(GetFeeColor(fee));
+	line.SetLineStyle(GetFeeStyle(fee));
+	line.SetLineWidth(3);
+	line.DrawLine (
+		x0 - 0.5 * lgnd_box_width, y0,
+		x0 + 0.5 * lgnd_box_width, y0
+	);
+
   }
 
   int iret = 1;
@@ -913,6 +940,7 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       // m_left_hist_zoomedfphxbco[i][fee]->GetXaxis()->SetLabelOffset(999);
       m_left_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelSize(0.04);
       m_left_hist_zoomedfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
+      m_left_hist_zoomedfphxbco[i][fee]->SetLineStyle(GetFeeStyle(fee));
       m_left_hist_zoomedfphxbco[i][fee]->SetFillStyle(4000);  // Transparent
     }
     m_left_hist_pad[k_zoomedfphxbco][i]->SetLogy();
@@ -937,6 +965,7 @@ int InttMonDraw::DrawHistPad_ZoomedFphxBco(
       m_right_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelSize(0);
       m_right_hist_zoomedfphxbco[i][fee]->GetYaxis()->SetLabelOffset(999);
       m_right_hist_zoomedfphxbco[i][fee]->SetLineColor(GetFeeColor(fee));
+      m_right_hist_zoomedfphxbco[i][fee]->SetLineStyle(GetFeeStyle(fee));
       m_right_hist_zoomedfphxbco[i][fee]->SetFillStyle(4000);  // Transparent
     } 
     m_right_hist_pad[k_zoomedfphxbco][i]->SetLogy();
@@ -1038,22 +1067,32 @@ InttMonDraw::GetFeeColor(
   switch (fee % 7)
   {
   case 0:
-    return (fee / 7) ? kOrange : kBlack;
+    return kBlack;
   case 1:
-    return kRed + 3 * (fee / 7);
+    return kRed;
   case 2:
-    return kViolet + 3 + 7 * (fee / 7);
+    return kViolet;
   case 3:
-    return kGreen + 3 * (fee / 7);
+    return kGreen;
   case 4:
-    return kCyan + 3 * (fee / 7);
+    return kCyan;
   case 5:
-    return kBlue + 3 * (fee / 7);
+    return kBlue;
   case 6:
-    return kMagenta + 3 * (fee / 7);
+    return kMagenta;
   }
   return kBlack;
 }
+
+int
+InttMonDraw::GetFeeStyle(
+	int const& fee)
+{
+	return (fee % 2 == 0) ?
+		kSolid:
+		kDotted;
+}
+
 
 //====== HitMap ======//
 
@@ -1477,7 +1516,8 @@ int InttMonDraw::Draw_History()
       );
       m_hist_history[i]->SetTitle(Form("Rate of BCO decoding;Most recent %.0lf seconds;Decoded BCOs / s", (double)(w * N)));
       m_hist_history[i]->SetFillStyle(4000); // Transparent
-      m_hist_history[i]->SetLineColor(GetFeeColor(i)); // Transparent
+      m_hist_history[i]->SetLineColor(GetFeeColor(i));
+      m_hist_history[i]->SetLineStyle(GetFeeStyle(i));
     }
     m_single_hist_pad[k_history]->cd();
 
@@ -1584,14 +1624,14 @@ int InttMonDraw::Draw_History()
   // Draw Legend
   double lgnd_text_size = 0.08;
   double lgnd_box_width = 0.16;
-  double lgnd_box_height = 0.01;
+  // double lgnd_box_height = 0.01;
 
   std::string name;
 
   m_lgnd_pad[k_history]->Clear();
   m_lgnd_pad[k_history]->cd();
 
-  double x0, y0, x[4], y[4];
+  double x0, y0; //, x[4], y[4];
   for (int i = 0; i < 8; ++i)
   {
     x0 = 0.5 - lgnd_box_width;
@@ -1603,22 +1643,30 @@ int InttMonDraw::Draw_History()
     lgnd_text.SetTextColor(kBlack);
     lgnd_text.DrawText(x0 + 1.5 * lgnd_box_width, y0, Form("intt%01d", i));
 
-    x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
-    y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
-    for (int j = 0; j < 4; ++j)
-    {
-      x[j] *= 0.5 * lgnd_box_width;
-      x[j] += x0;
+    // x[0] = -1, x[1] = +1, x[2] = +1, x[3] = -1;
+    // y[0] = -1, y[1] = -1, y[2] = +1, y[3] = +1;
+    // for (int j = 0; j < 4; ++j)
+    // {
+    //   x[j] *= 0.5 * lgnd_box_width;
+    //   x[j] += x0;
 
-      y[j] *= 0.5 * lgnd_box_height;
-      y[j] += y0;
-    }
+    //   y[j] *= 0.5 * lgnd_box_height;
+    //   y[j] += y0;
+    // }
 
-    TPolyLine box;
-    box.SetFillColor(GetFeeColor(i));
-    box.SetLineColor(kBlack);
-    box.SetLineWidth(1);
-    box.DrawPolyLine(4, x, y, "f");
+    // TPolyLine box;
+    // box.SetFillColor(GetFeeColor(i));
+    // box.SetLineColor(kBlack);
+    // box.SetLineWidth(1);
+    // box.DrawPolyLine(4, x, y, "f");
+	TLine line;
+	line.SetLineColor(GetFeeColor(i));
+	line.SetLineStyle(GetFeeStyle(i));
+	line.SetLineWidth(3);
+	line.DrawLine (
+		x0 - 0.5 * lgnd_box_width, y0,
+		x0 + 0.5 * lgnd_box_width, y0
+	);
   }
 
   TC[k_history]->Update();
