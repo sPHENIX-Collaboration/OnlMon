@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cstdint>
+#include <deque>
 #include <map>
 #include <vector>
 
@@ -34,9 +35,11 @@ class GL1Mon : public OnlMon
   std::vector<int> ntriggers;
   std::vector<std::string> triggername;
   std::map<int, std::string> triggernamemap;
+  std::deque<std::pair<int, uint64_t>> eventticdeque;
   std::array<TH1 *, 64> scaledtriggers;
   std::array<TH1 *, 64> livetriggers;
   std::array<TH1 *, 64> rawtriggers;
+  std::array<TH1 *,5> TimeToLastEvent;
 };
 
 #endif /* GL1_GL1MON_H */
