@@ -86,6 +86,19 @@ int GL1Mon::Init()
     se->registerHisto(this, gl1_reject[icnt]);
     icnt++;
   }
+  TimeToLastEvent[0] = new TH1F("Gl1_TimeToLastEvent0", "Time to previous Event enlarged", 131, -0.5, 130.5);
+  TimeToLastEvent[1] = new TH1F("Gl1_TimeToLastEvent1", "Time to previous Event", 2001, 1, 10001);
+  TimeToLastEvent[2] = new TH1F("Gl1_TimeToLastEvent2", "Time to 2nd Event", 2001, 1, 20001);
+  TimeToLastEvent[3] = new TH1F("Gl1_TimeToLastEvent3", "Time to 3rd Event", 2001, 1, 20001);
+  TimeToLastEvent[4] = new TH1F("Gl1_TimeToLastEvent4", "Time to 4th Event", 2001, 1, 20001);
+  for (auto iter : TimeToLastEvent)
+  {
+    se->registerHisto(this, iter);
+  }
+  for (int i = 1; i <= 5; i++)
+  {
+    eventticdeque.push_back(std::make_pair(-1*i,0));
+  }
   return 0;
 }
 
@@ -145,6 +158,22 @@ int GL1Mon::process_event(Event *evt)
         }
       }
       int eventnumber = evt->getEvtSequence();
+      uint64_t bco = static_cast<uint64_t>(p->lValue(0, "BCO"));
+      eventticdeque.push_back(std::make_pair(eventnumber,bco));
+      std::pair<int, uint64_t> eventtic = eventticdeque.front();
+      eventticdeque.pop_front();
+      int event5th = eventtic.first;
+      if (event5th > 0) // this will discard the first 5 events
+      {
+        for (int i =0; i < 5; i++)
+        {
+	  if (eventticdeque[i].first == event5th+1+i)
+	  {
+	    TimeToLastEvent[i]->Fill(eventticdeque[i].second - eventtic.second);
+	  }
+	}
+      }
+
       Event *gl1Event{nullptr};
       if (erc->getStatus() == 0)
       {
