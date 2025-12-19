@@ -22,6 +22,11 @@ void gl1DrawInit(const int online = 0)
     std::string hname = "gl1_reject_" + std::to_string(i);
     cl->registerHisto(hname, servername);
   }
+  for (int i=0; i<5; i++)
+  {
+    std::string hname = "gl1_timetolastevent" + std::to_string(i);
+    cl->registerHisto(hname, servername);
+  }
   for (int i=0; i<64; i++)
   {
     std::string hname = "gl1_scaledtrigger_" + std::to_string(i);
