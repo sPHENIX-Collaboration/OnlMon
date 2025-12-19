@@ -86,11 +86,11 @@ int GL1Mon::Init()
     se->registerHisto(this, gl1_reject[icnt]);
     icnt++;
   }
-  TimeToLastEvent[0] = new TH1F("Gl1_TimeToLastEvent0", "Time to previous Event enlarged", 131, -0.5, 130.5);
-  TimeToLastEvent[1] = new TH1F("Gl1_TimeToLastEvent1", "Time to previous Event", 2001, 1, 10001);
-  TimeToLastEvent[2] = new TH1F("Gl1_TimeToLastEvent2", "Time to 2nd Event", 2001, 1, 20001);
-  TimeToLastEvent[3] = new TH1F("Gl1_TimeToLastEvent3", "Time to 3rd Event", 2001, 1, 20001);
-  TimeToLastEvent[4] = new TH1F("Gl1_TimeToLastEvent4", "Time to 4th Event", 2001, 1, 20001);
+  TimeToLastEvent[0] = new TH1F("gl1_timetolastevent0", "Time to previous Event enlarged", 131, -0.5, 130.5);
+  TimeToLastEvent[1] = new TH1F("gl1_timetolastevent1", "Time to previous Event", 2001, 1, 10001);
+  TimeToLastEvent[2] = new TH1F("gl1_timetolastevent2", "Time to 2nd Event", 2001, 1, 20001);
+  TimeToLastEvent[3] = new TH1F("gl1_timetolastevent3", "Time to 3rd Event", 2001, 1, 20001);
+  TimeToLastEvent[4] = new TH1F("gl1_timetolastevent4", "Time to 4th Event", 2001, 1, 20001);
   for (auto iter : TimeToLastEvent)
   {
     se->registerHisto(this, iter);
