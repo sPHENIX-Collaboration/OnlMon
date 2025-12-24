@@ -106,7 +106,7 @@ int LocalPolMonDraw::MakeCanvas(const std::string &name)
   if (name == "LocalPolMon1")
   {
     // xpos (-1) negative: do not draw menu bar
-    TC[0] = new TCanvas(name.c_str(), "EXPERT - LocalPolMon Asymmetries", -1 , 0, xsize , ysize * 0.9);
+    TC[0] = new TCanvas(name.c_str(), "LocalPolMon Asymmetries", -1 , 0, xsize , ysize * 0.9);
     // root is pathetic, whenever a new TCanvas is created root piles up
     // 6kb worth of X11 events which need to be cleared with
     // gSystem->ProcessEvents(), otherwise your process will grow and
