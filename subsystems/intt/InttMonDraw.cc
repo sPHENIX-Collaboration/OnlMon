@@ -74,7 +74,8 @@ int InttMonDraw::Draw(const std::string& what)
     ++idraw;
   }
 
-  if (what == "ALL" || what == "bco_diff")
+  // if (what == "ALL" || what == "bco_diff")
+  if (what == "bco_diff")
   {
     iret += Draw_FelixBcoFphxBco();
     ++idraw;
@@ -104,13 +105,15 @@ int InttMonDraw::Draw(const std::string& what)
     ++idraw;
   }
 
-  if (what == "ALL" || what == "history")
+  // if (what == "ALL" || what == "history")
+  if (what == "history")
   {
     iret += Draw_History();
     ++idraw;
   }
 
-  if (what == "ALL" || what == "timing_okay")
+  // if (what == "ALL" || what == "timing_okay")
+  if (what == "timing_okay")
   {
     iret += Draw_TimingOkay();
     ++idraw;
