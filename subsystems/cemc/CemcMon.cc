@@ -38,7 +38,7 @@ enum
   FILLMESSAGE = 2
 };
 
-const int depth = 50000;
+const int depth = 300000;
 // const int historyLength = 100;
 // const float hit_threshold = 100;
 const float hit_threshold = 50;
