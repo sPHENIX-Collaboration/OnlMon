@@ -9,6 +9,7 @@
 #include <TGraph.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TLegend.h>
 #include <TLine.h>
 #include <TPad.h>
 #include <TROOT.h>
@@ -189,6 +190,32 @@ int GL1MonDraw::MakeCanvas(const std::string &name)
     transparent[canvasindex]->Draw();
     TC[canvasindex]->SetEditable(false);
   }
+  if (name == "GL1MonTimeToLastEvent")
+  {
+    int canvasindex = 4;
+    // xpos (-1) negative: do not draw menu bar
+    TC[canvasindex] = new TCanvas(name.c_str(), "Time To Last Event", -1, 0, xsize, ysize);
+    // root is pathetic, whenever a new TCanvas is created root piles up
+    // 6kb worth of X11 events which need to be cleared with
+    // gSystem->ProcessEvents(), otherwise your process will grow and
+    // grow and grow but will not show a definitely lost memory leak
+    gSystem->ProcessEvents();
+    for (int i = 0; i < 2; i++)
+    {
+      double xlow = 0;
+      double xhigh = 1.;
+      double ylow = 0 + (0.45 *i);
+      double yhigh = ylow + 0.45;
+      std::string padname = "gl1pad_ttl" + std::to_string(i);
+      ttlPad[i] = new TPad(padname.c_str(), "who needs this?", xlow, ylow, xhigh, yhigh, 0);
+      ttlPad[i]->Draw();
+    }
+    // this one is used to plot the run number on the canvas
+    transparent[canvasindex] = new TPad("transparent4", "this does not show", 0, 0, 1, 1);
+    transparent[canvasindex]->SetFillStyle(4000);
+    transparent[canvasindex]->Draw();
+    TC[canvasindex]->SetEditable(false);
+  }
   oldStyle->cd();
   return 0;
 }
@@ -216,6 +243,11 @@ int GL1MonDraw::Draw(const std::string &what)
   if (what == "ALL" || what == "REJECTION")
   {
     iret += DrawRejection();
+    idraw++;
+  }
+  if (what == "ALL" || what == "TIMETOLASTEVENT")
+  {
+    iret += DrawTimeToLastEvent();
     idraw++;
   }
   if (what == "ALL" || what == "SERVERSTATS")
@@ -267,12 +299,12 @@ int GL1MonDraw::DrawScaled(const std::string & /* what */)
       // std::cout << "ipad: " << ipad << " trigger no: " << i << " trigger: "
       // 		  << m_TrignameArray[i] << std::endl;
       if (ipad > 27)
-	{
-	  std::cout << "ipad: " << ipad << " trigger: "
-		    << m_TrignameArray[i] << std::endl;
-	  ipad++;
-	  continue;
-	}
+      {
+	std::cout << "ipad: " << ipad << " trigger: "
+		  << m_TrignameArray[i] << std::endl;
+	ipad++;
+	continue;
+      }
       TH1 *abortgap = (TH1 *) hist1->Clone();
       TH1 *forbidden = (TH1 *) hist1->Clone();
       abortgap->SetFillColor(6);
@@ -414,9 +446,9 @@ int GL1MonDraw::DrawLive(const std::string & /* what */)
 	&& i != 36
 	&& i != 37
 	&& i != 38)
-      {
-	continue;
-      }
+    {
+      continue;
+    }
     if (hist1->GetMaximum() > 0 && ipad < 28)
     {
       // std::cout << "ipad: " << ipad << " trigger no: " << i << " trigger: "
@@ -569,7 +601,7 @@ int GL1MonDraw::DrawRejection()
           ymax = std::max(ymax,y_bad[ibad_bin]);
           ymin = std::min(ymin,y_bad[ibad_bin]);
           ibad_bin++;
-	      }
+	}
       }
       delete reject_graph_good[i];
       delete reject_graph_bad[i];
@@ -577,11 +609,11 @@ int GL1MonDraw::DrawRejection()
       reject_graph_bad[i] = nullptr;
       if (igood_bin > 0)
       {
-	      reject_graph_good[i] = new TGraph(igood_bin, x_good, y_good);
+	reject_graph_good[i] = new TGraph(igood_bin, x_good, y_good);
       }
       if (ibad_bin > 0)
       {
-	      reject_graph_bad[i] = new TGraph(ibad_bin, x_bad, y_bad);
+	reject_graph_bad[i] = new TGraph(ibad_bin, x_bad, y_bad);
       }
       TH2 *h2 = new TH2F("h2", Form("%s (%d)" , m_TrignameArray[trigno].c_str(), trigno ) , 1, 0, xmax + 50, 1, 0, ymax+ymax/5.);
       h2->SetStats(0);
@@ -649,6 +681,112 @@ int GL1MonDraw::DrawRejection()
   return 0;
 }
 
+int GL1MonDraw::DrawTimeToLastEvent()
+{
+  OnlMonClient *cl = OnlMonClient::instance();
+  if (!gROOT->FindObject("GL1MonTimeToLastEvent"))
+  {
+    MakeCanvas("GL1MonTimeToLastEvent");
+  }
+  TC[4]->SetEditable(true);
+  TC[4]->Clear("D");
+  TText title;
+  title.SetNDC();
+  title.SetTextAlign(23);
+  title.SetTextColor(4);
+  title.SetTextSize(0.1);
+  TH1 *hist1 = cl->getHisto("GL1MON_0","gl1_timetolastevent0");
+  ttlPad[1]->cd();
+  hist1->SetStats(0);
+  hist1->SetTitle("");
+  hist1->SetXTitle("Ticks");
+  hist1->SetYTitle("Events");
+  hist1->GetXaxis()->SetLabelSize(0.06);
+  hist1->GetXaxis()->SetTitleSize(0.055);
+  hist1->GetXaxis()->SetTitleOffset(1.1);
+
+  hist1->GetYaxis()->SetLabelSize(0.06);
+  hist1->GetYaxis()->SetTitleSize(0.06);
+  hist1->GetYaxis()->SetTitleOffset(0.5);
+  hist1->DrawCopy();
+  title.SetTextColor(4);
+  title.SetTextSize(0.1);
+  title.DrawText(0.5, 0.99, "Ticks to previous Event");
+
+  ttlPad[0]->cd();
+  int colors[5] = {7,1,2,3,4};
+  std::string legentry[5] = {"none","prev evt","prev-1 evt","prev-2 evt", "prev-3 evt"};
+  double ymax = 0.;
+  for (int i = 4; i > 0; i--)
+  {
+    std::string hname = "gl1_timetolastevent" + std::to_string(i);
+    hist1 = cl->getHisto("GL1MON_0", hname);
+    ymax = std::max(ymax,hist1->GetMaximum());
+  }
+  ymax = ymax + ymax/10.; // add 10%
+  TLegend* leg = new TLegend(0.68,0.68,0.88,0.88);
+  for (int i = 1; i < 5; i++)
+  {
+    std::string hname = "gl1_timetolastevent" + std::to_string(i);
+    hist1 = cl->getHisto("GL1MON_0", hname);
+    if (!hist1)
+    {
+      DrawDeadServer(transparent[4]);
+      TC[4]->SetEditable(false);
+      return -1;
+    }
+    hist1->SetMaximum(ymax);
+    hist1->SetStats(0);
+    hist1->SetXTitle("Ticks");
+    hist1->SetYTitle("Events");
+    hist1->GetXaxis()->SetLabelSize(0.06);
+    hist1->GetXaxis()->SetTitleSize(0.055);
+    hist1->GetXaxis()->SetTitleOffset(1.1);
+
+    hist1->GetYaxis()->SetLabelSize(0.06);
+    hist1->GetYaxis()->SetTitleSize(0.06);
+    hist1->GetYaxis()->SetTitleOffset(0.45);
+    hist1->SetTitle("");
+    hist1->SetLineColor(colors[i]);
+    leg->AddEntry(hist1, legentry[i].c_str(),"l");
+    if (i>1)
+    {
+      hist1->DrawCopy("same");
+    }
+    else
+    {
+      hist1->DrawCopy();
+    }
+  }
+  title.SetTextColor(4);
+  title.SetTextSize(0.1);
+  title.DrawText(0.5, 0.99, "Ticks to last Event");
+//  leg->AddEntry(h_adc_north,"North","l");
+  leg->SetFillStyle(0);
+  leg->Draw();
+
+  // else
+  TText PrintRun;
+  PrintRun.SetTextFont(62);
+  PrintRun.SetTextSize(0.04);
+  PrintRun.SetNDC();          // set to normalized coordinates
+  PrintRun.SetTextAlign(23);  // center/top alignment
+  std::ostringstream runnostream;
+  std::string runstring;
+  std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
+  // fill run number and event time into string
+  runnostream << "GL1 Scaled Trigger Run:" << cl->RunNumber()
+              << ", Time: " << ctime(&evttime.first);
+  runstring = runnostream.str();
+  transparent[4]->cd();
+  PrintRun.SetTextColor(evttime.second);
+  PrintRun.DrawText(0.5, 1., runstring.c_str());
+  TC[4]->Update();
+  TC[4]->Show();
+  TC[4]->SetEditable(false);
+  return 0;
+}
+
 int GL1MonDraw::SavePlot(const std::string &what, const std::string &type)
 {
   OnlMonClient *cl = OnlMonClient::instance();
@@ -666,7 +804,7 @@ int GL1MonDraw::SavePlot(const std::string &what, const std::string &type)
     }
     icnt++;
     std::string filename = ThisName + "_" + std::to_string(icnt) + "_" +
-                           std::to_string(cl->RunNumber()) + "." + type;
+      std::to_string(cl->RunNumber()) + "." + type;
     cl->CanvasToPng(canvas, filename);
   }
   return 0;
