@@ -75,7 +75,8 @@ int HcalMonDraw::Init()
   char TEMPFILENAME[100];
   const char* hcalcalib = getenv("HCALCALIB");
 
-  sprintf(TEMPFILENAME, "%s/%s_79712.root", hcalcalib, prefix.c_str());
+
+  sprintf(TEMPFILENAME, "%s/%s_81167.root", hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
@@ -530,6 +531,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   hist1->Add(hist1_1);
   bool iscosmic = false;
+  bool isearly = false;
 
   std::set<int> hcal_cosmic_bits = {TriggerEnum::BitCodes::RANDOM,
                                     TriggerEnum::BitCodes::HCAL_SINGLES,
@@ -537,6 +539,17 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
                                     TriggerEnum::BitCodes::HCAL_WIDE_VERT,
                                     TriggerEnum::BitCodes::HCAL_NARROW_HORZ,
                                     TriggerEnum::BitCodes::HCAL_WIDE_HORZ};
+
+
+  int mbd_count = h_hcal_trig->GetBinContent(TriggerEnum::BitCodes::MBD_NS1_ZVRTX10+1);
+  int total_count = h_hcal_trig->Integral();
+
+  float mbd_frac = mbd_count / total_count;
+
+  if (mbd_frac < 0.1)
+  {
+    isearly = true;
+  }
 
   for (auto bit : hcal_cosmic_bits)
   {
@@ -550,6 +563,10 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   if (iscosmic)
   {
     hist1->Divide(h2_mean_template_cosmic);
+  }
+  else if (isearly)
+  {
+    hist1->Divide(h2_mean_template_early);
   }
   else
   {
