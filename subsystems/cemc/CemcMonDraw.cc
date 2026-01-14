@@ -614,7 +614,7 @@ int CemcMonDraw::DrawFirst(const std::string & /* what */)
   std::string runstring;
   std::pair<time_t, int> evttime = cl->EventTime("CURRENT");
   // fill run number and event time into string
-  runnostream << ThisName << ": tower occupancy running mean/template";
+  runnostream << ThisName << ": tower occupancy running mean/template with MB trigger";
   runnostream2 << " threshold: 50ADC, Run " << cl->RunNumber() << ", Event: " << avgevents;
   runnostream3 << "Time: " << ctime(&evttime.first);
 

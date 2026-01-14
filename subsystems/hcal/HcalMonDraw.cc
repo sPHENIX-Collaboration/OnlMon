@@ -686,8 +686,9 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
   {
     threshold = 1000;
   }
-  // fill run number and event time into string
-  runnostream << ThisName << ": tower occupancy running mean/template with all trigger";
+  // fill run number and event time into 
+  std::string template_name = iscosmic ? "cosmic" : isearly ? "early store" : "normal";
+  runnostream << ThisName << ": tower occupancy running mean/template(" << template_name << ") all triggers";
   runnostream2 << " threshold: " << threshold << "ADC, Run " << cl->RunNumber() << ", Event: " << avgevents;
   runnostream3 << "Time: " << ctime(&evttime.first);
 
