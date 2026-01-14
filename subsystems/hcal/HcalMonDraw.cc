@@ -84,11 +84,11 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not open file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-  h2_mean_template = (TH2*) tempfile->Get("h2_hcal_hits_template");
+  h2_mean_template = (TH2*) tempfile->Get("h2_hcal_hits");
 
   if (!h2_mean_template)
   {
-    std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template in file " << TEMPFILENAME << std::endl;
+    std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_hcal_hits in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
   sprintf(TEMPFILENAME, "%s/%s_cosmic_63461_1000ADC.root", hcalcalib, prefix.c_str());
@@ -105,14 +105,19 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template_cosmic in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-  sprintf(TEMPFILENAME, "%s/%s_81167.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_81161.root", hcalcalib, prefix.c_str());
   TFile* tempfile3 = new TFile(TEMPFILENAME, "READ");
   if (!tempfile3->IsOpen())
   {
     std::cout << "HcalMonDraw::Init() ERROR: Could not open file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-  h2_mean_template_early = (TH2*) tempfile3->Get("h2_hcal_hits_template_early");
+  h2_mean_template_early = (TH2*) tempfile3->Get("h2_hcal_hits");
+  if (!h2_mean_template_early)
+  {
+    std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_hcal_hits in file " << TEMPFILENAME << std::endl;
+    exit(1);
+  }
   h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
