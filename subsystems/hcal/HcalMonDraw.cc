@@ -104,7 +104,6 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template_cosmic in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-<<<<<<< HEAD
   sprintf(TEMPFILENAME, "%s/%s_81161.root", hcalcalib, prefix.c_str());
   TFile* tempfile3 = new TFile(TEMPFILENAME, "READ");
   if (!tempfile3->IsOpen())
@@ -118,9 +117,6 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_hcal_hits in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-=======
-
->>>>>>> 7ce90f2f48499ae143d625b108d748779e237f61
   h1_zs = new TH1F("h1_zs", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_low = new TH1F("h1_zs_low", "unsuppressed rate ", 100, 0, 1.1);
   h1_zs_high = new TH1F("h1_zs_high", "unsuppressed rate ", 100, 0, 1.1);
