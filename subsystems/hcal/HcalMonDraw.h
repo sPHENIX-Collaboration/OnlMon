@@ -74,7 +74,6 @@ class HcalMonDraw : public OnlMonDraw
   TPad* Pad[30] {nullptr};
   TPad* warning[28] {nullptr};
   TH2* h2_mean_template {nullptr};
-  TH2* h2_mean_template_early {nullptr};
   TH2* h2_mean_template_cosmic {nullptr};
   TH2 *h2_noiserms{nullptr};
   TProfile2D *p2_noiserms{nullptr};
