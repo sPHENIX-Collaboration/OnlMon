@@ -541,8 +541,8 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
                                     TriggerEnum::BitCodes::HCAL_WIDE_HORZ};
 
 
-  int mbd_count = h_hcal_trig->GetBinContent(TriggerEnum::BitCodes::MBD_NS1_ZVRTX10+1);
-  int total_count = h_hcal_trig->Integral();
+  float mbd_count = h_hcal_trig->GetBinContent(TriggerEnum::BitCodes::MBD_NS1_ZVRTX10+1);
+  float total_count = h_hcal_trig->Integral();
 
   float mbd_frac = mbd_count / total_count;
 
