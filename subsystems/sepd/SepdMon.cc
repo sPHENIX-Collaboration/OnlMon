@@ -106,7 +106,8 @@ int SepdMon::Init()
 
   int nADCcorr = 500;
   //double ADCcorrmax = 6e6; // AuAu
-  double ADCcorrmax = 2e4; // pp
+  //double ADCcorrmax = 2e4; // pp
+  double ADCcorrmax = 2e6; // OO
   int nhitscorr = 500;
   double hitscorrmax = 1000;
   h_ADC_corr = new TH2F("h_ADC_corr", ";ADC sum (south); ADC sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
@@ -423,6 +424,7 @@ int SepdMon::process_event(Event *e /* evt */)
         // --- Run24pp
         //bool is_good_hit = ( signalFast > 50 && signalFast < 3000 );
         // --- Run25AuAu
+        // --- Run25OO using same to start
         bool is_good_hit = ( signalFast > 50 && signalFast < 15000 );
 
         // std::vector<float> resultTemp = anaWaveformTemp(p, c);  // template waveform fitting
@@ -490,7 +492,7 @@ int SepdMon::process_event(Event *e /* evt */)
   h1_waveform_twrAvg->Scale((float) 1 / ChannelNumber);
 
   // --- need to make a trigger selection?
-  // --- yes in AuAu, no in pp
+  // --- yes in AuAu, no in pp, leaving out to start in OO
   //  if ( is_trigger_okay )
   //    {
   h_ADC_corr->Fill(sumADC_s, sumADC_n);
