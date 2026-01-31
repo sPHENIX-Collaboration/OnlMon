@@ -65,14 +65,10 @@ void StartPoms()
    subsys->AddAction("gl1Draw(\"SCALED\")", "Scaled Triggers");
    subsys->AddAction("gl1Draw(\"LIVE\")", "Live Triggers [Expert]");
    subsys->AddAction("gl1Draw(\"REJECTION\")", "Rejection [Expert]");
+   subsys->AddAction("gl1Draw(\"TIMETOLASTEVENT\")", "Time to Prev Evts [Expert]");
    subsys->AddAction("gl1Draw(\"SERVERSTATS\")", "Server Stats");
    subsys->AddAction(new SubSystemActionSavePlot(subsys));
    pmf->RegisterSubSystem(subsys);
-
-   // subsys = new SubSystem("SPIN", "spin");
-   // subsys->AddAction("spinDraw(\"THIRD\")", "The Old Abort Gap");
-   // subsys->AddAction(new SubSystemActionSavePlot(subsys));
-   // pmf->RegisterSubSystem(subsys);
 
   subsys = new SubSystem("Inner HCAL", "ihcal");
   subsys->AddAction("ihcalDraw(\"FIRST\")", "Towers");
@@ -245,26 +241,26 @@ void StartPoms()
   subsys->AddAction(new SubSystemActionSavePlot(subsys));
   pmf->RegisterSubSystem(subsys);
 
-  subsys = new SubSystem("Spin", "spin");
-  subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
-  subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
-  subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // subsys = new SubSystem("Spin", "spin");
+  // subsys->AddAction("spinDraw(\"FIRST\")", "Spin");
+  // subsys->AddAction("spinDraw(\"SECOND\")", "GL1p");
+  // subsys->AddAction("spinDraw(\"THIRD\")", "Abort Gap");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
 
-  subsys = new SubSystem("LOCALPOL", "localpol");
-  subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries [expert]");
-  subsys->AddAction("localpolDraw(\"SECOND\")", "Polarisation direction [expert]");
-  subsys->AddAction("localpolDraw(\"THIRD\")", "Spin pattern [expert]");
-  subsys->AddAction("localpolDraw(\"FOURTH\")", "Trigger [expert]");
-  subsys->AddAction("localpolDraw(\"FIFTH\")", "SMD [expert]");
-  subsys->AddAction("localpolDraw(\"SIXTH\")", "waveforms [expert]");
-  subsys->AddAction("localpolDraw(\"SEVENTH\")", "ZDC/GL1 matching [expert]");
-  subsys->AddAction("localpolDraw(\"EIGHTH\")", "SMD 2D distributions [expert]");
-  subsys->AddAction("localpolDraw(\"NINTH\")", "SMD 2D distributions [expert]");
-  subsys->AddAction(new SubSystemActionSavePlot(subsys));
-  pmf->RegisterSubSystem(subsys);
+  // subsys = new SubSystem("LOCALPOL", "localpol");
+  // subsys->AddAction("localpolDraw(\"FIRST\")", "Asymmetries [expert]");
+  // subsys->AddAction("localpolDraw(\"SECOND\")", "Polarisation direction [expert]");
+  // subsys->AddAction("localpolDraw(\"THIRD\")", "Spin pattern [expert]");
+  // subsys->AddAction("localpolDraw(\"FOURTH\")", "Trigger [expert]");
+  // subsys->AddAction("localpolDraw(\"FIFTH\")", "SMD [expert]");
+  // subsys->AddAction("localpolDraw(\"SIXTH\")", "waveforms [expert]");
+  // subsys->AddAction("localpolDraw(\"SEVENTH\")", "ZDC/GL1 matching [expert]");
+  // subsys->AddAction("localpolDraw(\"EIGHTH\")", "SMD 2D distributions [expert]");
+  // subsys->AddAction("localpolDraw(\"NINTH\")", "SMD 2D distributions [expert]");
+  // subsys->AddAction(new SubSystemActionSavePlot(subsys));
+  // pmf->RegisterSubSystem(subsys);
 
 
 
