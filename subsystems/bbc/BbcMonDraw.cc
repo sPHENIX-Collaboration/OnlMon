@@ -250,10 +250,12 @@ BbcMonDraw::~BbcMonDraw()
   ifdelete(TextZvtxStatus[2]);
   ifdelete(TextZvtxStatus[3]);
 
-  for (auto &icv : TC)
-  {
-    ifdelete(icv);
-  }
+  // segfaults since root does not set these pointers to zero
+  // when canvas is deleted
+  // for (auto &icv : TC)
+  // {
+  //   ifdelete(icv);
+  // }
 
   ifdelete(Prescale_hist);
   ifdelete(tspec);
