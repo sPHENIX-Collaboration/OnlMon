@@ -766,7 +766,7 @@ int SepdMonDraw::DrawFourth(const std::string & /* what */)
   Pad[6]->cd();
   gStyle->SetTitleFontSize(0.03);
   float ymaxp = h2_sepd_waveform->ProfileX()->GetMaximum();
-  float ymaxdraw = ymaxp * 10; // was originally 20, but that is too much
+  float ymaxdraw = ymaxp * 15; // was originally 20, but that was too much, but then 10 was too little...
   h2_sepd_waveform->GetYaxis()->SetRangeUser(0,ymaxdraw); // should work for AuAu and pp and OO
   h2_sepd_waveform->GetXaxis()->SetRangeUser(0, 11);
   h2_sepd_waveform->Draw("colz");
