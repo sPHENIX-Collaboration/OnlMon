@@ -76,7 +76,7 @@ int HcalMonDraw::Init()
   const char* hcalcalib = getenv("HCALCALIB");
 
 
-  sprintf(TEMPFILENAME, "%s/%s_81167.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_82400.root", hcalcalib, prefix.c_str());
 
   TFile* tempfile = new TFile(TEMPFILENAME, "READ");
   if (!tempfile->IsOpen())
@@ -105,7 +105,7 @@ int HcalMonDraw::Init()
     std::cout << "HcalMonDraw::Init() ERROR: Could not find histogram h2_mean_template_cosmic in file " << TEMPFILENAME << std::endl;
     exit(1);
   }
-  sprintf(TEMPFILENAME, "%s/%s_81161.root", hcalcalib, prefix.c_str());
+  sprintf(TEMPFILENAME, "%s/%s_82400.root", hcalcalib, prefix.c_str());
   TFile* tempfile3 = new TFile(TEMPFILENAME, "READ");
   if (!tempfile3->IsOpen())
   {
@@ -785,7 +785,8 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   hist1->GetXaxis()->SetTickLength(0.02);
 
   //hist1->GetZaxis()->SetRangeUser(0, 0.5);// this is for Au-Au
-  hist1->GetZaxis()->SetRangeUser(0, 0.015);// this is for pp
+  //hist1->GetZaxis()->SetRangeUser(0, 0.015);// this is for pp
+  hist1->GetZaxis()->SetRangeUser(0, 0.1);// this is for OO
 
   gPad->SetTopMargin(0.08);
   gPad->SetBottomMargin(0.07);
