@@ -785,7 +785,8 @@ int HcalMonDraw::DrawAllTrigHits(const std::string& /* what */)
   hist1->GetXaxis()->SetTickLength(0.02);
 
   //hist1->GetZaxis()->SetRangeUser(0, 0.5);// this is for Au-Au
-  hist1->GetZaxis()->SetRangeUser(0, 0.015);// this is for pp
+  //hist1->GetZaxis()->SetRangeUser(0, 0.015);// this is for pp
+  hist1->GetZaxis()->SetRangeUser(0, 0.1);// this is for OO
 
   gPad->SetTopMargin(0.08);
   gPad->SetBottomMargin(0.07);
