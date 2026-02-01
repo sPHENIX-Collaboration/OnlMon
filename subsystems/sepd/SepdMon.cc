@@ -107,7 +107,7 @@ int SepdMon::Init()
   int nADCcorr = 500;
   //double ADCcorrmax = 6e6; // AuAu
   //double ADCcorrmax = 2e4; // pp
-  double ADCcorrmax = 6e5; // OO
+  double ADCcorrmax = 2.5e5; // OO
   int nhitscorr = 500;
   double hitscorrmax = 1000;
   h_ADC_corr = new TH2F("h_ADC_corr", ";ADC sum (south); ADC sum (north)", nADCcorr, 0, ADCcorrmax, nADCcorr, 0, ADCcorrmax);
