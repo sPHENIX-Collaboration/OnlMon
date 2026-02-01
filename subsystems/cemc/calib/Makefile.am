@@ -29,4 +29,6 @@ cemcdata_DATA = \
   Template_79152_100ADC_alltrig.root \
   Template_79267_50ADC_alltrig.root \
   Template_79267_50ADC_hits.root \
+  Template_82400_50ADC_alltrig.root \
+  Template_82400_50ADC_hits.root \
   cemc_adcskipmask_40430.root
