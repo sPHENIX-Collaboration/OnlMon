@@ -74,20 +74,21 @@ int InttMonDraw::Draw(const std::string& what)
     ++idraw;
   }
 
-  // if (what == "ALL" || what == "bco_diff")
-  if (what == "bco_diff")
+  if (what == "ALL" || what == "bco_diff")
   {
     iret += Draw_FelixBcoFphxBco();
     ++idraw;
   }
 
-  if (what == "ALL" || what == "fphx_bco")
+  // if (what == "ALL" || what == "fphx_bco")
+  if (what == "fphx_bco")
   {
     iret += Draw_JustFphxBco();
     ++idraw;
   }
 
-  if (what == "ALL" || what == "zoomed_fphx_bco")
+  // if (what == "ALL" || what == "zoomed_fphx_bco")
+  if (what == "zoomed_fphx_bco")
   {
     iret += Draw_ZoomedFphxBco();
     ++idraw;
@@ -112,8 +113,7 @@ int InttMonDraw::Draw(const std::string& what)
     ++idraw;
   }
 
-  // if (what == "ALL" || what == "timing_okay")
-  if (what == "timing_okay")
+  if (what == "ALL" || what == "timing_okay")
   {
     iret += Draw_TimingOkay();
     ++idraw;
