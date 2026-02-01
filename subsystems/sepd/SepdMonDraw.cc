@@ -375,7 +375,8 @@ int SepdMonDraw::DrawFirst(const std::string & /* what */)
   // --- may need to update these depending on whether there are "hot" tiles
   double zmin = 0.0;
   //double zmax = 0.1; // pp
-  double zmax = 1.0; // AuAu and OO to start
+  //double zmax = 1.0; // AuAu
+  double zmax = 0.7; // OO first look
   //double zmax = 300;
   //double zmax = 1.1*h_ADC_all_channel->GetMaximum();
 
@@ -577,8 +578,8 @@ int SepdMonDraw::DrawThird_Expert(const std::string & /* what */)
   // h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6); // AuAu
   // h_ADC_corr->GetYaxis()->SetRangeUser(0,2e4); // pp
   // h_ADC_corr->GetXaxis()->SetRangeUser(0,2e4); // pp
-  h_ADC_corr->GetYaxis()->SetRangeUser(0,5e5); // OO lower ADC than AuAu
-  h_ADC_corr->GetXaxis()->SetRangeUser(0,5e5); // OO
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,2.5e5); // OO lower ADC than AuAu
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,2.5e5); // OO
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -668,8 +669,8 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   // h_ADC_corr->GetXaxis()->SetRangeUser(0,1.5e6); // AuAu
   // h_ADC_corr->GetYaxis()->SetRangeUser(0,2e4); // pp
   // h_ADC_corr->GetXaxis()->SetRangeUser(0,2e4); // pp
-  h_ADC_corr->GetYaxis()->SetRangeUser(0,5e5); // OO lower ADC than AuAu
-  h_ADC_corr->GetXaxis()->SetRangeUser(0,5e5); // OO
+  h_ADC_corr->GetYaxis()->SetRangeUser(0,2.5e5); // OO lower ADC than AuAu
+  h_ADC_corr->GetXaxis()->SetRangeUser(0,2.5e5); // OO
   h_ADC_corr->Draw("COLZ");
   // ---
   gPad->SetLogz();
@@ -690,7 +691,7 @@ int SepdMonDraw::DrawThird(const std::string & /* what */)
   h_adc_south->GetXaxis()->SetNdivisions(505);
   //h_adc_south->GetXaxis()->SetRangeUser(0,1.5e6); // AuAu
   // h_adc_south->GetXaxis()->SetRangeUser(0,2e4); // pp
-  h_adc_south->GetXaxis()->SetRangeUser(0,5e5); // pp
+  h_adc_south->GetXaxis()->SetRangeUser(0,2.5e5); // OO
   h_adc_south->GetXaxis()->SetTitle("ADC sum");
   h_adc_south->GetYaxis()->SetTitle("Counts");
   h_adc_south->Draw();
