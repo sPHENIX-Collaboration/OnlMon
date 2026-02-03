@@ -546,7 +546,7 @@ int HcalMonDraw::DrawFirst(const std::string& /* what */)
 
   float mbd_frac = mbd_count / total_count;
 
-  if (mbd_frac < 0.4)
+  if (mbd_frac < 0.3)
   {
     isearly = true;
   }
